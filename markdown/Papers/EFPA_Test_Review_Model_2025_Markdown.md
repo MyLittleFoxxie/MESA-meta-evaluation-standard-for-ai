@@ -145,7 +145,7 @@ In this part, unless otherwise indicated, select from those descriptions that th
 - [ ] Scholastic attainment
 - [ ] Sensorimotor
 - [ ] Verbal
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -161,7 +161,7 @@ In this part, unless otherwise indicated, select from those descriptions that th
 - [ ] Neurological
 - [ ] Sports and Leisure
 - [ ] Work and Organisational
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -185,7 +185,7 @@ In this part, unless otherwise indicated, select from those descriptions that th
 - [ ] HR Professionals
 - [ ] Specialist Teachers
 - [ ] Speech and Language Therapists
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -215,7 +215,7 @@ In this part, unless otherwise indicated, select from those descriptions that th
 - [ ] Paper and pencil
 - [ ] Touch screen
 - [ ] Specialist response device (describe): Free text
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -270,7 +270,7 @@ Other (describe): Free text
 - [ ] Task success in a real environment
 - Process Data Collection
 - [ ] Response latency
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -283,7 +283,7 @@ Other (describe): Free text
 - [ ] Sound
 - [ ] Video
 - [ ] Dynamic
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -325,7 +325,7 @@ Other (describe): Free text
 - [ ] Tablet
 - [ ] Proprietary apparatus
 - [ ] Paper and Pencil
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -395,7 +395,7 @@ Other (describe): Free text
 - [ ] Simple manual scoring
 - [ ] Complex manual scoring
 - [ ] Bureau service
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -413,18 +413,18 @@ Other (describe): Free text
 - [ ] Centiles
 - [ ] 5-grade classification: 10:20:40:20:10 centile splits
 - [ ] Deciles
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 - Standard Scores
 - [ ] IQ deviation quotients etc. (e.g., mean 100, SD=15)
 - [ ] Stanines
 - [ ] Stens
 - [ ] T-scores
 - [ ] Z-scores
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
       Other
 - [ ] Critical scores, expectancy tables or other specific decision-oriented indices
 - [ ] Raw score use only
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -492,7 +492,7 @@ Scores are normalised when a non-linear transformation is applied to make a prev
 - [ ] Factor-based: where the report is constructed around higher order factors such as the Big Five in a personality measure.
 - [ ] Pattern-based: e.g., descriptions of patterns and configurations of scale scores, and scale interactions.
 - [ ] Scale-based: e.g., a list of paragraphs giving scale descriptions.
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -515,7 +515,7 @@ Scores are normalised when a non-linear transformation is applied to make a prev
 - [ ] Based on expert judgement of one expert
 - [ ] Artificial Intelligence generated based on empirical/actuarial relationships
 - [ ] Artificial Intelligence generated based on corpus of clinical judgement of expert(s)
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -547,7 +547,7 @@ Scores are normalised when a non-linear transformation is applied to make a prev
 - [ ] Questions for consideration
 - [ ] Suggested future points
 - [ ] Suggested discussion points
-- [ ] Others (describe): Free text
+- [ ] Others, describe: Click or tap here to enter text.
 
 ---
 
@@ -562,7 +562,7 @@ Scores are normalised when a non-linear transformation is applied to make a prev
 - [ ] Qualified system users
 - [ ] Test takers
 - [ ] Third parties
-- [ ] Others (describe): Free text
+- [ ] Others, describe: Click or tap here to enter text.
 
 ---
 
@@ -576,7 +576,7 @@ Scores are normalised when a non-linear transformation is applied to make a prev
 - [ ] Supplementary technical information and updates (e.g., local norms, local validation studies etc.)
 - [ ] Books and articles of related interest
 - [ ] Discussion/User groups
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -586,7 +586,7 @@ Scores are normalised when a non-linear transformation is applied to make a prev
 - [ ] Website
 - [ ] Downloadable documents
 - [ ] Print documents
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ---
 
@@ -636,12 +636,12 @@ Any instrument rated with one or more [ 0 ] or [ 1 ] ratings in attributes that 
 
 | Rating    | Meaning                                |
 | --------- | -------------------------------------- |
-| **[n/a]** | Not applicable                         |
-| **[0]**   | Cannot rate (insufficient information) |
-| **[1]**   | Inadequate                             |
-| **[2]**   | Adequate                               |
-| **[3]**   | Good                                   |
-| **[4]**   | Excellent                              |
+| **[n/a]** | This attribute is not applicable to this instrument |
+| **[ 0 ]** | Not possible to rate as no, or insufficient information is provided |
+| **[ 1 ]** | Inadequate |
+| **[ 2 ]** | Adequate |
+| **[ 3 ]** | Good |
+| **[ 4 ]** | Excellent |
 
 ---
 
@@ -734,7 +734,7 @@ This sub-section relates to the procedures followed in the development of the in
 - [ ] IRT guessing parameter (c)
 - [ ] Distractor functioning (e.g., frequency and mean scores per option)
 - [ ] Differential item functioning (e.g., Logistic Regression, Mantel-Haenszel)
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 - [ ] No specific indices reported
 
 ---
@@ -744,11 +744,11 @@ This sub-section relates to the procedures followed in the development of the in
 - To what extent is the item analysis methodology clearly described and appropriate for the test's purpose?
 - Rating
   - Not applicable (n/a)
-  - No or insufficient presentation of item analysis results, whether conducted or not (0)
-  - No or insufficient presentation of item analysis results, whether conducted or not (1)
+  - No item analysis described whether conducted or not. (0)
+  - Inadequate (1)
   - Adequate (2)
   - Good (3)
-  - Excellent: items show a good spread of difficulty/locations for the intended sample, enough variability and high discrimination (e.g., > .30 based on CTT) and satisfactory construct breadth. Note that very high correlations may mean that items are more or less synonymous and that the concept measured may be very narrow. In maximum performance, multiple choice items, distractors work as intended. For multi-scale instruments absence of unexpected cross-loadings.
+  - Excellent: analysis includes discriminative power, location or difficulty indicators, construct breadth, and aligns with test type (e.g., polytomous, adaptive). In maximum performance multiple choice items, distractor analysis is carried out. (4)
 
 ---
 
@@ -756,11 +756,11 @@ This sub-section relates to the procedures followed in the development of the in
 
 - Rating
   - Not applicable (n/a)
-  - No or insufficient results (0)
-  - Inadequate: low discrimination, ceiling/floor effects (1)
+  - No or insufficient presentation of item analysis results, whether conducted or not (0)
+  - Inadequate: items with negative or very low discrimination (below .20); extreme ceiling or floor effects. (1)
   - Adequate (2)
   - Good (3)
-  - Excellent: : items show a good spread of difficulty/locations for the intended sample, enough variability and high discrimination (e.g., > .30 based on CTT) and satisfactory construct breadth. Note that very high correlations may mean that items are more or less synonymous and that the concept measured may be very narrow. In maximum performance, multiple choice items, distractors work as intended. For multi-scale instruments absence of unexpected cross-loadings. (4)
+  - Excellent: items show a good spread of difficulty/locations for the intended sample, enough variability and high discrimination (e.g., > .30 based on CTT) and satisfactory construct breadth. Note that very high correlations may mean that items are more or less synonymous and that the concept measured may be very narrow. In maximum performance, multiple choice items, distractors work as intended. For multi-scale instruments absence of unexpected cross-loadings. (4)
 
 ---
 
@@ -1092,12 +1092,12 @@ Note that for adapted tests only local (nationally based) or actual internationa
 
 **Rating:**
 
-- [ ] **Not applicable to this instrument [n/a]**
-- [ ] **No information is provided [0]**
-- [ ] **Not locally relevant [1]:** (e.g., inappropriate foreign or international samples)
-- [ ] **Usable with caution [2]:** Sample(s) that do(es) not fit completely with the relevant application domain but could be used with caution.
-- [ ] **Good relevance [3]:** Local country samples (or relevant international samples where international comparison is required) with good relevance.
-- [ ] **Excellent: well-defined populations [4]:** Local country samples drawn from well-defined populations from the relevant application domain.
+- [ ] Not applicable to this instrument [n/a]
+- [ ] No information is provided [0]
+- [ ] Not locally relevant (e.g., inappropriate foreign or international samples) [1]
+- [ ] Sample(s) that do(es) not fit completely with the relevant application domain but could be used with caution (may include international samples where it is reasonable to assume only minor impact of language or culture) [2]
+- [ ] Local country samples (or relevant international samples where international comparison is required) with good relevance for intended application [3]
+- [ ] Local country samples (or relevant international samples where international comparison is required) drawn from well-defined populations from the relevant application domain [4]
 
 ### 8.1.2 Representativeness of the norm sample(s)
 
@@ -1107,12 +1107,12 @@ A norm group must be representative of the reference group. A sample can be cons
 
 **Rating:**
 
-- [ ] **Not applicable [n/a]**
-- [ ] **No information given [0]**
-- [ ] **Inadequate representativeness [1]:** Representativeness cannot be adequately established.
-- [ ] **Adequate [2]**
-- [ ] **Good [3]**
-- [ ] **Excellent: random sampling, strong representativeness [4]:** Data gathered via random sampling; thorough description of composition of sample and population provided.
+- [ ] Not applicable [n/a]
+- [ ] No information given [0]
+- [ ] Inadequate representativeness for the intended application domain or the representativeness cannot be adequately established with the information provided [1]
+- [ ] Adequate [2]
+- [ ] Good [3]
+- [ ] Excellent: data are gathered by means of a random sampling model; a thorough description of the composition of the sample(s) and the population(s) with respect to relevant background variables (such as gender, age, education, cultural background, occupation) is provided; good representativeness with regard to these variables is established [4]
 
 ### 8.1.3 Sample sizes
 
@@ -1120,25 +1120,27 @@ A norm group must be representative of the reference group. A sample can be cons
 
 For most purposes, samples of less than 200 test takers will be too small. The SE_mean for a z-score with N = 200 is 0.071 of the SD. Impact at the tails can be significant.
 
-| Level             | Low-stakes | High-stakes |
-| :---------------- | :--------- | :---------- |
-| **0. No info**    | No info    | No info     |
-| **1. Inadequate** | < 200      | 200-299     |
-| **2. Adequate**   | 200-299    | 300-399     |
-| **3. Good**       | 300-999    | 400-999     |
-| **4. Excellent**  | >= 1000    | >= 1000     |
+| Level | Low-stakes use | High-stakes decisions | Rating |
+| :--- | :--- | :--- | :--- |
+| Not applicable |  |  | n/a |
+| No information given |  |  | 0 |
+| Inadequate sample size | e.g., < 200 | e.g., 200-299 | 1 |
+| Adequate sample size | e.g., 200-299 | e.g., 300-399 | 2 |
+| Good sample size | e.g., 300-999 | e.g., 400-999 | 3 |
+| Excellent sample size | e.g., ≥ 1000 | e.g., ≥ 1000 | 4 |
 
 #### 8.1.3.2 Continuous norming
 
 Continuous norming is more efficient. When 8 sub-groups are used with N = 70 each, it provides accuracy equivalent to N = 200 in classical norming.
 
-| Level             | Low-stakes             | High-stakes            |
-| :---------------- | :--------------------- | :--------------------- |
-| **0. No info**    | No info                | No info                |
-| **1. Inadequate** | < 8 subgroups of 70    | 8 subgroups of 70-99   |
-| **2. Adequate**   | 8 subgroups of 70–99   | 8 subgroups of 100–149 |
-| **3. Good**       | 8 subgroups of 100-149 | 8 subgroups of >= 150  |
-| **4. Excellent**  | 8 subgroups of >= 150  | 8 subgroups of >= 200  |
+| Level | Low-stakes use | High-stakes decisions | Rating |
+| :--- | :--- | :--- | :--- |
+| Not applicable |  |  | n/a |
+| No information given |  |  | 0 |
+| Inadequate sample size | e.g., fewer than 8 subgroups with a maximum of 69 respondents each | e.g., 8 subgroups with 70 - 99 respondents each | 1 |
+| Adequate sample size | e.g., 8 subgroups with 70 - 99 respondents each | e.g., 8 subgroups with 100 - 149 respondents | 2 |
+| Good sample size | e.g., 8 subgroups with 100 - 149 respondents | e.g., 8 subgroups with at least 150 respondents each | 3 |
+| Excellent sample size | e.g., 8 subgroups with at least 150 respondents each | e.g., 8 subgroups with at least 200 respondents each | 4 |
 
 #### 8.1.3.3 Quality of modelling in continuous norming
 
@@ -1152,12 +1154,12 @@ If continuous norming is applied, the quality depends on the suitability of the 
 
 **Rating:**
 
-- [ ] **Not applicable [n/a]**
-- [ ] **No information [0]**
-- [ ] **Inadequate modelling [1]:** Procedures not appropriate or extrapolation used.
-- [ ] **Adequate [2]:** Appropriate procedures but little detail or fit checks.
-- [ ] **Good [3]:** Appropriate modelling and checks but some details missing.
-- [ ] **Excellent: strong modelling, validation, fit checks [4]**
+- [ ] Not applicable [n/a]
+- [ ] No information given [0]
+- [ ] Inadequate: modelling procedures are not appropriate or not well implemented or extrapolation beyond the observed data range [1]
+- [ ] Adequate: appropriate modelling procedures but little detail of process or inadequate checks for fit etc. [2]
+- [ ] Good: appropriate modelling procedures and model checks but some details missing [3]
+- [ ] Excellent: appropriate modelling procedures and good description showing how model suitability and fit was checked, and norms created [4]
 
 ### 8.1.4 Procedures used in sample selection
 
@@ -1235,9 +1237,9 @@ In the scientific literature there are no unequivocal standards for the interpre
 **Rating:**
 
 - [ ] **1 (Inadequate):** r < 0.60
-- [ ] **2 (Adequate):** 0.60 <= r < 0.70
-- [ ] **3 (Good):** 0.70 <= r < 0.80
-- [ ] **4 (Excellent):** r >= 0.80
+- [ ] **2 (Adequate):** 0.60 ≤ r < 0.70
+- [ ] **3 (Good):** 0.70 ≤ r < 0.80
+- [ ] **4 (Excellent):** r ≥ 0.80
 
 ### 8.2.2 Criterion-referenced norming (Empirical Research)
 
@@ -1605,7 +1607,7 @@ flowchart TD
 - [ ] Greatest lower bound
 - [ ] Omega (factor analysis)
 - [ ] Theta (factor analysis)
-- [ ] Other (describe): Free text
+- [ ] Other (describe): Click or tap here to enter text.
 
 ### 9.2.3 Size of coefficients
 
@@ -1614,9 +1616,9 @@ flowchart TD
 | Not applicable                    |                  | **[n/a]**    |          |
 | No information given              | [ ]              | **[ 0 ]**    | 0        |
 | Inadequate (e.g., r < 0.70)       | [ ]              | **[ 1 ]**    | 1        |
-| Adequate (e.g., 0.70 <= r < 0.80) | [ ]              | **[ 2 ]**    | 2        |
-| Good (e.g., 0.80 <= r < 0.90)     | [ ]              | **[ 3 ]**v   | 3        |
-| Excellent (e.g., r >= 0.90)       | [ ]              | **[ 4 ]**    | 4        |
+| Adequate (e.g., 0.70 ≤ r < 0.80) | [ ]              | **[ 2 ]**    | 2        |
+| Good (e.g., 0.80 ≤ r < 0.90)     | [ ]              | **[ 3 ]**    | 3        |
+| Excellent (e.g., r ≥ 0.90)       | [ ]              | **[ 4 ]**    | 4        |
 
 ### 9.2.4 Reliability coefficients are reported with samples which
 
@@ -1658,9 +1660,9 @@ flowchart TD
 | Not applicable                    |                  |              |
 | No information given              | [ ]              | 0            |
 | Inadequate (e.g., r < 0.60)       | [ ]              | 1            |
-| Adequate (e.g., 0.60 <= r < 0.70) | [ ]              | 2            |
-| Good (e.g., 0.70 <= r < 0.80)     | [ ]              | 3            |
-| Excellent (e.g., r >= 0.80)       | [ ]              | 4            |
+| Adequate (e.g., 0.60 ≤ r < 0.70) | [ ]              | 2            |
+| Good (e.g., 0.70 ≤ r < 0.80)     | [ ]              | 3            |
+| Excellent (e.g., r ≥ 0.80)       | [ ]              | 4            |
 
 ### 9.3.3 Data provided about the test-retest interval
 
@@ -1668,7 +1670,7 @@ Select or fill in test-retest interval
 
 - **[n/a]** Not applicable
 - **[ ]** No information given
-- **[ ]** The interval is: Free text
+- **[ ]** The interval is: Click or tap here to enter text.
 
 ### 9.3.4 Reliability coefficients match intended test takers
 
@@ -1677,9 +1679,9 @@ Select or fill in test-retest interval
 - **[n/a]** Not applicable
 - **[ ]** No information given
 - **[ ]** .... do not match the intended test takers, leading to more favourable coefficients (e.g., inflation by artificial heterogeneity)
-- **[ ]**.... do not match the intended test takers, but effect on size of coefficients is unclear
+- **[ ]** .... do not match the intended test takers, but effect on size of coefficients is unclear
 - **[ ]** .... do not match the intended test takers, leading to less favourable coefficients (e.g., reduction by restriction of range)
-- **[ ]** ...match intended test takers
+- **[ ]** .... match the intended test takers
 
 ---
 
@@ -1701,13 +1703,20 @@ Select or fill in test-retest interval
 | Not applicable                    |                  | [n/a]        |
 | No information given              | [ ]              | 0            |
 | Inadequate (e.g., r < 0.70)       | [ ]              | 1            |
-| Adequate (e.g., 0.70 <= r < 0.80) | [ ]              | 2            |
-| Good (e.g., 0.80 <= r < 0.90)     | [ ]              | 3            |
-| Excellent (e.g., r >= 0.90)       | [ ]              | 4            |
+| Adequate (e.g., 0.70 ≤ r < 0.80) | [ ]              | 2            |
+| Good (e.g., 0.80 ≤ r < 0.90)     | [ ]              | 3            |
+| Excellent (e.g., r ≥ 0.90)       | [ ]              | 4            |
 
 ### 9.4.3 Reliability coefficients match intended test takers
 
-**Select one: [n/a | No info | Do not match (fav) | Do not match (unclear) | Do not match (unfav) | Match]**
+**Select one**
+
+- **[n/a]** Not applicable
+- **[ ]** No information given
+- **[ ]** .... do not match the intended test takers, leading to more favourable coefficients (e.g. inflation by artificial heterogeneity)
+- **[ ]** .... do not match the intended test takers, but effect on size of coefficients is unclear
+- **[ ]** .... do not match the intended test takers, leading to less favourable coefficients (e.g. reduction by restriction of range)
+- **[ ]** .... match the intended test takers
 
 ---
 
@@ -1733,7 +1742,7 @@ Select or fill in test-retest interval
 - [ ] Rho
 - [ ] Information function
 - [ ] Conditional standard error of measurement
-- [ ] Others (describe): Free text
+- [ ] Others, describe: Click or tap here to enter text.
 
 ### 9.5.3 Size of coefficients based on final test length
 
@@ -1746,9 +1755,9 @@ Guidelines for the information function are based on: Information = 1 / SE squar
 | Not applicable                                         |                  | n/a          |
 | No information given                                   | [ ]              | 0            |
 | Inadequate (e.g., r < 0.70; information < 3.33)        | [ ]              | 1            |
-| Adequate (e.g., 0.70 <= r < 0.80; 3.33 <= info < 5.00) | [ ]              | 2            |
-| Good (e.g., 0.80 <= r < 0.90; 5.00 <= info < 10.00)    | [ ]              | 3            |
-| Excellent (e.g., r >= 0.90; information >= 10.00)      | [ ]              | 4            |
+| Adequate (e.g., 0.70 ≤ r < 0.80; 3.33 ≤ information < 5.00) | [ ]              | 2            |
+| Good (e.g., 0.80 ≤ r < 0.90; 5.00 ≤ information < 10.00)    | [ ]              | 3            |
+| Excellent (e.g., r ≥ 0.90; information ≥ 10.00)      | [ ]              | 4            |
 
 ---
 
@@ -1774,7 +1783,7 @@ Guidelines for the information function are based on: Information = 1 / SE squar
 - [ ] Coefficient Kappa
 - [ ] Intraclass Correlation
 - [ ] Coefficient Iota
-- [ ] Other
+- [ ] Other, describe: Click or tap here to enter text.
 
 ### 9.6.3 Size of coefficients
 
@@ -1783,9 +1792,9 @@ Guidelines for the information function are based on: Information = 1 / SE squar
 | Not applicable                    |                  | n/a          |
 | No information given              | [ ]              | 0            |
 | Inadequate (e.g., r < 0.60)       | [ ]              | 1            |
-| Adequate (e.g., 0.60 <= r < 0.70) | [ ]              | 2            |
-| Good (e.g., 0.70 <= r < 0.80)     | [ ]              | 3            |
-| Excellent (e.g., r >= 0.80)       | [ ]              | 4            |
+| Adequate (e.g., 0.60 ≤ r < 0.70) | [ ]              | 2            |
+| Good (e.g., 0.70 ≤ r < 0.80)     | [ ]              | 3            |
+| Excellent (e.g., r ≥ 0.80)       | [ ]              | 4            |
 
 ---
 
@@ -1809,14 +1818,14 @@ Guidelines for the information function are based on: Information = 1 / SE squar
 
 ### 9.7.2 Describe method
 
-Free text.
+Describe method: Click or tap here to enter text.
 
 ### 9.7.3 Results
 
 | Rating         | Number of scales (if applicable) | Median value |
 | :------------- | :------------------------------- | :----------- |
 | Not applicable |                                  | n/a          |
-| No info        | [ ]                              | 0            |
+| No information given | [ ]                              | 0            |
 | Inadequate     | [ ]                              | 1            |
 | Adequate       | [ ]                              | 2            |
 | Good           | [ ]                              | 3            |
