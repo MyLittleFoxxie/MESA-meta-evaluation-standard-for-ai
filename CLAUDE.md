@@ -42,12 +42,16 @@ When a benchmark makes broad intelligence or AGI-like claims, require evidence a
 ## Repository Layout
 
 - `README.md`: high-level project description and roadmap.
-- `markdown/Papers/EFPA_Test_Review_Model_2025_Markdown.md`: markdown transcription of the EFPA model.
-- `markdown/MESA EFPA template.md`: current unified MESA Part A + Part B adaptation template for AI benchmarks.
-- `markdown/MESA Part B literature synthesis.md`: compact mapping from EFPA Part B and local AI benchmark literature into MESA evaluative criteria.
-- `markdown/Papers/`: source literature and benchmark-quality papers.
+- `Papers/`: original PDF source library.
+- `markdown/literature/`: markdown literature corpus and paper transcriptions.
+- `markdown/literature/EFPA_Test_Review_Model_2025_Markdown.md`: markdown transcription of the EFPA model and source structure.
+- `markdown/MESA EFPA template official.md`: active unified MESA Part A + Part B adaptation template for AI benchmarks.
+- `markdown/pilots/`: pilot benchmark reviews, currently including Humanity's Last Exam and ARC-AGI-2.
+- `dist/hf_mesa_dataset/`: generated Hugging Face-style dataset export; use it as derived output, not the source of truth.
+- `tools/`: validation and utility scripts.
+- `reports/`: generated validation reports.
+- `.codex/agents/`: agent profiles, including `.codex/agents/research-assistant.md`.
 - `.codex/memory/`: durable project memory for agents.
-- `.codex/agents/research-assistant.md`: research assistant agent profile.
 
 ## Working Principles
 

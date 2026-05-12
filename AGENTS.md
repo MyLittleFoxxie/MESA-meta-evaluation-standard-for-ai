@@ -13,10 +13,15 @@ Read these files first for context:
 
 ## Source Boundaries
 
-- Treat `markdown/` as the literature corpus.
-- Treat `markdown/Papers/EFPA_Test_Review_Model_2025_Markdown.md` as the EFPA source structure.
-- Treat `markdown/MESA EFPA template.md` as the current MESA working template.
-- Do not overwrite papers, templates, or existing notes without explicit user approval.
+- Treat `Papers/` as the original PDF source library.
+- Treat `markdown/literature/` as the markdown literature corpus and paper-transcription layer.
+- Treat `markdown/literature/EFPA_Test_Review_Model_2025_Markdown.md` as the EFPA source structure.
+- Treat `markdown/MESA EFPA template official.md` as the active unified MESA Part A + Part B working template.
+- Treat `markdown/pilots/` as pilot benchmark reviews, currently including Humanity's Last Exam and ARC-AGI-2.
+- Treat `dist/hf_mesa_dataset/` as a generated Hugging Face-style dataset export, not as the source of truth.
+- Treat `tools/` as validation and utility scripts, and `reports/` as generated validation reports.
+- Treat `.codex/agents/` as agent profiles and `.codex/memory/` as durable project memory.
+- Do not overwrite papers, templates, pilot reviews, or existing notes without explicit user approval.
 
 ## Part B Preparation Sources
 
