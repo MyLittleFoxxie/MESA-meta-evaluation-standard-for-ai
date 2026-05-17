@@ -104,43 +104,43 @@ Section 1 identifies the review event, the exact benchmark entity under review, 
 
 ### 1.1 Review Administration
 
-| Prompt                                    | Description |
-| :---------------------------------------- | :---------- |
-| Reviewer Name                             |             |
-| Date of Current Review                    |             |
-| Date of Previous Review _(if applicable)_ |             |
+| Prompt                                    | Description                 |
+| :---------------------------------------- | :-------------------------- |
+| Reviewer Name                             | _(Reviewer or review team)_ |
+| Date of Current Review                    | _(YYYY-MM-DD)_              |
+| Date of Previous Review _(if applicable)_ | _(YYYY-MM-DD or n/a)_       |
 
 ### 1.2 Benchmark Identity & Provenance
 
 | Prompt                                 | Description                                                                |
 | :------------------------------------- | :------------------------------------------------------------------------- |
 | Reviewed Entity Name                   | _(Name precisely, e.g., specific slice, private form, cohort, etc.)_       |
-| Short Name / Acronym                   |                                                                            |
+| Short Name / Acronym                   | _(Common acronym or abbreviated label)_                                    |
 | Entity Type                            | _(Original benchmark, derived variant, hosted leaderboard, harness, etc.)_ |
 | Parent / Source Benchmark              | _(If inherited or modified from a prior family/instrument)_                |
 | Exact Version / Release Split          | _(Dataset version, split, form, or task-pack identifier)_                  |
 | Implementation / Scorer Version        | _(Harness, parser, judge, or evaluation platform version)_                 |
-| Creators & Current Maintainers         |                                                                            |
-| Host Organization / Repository Owner   |                                                                            |
+| Creators & Current Maintainers         | _(Original creators and active maintainers, if different)_                 |
+| Host Organization / Repository Owner   | _(Platform, organization, repository owner, or distributor)_               |
 | Release Dates                          | _(Original Release Date / Current Revision Date)_                          |
 | License & Access Terms                 | _(Public, private, semi-private, controlled-access, etc.)_                 |
-| Persistent Identifier / DOI / Citation |                                                                            |
+| Persistent Identifier / DOI / Citation | _(DOI, arXiv ID, canonical citation, or stable URL)_                       |
 
 ### 1.3 Artifacts, Sources, & Access Tracking
 
-| Material / Artifact Type       | URL, Location, or Identifier | Access Date |
-| :----------------------------- | :--------------------------- | :---------- |
-| Paper / Technical Report       |                              |             |
-| Website / Documentation Hub    |                              |             |
-| Code Repository                |                              |             |
-| Dataset / Task / Prompt Set    |                              |             |
-| Evaluation Harness / Runner    |                              |             |
-| Leaderboard / Results Portal   |                              |             |
-| Guides _(User/Scoring/Rubric)_ |                              |             |
-| Changelog / Release Logs       |                              |             |
-| Official Announcements         |                              |             |
-| Contextual Literature          |                              |             |
-| Feedback / Contact Channels    |                              |             |
+| Material / Artifact Type       | URL, Location, or Identifier                                       | Access Date    |
+| :----------------------------- | :----------------------------------------------------------------- | :------------- |
+| Paper / Technical Report       | _(Citation, DOI, arXiv ID, or URL)_                                | _(YYYY-MM-DD)_ |
+| Website / Documentation Hub    | _(Official docs or project site)_                                  | _(YYYY-MM-DD)_ |
+| Code Repository                | _(Repository URL, branch, tag, or commit)_                         | _(YYYY-MM-DD)_ |
+| Dataset / Task / Prompt Set    | _(Dataset host, split, task pack, or file path)_                   | _(YYYY-MM-DD)_ |
+| Evaluation Harness / Runner    | _(Harness package, platform, commit, or version)_                  | _(YYYY-MM-DD)_ |
+| Leaderboard / Results Portal   | _(Leaderboard, dashboard, or results URL)_                         | _(YYYY-MM-DD)_ |
+| Guides _(User/Scoring/Rubric)_ | _(User guide, scoring guide, rubric, or annotation guide)_         | _(YYYY-MM-DD)_ |
+| Changelog / Release Logs       | _(Release notes, tags, changelog, or archive)_                     | _(YYYY-MM-DD)_ |
+| Official Announcements         | _(Blog post, paper release, maintainer statement, or launch note)_ | _(YYYY-MM-DD)_ |
+| Contextual Literature          | _(Related literature used for context, not source facts)_          | _(YYYY-MM-DD)_ |
+| Feedback / Contact Channels    | _(Issue tracker, email, forum, or discussion channel)_             | _(YYYY-MM-DD)_ |
 
 Reviewer comments:
 
@@ -254,22 +254,22 @@ Reviewer comments:
 
 Describe the number and meaning of task families, subdomains, splits, score families, aggregate scoring rules, subscores, or derived outputs. This section is descriptive; do not judge representativeness here.
 
-| Component                                                                                          | Description |
-| :------------------------------------------------------------------------------------------------- | :---------- |
-| Capability, phenomenon, or quality the benchmark claims to measure                                 |             |
-| Definition of the capability or quality being measured                                             |             |
-| Subcomponents of the claimed capability, phenomenon, or quality                                    |             |
-| Excluded scope or non-target abilities                                                             |             |
-| Benchmark item, prompt, episode, environment, or interaction families or subdomains                |             |
-| Sources for benchmark items, prompts, episodes, environments, or interactions                      |             |
-| Sampling method for benchmark items, prompts, episodes, environments, or interactions              |             |
-| Selection or filtering logic for benchmark items, prompts, episodes, environments, or interactions |             |
-| Splits or partitions                                                                               |             |
-| Primary score                                                                                      |             |
-| Subscores                                                                                          |             |
-| Derived scores or scores combined from item, task-family, or subscore results                      |             |
-| Qualitative score ranges such as low/medium/high or novice/expert                                  |             |
-| Boundaries or caveats for interpretations made from benchmark scores                               |             |
+| Component                                                                                          | Description                                                           |
+| :------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| Capability, phenomenon, or quality the benchmark claims to measure                                 | _(Claimed construct, behavior, or quality)_                           |
+| Definition of the capability or quality being measured                                             | _(Author definition or documented wording)_                           |
+| Subcomponents of the claimed capability, phenomenon, or quality                                    | _(Named domains, skills, dimensions, or task groups)_                 |
+| Excluded scope or non-target abilities                                                             | _(Abilities, contexts, or uses explicitly outside scope)_             |
+| Benchmark item, prompt, episode, environment, or interaction families or subdomains                | _(Item/task families, environments, episodes, or interaction types)_  |
+| Sources for benchmark items, prompts, episodes, environments, or interactions                      | _(Datasets, contests, corpora, experts, generators, or environments)_ |
+| Sampling method for benchmark items, prompts, episodes, environments, or interactions              | _(Random, stratified, curated, generated, convenience, etc.)_         |
+| Selection or filtering logic for benchmark items, prompts, episodes, environments, or interactions | _(Inclusion, exclusion, screening, or filtering rules)_               |
+| Splits or partitions                                                                               | _(Train, dev, test, public, private, hidden, cohort, etc.)_           |
+| Primary score                                                                                      | _(Main reported score and unit)_                                      |
+| Subscores                                                                                          | _(Named subdomain, split, or component scores)_                       |
+| Derived scores or scores combined from item, task-family, or subscore results                      | _(Aggregation formulas or combined score definitions)_                |
+| Qualitative score ranges such as low/medium/high or novice/expert                                  | _(Named bands and thresholds, if used)_                               |
+| Boundaries or caveats for interpretations made from benchmark scores                               | _(Documented limits on score interpretation)_                         |
 
 Reviewer comments:
 
@@ -323,22 +323,22 @@ Reviewer comments:
 
 EFPA records special testing conditions because scores can change when administration changes. MESA records the prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules under which AI systems are evaluated. These conditions are part of the benchmark definition, not implementation trivia.
 
-| Condition                                     | Description |
-| :-------------------------------------------- | :---------- |
-| Prompting protocol                            |             |
-| System prompt                                 |             |
-| Few-shot examples                             |             |
-| Sampling settings                             |             |
-| Tool permissions                              |             |
-| Tool/API credential policy                    |             |
-| Time limits                                   |             |
-| Human intervention rules                      |             |
-| Official rerun, retry, or repair policy       |             |
-| Hardware or hosted service                    |             |
-| Network requirements                          |             |
-| Sandbox or security constraints               |             |
-| Model identity and version-label requirements |             |
-| Special administration conditions             |             |
+| Condition                                     | Description                                                            |
+| :-------------------------------------------- | :--------------------------------------------------------------------- |
+| Prompting protocol                            | _(Official prompt template, message format, or administration script)_ |
+| System prompt                                 | _(Required system or developer instructions, if any)_                  |
+| Few-shot examples                             | _(Number, source, and placement of examples)_                          |
+| Sampling settings                             | _(Temperature, top_p, max tokens, seeds, etc.)_                        |
+| Tool permissions                              | _(Allowed and disallowed tools)_                                       |
+| Tool/API credential policy                    | _(Who provides credentials and under what limits)_                     |
+| Time limits                                   | _(Per item, per run, or leaderboard deadline)_                         |
+| Human intervention rules                      | _(Allowed setup, monitoring, adjudication, or repair)_                 |
+| Official rerun, retry, or repair policy       | _(Allowed retries, repair loops, reruns, or resubmissions)_            |
+| Hardware or hosted service                    | _(Official host, hardware class, or platform)_                         |
+| Network requirements                          | _(Internet, retrieval, API, or offline requirement)_                   |
+| Sandbox or security constraints               | _(Filesystem, execution, network, or isolation rules)_                 |
+| Model identity and version-label requirements | _(Required model name, version, date, or provider label)_              |
+| Special administration conditions             | _(Other documented run conditions)_                                    |
 
 Reviewer comments:
 
@@ -424,21 +424,21 @@ Reviewer comments:
 
 Where the benchmark is dynamic, record minimum, maximum, and typical task counts.
 
-| Prompt                                                         | Response |
-| :------------------------------------------------------------- | :------- |
-| Total public items or tasks                                    |          |
-| Total private or hidden items                                  |          |
-| Development or example items                                   |          |
-| Test items                                                     |          |
-| Dynamic or generated tasks                                     |          |
-| Episodes, trials, or measurement points                        |          |
-| Counts by split, form, or variant                              |          |
-| Counts by language, culture, or locale                         |          |
-| Counts by claimed capability domain                            |          |
-| Counts by context-length bin                                   |          |
-| Counts by difficulty band                                      |          |
-| Counts by public, private, hidden, or controlled-access status |          |
-| Item count uncertainty                                         |          |
+| Prompt                                                         | Response                                                  |
+| :------------------------------------------------------------- | :-------------------------------------------------------- |
+| Total public items or tasks                                    | _(Count or range visible to users)_                       |
+| Total private or hidden items                                  | _(Count or range hidden or controlled)_                   |
+| Development or example items                                   | _(Examples, validation, practice, or dev set count)_      |
+| Test items                                                     | _(Official scored item count)_                            |
+| Dynamic or generated tasks                                     | _(Generated, sampled, refreshed, or live task count)_     |
+| Episodes, trials, or measurement points                        | _(Runs, trials, environments, or measurement events)_     |
+| Counts by split, form, or variant                              | _(Breakdown by split, form, variant, or cohort)_          |
+| Counts by language, culture, or locale                         | _(Breakdown by language, culture, or locale)_             |
+| Counts by claimed capability domain                            | _(Breakdown mapped to 2.1 domains, if documented)_        |
+| Counts by context-length bin                                   | _(Counts by token or window size, if documented)_         |
+| Counts by difficulty band                                      | _(Counts by stated difficulty level, if documented)_      |
+| Counts by public, private, hidden, or controlled-access status | _(Breakdown by access status)_                            |
+| Item count uncertainty                                         | _(Unknown, changing, approximate, or conflicting counts)_ |
 
 Reviewer comments:
 
@@ -499,17 +499,17 @@ Reviewer comments:
 
 Record documented estimates. Mark missing if not stated.
 
-| Activity                               | Time, compute, or cost estimate |
-| :------------------------------------- | :------------------------------ |
-| Setup                                  |                                 |
-| Model inference or task completion     |                                 |
-| Token or context-window use            |                                 |
-| Scoring                                |                                 |
-| Human adjudication                     |                                 |
-| Analysis or reporting                  |                                 |
-| Full benchmark run                     |                                 |
-| API or compute cost                    |                                 |
-| External tool, service, or search cost |                                 |
+| Activity                               | Time, compute, or cost estimate                                |
+| :------------------------------------- | :------------------------------------------------------------- |
+| Setup                                  | _(Installation, data access, account setup, or configuration)_ |
+| Model inference or task completion     | _(Per item/run duration, latency, or throughput)_              |
+| Token or context-window use            | _(Token counts, context length, or prompt size)_               |
+| Scoring                                | _(Scorer runtime or hosted scoring turnaround)_                |
+| Human adjudication                     | _(Rater or expert time, if required)_                          |
+| Analysis or reporting                  | _(Post-processing, validation, or report production time)_     |
+| Full benchmark run                     | _(End-to-end run time or resource envelope)_                   |
+| API or compute cost                    | _(Estimated credits, dollars, GPU hours, or compute units)_    |
+| External tool, service, or search cost | _(Search, service, simulator, or tool fees)_                   |
 
 Reviewer comments:
 
@@ -517,9 +517,9 @@ Reviewer comments:
 
 Describe public/private forms, alternate forms, short forms, language variants, domain subsets, slices, rolling cohorts, hidden forms, and deprecated versions. State whether the benchmark documentation treats scores from each form or variant as comparable.
 
-| Form or variant | Purpose | Stated score-comparability interpretation | Status |
-| :-------------- | :------ | :---------------------------------------- | :----- |
-|                 |         |                                           |        |
+| Form or variant                            | Purpose                  | Stated score-comparability interpretation       | Status                                   |
+| :----------------------------------------- | :----------------------- | :---------------------------------------------- | :--------------------------------------- |
+| _(Name, split, version, cohort, or slice)_ | _(Why this form exists)_ | _(Comparable, non-comparable, or undocumented)_ | _(Active, retired, hidden, draft, etc.)_ |
 
 Reviewer comments:
 
@@ -572,18 +572,18 @@ Reviewer comments:
 
 Complete this descriptive screen when the benchmark title, paper, website, or leaderboard uses terms such as intelligence, general intelligence, AGI, reasoning, agency, autonomy, broad capability, expert capability, or cross-domain competence. Record only interpretations made or clearly implied from benchmark scores; put evaluation and reviewer caution in Part B.
 
-| Prompt                                                         | Response |
-| :------------------------------------------------------------- | :------- |
-| Term used for broad interpretation from benchmark scores       |          |
-| Breadth implied by the score interpretation across domains     |          |
-| Depth or proficiency level implied by the score interpretation |          |
-| Capability domains from 2.1 explicitly covered                 |          |
-| Capability domains from 2.1 explicitly excluded or not tested  |          |
-| Coverage across modalities, tools, memory, planning, or speed  |          |
-| Whether aggregate scores preserve capability-domain caveats    |          |
-| Stated AGI, autonomy, or agency caveats                        |          |
-| Documented broad-claim limits or non-use statements            |          |
-| Documented caveats to carry forward into Part B                |          |
+| Prompt                                                         | Response                                                    |
+| :------------------------------------------------------------- | :---------------------------------------------------------- |
+| Term used for broad interpretation from benchmark scores       | _(Exact term used by authors, site, paper, or leaderboard)_ |
+| Breadth implied by the score interpretation across domains     | _(Domains, tasks, settings, or populations implied)_        |
+| Depth or proficiency level implied by the score interpretation | _(Expert, human-level, frontier, novice, etc.)_             |
+| Capability domains from 2.1 explicitly covered                 | _(Domains selected in 2.1 and explicitly covered)_          |
+| Capability domains from 2.1 explicitly excluded or not tested  | _(Domains excluded, untested, or caveated)_                 |
+| Coverage across modalities, tools, memory, planning, or speed  | _(Modalities, tools, memory, planning, speed, etc.)_        |
+| Whether aggregate scores preserve capability-domain caveats    | _(How reports preserve or collapse domain caveats)_         |
+| Stated AGI, autonomy, or agency caveats                        | _(Author caveats about AGI, autonomy, or agency)_           |
+| Documented broad-claim limits or non-use statements            | _(Non-use statements or interpretation boundaries)_         |
+| Documented caveats to carry forward into Part B                | _(Caveats to revisit in validity and reporting ratings)_    |
 
 Reviewer comments:
 
@@ -625,12 +625,12 @@ Reviewer comments:
 
 Describe the scoring pipeline, including how model responses, logs, judge decisions, reference answers, unit tests, or platform outputs become global and partial scores.
 
-| Score or scoring rule/quantity | Definition | How item, task-family, or subscore results are combined | Capability-domain linkage stated by authors | Interpretation stated by authors |
-| :----------------------------- | :--------- | :------------------------------------------------------ | :------------------------------------------ | :------------------------------- |
-| Primary score                  |            |                                                         |                                             |                                  |
-| Subscore                       |            |                                                         |                                             |                                  |
-| Derived score                  |            |                                                         |                                             |                                  |
-| Qualitative band               |            |                                                         |                                             |                                  |
+| Score or scoring rule/quantity | Definition                                    | How item, task-family, or subscore results are combined | Capability-domain linkage stated by authors | Interpretation stated by authors     |
+| :----------------------------- | :-------------------------------------------- | :------------------------------------------------------ | :------------------------------------------ | :----------------------------------- |
+| Primary score                  | _(Main outcome and scale)_                    | _(Aggregation across items, runs, or splits)_           | _(Linked domains or none stated)_           | _(Meaning authors assign to score)_  |
+| Subscore                       | _(Named partial score and scope)_             | _(How subscore is computed)_                            | _(Domain or task-family mapping)_           | _(What subscore is said to support)_ |
+| Derived score                  | _(Formula, normalization, or transformation)_ | _(Inputs and combination rule)_                         | _(Linked domains or none stated)_           | _(Stated use of derived score)_      |
+| Qualitative band               | _(Band name and threshold rule)_              | _(How band is assigned)_                                | _(Linked domains or none stated)_           | _(Meaning of each band)_             |
 
 Treatment of responses that fail format, schema, refusal, completion, or parsing requirements, or are missing or refused:
 
@@ -708,16 +708,16 @@ Select all that apply.
 
 Reviewer comments:
 
-| Reference point or documented comparison group                    | Construction method | Intended score interpretation |
-| :---------------------------------------------------------------- | :------------------ | :---------------------------- |
-| Random guessing or trivial-selection reference point              |                     |                               |
-| Human-participant performance under documented conditions         |                     |                               |
-| Qualified domain-expert performance                               |                     |                               |
-| Contest human population or source-instrument reference           |                     |                               |
-| Documented group of models used for comparison                    |                     |                               |
-| Public/private split, suite-component, or tool/no-tool comparator |                     |                               |
-| Prior benchmark or version                                        |                     |                               |
-| Score boundary or lower/upper reference point                     |                     |                               |
+| Reference point or documented comparison group                    | Construction method                                   | Intended score interpretation                |
+| :---------------------------------------------------------------- | :---------------------------------------------------- | :------------------------------------------- |
+| Random guessing or trivial-selection reference point              | _(Formula, chance model, or trivial baseline rule)_   | _(Floor, chance, or null reference meaning)_ |
+| Human-participant performance under documented conditions         | _(Sample, recruitment, conditions, and scoring)_      | _(Human comparison meaning)_                 |
+| Qualified domain-expert performance                               | _(Expert criteria, task conditions, and scoring)_     | _(Expert comparison meaning)_                |
+| Contest human population or source-instrument reference           | _(Source contest, population, date, and conditions)_  | _(How source performance frames scores)_     |
+| Documented group of models used for comparison                    | _(Model cohort, versions, dates, and run conditions)_ | _(Relative model comparison meaning)_        |
+| Public/private split, suite-component, or tool/no-tool comparator | _(Split, component, or condition contrast)_           | _(What the contrast is meant to show)_       |
+| Prior benchmark or version                                        | _(Version relationship and changed conditions)_       | _(Comparability with earlier results)_       |
+| Score boundary or lower/upper reference point                     | _(Threshold source and rule)_                         | _(Boundary meaning for interpretation)_      |
 
 Reviewer comments:
 
@@ -746,19 +746,19 @@ Reviewer comments:
 
 This remains descriptive in Part A. Record the documented link between scoring-rule behavior and interpretations made from benchmark scores.
 
-| Prompt                                                                                  | Response |
-| :-------------------------------------------------------------------------------------- | :------- |
-| Why the primary rule or quantity used to convert model behavior into a score was chosen |          |
-| Whether lower or upper limits of the score rule are documented                          |          |
-| Whether documentation identifies possible non-target rewarded behavior                  |          |
-| Whether parser, judge, or scorer validation is documented                               |          |
-| Whether response-format burden is separated from the target capability                  |          |
-| Whether score changes from small item or prompt changes affect the score interpretation |          |
-| Whether score uncertainty affects interpretation                                        |          |
-| Whether score differences are interpreted statistically                                 |          |
-| Whether score or subscore interpretations are linked to capability domains from 2.1     |          |
-| Whether aggregate score interpretations preserve capability-domain caveats              |          |
-| Whether benchmark reports state what users should not infer                             |          |
+| Prompt                                                                                  | Response                                                        |
+| :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------- |
+| Why the primary rule or quantity used to convert model behavior into a score was chosen | _(Author rationale for metric or scoring rule)_                 |
+| Whether lower or upper limits of the score rule are documented                          | _(Score range, floor/ceiling, and boundary meanings)_           |
+| Whether documentation identifies possible non-target rewarded behavior                  | _(Shortcuts, formatting, memorization, leakage, etc.)_          |
+| Whether parser, judge, or scorer validation is documented                               | _(Validation evidence or not documented)_                       |
+| Whether response-format burden is separated from the target capability                  | _(Whether format errors are distinguished from target ability)_ |
+| Whether score changes from small item or prompt changes affect the score interpretation | _(Documented sensitivity or not documented)_                    |
+| Whether score uncertainty affects interpretation                                        | _(How intervals or variance affect claims)_                     |
+| Whether score differences are interpreted statistically                                 | _(Tests, intervals, or practical thresholds used)_              |
+| Whether score or subscore interpretations are linked to capability domains from 2.1     | _(Stated mapping to 2.1 domains)_                               |
+| Whether aggregate score interpretations preserve capability-domain caveats              | _(How caveats are retained in aggregates)_                      |
+| Whether benchmark reports state what users should not infer                             | _(Non-use statements or prohibited interpretations)_            |
 
 Reviewer comments:
 
@@ -790,9 +790,9 @@ Reviewer comments:
 
 ### 4.2 Output Name or Description
 
-| Output | Description | Public/private | Maintainer, platform host, third-party evaluator, or leaderboard operator |
-| :----- | :---------- | :------------- | :------------------------------------------------------------------------ |
-|        |             |                |                                                                           |
+| Output                                              | Description                                    | Public/private                    | Maintainer, platform host, third-party evaluator, or leaderboard operator |
+| :-------------------------------------------------- | :--------------------------------------------- | :-------------------------------- | :------------------------------------------------------------------------ |
+| _(Report, leaderboard, dashboard, file, API, etc.)_ | _(Scores, traces, claims, or fields included)_ | _(Access level and restrictions)_ | _(Responsible operator or host)_                                          |
 
 Reviewer comments:
 
@@ -983,17 +983,17 @@ Reviewer comments:
 
 Describe any requirements specified for running, submitting to, interpreting, or maintaining the benchmark.
 
-| Requirement type                             | Requirement |
-| :------------------------------------------- | :---------- |
-| Technical skill                              |             |
-| Model access                                 |             |
-| Dataset access                               |             |
-| Compute or budget                            |             |
-| Tool/API credentials                         |             |
-| Hosted submission or leaderboard account     |             |
-| Human expertise                              |             |
-| Account, license, or competition eligibility |             |
-| Ethical, safety, or data-use obligations     |             |
+| Requirement type                             | Requirement                                                       |
+| :------------------------------------------- | :---------------------------------------------------------------- |
+| Technical skill                              | _(CLI, coding, ML, domain, or platform skill required)_           |
+| Model access                                 | _(API, local weights, provider account, or model class)_          |
+| Dataset access                               | _(Public download, controlled access, hidden set, etc.)_          |
+| Compute or budget                            | _(Hardware, credits, or cost requirement)_                        |
+| Tool/API credentials                         | _(Required external tools, credentials, or quotas)_               |
+| Hosted submission or leaderboard account     | _(Account, invite, competition, or leaderboard route)_            |
+| Human expertise                              | _(Annotator, rater, domain expert, or maintainer skill)_          |
+| Account, license, or competition eligibility | _(Eligibility, license, user agreement, or terms)_                |
+| Ethical, safety, or data-use obligations     | _(Safety, privacy, content, data-use, or disclosure obligations)_ |
 
 Reviewer comments:
 
@@ -1078,33 +1078,33 @@ Reviewer comments:
 
 ### 5.8 Maintenance and Versioning
 
-| Topic                                                                                               | Response |
-| :-------------------------------------------------------------------------------------------------- | :------- |
-| Maintainer identity                                                                                 |          |
-| Private or held-out set owner                                                                       |          |
-| Leaderboard operator                                                                                |          |
-| Submission eligibility rules                                                                        |          |
-| Rerun policy                                                                                        |          |
-| Stale-score policy                                                                                  |          |
-| Model-version update policy                                                                         |          |
-| Scorer, judge, parser, or harness versioning                                                        |          |
-| Cohort or evaluation-window labels                                                                  |          |
-| Public/private score aggregation policy                                                             |          |
-| Retirement and archival policy                                                                      |          |
-| Documented release names, tags, changes, and score-comparability implications                       |          |
-| Changelog or update record                                                                          |          |
-| Issue or feedback process                                                                           |          |
-| Item correction process                                                                             |          |
-| Deprecated item handling                                                                            |          |
-| Rules for updating, rotating, replacing, or adding hidden evaluation items over time                |          |
-| Last code-usability or harness health check                                                         |          |
-| Build, CI, or smoke-test status                                                                     |          |
-| Score-ceiling threshold or criteria for deprecating, archiving, or ending use                       |          |
-| Policy for deprecating, archiving, or ending use of items, versions, leaderboards, or the benchmark |          |
-| Retired-item publication or audit policy                                                            |          |
-| Score comparability across versions                                                                 |          |
-| Policy for comparing scores across dates, cohorts, refreshes, or rolling windows                    |          |
-| Long-term archival plan                                                                             |          |
+| Topic                                                                                               | Response                                                    |
+| :-------------------------------------------------------------------------------------------------- | :---------------------------------------------------------- |
+| Maintainer identity                                                                                 | _(Named active person, organization, or team)_              |
+| Private or held-out set owner                                                                       | _(Who controls hidden or reserve materials)_                |
+| Leaderboard operator                                                                                | _(Platform or organization operating submissions/results)_  |
+| Submission eligibility rules                                                                        | _(Who may submit and under what limits)_                    |
+| Rerun policy                                                                                        | _(When and how systems can be reevaluated)_                 |
+| Stale-score policy                                                                                  | _(How old scores are labeled, retired, or refreshed)_       |
+| Model-version update policy                                                                         | _(Rules for new model versions or aliases)_                 |
+| Scorer, judge, parser, or harness versioning                                                        | _(Version labels for scorer, judge, parser, or harness)_    |
+| Cohort or evaluation-window labels                                                                  | _(Dates, cohorts, rounds, or rolling windows)_              |
+| Public/private score aggregation policy                                                             | _(How public and private scores are combined)_              |
+| Retirement and archival policy                                                                      | _(How versions, items, or results are retired)_             |
+| Documented release names, tags, changes, and score-comparability implications                       | _(Tags, releases, changes, and comparability notes)_        |
+| Changelog or update record                                                                          | _(Location and coverage of update record)_                  |
+| Issue or feedback process                                                                           | _(Issue tracker, contact, discussion, or appeal route)_     |
+| Item correction process                                                                             | _(How item errors are reported and fixed)_                  |
+| Deprecated item handling                                                                            | _(Removal, replacement, rescoring, or annotation rules)_    |
+| Rules for updating, rotating, replacing, or adding hidden evaluation items over time                | _(Refresh, rotation, replacement, or addition rules)_       |
+| Last code-usability or harness health check                                                         | _(Date or signal of recent code usability check)_           |
+| Build, CI, or smoke-test status                                                                     | _(CI, tests, smoke run, or status badge)_                   |
+| Score-ceiling threshold or criteria for deprecating, archiving, or ending use                       | _(Ceiling or saturation trigger for deprecation)_           |
+| Policy for deprecating, archiving, or ending use of items, versions, leaderboards, or the benchmark | _(End-of-life policy for benchmark surfaces)_               |
+| Retired-item publication or audit policy                                                            | _(Whether retired items are released or audited)_           |
+| Score comparability across versions                                                                 | _(Comparable, bridged, broken, or undocumented)_            |
+| Policy for comparing scores across dates, cohorts, refreshes, or rolling windows                    | _(Rules for date, cohort, refresh, or rolling comparisons)_ |
+| Long-term archival plan                                                                             | _(Repository, DOI, archive, mirror, or preservation plan)_  |
 
 Reviewer comments:
 
@@ -2454,9 +2454,9 @@ Reviewer comments:
 
 ### Gap Register
 
-| Missing or inaccessible information needed for interpretation | Affected entity or reporting surface | Affected capability domain or score interpretation | Affected rating(s) | Why it matters | Needed for a higher rating |
-| :------------------------------------------------------------ | :----------------------------------- | :------------------------------------------------- | :----------------- | :------------- | :------------------------- |
-|                                                               |                                      |                                                    |                    |                |                            |
+| Missing or inaccessible information needed for interpretation | Affected entity or reporting surface                         | Affected capability domain or score interpretation       | Affected rating(s)                  | Why it matters                         | Needed for a higher rating    |
+| :------------------------------------------------------------ | :----------------------------------------------------------- | :------------------------------------------------------- | :---------------------------------- | :------------------------------------- | :---------------------------- |
+| _(Specific missing or inaccessible evidence)_                 | _(Benchmark, slice, implementation, report, or leaderboard)_ | _(Capability, score, claim, or interpretation affected)_ | _(Section or item rating affected)_ | _(Why the gap changes interpretation)_ | _(Evidence or access needed)_ |
 
 ## Bibliography
 
