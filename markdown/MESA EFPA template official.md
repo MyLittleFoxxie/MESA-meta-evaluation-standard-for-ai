@@ -1,4 +1,4 @@
-# MESA EFPA Template v2
+# MESA EFPA Template
 
 ## Introduction
 
@@ -42,7 +42,7 @@ flowchart TD
         A2("2. Classification")
         A3("3. Measurement and scoring")
         A4("4. Benchmark outputs and reports")
-        A5("5. Benchmark access, artifacts, and lifecycle")
+        A5("5. Benchmark access, materials, and lifecycle")
         AA("Appendix A. General description")
 
         %% Invisible links for vertical stacking
@@ -57,7 +57,7 @@ flowchart TD
     subgraph G_EVAL ["Evaluation of the benchmark"]
         direction TB
         B6("6. Rationale, development,<br/>documentation, and task quality")
-        B7("7. Benchmark artifacts<br/>and usability")
+        B7("7. Benchmark materials<br/>and usability")
         B8("8. Baselines, comparators,<br/>and reference interpretation")
         B9("9. Reliability, precision,<br/>and score stability")
         B10("10. Validity evidence")
@@ -126,9 +126,9 @@ Section 1 identifies the review event, the exact benchmark entity under review, 
 | License & Access Terms                 | _(Public, private, semi-private, controlled-access, etc.)_                 |
 | Persistent Identifier / DOI / Citation | _(DOI, arXiv ID, canonical citation, or stable URL)_                       |
 
-### 1.3 Artifacts, Sources, & Access Tracking
+### 1.3 Materials, Sources, & Access Tracking
 
-| Material / Artifact Type       | URL, Location, or Identifier                                       | Access Date    |
+| Material / Source Type         | URL, Location, or Identifier                                       | Access Date    |
 | :----------------------------- | :----------------------------------------------------------------- | :------------- |
 | Paper / Technical Report       | _(Citation, DOI, arXiv ID, or URL)_                                | _(YYYY-MM-DD)_ |
 | Website / Documentation Hub    | _(Official docs or project site)_                                  | _(YYYY-MM-DD)_ |
@@ -361,7 +361,7 @@ Production or construction tasks:
 - [ ] Proof, derivation, or explanation
 - [ ] Structured data
 - [ ] Generated media
-- [ ] Artifact production
+- [ ] Deliverable production
 - [ ] Patch or repository modification
 - [ ] Coordinate, bounding target, or GUI-grounding target
 - [ ] Document parsing, layout reconstruction, or OCR-style extraction
@@ -920,9 +920,11 @@ Reviewer comments:
 
 ---
 
-## Section 5. Benchmark Access, Artifacts, and Lifecycle
+## Section 5. Benchmark Access, Materials, and Lifecycle
 
-Section 5 records how benchmark artifacts are distributed, accessed, reproduced, and maintained. MESA expands EFPA's supply-arrangement fields to include repositories, datasets, hidden or restricted evaluation items, controls for prior model exposure to benchmark items or answers, artifacts needed to replicate results, licenses, and maintenance policies.
+Section 5 records how benchmark materials are distributed, accessed, reproduced, and maintained. MESA expands EFPA's supply-arrangement fields to include repositories, datasets, hidden or restricted evaluation items, controls for prior model exposure to benchmark items or answers, materials needed to replicate results, licenses, and maintenance policies.
+
+MESA uses Reuel et al.'s _BetterBench_ [3] as a working benchmark-quality framework for treating AI benchmarks as maintained evaluation systems, not only as papers, datasets, or score tables. BetterBench organizes benchmark quality around design, implementation, documentation, maintenance, and usability criteria; MESA uses this framing to inform the fields on access routes, public and hidden materials, contamination controls, reproducibility resources, licenses, release requirements, maintenance, versioning, feedback channels, and archival or retirement policies.
 
 ### 5.1 Distribution and Access Model
 
@@ -1165,6 +1167,8 @@ Ratings should be based on the information available, with comments explaining c
 
 EFPA Section 6 asks whether the test explains its rationale, development, documentation, and item quality. MESA asks whether the benchmark defines the real capability or behavior of interest, explains why its tasks and scoring rules operationalize that phenomenon, documents task development, supports item quality, and gives users enough procedural information for cautious qualified use.
 
+BetterBench is used in this section to sharpen MESA's review of benchmark documentation and procedural quality [3]. It motivates attention to documented purpose and scope, construction decisions, implementation instructions, statistical uncertainty, licenses and release requirements, support channels, and evidence that code, data, and evaluation procedures remain maintained enough for qualified users to interpret results responsibly.
+
 This section should be revisited after completing Sections 8-12, because later evidence about reference points, reliability, validity, responsible use, and reporting may reveal strengths or weaknesses in the original rationale and documentation. A benchmark can have useful tasks but still receive a low rating here if users cannot determine what the tasks are meant to support, how they were selected, or what interpretations should be avoided.
 
 When rating this section, distinguish the quality of the benchmark's design argument from the benchmark's observed performance results. High model scores, leaderboard popularity, or broad adoption do not by themselves establish a clear definition of the capability or quality being measured, defensible task-development process, or adequate documentation. Conversely, a benchmark with modest scope can rate well if its score interpretation is precise, its materials are traceable, and its limitations are explicit.
@@ -1376,15 +1380,17 @@ Reviewer comments:
 
 ---
 
-## Section 7. Quality and Usability of Benchmark Artifacts
+## Section 7. Quality and Usability of Benchmark Materials
 
 MESA evaluates benchmark materials needed to inspect, run, score, reproduce, or audit the evaluation: datasets, task files, prompts, rubrics, scoring code, harnesses, interfaces, access routes, setup instructions, accessibility, and usability. Material quality includes both what is available and whether intended users can run or inspect it without hidden procedural knowledge.
+
+BetterBench is also used here to treat benchmark materials as usable evaluation resources, not only as descriptive appendices [3]. Reviewers should look for accessible data or generation mechanisms, evaluation code, API and local-model routes where relevant, replication scripts, dependency or environment specifications, build or smoke-test signals, and issue or feedback channels that support independent use and audit.
 
 Rate benchmark materials in relation to the benchmark's intended users and access model. Fully public materials are not always required, especially when hidden or restricted evaluation items are needed to reduce prior exposure or leaderboard gaming, but the access route, restrictions, auditability, and consequences for reproducibility should be clear. A benchmark with controlled access can rate well when the controls are justified and reviewers can inspect enough information to judge quality.
 
 For open-ended, interactive, tool-use, multimodal, or environment-based benchmarks, benchmark materials include more than item text. They also include system prompts, task environments, Docker images, filesystem snapshots, tool/API configuration, simulator state, user simulators, GUI screenshot assets, video assets, document images or PDFs, layout annotations, dependency versions, scoring scripts, judge prompts, rubrics, examples, failure handling, and any infrastructure needed to produce comparable scores.
 
-Hosted or private artifacts can rate well when access control is justified, the controlled audit route is documented, and enough evidence is available for reviewers to inspect, run, score, reproduce, or audit the benchmark within its stated access model.
+Hosted or private materials can rate well when access control is justified, the controlled audit route is documented, and enough evidence is available for reviewers to inspect, run, score, reproduce, or audit the benchmark within its stated access model.
 
 Section-level rating guidance:
 
@@ -1396,7 +1402,7 @@ Section-level rating guidance:
 |   3    | Benchmark materials are usable, traceable, and mostly reproducible, with minor access or usability limitations.                         |
 |   4    | Benchmark materials are complete, accessible or access-controlled with justification, reproducible, well documented, and fit for audit. |
 
-### 7.1 Quality of Benchmark Artifacts
+### 7.1 Quality of Benchmark Materials
 
 - This sub-section concerns the benchmark materials that users need to inspect, run, score, reproduce, or audit the evaluation.
 - Judge both completeness and usability. These materials should be understandable by intended users, robust to ordinary execution errors, and specific enough to prevent hidden evaluator choices from changing the score interpretation.
@@ -1409,7 +1415,7 @@ Section-level rating guidance:
 
 ---
 
-#### 7.1.2 Prompts, instructions, and input artifacts
+#### 7.1.2 Prompts, instructions, and input materials
 
 - Excellent: Prompts, task instructions, examples, system messages, input files, context windows, multimodal assets, GUI screenshot assets, video assets, document images or PDFs, layout annotations, filesystem or simulator state, and any hidden or private instructions are documented or controlled in a way that supports reproducible evaluation and fair interpretation.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
@@ -1451,7 +1457,7 @@ Section-level rating guidance:
 
 ---
 
-#### 7.1.8 Overall quality of benchmark artifacts
+#### 7.1.8 Overall quality of benchmark materials
 
 - Excellent: Reviewer judgment, based on items 7.1.1-7.1.7, supports the conclusion that benchmark materials are complete, usable, accessible, reproducible, and appropriate for the intended evaluation. Do not mechanically average ratings.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
@@ -1618,6 +1624,8 @@ Reviewer comments:
 ## Section 9. Reliability, Precision, and Score Stability
 
 EFPA Section 9 evaluates reliability and precision. MESA asks whether benchmark scores are stable enough for their intended use across runs, prompts, seeds, forms, raters, judges, scorers, benchmark versions, and execution environments. Reliability is especially important when public leaderboards encourage small score differences to be interpreted as meaningful.
+
+BetterBench informs the reproducibility and implementation side of this section [3]. Its benchmark-quality criteria support checking whether run settings, dependency and environment assumptions, build or usability signals, replication scripts, statistical uncertainty, and versioned evaluation conditions are documented well enough for reported score differences to be interpreted.
 
 Reliability and precision refer to the consistency and uncertainty of benchmark scores across replications of the evaluation procedure. For AI benchmarks, the relevant sources of variation may include stochastic decoding, API or model-version changes, external service drift, tool availability drift, search-index drift, simulator or user-model stability, environment nondeterminism, prompt wording, response parsing, scorer or judge model version drift, human raters, task sampling, hidden/public split equivalence, translation or localization stability, context-window or tokenizer stability, leaderboard rerun consistency, and dependency versions.
 
@@ -1810,6 +1818,10 @@ Reviewer comments:
 ## Section 10. Validity Evidence
 
 EFPA Section 10 evaluates validity support for intended score interpretation. MESA centers the chain from real capability or behavior to task design, scoring, and score interpretation: what capability or behavior is claimed, how tasks operationalize it, what rule or quantity converts behavior into a score, and what interpretation the score is used to support. For broad intelligence, AGI, reasoning, autonomy, or agency interpretations, validity review must check breadth across the relevant capability domains selected in 2.1 or mapped in 2.5 rather than treating isolated performance as broad capability.
+
+MESA uses Bean et al.'s _Measuring what Matters_ [2] as the primary AI-benchmark construct-validity source for this section. It grounds review in the phenomenon-task-metric-claim chain and motivates attention to task representativeness, metric validity, statistical comparison, error analysis, and proportionality between benchmark evidence and claims.
+
+BetterBench also informs the contamination, leakage, and gameability parts of this section [3], especially risks from public-item overfitting, prior exposure, repeated optimization against known scoring rules, and benchmark-specific tuning.
 
 Validity is not a property of a score in isolation; it is the degree to which evidence and theory support the interpretations and uses made from benchmark scores. The same benchmark may have strong validity support for a narrow interpretation and weak support for a broader public interpretation. Reviewers should therefore identify the specific meaning users are supposed to draw from a score before rating each source of validity evidence.
 
@@ -2305,6 +2317,8 @@ Reviewer comments:
 
 EFPA Section 12 evaluates digitally generated reports. MESA applies that logic to AI benchmark outputs: paper tables, scorecards, leaderboards, dashboards, downloadable result files, raw traces, public interpretations made from benchmark scores, and score interpretations. A reporting output should make clear what score was produced, under what prompts, settings, tools, time limits, access rules, hardware, or human-intervention rules, with what uncertainty, and what users should and should not infer.
 
+BetterBench informs this section's attention to whether benchmark outputs are usable and interpretable for intended stakeholders [3]. Reports, leaderboards, scorecards, and public claims should communicate scope, uncertainty, eligibility rules, score traceability, maintenance status, version or cohort labels, and limits on what benchmark scores should be used to claim.
+
 This section should be completed for any reporting material that translates benchmark runs into a result used by others, even when there is no formal generated report. A static paper table, public leaderboard, hosted dashboard, badge, press release, downloadable CSV, benchmark card, or model score page can all shape interpretation and should be reviewed when it is part of the benchmark's public use.
 
 Ratings should consider whether reports support the level of inference they invite. Rank-ordered leaderboards need clear release/version labeling, eligibility rules, uncertainty, prompts and settings, and caveats about meaningful differences. Technical score reports need enough detail for audit and reproduction. Public-facing score interpretations need stronger safeguards against overinterpretation, especially when the benchmark title implies broad intelligence, broad capability-domain coverage, or real-world readiness.
@@ -2325,7 +2339,7 @@ Section-level rating guidance:
 
 This sub-section concerns whether reporting materials cover the scores, subscores, capability-domain profiles where applicable, traces, and contextual information needed for the intended use without implying unsupported precision or unsupported granularity.
 
-#### 12.1.1 Report, leaderboard, dashboard, or result artifact scope
+#### 12.1.1 Report, leaderboard, dashboard, or reporting-material scope
 
 - Excellent: Reports, leaderboards, dashboards, tables, scorecards, downloadable files, or papers cover the scores, subscores, and capability-domain profiles relevant to the benchmark's intended use without omitting essential context or implying unsupported granularity.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
@@ -2461,3 +2475,7 @@ Reviewer comments:
 ## Bibliography
 
 [1] D. Hendrycks et al., "A Definition of AGI," arXiv preprint arXiv:2510.18212, 2025, doi: 10.48550/arXiv.2510.18212. [Online]. Available: <https://arxiv.org/abs/2510.18212>. Accessed: May 16, 2026.
+
+[2] A. M. Bean et al., "Measuring what Matters: Construct Validity in Large Language Model Benchmarks," arXiv preprint arXiv:2511.04703, 2025, doi: 10.48550/arXiv.2511.04703. [Online]. Available: <https://arxiv.org/abs/2511.04703>. Accessed: May 17, 2026.
+
+[3] A. Reuel et al., "BetterBench: Assessing AI Benchmarks, Uncovering Issues, and Establishing Best Practices," arXiv preprint arXiv:2411.12990, 2024, doi: 10.48550/arXiv.2411.12990. [Online]. Available: <https://arxiv.org/abs/2411.12990>. Accessed: May 17, 2026.

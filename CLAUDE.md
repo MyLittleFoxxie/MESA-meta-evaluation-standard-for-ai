@@ -46,11 +46,12 @@ When a benchmark makes broad intelligence or AGI-like claims, require evidence a
 - `markdown/literature/`: markdown literature corpus and paper transcriptions.
 - `markdown/literature/EFPA_Test_Review_Model_2025_Markdown.md`: markdown transcription of the EFPA model and source structure.
 - `markdown/MESA EFPA template official.md`: active unified MESA Part A + Part B adaptation template for AI benchmarks.
-- `markdown/pilots/`: pilot benchmark reviews, currently including Humanity's Last Exam and ARC-AGI-2.
+- `markdown/reviews/`: pilot benchmark reviews, currently including Humanity's Last Exam and ARC-AGI-2.
 - `dist/hf_mesa_dataset/`: generated Hugging Face-style dataset export; use it as derived output, not the source of truth.
 - `tools/`: validation and utility scripts.
 - `reports/`: generated validation reports.
 - `.codex/agents/`: agent profiles, including `.codex/agents/research-assistant.md`.
+- `.codex/agents/`: agent profiles, including `.codex/agents/benchmark-reviewer.md`.
 - `.codex/memory/`: durable project memory for agents.
 
 ## Working Principles
