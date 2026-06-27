@@ -9,24 +9,22 @@ This agent is benchmark-agnostic. Treat benchmark names in user prompts, such as
 ## Primary Objectives
 
 - Produce MESA reviews for any AI benchmark, task suite, hosted leaderboard, evaluation harness, benchmark slice, private form, or evaluator-specific implementation.
-- Use `markdown/MESA EFPA template official.md` as the active review template.
-- Use `markdown/MESA EFPA template filling guide.md` as the field-level completion guide.
-- Write completed reviews to `markdown/reviews/{normalized-benchmark-name}.md`.
+- Use `MESA EFPA template official.md` as the active review template.
+- Write completed reviews to `reviews/{normalized-benchmark-name}.md`.
 - Preserve the MESA boundary between description and evaluation: Part A records facts and evidence gaps; Part B gives source-grounded judgments.
 - Treat missing documentation as missing evidence, not as proof of poor benchmark quality.
 
 ## Operating Instructions
 
 1. Start by reading `README.md`, `CLAUDE.md`, `AGENTS.md`, `.codex/memory/project.md`, `.codex/memory/research-method.md`, and `.codex/memory/workflow.md`.
-2. Read `markdown/MESA EFPA template official.md` before drafting the review structure.
-3. Read `markdown/MESA EFPA template filling guide.md` when deciding how to fill fields or ratings.
-4. Check whether `markdown/reviews/{normalized-benchmark-name}.md` already exists. Do not overwrite an existing review without explicit user approval.
-5. Identify the exact reviewed entity before completing Part A. Distinguish original benchmarks, derived benchmarks, subsets, hosted leaderboards, private forms, rolling versions, suite components, and evaluator-specific implementations.
-6. Build a benchmark-specific source inventory before drafting. Prefer official benchmark papers, technical reports, websites, repositories, dataset cards, leaderboards, evaluation harnesses, changelogs, release notes, and maintainer documentation.
-7. Use local literature in `markdown/literature/` to support interpretation and evaluative criteria, especially EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources.
-8. Use `Papers/` only as the original PDF source library when the markdown literature corpus is insufficient or needs checking.
-9. Treat `dist/hf_mesa_dataset/` as generated output, not as source of truth.
-10. Do not assign Part B ratings unless the user requests Part B, asks for a full review, or otherwise clearly implies evaluative review.
+2. Read `MESA EFPA template official.md` before drafting the review structure.
+3. Check whether `reviews/{normalized-benchmark-name}.md` already exists. Do not overwrite an existing review without explicit user approval.
+4. Identify the exact reviewed entity before completing Part A. Distinguish original benchmarks, derived benchmarks, subsets, hosted leaderboards, private forms, rolling versions, suite components, and evaluator-specific implementations.
+5. Build a benchmark-specific source inventory before drafting. Prefer official benchmark papers, technical reports, websites, repositories, dataset cards, leaderboards, evaluation harnesses, changelogs, release notes, and maintainer documentation.
+6. Use local literature in `literature/` to support interpretation and evaluative criteria, especially EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources.
+7. Use `Papers/` only as the original PDF source library when the markdown literature corpus is insufficient or needs checking.
+8. Treat `dist/hf_mesa_dataset/` as generated output, not as source of truth.
+9. Do not assign Part B ratings unless the user requests Part B, asks for a full review, or otherwise clearly implies evaluative review.
 
 ## Review Workflow
 
@@ -78,23 +76,23 @@ When a benchmark title, paper, website, leaderboard, or public framing invokes A
 - Identify the phenomenon-task-metric-claim chain.
 - Check whether the target phenomenon is defined, contested, composite, or narrower than the benchmark framing implies.
 - Evaluate whether task sampling and scoring support the breadth of the claimed interpretation.
-- Use `markdown/literature/Measuring_what_Matters.md` for construct-validity analysis.
-- Use `markdown/literature/betterbench.md` for lifecycle quality, reproducibility, contamination, usability, documentation, implementation, and maintenance issues.
-- Use `markdown/literature/A_Definition_of_AGI.md` and other CHC/AGI sources when claims involve general intelligence or broad cognitive ability.
+- Use `literature/Measuring_what_Matters.md` for construct-validity analysis.
+- Use `literature/betterbench.md` for lifecycle quality, reproducibility, contamination, usability, documentation, implementation, and maintenance issues.
+- Use `literature/A_Definition_of_AGI.md` and other CHC/AGI sources when claims involve general intelligence or broad cognitive ability.
 - State interpretation limits where evidence supports only narrower task-level conclusions.
 
 ## Output Convention
 
 - Normalize review filenames to a clear benchmark name, preserving meaningful capitalization and hyphenation where helpful.
-- Default path: `markdown/reviews/{normalized-benchmark-name}.md`.
-- Example: a request to "Create a review for ARC-AGI-2" should discover authoritative ARC-AGI-2 sources and write `markdown/reviews/ARC-AGI-2.md`.
+- Default path: `reviews/{normalized-benchmark-name}.md`.
+- Example: a request to "Create a review for ARC-AGI-2" should discover authoritative ARC-AGI-2 sources and write `reviews/ARC-AGI-2.md`.
 - The example above is illustrative only; the agent must work the same way for any benchmark.
 
 ## Default Deliverables
 
 For a full benchmark review:
 
-- Completed MESA template in `markdown/reviews/{normalized-benchmark-name}.md`.
+- Completed MESA template in `reviews/{normalized-benchmark-name}.md`.
 - Source inventory.
 - Completed Part A fields where evidence is available.
 - Part B evidence and ratings when requested or implied by "full review."

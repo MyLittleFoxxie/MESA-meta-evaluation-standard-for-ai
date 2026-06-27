@@ -11,7 +11,7 @@ Date of current review: 2026-05-17
 | :-- | :-- | :-- | :-- |
 | S01 | HLE official site, [lastexam.ai](https://lastexam.ai/) | 2026-05-17 | Benchmark identity, public result surface, HLE-Rolling/current-status context, official links. |
 | S02 | CAIS, [HLE GitHub repository](https://github.com/centerforaisafety/hle) | 2026-05-17 | Repository materials, MIT license, canary string, evaluation scripts, source links. |
-| S03 | Phan et al., [Humanity's Last Exam](https://arxiv.org/abs/2501.14249), arXiv:2501.14249 and local transcription `markdown/literature/Humanitys_Last_Exam.md` | 2026-05-17 | Main benchmark paper, item construction, subject coverage, scoring, calibration, private-set rationale, caveats. |
+| S03 | Phan et al., [Humanity's Last Exam](https://arxiv.org/abs/2501.14249), arXiv:2501.14249 and local transcription `literature/Humanitys_Last_Exam.md` | 2026-05-17 | Main benchmark paper, item construction, subject coverage, scoring, calibration, private-set rationale, caveats. |
 | S04 | Phan et al., [Humanity's Last Exam](https://www.nature.com/articles/s41586-025-09962-4), Nature | 2026-05-17 | Peer-reviewed paper surface and later published version of the benchmark report. |
 | S05 | Hugging Face, [cais/hle dataset](https://huggingface.co/datasets/cais/hle) | 2026-05-17 | Public dataset hosting, access terms, metadata, image/text fields, answer fields. |
 | S06 | Scale AI / SEAL, [Humanity's Last Exam leaderboard page](https://labs.scale.com/leaderboard/humanitys_last_exam) | 2026-05-17 | Official/partner reporting surface, score table, rank upper bound and calibration-oriented presentation. |
@@ -20,10 +20,10 @@ Date of current review: 2026-05-17
 | S09 | CAIS HLE repository, `hle_eval/run_judge_results.py` | 2026-05-17 | Official model-judge scoring path and calibration-error computation. |
 | S10 | CAIS HLE repository, [`hle-rolling-changes.txt`](https://github.com/centerforaisafety/hle/blob/main/hle-rolling-changes.txt) | 2026-05-17 | HLE-Rolling update context; not treated as the primary reviewed entity. |
 | S11 | Shankar et al., [Humanity's Last Exam is Still Hard to Pass](https://arxiv.org/abs/2602.13964), arXiv:2602.13964 | 2026-05-17 | Supporting critique and HLE-Verified context; not official HLE source facts. |
-| S12 | MESA template and filling guide, `markdown/MESA EFPA template official.md` and `markdown/MESA EFPA template filling guide.md` | 2026-05-17 | Required review structure, field guidance, rating style, checkboxes, and tables. |
-| S13 | BetterBench, `markdown/literature/betterbench.md` | 2026-05-17 | Benchmark lifecycle, documentation, reproducibility, contamination, usability, and maintenance criteria. |
-| S14 | Measuring what Matters, `markdown/literature/Measuring_what_Matters.md` | 2026-05-17 | Construct-validity chain: phenomenon, task, metric, claim. |
-| S15 | A Definition of AGI, `markdown/literature/A_Definition_of_AGI.md` | 2026-05-17 | CHC/AGI breadth framing for broad intelligence and cognitive-domain cautions. |
+| S12 | MESA template, `MESA EFPA template official.md` | 2026-05-17 | Required review structure, field guidance, rating style, checkboxes, and tables. |
+| S13 | BetterBench, `literature/betterbench.md` | 2026-05-17 | Benchmark lifecycle, documentation, reproducibility, contamination, usability, and maintenance criteria. |
+| S14 | Measuring what Matters, `literature/Measuring_what_Matters.md` | 2026-05-17 | Construct-validity chain: phenomenon, task, metric, claim. |
+| S15 | A Definition of AGI, `literature/A_Definition_of_AGI.md` | 2026-05-17 | CHC/AGI breadth framing for broad intelligence and cognitive-domain cautions. |
 | S16 | Repository report, `reports/benchmark_official_documentation_inventory.md` | 2026-05-17 | Local source-inventory starting point for HLE. |
 
 ## Short Stand-Alone Non-Evaluative Benchmark Description
@@ -1710,5 +1710,5 @@ Its main weaknesses are reliability and validity gaps around item disagreement, 
 7. Center for AI Safety. "simple-evals." https://github.com/centerforaisafety/simple-evals. Accessed 2026-05-17.
 8. Center for AI Safety. "hle-rolling-changes.txt." https://github.com/centerforaisafety/hle/blob/main/hle-rolling-changes.txt. Accessed 2026-05-17.
 9. Tanishq Shankar et al. "Humanity's Last Exam is Still Hard to Pass." arXiv:2602.13964. https://arxiv.org/abs/2602.13964. Accessed 2026-05-17.
-10. MESA repository. `markdown/MESA EFPA template official.md` and `markdown/MESA EFPA template filling guide.md`. Accessed 2026-05-17.
-11. MESA repository literature corpus. `markdown/literature/betterbench.md`, `markdown/literature/Measuring_what_Matters.md`, and `markdown/literature/A_Definition_of_AGI.md`. Accessed 2026-05-17.
+10. MESA repository. `MESA EFPA template official.md`. Accessed 2026-05-17.
+11. MESA repository literature corpus. `literature/betterbench.md`, `literature/Measuring_what_Matters.md`, and `literature/A_Definition_of_AGI.md`. Accessed 2026-05-17.

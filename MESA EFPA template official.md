@@ -30,20 +30,20 @@ Before completing the review, inspect the most authoritative available materials
 flowchart TD
 
     %% Main Header
-    Main("SECTION: MESA Review Process")
+    Main("MESA Review Model")
 
     %% Standalone Box for Short Description
     ShortDesc("Short stand-alone non-evaluative benchmark description")
 
     %% Left Side Group: Description of the Benchmark
-    subgraph G_DESC ["Description of the benchmark"]
+    subgraph G_DESC ["Part A. Description of the Benchmark"]
         direction TB
-        A1("1. Factual description")
+        A1("1. Factual Description")
         A2("2. Classification")
-        A3("3. Measurement and scoring")
-        A4("4. Benchmark outputs and reports")
-        A5("5. Benchmark access, materials, and lifecycle")
-        AA("Appendix A. General description")
+        A3("3. Measurement and Scoring")
+        A4("4. Benchmark Outputs and Reports")
+        A5("5. Benchmark Access, Materials, and Lifecycle")
+        AA("Appendix A. General Description of the Benchmark")
 
         %% Invisible links for vertical stacking
         A1 ~~~ A2
@@ -54,15 +54,15 @@ flowchart TD
     end
 
     %% Right Side Group: Evaluation of the Benchmark
-    subgraph G_EVAL ["Evaluation of the benchmark"]
+    subgraph G_EVAL ["Part B. Evaluation of the Benchmark"]
         direction TB
-        B6("6. Rationale, development,<br/>documentation, and task quality")
-        B7("7. Benchmark materials<br/>and usability")
-        B8("8. Baselines, comparators,<br/>and reference interpretation")
-        B9("9. Reliability, precision,<br/>and score stability")
-        B10("10. Validity evidence")
-        B11("11. Fair use, comparability,<br/>and appropriate use")
-        B12("12. Reports, leaderboards,<br/>dashboards, and public claims")
+        B6("6. Rationale,<br/>Development, Documentation,<br/>and Task/Item Quality")
+        B7("7. Quality and Usability<br/>of Benchmark Materials")
+        B8("8. Baselines, Comparators,<br/>and Reference Interpretation")
+        B9("9. Reliability, Precision,<br/>and Score Stability")
+        B10("10. Validity Evidence")
+        B11("11. Fair Use, Comparability,<br/>and Appropriate Use")
+        B12("12. Quality of Reports,<br/>Leaderboards, Dashboards,<br/>and Public Claims")
 
         %% Invisible links for vertical stacking
         B6 ~~~ B7
@@ -74,7 +74,7 @@ flowchart TD
     end
 
     %% Bottom Box
-    Final("Final evaluation")
+    Final("Final Evaluation")
 
     %% Layout positioning
     Main ~~~ ShortDesc
@@ -1163,7 +1163,7 @@ For broad interpretations made from benchmark scores about intelligence, AGI, re
 
 Ratings should be based on the information available, with comments explaining consequential evidence, limitations, and rating rationale where needed.
 
-## Section 6. Quality of Rationale, Development, Documentation, and Task/Item Quality
+## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 EFPA Section 6 asks whether the test explains its rationale, development, documentation, and item quality. MESA asks whether the benchmark defines the real capability or behavior of interest, explains why its tasks and scoring rules operationalize that phenomenon, documents task development, supports item quality, and gives users enough procedural information for cautious qualified use.
 
@@ -1245,7 +1245,7 @@ Section-level rating guidance:
 
 ---
 
-#### 6.1.9 Overall quality of rationale, development, and task or item quality
+#### 6.1.9 Overall Rationale, development, and task or item quality
 
 - Excellent: Reviewer judgment, based on items 6.1.1-6.1.8, supports the conclusion that the benchmark rationale, definition of what is being measured, development process, and task or item quality are comprehensive and fit for the intended score meaning. Do not mechanically average ratings.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
@@ -1482,11 +1482,11 @@ The figure below visualizes the structure of possible steps in reviewing referen
 flowchart LR
 
     %% Main Header
-    Main("SECTION 8: Baselines, Comparators,<br/>and Reference Interpretation")
+    Main("Section 8. Baselines, Comparators,<br/>and Reference Interpretation")
 
     %% Tier 1: Main categories
-    S81("8.1 Baseline and comparator<br/>interpretation")
-    S82("8.2 Overall adequacy")
+    S81("8.1 Baseline and Comparator<br/>Interpretation")
+    S82("8.2 Overall Adequacy of<br/>Baselines and Reference Interpretation")
 
     %% Tier 2: Reference anchors
     subgraph G81 ["Reference anchors"]
@@ -1501,7 +1501,7 @@ flowchart LR
     %% Tier 3: Interpretation requirements
     subgraph G82 ["Interpretation requirements"]
         direction TB
-        S82a("Criterion thresholds,<br/>score bands, or categories")
+        S82a("Criterion thresholds,<br/>score bands, or performance categories")
         S82b("Representativeness of<br/>reference groups")
         S82c("Currency and maintenance<br/>of baseline evidence")
         S82a ~~~ S82b ~~~ S82c
@@ -1517,7 +1517,7 @@ flowchart LR
     end
 
     %% Tier 5: Final evaluation
-    Overall("Overall adequacy regarding<br/>'Baselines and Reference Interpretation' & comments")
+    Overall("8.2 Overall Adequacy of<br/>Baselines and Reference Interpretation<br/>& comments")
 
     %% Horizontal Connections
     Main --> S81
@@ -1639,20 +1639,20 @@ The figure below visualizes the structure of the possible steps in the review of
 flowchart TD
 
     %% Main Header
-    Main("SECTION 9: Reliability, Precision,<br/>and Score Stability")
+    Main("Section 9. Reliability, Precision,<br/>and Score Stability")
 
     %% 9.1 standalone box
-    S91("9.1 Data provided?")
+    S91("9.1 Data Provided About<br/>Reliability, Precision,<br/>and Stability")
 
     %% Grouped boxes
-    subgraph G92 ["9.2 Run-to-run stability and uncertainty"]
+    subgraph G92 ["9.2 Run-to-Run Stability and Uncertainty"]
         direction TB
-        S92a("Seeds, sampling settings,<br/>and repeated runs")
-        S92b("Confidence intervals,<br/>standard errors, or precision estimates")
+        S92a("Run-to-run stability,<br/>seeds, and sampling settings")
+        S92b("Score uncertainty,<br/>confidence intervals,<br/>or standard errors")
         S92a ~~~ S92b
     end
 
-    subgraph G93 ["9.3 Scorer, judge, parser, and rater reliability"]
+    subgraph G93 ["9.3 Scorer, Judge, Parser, and Rater Reliability"]
         direction TB
         S93a("Automated scorer or parser reliability")
         S93b("Human rater or expert scorer agreement")
@@ -1660,7 +1660,7 @@ flowchart TD
         S93a ~~~ S93b ~~~ S93c
     end
 
-    subgraph G94 ["9.4 Form, version, prompt, and environment stability"]
+    subgraph G94 ["9.4 Form, Version, Prompt, and Environment Stability"]
         direction TB
         S94a("Prompt, instruction,<br/>or formatting sensitivity")
         S94b("Form, split, version,<br/>or refresh equivalence")
@@ -1668,15 +1668,13 @@ flowchart TD
         S94a ~~~ S94b ~~~ S94c
     end
 
-    subgraph G95 ["9.5 Statistical comparison quality"]
+    subgraph G95 ["9.5 Statistical Comparison Quality"]
         direction TB
         S95a("Meaningfulness of score differences")
-        S95b("Practical significance and<br/>multiple-comparison cautions")
-        S95a ~~~ S95b
     end
 
     %% Bottom Box
-    Overall("Overall adequacy regarding<br/>'Reliability, Precision, and Score Stability' & comments")
+    Overall("9.6 Overall Reliability, Precision,<br/>and Score Stability<br/>& comments")
 
     %% Layout
     Main ~~~ S91
@@ -1698,7 +1696,7 @@ flowchart TD
 
     %% Style for the grouped internal items
     classDef detail fill:#004771,color:#fff,stroke:#D2691E,stroke-dasharray: 5 5;
-    class S92a,S92b,S93a,S93b,S93c,S94a,S94b,S94c,S95a,S95b detail;
+    class S92a,S92b,S93a,S93b,S93c,S94a,S94b,S94c,S95a detail;
 ```
 
 When ratings depend on numerical evidence, reviewers should consider the benchmark's stakes and score use. A small amount of instability may be acceptable for exploratory research but unacceptable when leaderboards rank systems by narrow margins, when procurement or policy decisions rely on the scores, or when public score interpretations imply meaningful superiority.
@@ -1835,15 +1833,15 @@ The figure below visualizes the structure of the possible steps in the review of
 flowchart TD
 
     %% Main Header
-    Main("SECTION 10: Validity Evidence")
+    Main("Section 10. Validity Evidence")
 
     %% Main sub-sections
-    S101("10.1 Benchmark content")
-    S102("10.2 Internal structure")
-    S103("10.3 Metrics and scoring")
-    S104("10.4 Relations to<br/>other variables")
-    S105("10.5 Contamination,<br/>leakage, and gameability")
-    S106("10.6 Claim proportionality")
+    S101("10.1 Validity Evidence Based<br/>on Benchmark Content")
+    S102("10.2 Validity Evidence Based<br/>on Internal Structure")
+    S103("10.3 Validity Evidence Based<br/>on Metrics and Scoring")
+    S104("10.4 Validity Evidence Based<br/>on Relations to Other Variables")
+    S105("10.5 Contamination,<br/>Leakage, and Gameability")
+    S106("10.6 Claim Proportionality")
 
     %% Details
     subgraph G101 [" "]
@@ -1855,7 +1853,7 @@ flowchart TD
 
     subgraph G102 [" "]
         direction TB
-        D102a("Subscores, domains,<br/>clusters, or dimensionality")
+        D102a("Internal structure, subscores,<br/>or dimensionality")
         D102b("Item or task behavior<br/>across the score scale")
         D102c("Failure modes and<br/>error analysis")
         D102a ~~~ D102b ~~~ D102c
@@ -1864,13 +1862,13 @@ flowchart TD
     subgraph G103 [" "]
         direction TB
         D103a("Metric, scorer,<br/>and aggregation validity")
-        D103b("Shortcuts and<br/>construct-irrelevant variance")
+        D103b("Sensitivity to shortcuts and<br/>construct-irrelevant variance")
         D103a ~~~ D103b
     end
 
     subgraph G104 [" "]
         direction TB
-        D104a("Relations with benchmarks,<br/>humans, criteria, or settings")
+        D104a("Relations with other benchmarks,<br/>humans, criteria, or realistic settings")
         D104b("Convergent and<br/>discriminant evidence")
         D104c("Ecological or predictive relevance")
         D104a ~~~ D104b ~~~ D104c
@@ -1891,7 +1889,7 @@ flowchart TD
     end
 
     %% Final Bottom Box
-    Overall("Overall adequacy regarding<br/>'Validity Evidence' & comments")
+    Overall("10.7 Overall Validity Support<br/>& comments")
 
     %% Alignment Connections
     Main ~~~ S101
@@ -2093,15 +2091,15 @@ Relevant information for this section may also have been rated in other sections
 flowchart TD
 
     %% Main Header
-    Main("SECTION 11 Fair Use, Comparability,<br/>and Appropriate Use")
+    Main("Section 11. Fair Use, Comparability,<br/>and Appropriate Use")
 
     %% Row 1: Sub-section Headers
-    S111("11.1 Rationale and<br/>documentation")
-    S112("11.2 Development,<br/>design, and accessibility")
-    S113("11.3 Cross-system and<br/>evaluation-condition comparability")
-    S114("11.4 Fairness and<br/>bias evidence")
-    S115("11.5 Appropriate use<br/>and restrictions")
-    S116("Reports and<br/>public communication")
+    S111("11.1 Rationale and<br/>Documentation for Fair Use")
+    S112("11.2 Development, Design,<br/>and Accessibility")
+    S113("11.3 Cross-System and<br/>Evaluation-Condition Comparability")
+    S114("11.4 Evidence for<br/>Fairness and Bias")
+    S115("11.5 Appropriate Use<br/>and Restrictions")
+    S116("12.4 Fairness, Acceptability,<br/>and Public Communication")
 
     %% Column 1 Ratings
     subgraph G111 [" "]
@@ -2164,7 +2162,7 @@ flowchart TD
     end
 
     %% Final Bottom Box
-    Overall("Overall adequacy<br/>Fair Use, Comparability, and Appropriate Use")
+    Overall("11.6 Overall Fair Use,<br/>Comparability, and Appropriate Use")
 
     %% Layout Connections
     Main ~~~ S111 & S112 & S113 & S114 & S115 & S116

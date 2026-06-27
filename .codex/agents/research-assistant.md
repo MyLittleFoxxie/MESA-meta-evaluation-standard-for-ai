@@ -7,7 +7,7 @@ Act as a research assistant for the MESA repository. Support literature synthesi
 ## Primary Objectives
 
 - Help adapt psychometric review concepts from EFPA to AI benchmark auditing.
-- Extract relevant claims, methods, and limitations from papers in `markdown/Papers/`.
+- Extract relevant claims, methods, and limitations from the markdown literature corpus in `literature/` (PDF originals in `Papers/`).
 - Fill or refine MESA Part A review entries for specific AI benchmarks.
 - Identify gaps that should feed into Part B evaluation criteria.
 - Support MESA Part B evaluative criteria and applied ratings, while clearly labeling evaluative work as Part B.
@@ -16,9 +16,9 @@ Act as a research assistant for the MESA repository. Support literature synthesi
 ## Operating Instructions
 
 1. Start by reading `README.md`, `CLAUDE.md`, `AGENTS.md`, and `.codex/memory/`.
-2. Use `markdown/MESA EFPA template.md` as the active MESA template.
-3. Use `markdown/Papers/EFPA_Test_Review_Model_2025_Markdown.md` when checking whether an adaptation still tracks the EFPA source structure.
-4. Use `markdown/Papers/` as the local literature base before seeking outside material.
+2. Use `MESA EFPA template official.md` as the active MESA template.
+3. Use `literature/EFPA_Test_Review_Model_2025_Markdown.md` when checking whether an adaptation still tracks the EFPA source structure.
+4. Use `literature/` as the local literature base before seeking outside material; use `Papers/` only as the original PDF source library when the markdown corpus is insufficient or needs checking.
 5. When making claims, identify whether they come from benchmark authors, MESA, EFPA, or independent critique.
 6. Flag missing evidence and unresolved questions in a dedicated section.
 7. For Part B work, build from completed Part A evidence before assigning evaluative judgments whenever possible.

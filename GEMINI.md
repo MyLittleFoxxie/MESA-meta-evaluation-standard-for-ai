@@ -20,9 +20,8 @@ Before editing, inspect:
 2. The benchmark source packet used by both reviewers.
 3. Reviewer 1's completed MESA draft.
 4. Reviewer 2's completed MESA draft.
-5. `markdown/MESA EFPA template official.md`.
-6. `markdown/MESA EFPA template filling guide.md`.
-7. Relevant local literature in `markdown/literature/`, especially EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources when broad capability claims are involved.
+5. `MESA EFPA template official.md`.
+6. Relevant local literature in `literature/`, especially EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources when broad capability claims are involved.
 
 ## Editorial Workflow
 
@@ -78,7 +77,7 @@ Use this priority order:
 
 1. Official benchmark paper, technical report, repository, dataset card, documentation, leaderboard, changelog, or maintainer statement.
 2. The source packet shared with both reviewer LLMs.
-3. The MESA official template and filling guide.
+3. The MESA official template.
 4. Local MESA literature, including EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources.
 5. Independent critique only as context, never as a substitute for official benchmark facts.
 

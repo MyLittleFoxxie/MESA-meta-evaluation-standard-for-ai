@@ -2,7 +2,7 @@
 
 Reviewer: Claude (Opus 4.7), as MESA benchmark reviewer agent
 Date of review: 2026-05-18
-Template: `markdown/MESA EFPA template official.md` (MESA EFPA Template v2)
+Template: `MESA EFPA template official.md` (MESA EFPA Template v2)
 
 ---
 

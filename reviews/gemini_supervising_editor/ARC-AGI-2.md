@@ -69,7 +69,7 @@ The following major discrepancies between the drafts were resolved based on sour
 | Guides (User/Scoring/Rubric) | https://arcprize.org/guide/1 and https://arcprize.org/policy                                | 2026-05-18  |
 | Changelog / Release Logs     | ARC-AGI-2 repository `changelog.md`                                                         | 2026-05-18  |
 | Official Announcements       | https://arcprize.org/blog/arc-agi-2-technical-report                                        | 2026-05-18  |
-| Contextual Literature        | `markdown/literature/betterbench.md`, `Measuring_what_Matters.md`, `A_Definition_of_AGI.md` | 2026-05-18  |
+| Contextual Literature        | `literature/betterbench.md`, `Measuring_what_Matters.md`, `A_Definition_of_AGI.md` | 2026-05-18  |
 | Feedback / Contact Channels  | GitHub repository issues and ARC Prize contact/policy routes.                               | 2026-05-18  |
 
 ### Section 2. Classification

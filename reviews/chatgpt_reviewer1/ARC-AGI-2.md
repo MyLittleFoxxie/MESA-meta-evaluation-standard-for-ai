@@ -18,10 +18,10 @@ Date of current review: 2026-05-17
 | S07 | ARC Prize, [ARC-AGI leaderboard](https://arcprize.org/leaderboard)                                                                                                  | 2026-05-17  | Public reporting surface, cost/performance framing, preview and incomplete-testing caveats.                                         |
 | S08 | ARC Prize, [arc-agi-benchmarking repository](https://github.com/arcprize/arc-agi-benchmarking)                                                                      | 2026-05-17  | Open benchmarking harness, adapters, scoring script, sample random baseline, model configuration and cost fields.                   |
 | S09 | Repository report, `reports/benchmark_official_documentation_inventory.md`                                                                                          | 2026-05-17  | Local source inventory starting point.                                                                                              |
-| S10 | MESA template and filling guide, `markdown/MESA EFPA template official.md` and `markdown/MESA EFPA template filling guide.md`                                       | 2026-05-17  | Review structure, field guidance, rating scale, ARC-AGI-2 examples.                                                                 |
-| S11 | BetterBench, `markdown/literature/betterbench.md`                                                                                                                   | 2026-05-17  | Documentation, implementation, reproducibility, and maintenance criteria.                                                           |
-| S12 | Measuring what Matters, `markdown/literature/Measuring_what_Matters.md`                                                                                             | 2026-05-17  | Construct-validity chain: phenomenon, task, metric, claim.                                                                          |
-| S13 | A Definition of AGI, `markdown/literature/A_Definition_of_AGI.md`                                                                                                   | 2026-05-17  | Broad AGI/CHC-style capability breadth cautions.                                                                                    |
+| S10 | MESA template, `MESA EFPA template official.md`                                                                                                                     | 2026-05-17  | Review structure, field guidance, rating scale, ARC-AGI-2 examples.                                                                 |
+| S11 | BetterBench, `literature/betterbench.md`                                                                                                                            | 2026-05-17  | Documentation, implementation, reproducibility, and maintenance criteria.                                                           |
+| S12 | Measuring what Matters, `literature/Measuring_what_Matters.md`                                                                                                      | 2026-05-17  | Construct-validity chain: phenomenon, task, metric, claim.                                                                          |
+| S13 | A Definition of AGI, `literature/A_Definition_of_AGI.md`                                                                                                            | 2026-05-17  | Broad AGI/CHC-style capability breadth cautions.                                                                                    |
 
 # Part A. Description of the Benchmark
 
@@ -68,7 +68,7 @@ Reviewer comments: Full MESA Part A + Part B review of ARC-AGI-2 public benchmar
 | Guides _(User/Scoring/Rubric)_ | https://arcprize.org/guide/1 and https://arcprize.org/policy                                                                        | 2026-05-17  |
 | Changelog / Release Logs       | ARC-AGI-2 repository `changelog.md`                                                                                                 | 2026-05-17  |
 | Official Announcements         | https://arcprize.org/blog/arc-agi-2-technical-report                                                                                | 2026-05-17  |
-| Contextual Literature          | `markdown/literature/betterbench.md`; `markdown/literature/Measuring_what_Matters.md`; `markdown/literature/A_Definition_of_AGI.md` | 2026-05-17  |
+| Contextual Literature          | `literature/betterbench.md`; `literature/Measuring_what_Matters.md`; `literature/A_Definition_of_AGI.md`                            | 2026-05-17  |
 | Feedback / Contact Channels    | GitHub repository issues and ARC Prize contact/policy routes where available [S02, S06, S08].                                       | 2026-05-17  |
 
 Reviewer comments: ARC-AGI-2 is an upgraded ARC-AGI benchmark version for evaluating abstract reasoning and problem-solving on novel grid-transformation tasks. Tasks present demonstration input-output grid pairs and require the test-taker to infer an unstated transformation rule and construct output grid(s) for held-out input grid(s). ARC Prize frames ARC-AGI-2 as a challenge for frontier reasoning systems and as an AGI-progress signal, while the task evidence itself is limited to the ARC grid-transformation domain [S01, S03, S04, S05].
@@ -2124,5 +2124,5 @@ Reviewer comments: Ratings support cautious use for ARC-style exact-grid abstrac
 6. ARC Prize. "ARC Prize Verified Testing Policy." https://arcprize.org/policy. Accessed 2026-05-17.
 7. ARC Prize. "ARC Prize Leaderboard." https://arcprize.org/leaderboard. Accessed 2026-05-17.
 8. ARC Prize. "arc-agi-benchmarking." https://github.com/arcprize/arc-agi-benchmarking. Accessed 2026-05-17.
-9. MESA repository. `markdown/MESA EFPA template official.md` and `markdown/MESA EFPA template filling guide.md`. Accessed 2026-05-17.
-10. MESA repository literature corpus. `markdown/literature/betterbench.md`, `markdown/literature/Measuring_what_Matters.md`, and `markdown/literature/A_Definition_of_AGI.md`. Accessed 2026-05-17.
+9. MESA repository. `MESA EFPA template official.md`. Accessed 2026-05-17.
+10. MESA repository literature corpus. `literature/betterbench.md`, `literature/Measuring_what_Matters.md`, and `literature/A_Definition_of_AGI.md`. Accessed 2026-05-17.

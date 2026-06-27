@@ -1,0 +1,398 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{balance}
+
+\begin{document}
+
+\title{MESA: Requirements-Oriented Review of AI Benchmarks as Measurement Instruments}
+% \title{MESA: a Test Review Model for AI Benchmarks as intelligence or capacity measurment instruments}
+
+\author{
+\IEEEauthorblockN{Vitor Raposo}
+\IEEEauthorblockA{
+Ontario Tech University\\
+Oshawa, Ontario, Canada\\
+vitor.raposo@ontariotechu.net
+}
+\and
+\IEEEauthorblockN{Sanaa Alwidian}
+\IEEEauthorblockA{
+Ontario Tech University\\
+Oshawa, Ontario, Canada\\
+sanaa.alwidian@ontariotechu.ca
+}
+}
+
+\maketitle
+\thispagestyle{plain}
+\pagestyle{plain}
+
+\begin{abstract}
+Requirements Engineering (RE) for AI relies heavily on benchmark scores to justify model selection, safety claims, and procurement. However, these benchmarks are rarely audited as measurement instruments with clearly defined standards, explicit limits, and construct validity arguments (i.e., evidence that the benchmark measures what it purports to measure). This paper introduces MESA (Meta-Evaluation Standard for AI Benchmarks), a requirements-oriented framework for evaluating AI benchmarks before using their scores to substantiate capability claims. Crucially, MESA addresses a gap in trustworthy AI RE, in the sense that unrevised benchmarks leave safety, fairness, and reliability claims empirically unverified. Drawing from the psychometric model of the EFPA's (European Federation of Psychologists' Associations) test review model; MESA features a two-part structure: Part A (Descriptive) catalogs the benchmark’s design and administration, while Part B (Evaluative) assesses whether scores warrant the intended interpretations. We apply MESA to two major benchmarks—Humanity's Last Exam (HLE) and ARC-AGI-2—to demonstrate how MESA surfaces evidence gaps and claim-proportionality risks in AI capability assessments (cases where the claims attached to a score exceeds what the benchmark actually tested). Our analysis reveals revealed that HLE is best characterized as a difficult closed-ended academic question-answering benchmark,rather than a standalone basis for high-stakes ranking or broad AGI (Artificial General Intelligence) claims, while ARC-AGI-2 is best characterized as an exact-grid abstraction benchmark under specified evaluation conditions, rather than a standalone test of broad intelligence. %Ultimately, MESA provides a public, versionable and replicable quality model to specify, audit, and validate benchmark-based claims in AI RE.
+Ultimately, MESA provides a public, versionable, and replicable quality standard to help AI requirements engineers specify, audit, and validate the benchmark-based claims that underpin model selection, safety assessment, and procurement decisions.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Requirements Engineering for AI, AI benchmarks, benchmark auditing, score interpretation, measurement instruments, construct validity, meta-evaluation, EFPA Test Review Model
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Benchmarks are one of the main mechanisms AI systems are compared, ranked, marketed, and interpreted. In practice, benchmark scores are often treated as direct indicators of capability and reused as evidence for model selection, procurement, safety claims, and public narratives about what AI systems can do. However, a benchmark score is not a capability itself. It is an inference drawn from a designed measurement instrument that operate under assumptions about content, administration, scoring, comparison, and interpretation. Benchmark quality is therefore central to whether benchmark-based claims should be trusted.
+
+Recent research has identified multiple weaknesses in AI benchmarking practice, including benchmark contamination (i.e., test items leaking into model training data), prompt sensitivity (where scores varying significantly when prompt wording changes), saturation (i.e., top models scoring near the ceiling, leaving insufficient room to discriminate between them), over-interpretation of leaderboard rankings beyond what the underlying numbers support, unclear definitions of what the benchmark is supposed to measure, weak documentation, and poor reproducibility \cite{jo_wilson_what_does_your_benchmark_measure}. These problems threaten construct validity, where a model may score well because the benchmark is narrow, fragile, leaky, or poorly governed rather than because the model is genuinely capable.
+
+This paper argues that AI benchmarks should be reviewed with the same rigor as measurement instruments used to evaluate human cognitive ability. In human assessment, mature disciplines do not only score people on tests; they also review the tests themselves. The EFPA \textit{Test Review Model}, informed by the \textit{Standards for Educational and Psychological Testing}, offers a structured template for examining whether a test's content, scoring, evidence base, and interpretive claims are justified \cite{aera_apa_ncme_standards_2014,efpa_test_review_model_2025}. AI benchmarking lacks a similarly established review practice, despite the fact that benchmark results increasingly shape research agendas, procurement decisions, public claims about AI capabilities, and policy debates.
+
+From a Requirements Engineering (RE) perspective, the core operational requirement for benchmark use is \textit{traceability}, which reflects that a score interpretation should be traceable from claimed capability to task design, metric, score, comparison basis, and intended use. In conventional software projects, requirements can be traced from stakeholder goals through functional requirements and quality attributes to verification evidence. %In AI projects, much of that verification evidence is benchmark-derived. A benchmark score, however, is not a self-contained  proof of requirement satisfaction. Rather, it is the output  measurement system whose tasks, prompts, access conditions, scoring rules, baselines, and reporting surfaces (papers, leaderboards, dashboards, scorecards) may be poorly specified, unstable, or not aligned with the claim the score is being used to back 
+In AI projects, benchmark scores serve as the principal source of verification evidence. A score, however, is only as trustworthy as the measurement system that produced it, and that system's tasks, prompts, access conditions, scoring rules, baselines, and reporting surfaces may be poorly specified, unstable, or misaligned with the capability claim it is being used to support\cite{singh_leaderboard_illusion,line_goes_up}. This traceability failure has direct consequences for trustworthy AI, where undetected measurement weaknesses silently propagate into safety, fairness, and reliability decisions when benchmark scores are accepted uncritically.
+
+To address this gap, this paper proposes \textbf{MESA} (\textit{Meta-Evaluation Standard for AI Benchmarks}), a requirements-oriented framework for auditing AI benchmarks as measurement instruments. MESA is not another model-scoring benchmark. Rather, it is a framework for reviewing benchmarks themselves before their scores are used as evidence. MESA draws from three sources. Namely, it adapts (1) the EFPA Test Review Model's separation of instrument description and evaluation, (2) incorporates benchmark-quality concerns \cite{reuel_betterbench}, including  documentation, reproducibility, implementation transparency, and lifecycle maintenance; and (3) applies construct-validity and capability-area perspectives to discipline inferential chain from phenomenon to task, metric, score, and claim \cite{bean_measuring_what_matters,hendrycks_definition_agi}.
+
+%The resulting template separates Part~A (descriptive: what the benchmark is, what it claims, how it operates, what materials exist) from Part~B (evaluative: whether benchmark scores support the intended interpretations). This sequencing matters for RE: missing documentation is first recorded as an evidence gap --- a place where the benchmark lacks the documentation or measurement evidence needed to support its claims, marked as ``unknown'' rather than counted as a demonstrated defect --- and evaluation then asks whether the available evidence is adequate for the benchmark's stated or likely use.
+The resulting model is structured in two parts. Part A is descriptive, characterizing what the benchmark is, what it claims, how it operates, and what supporting materials exist. Part B is evaluative, assessing whether the available scores and documentation adequately justify the benchmark's intended interpretations. This sequencing is deliberate and consequential for RE practice. Where documentation is absent, MESA first records an evidence gap — flagging the missing measurement evidence as "unknown" rather than as a demonstrated defect — before Part B then asks whether what remains is sufficient to support the benchmark's stated or anticipated use. The effect is a disciplined separation between what a benchmark says about itself and what the evidence actually shows.
+The paper aims to address three research questions:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{RQ1}: How can the EFPA Test Review Model be adapted into an RE-oriented quality model for benchmark-based AI capability claims?
+    \item \textbf{RQ2}: What benchmark materials and construct validity support are needed for trustworthy AI benchmark score interpretation?
+    \item \textbf{RQ3}: What interpretation risks and evidence gaps does MESA reveal in two of the most widely used AI benchmarks: Humanity's Last Exam and ARC-AGI-2?
+\end{enumerate}
+
+% The key contributions of this work are as follows:
+% \begin{enumerate}[leftmargin=*]
+%     \item A requirements-oriented framework for reviewing benchmark-based claims in RE for AI.
+%     \item An EFPA-derived review template that separates benchmark description from benchmark evaluation.
+%     \item Two test applications, Humanity's Last Exam and ARC-AGI-2, showing how MESA exposes evidence gaps and unsupported score interpretations.
+%     \item A public replication package containing the template, source inventory, pilot reviews, validation reports, and utility scripts.
+% \end{enumerate}
+
+MESA helps requirements engineers, benchmark users, benchmark maintainers, and AI assurance stakeholders judge which benchmark claims are supported, which are evidence gaps, and how benchmark scores should or should not be used.
+
+\section{Related Work}
+
+\subsection{Requirements Engineering for AI Systems}
+
+RE research on AI-based systems emphasizes that AI development drastically changes the subjects and practices of requirements work. Habiba et al. provide a recent systematic mapping study of RE for AI-based systems, synthesizing 126 primary studies and showing that the area has grown around practices for elicitation and analysis while still facing challenges in requirements specification, validation, quality requirements, explainability, and alignment between machine-learning engineers and end users \cite{habiba_re4ai_maturity_2024}.
+
+This literature motivates MESA's RE framing. If AI requirements depend on empirical results, then the benchmarks that produce those results should themselves be specified, reviewed, and interpreted through explicit quality criteria. MESA treats benchmark claims, tasks, scoring rules, reproducibility materials, and reporting practices as requirements-relevant review objects rather than as neutral background infrastructure. The gap addressed here is that RE-for-AI work often recognizes the need for validation evidence, while providing less guidance on how to review the benchmark instruments that supply that evidence.
+
+\subsection{AI Benchmark Quality and Validity}
+
+AI benchmarking literature increasingly emphasizes that benchmarks are not interchangeable scoreboards. Benchmark critique has identified contamination, prompt sensitivity, saturation, over-interpretation of leaderboard rankings, and unclear traceability from a model's outputs to the reported score that can make leaderboard results weaker evidence than their public presentation suggests \cite{jo_wilson_what_does_your_benchmark_measure,singh_leaderboard_illusion,line_goes_up}.
+
+Bean et al. \cite{bean_measuring_what_matters} supply a psychometric validity lens by framing benchmark validity as a chain from phenomenon to task to metric to claim --- the trace from the real-world ability the benchmark targets, through the tasks chosen, through the scoring metric, to the claim made about the score. This chain maps naturally to requirements traceability. A claimed capability must be connected to observable tasks, a scoreable metric, and an interpretation that does not exceed the evidence. MESA uses this logic to review whether benchmark scores are valid evidence for the requirement-like claims attached to them.
+
+Reuel et al. \cite{reuel_betterbench} treat benchmarks as maintained evaluation resources and evaluate whether they define their purpose, supply code and data, report uncertainty, provide replication scripts, specify licenses, support maintenance, and document limitations. This software-engineering view complements psychometric validity: a benchmark may be conceptually well motivated and still fail as trustworthy evidence if its code, data, documentation, release conditions, or maintenance status cannot support independent interpretation.
+
+% MESA is also distinct from adjacent AI-aritfact-quality frameworks. Model Cards \cite{mitchell_model_cards_2019} and Datasheets for Datasets \cite{gebru_datasheets_2021} are templates that the model or dataset creator fills out to disclose what they built. The EU AI Act establishes whole-system regulatory checks for high-risk AI systems \cite{eu_ai_act_2024}, and ISO/IEC~25059 supplies a whole-system quality model for AI products \cite{iso_iec_25059_2023}. MESA sits between these: it is neither a creator-side disclosure of a model or dataset, nor a whole-system regulatory check, but a quality model that reviewers apply to the benchmark itself --- the measurement device whose scores feed those later artifacts (model cards, assurance cases, procurement decisions). The gap addressed here is whether upstream benchmark scores can carry the claims inherited by model cards, assurance cases, procurement decisions, and AI quality arguments.
+
+\subsection{EFPA and Psychometric Review}
+
+The EFPA Test Review Model is a psychometric (human-test review) framework for evaluating psychological and educational instruments. Its first part describes an instrument's identity, intended users and populations, response modes, administration conditions, scoring, reports, supply arrangements, and general description. Its second part evaluates design rationale, materials, norms (reference scores against which a new score is interpreted), reliability or precision (how consistent and tight repeated scores are), validity, fair use (appropriate use across systems and users), digitally generated reports, and final interpretation \cite{efpa_test_review_model_2025}. EFPA also cautions reviewers not to mechanically average ratings where expert judgment is required.
+
+MESA adapts EFPA because AI benchmark review faces a similar interpretive problem. A test score in human assessment is not self-justifying; it requires evidence that the instrument measures the intended construct for the intended use. A benchmark score similarly requires evidence that the benchmark's tasks, scoring rules, reference points, reproducibility conditions, and reporting practices support the meaning that users attach to the score. The gap addressed here is that AI benchmarks are widely used as measurement instruments, but they are rarely reviewed with a unified instrument-review structure that separates description from evaluative judgment, while also giving feedback of the benchmark's strengths and weaknesses.
+
+\subsection{Broad Intelligence Claims}
+
+Benchmark interpretation becomes especially risky when scores are linked to broad intelligence or AGI claims. The AGI and CHC (Cattell--Horn--Carroll theory of cognitive abilities) literature used in this work treats intelligence as a profile of abilities rather than a single overall number, while recognizing that CHC interpretation itself has empirical and policy debates \cite{hendrycks_definition_agi,canivez_chc_critique}. MESA does not require every benchmark to become a full multi-ability cognitive test suite. It uses this literature to discipline broad claims: strong performance on one task family should be treated as task-level evidence unless the benchmark supplies a validity argument for broader interpretation. The gap addressed here is claim proportionality --- the principle that claims about a model should not exceed what the benchmark actually tested: benchmark scores should not be promoted from narrow task evidence to broad intelligence evidence without support across the relevant range of abilities.
+
+\section{Methodology}
+
+%This study focuses on framework construction, demonstrating its utility through targeted case studies. Rather than assessing the overall quality of benchmarks across the entire field, the objective is to establish a functional review model and template. This framework allows researchers and practitioners to systematically audit benchmark requirements, materials, score interpretations, and evidence gaps. This methodology is directly aligned with the research goals: the case studies serve as a proof-of-concept to verify the framework’s feasibility, coverage, and utility, rather than to derive generalized conclusions about all existing benchmarks.
+This study focuses on framework construction, demonstrating MESA's utility through targeted case studies. Rather than evaluating benchmark quality across the field as a whole, the objective is to establish a rigorous and replicable review model. Where this model will have the potential to equip requirements engineers, benchmark users, and AI assurance stakeholders with a systematic means of auditing benchmark design, materials, score interpretations, and evidence gaps. The case studies are designed to verify that MESA is feasible to apply, sufficiently comprehensive in its coverage, and useful in practice, not to draw generalized conclusions about the quality of AI benchmarking as a field.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/mesa-methodology-pipeline.png}
+\caption{MESA methodology pipeline. Supporting AI and RE literature, a 20-benchmark source inventory, software-engineering practices, AI cognitive-abilities mapping, construct-validity measurement literature, and the EFPA Test Review Model feed the MESA Review Model, whose descriptive and evaluative sections are then applied to test applications.}
+\label{fig:mesa-methodology-pipeline}
+\end{figure*}
+
+Figure~\ref{fig:mesa-methodology-pipeline} summarizes the construction logic. MESA was built from supporting literature around AI and RE, a source inventory of 20 modern AI benchmarks, software-engineering practices, AI cognitive-abilities mapping, construct-validity and measurement literature, and the EFPA Test Review Model. The 20-benchmark inventory was used as a breadth check for benchmark types, materials, documentation patterns, and reporting surfaces rather than as the full set of reviewed case studies. This makes the method verifiable: the review problem, source inventory, adaptation rules, template structure, test applications, and reflective limitations are all disclosed. This also leave room for growth, as the table can be versioned to include requirements present in future-reviewed benchmarks. Table~\ref{tab:benchmark-source-inventory} lists the benchmarks and primary evaluation focus used as the source for the template requirements.
+
+\begin{table*}[t]
+\caption{Modern AI Benchmarks Used as Source For Template Requirements}
+\label{tab:benchmark-source-inventory}
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedleft\arraybackslash}p{0.025\textwidth}>{\raggedright\arraybackslash}p{0.16\textwidth}>{\raggedright\arraybackslash}X@{\hspace{2em}}>{\raggedleft\arraybackslash}p{0.025\textwidth}>{\raggedright\arraybackslash}p{0.16\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\# & Benchmark & Primary evaluation focus & \# & Benchmark & Primary evaluation focus \\
+\midrule
+1  & Humanity's Last Exam & Academic reasoning                          & 11 & LiveCodeBench Pro     & Competitive coding problems \\
+2  & ARC-AGI-2            & Visual reasoning puzzles                    & 12 & Terminal-Bench 2.0    & Agentic terminal coding \\
+3  & GPQA Diamond         & Scientific knowledge                        & 13 & SWE-Bench Verified    & Agentic coding \\
+4  & AIME 2025            & Mathematics                                 & 14 & tau2-bench            & Agentic tool use \\
+5  & MathArena Apex       & Challenging math contest problems           & 15 & Vending-Bench 2       & Long-horizon agentic tasks \\
+6  & MMMU-Pro             & Multimodal understanding and reasoning      & 16 & FACTS Benchmark Suite & Grounding, parametric, multimodal, and search-retrieval factuality \\
+7  & ScreenSpot-Pro       & Screen understanding                        & 17 & SimpleQA Verified     & Parametric knowledge \\
+8  & CharXiv Reasoning    & Information synthesis from charts   & 18 & MMMLU                 & Multilingual multiple-choice question answering \\
+9  & OmniDocBench 1.5     & OCR document analyzing         & 19 & Global PIQA           & Commonsense reasoning across languages and cultures \\
+10 & Video-MMMU           & Knowledge acquisition from videos           & 20 & MRCR v2 (8-needle)    & Long-context performance \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Problem Identification}
+
+The starting problem was that AI benchmark scores are often reused as evidence for capability and trustworthiness claims without a structured review of the benchmark as an instrument. For RE practice, this is problematic because benchmark-derived claims may become de facto requirements or acceptance criteria even when the benchmark's construct, scoring method, reproducibility conditions, or supported-use and non-use guidance are unclear.
+
+\subsection{Framework Construction}
+
+The construction process produced the MESA Review Model specified below. This subsection describes how the framework was derived, rather than restating the full structure of the final template. As illustrated in Figure~\ref{fig:mesa-methodology-pipeline}, the integrated input sources informed a structural model adapted from the EFPA Test Review Model. The original psychometric sections were adapted functionally rather than textually: each field was systematically retained, renamed, replaced, or expanded according to whether its review function transferred to AI benchmarking. For example, the EFPA test taker'' is mapped to the evaluated AI system, while the target population'' becomes the intended AI systems or model class. Similarly, traditional psychometric norms'' are expanded into technical reference points---including baselines, task comparators, chance floors, human or expert references, model cohorts, and criterion thresholds---and digitally generated reports'' are translated into benchmark papers, result files, dashboards, scorecards, and leaderboards.
+
+\subsection{Adaptation and Evidence Integration}
+
+The structural adaptation followed four foundational rules. First, preserve fields whose underlying review function transfers directly to AI benchmarking. Second, rename fields when the core function transfers but the human-centric terminology is misleading in the context of AI. Third, replace fields when the original framework assumes human-assessment conditions that are incompatible with AI benchmarks. Fourth, add AI-specific fields where the EFPA model would otherwise overlook a material benchmark dependency. These new additions incorporate modern engineering parameters, including prompt templates, hidden data splits, scorer code execution, model-as-judge behaviors, API runtime conditions, contamination controls, software versioning, leaderboard governance, and more.
+
+AI benchmark-quality literature was then integrated into the EFPA-derived structure. Reuel et al. \cite{reuel_betterbench} informed lifecycle, reproducibility, implementation, documentation, maintenance, and contamination dimensions. Bean et al. \cite{bean_measuring_what_matters} informed the phenomenon-task-metric-claim chain. AGI and CHC literature informed the review of broad cognitive claims \cite{hendrycks_definition_agi}.
+
+\subsection{MESA Review Model}
+
+The finished MESA Review Model treats an AI benchmark as both a requirements object and a source of score-based claims. The review model has two main parts: Part A describes the benchmark and its materials, while Part B evaluates whether the benchmark supports the interpretations users are expected to draw from its scores. Table~\ref{tab:mesa-review-structure} summarizes the high-level structure of the full review model.
+
+\begin{table*}[t]
+\caption{High-Level Structure of the MESA Review Model}
+\label{tab:mesa-review-structure}
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.32\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Component & High-level purpose \\
+\midrule
+Part A Section 1. Factual Description & Identifies the review event, benchmark entity, provenance, inspected sources, and access conditions. \\ \hline
+Part A Section 2. Classification & Records claimed capability domains, intended systems and users, task families, response modes, conditions, versions, and broad-claim flags. \\ \hline
+Part A Section 3. Measurement and Scoring & Describes how model behavior becomes scores, including scoring procedures, metrics, transformations, baselines, uncertainty, and stated score interpretation. \\ \hline
+Part A Section 4. Benchmark Outputs and Reports & Records papers, reports, leaderboards, dashboards, result files, and how scores are presented. \\ \hline
+Part A Section 5. Benchmark Access, Materials, and Lifecycle & Records repositories, datasets, hidden splits, contamination documentation, reproducibility materials, licenses, maintenance, and versioning. \\ \hline
+Appendix A. General Description & Provides a concise non-evaluative summary of the benchmark for readers. \\ \hline
+Part B Section 6. Rationale, Development, Documentation, and Task/Item Quality & Evaluates construct definition, development process, documentation, and task quality. \\ \hline
+Part B Section 7. Quality and Usability of Benchmark Materials & Evaluates datasets, prompts, rubrics, harnesses, scorers, interfaces, licenses, and usability. \\ \hline
+Part B Section 8. Baselines, Comparators, and Reference Interpretation & Evaluates chance, human, expert, model, historical, and criterion reference points. \\ \hline
+Part B Section 9. Reliability, Precision, and Score Stability & Evaluates score stability across runs, prompts, scorers, forms, versions, and environments. \\ \hline
+Part B Section 10. Validity Evidence & Evaluates whether task design, scoring, contamination controls, and claim proportionality support intended score interpretations. \\ \hline
+Part B Section 11. Fair Use, Comparability, and Appropriate Use & Evaluates responsible comparison across systems, access modes, compute budgets, languages, modalities, and intended uses. \\ \hline
+Part B Section 12. Quality of Reports, Leaderboards, Dashboards, and Public Claims & Evaluates whether reporting surfaces communicate scores, conditions, uncertainty, caveats, and claims responsibly. \\ \hline
+Final Evaluation & Integrates supported interpretations, ratings, evidence gaps, cautions, recommendations, and non-use cases. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\paragraph{Part A, Description} Part A asks what the benchmark is before judging whether it is good. It records factual description, source inventory, benchmark identity, public materials, claimed capability domains (the ability areas the benchmark targets), intended systems, intended users, task families, response modes, prerequisites, evaluation conditions, input types, variants, and cautions about broad-intelligence claims. It also describes scoring procedures, metrics, scale types, transformations, baselines, uncertainty, report outputs, repositories, dataset access, contamination documentation, reproducibility materials, maintenance, versioning, feedback channels, and archival or retirement policies.
+
+% For RE practice, Part A is the benchmark's requirements and materials specification. It establishes the object that a reviewer, assurance analyst, or model-selection team is actually relying on. Without this descriptive layer, evaluative judgments risk confusing a benchmark paper, dataset, leaderboard, scorer, hidden split, and public claim as if they were the same object.
+
+\paragraph{Part B, Evaluation} Part B asks whether the benchmark supports its intended interpretation. It preserves EFPA's evaluative categories while translating them for AI benchmarks. Section 6 evaluates rationale (design justification), development, documentation, and task or item quality. Section 7 evaluates benchmark materials such as datasets, prompts, rubrics, harnesses, scorers, licenses, and usability. Section 8 evaluates baselines, comparators, and how to interpret a score against those reference points. Section 9 evaluates reliability (consistency of repeated scores) and precision across runs, prompts, scorers, judges, forms, versions, and environments. Section 10 evaluates validity evidence, including content, scoring validity, relations to other evidence, contamination, gameability (how easily a system can score high without actually having the targeted ability), and claim proportionality. Section 11 evaluates fair use, comparability, accessibility, appropriate use, and restrictions. Section 12 evaluates reports, leaderboards, dashboards, and public claims.
+
+MESA uses EFPA-style ratings of \texttt{n/a} and \texttt{0}--\texttt{4}. A \texttt{0} means that the reviewer cannot rate the attribute because information is missing or insufficient. A \texttt{1} means the available evidence is inadequate for the stated purpose. This distinction is central for AI benchmarks: missing documentation is an evidence gap, not automatically a demonstrated defect. The final evaluation does not just report ratings. It produces supported-use and non-use statements: a concise account of what the score can be used to claim, what it should not be used to claim, and what conditions must be held fixed for comparisons to be meaningful, such as benchmark version, split, prompt or harness, scorer, comparator cohort, uncertainty, and run conditions. This replaces mechanical averaging of ratings with a traceable statement of how the score may be used.
+
+\paragraph{Template coherence} The template contains deliberate overlap because the same benchmark material can serve different review functions. A prompt template can be recorded in Part A as benchmark material, evaluated in Section 7 for usability, examined in Section 9 as a source of score instability, assessed in Section 10 as a validity threat, and reported in Section 12 as a condition for leaderboard interpretation. This is not redundant if each section preserves its role: description, material usability, reliability, validity, fairness, and communication. The same principle applies to hidden test sets, scorer code, model-as-judge methods, contamination controls, and broad intelligence claims.
+
+\paragraph{MESA as its own measurement object} MESA can be conceptualized through the very phenomenon-task-metric-claim chain it uses to evaluate other instruments. In this meta-evaluation context, the phenomenon of interest is whether a benchmark’s score interpretations are defensible for responsible evaluation (RE) use. The task is the execution of the structured review itself—including compiling the source inventory, completing Part~A descriptions, grounding Part~B ratings in evidence, and rendering a final summary judgment. The resulting metric consists of EFPA-style ratings (N/A and 0–4) coupled with qualitative reviewer evidence and cautions, intentionally rejecting an oversimplified aggregate score. Consequently, the claim MESA is licensed to make remains deliberately narrow: it supports source-grounded statements regarding whether benchmark scores can carry a stated interpretation, rather than a generic numeric quality score for the benchmark as a whole. This framing explicitly bounds MESA's measurement limits, preventing readers from misconstruing individual section ratings as holistic quality verdicts.
+
+\subsection{Test Application Demonstration and Reflection}
+
+MESA was then applied to two high-visibility benchmark cases: Humanity's Last Exam and ARC-AGI-2. The cases were selected because both are often associated with public claims about AI capabilities but differ sharply in task structure. HLE is a broad academic question-answering benchmark with multiple-choice and short-answer items, partial multimodality, exact-match grading, and model-as-judge support for equivalent answers \cite{phan_etal_hle_2025}. ARC-AGI-2 is an exact-grid abstraction benchmark --- scoring requires every cell of the output grid to match exactly --- with public tasks, hidden evaluation splits, a competition ecosystem, and strong AGI-oriented public framing \cite{chollet_arc_agi_2_2025}.
+
+The two test applications were chosen to maximize contrast along three review-relevant axes: task format (broad academic free-/short-answer in HLE versus narrow visual-grid pattern abstraction in ARC-AGI-2), scoring mechanism (model-as-judge versus deterministic exact-cell match), and public framing intensity (an ``expert-level'' academic stress test versus an explicit stand-in test for general intelligence). 
+
+% High visibility was a prerequisite --- both benchmarks influence model-card and procurement language --- but the demonstration is deliberately bounded: MESA's generalizability to safety, agentic, multilingual, and live-evaluation benchmarks remains an open question (see Section~\ref{sec:limitations}).
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/mesa-test-case-pipeline.png}
+\caption{Test application review pipeline. HLE and ARC-AGI-2 information sources were paired with the MESA Review Model and sent to two independent reviewer models. A supervising editor model reconciled the resulting MESA by removing discrepancies to produce final MESA evaluations.}
+\label{fig:mesa-test-case-pipeline}
+\end{figure*}
+
+To reduce single-reviewer bias and stress-test the template, each test application followed the multi-LLM pipeline shown in Figure~\ref{fig:mesa-test-case-pipeline}. Each reviewer model was driven by a benchmark-reviewer agent description checked into the public repository: Reviewer~1 (ChatGPT~5.5)\footnote{Model identifiers refer to the products and versions named at submission time.} used \texttt{.codex/agents/benchmark-reviewer.md} and Reviewer~2 (Claude Opus~4.7) used \texttt{.claude/agents/benchmark-reviewer.md}. The two files are functionally identical adaptations of the same agent specification, differing only in which LLM they attend to. Both reviewers received the same HLE or ARC-AGI-2 source packet (locations of documentation) and produced complete MESA drafts without access to each other's output. The drafts, the source packet, and the discrepancy list were then sent to a supervising editor model (Gemini~3.1~Pro) driven by \texttt{GEMINI.md}, which serves to reconcile discrepancies between reviews. Reviewer drafts and the editor's reconciliation outputs are committed in the public repository as well, so the inputs, intermediate drafts, and final reconciled review are all easily viewable.
+
+Discrepancies were operationalized across three distinct levels of granularity: factual claims in Part~A, numerical rating values in Part~B, and the qualitative wording of Part~B rationales. For each test application, the editor’s reconciliation note formally documented the resolved discrepancies and their underlying evidence base. To maintain methodological rigor, shared inputs standardized the evaluation scope, source-use guidelines, the separation of description from evaluation, and protocols for handling missing evidence. A final quality check then verified overall completeness, source grounding, structural separation, rating consistency, and the inclusion of explicit reviewer cautions. The resulting reconciled review was established as the official output of the test application.
+
+The cases were used to examine whether MESA could capture benchmark facts, separate descriptive and evaluative claims, identify evidence gaps, assign cautious ratings, and distinguish narrow supported interpretations from broader unsupported ones. Reflective evaluation then examined template coherence, overlap, usability, and claim proportionality. This is a feasibility demonstration of an LLM-assisted MESA workflow, not yet a validation study of inter-rater reliability, reviewer-model sensitivity, or human reviewer training effects; those remain future work.
+
+\subsubsection{Worked Example: Anchoring a Section~9 Rating} 
+In the HLE test application, Reviewer~1 assigned Section~9 (Reliability) a rating of 2, while Reviewer~2 assigned a 1. The supervising editor reconciled this discrepancy to a final rating of 1 based on the four foundational elements of the MESA anchoring model:
+
+\begin{itemize}
+    \item \textbf{Evidence:} The scoring harness computes an approximate (Wald) confidence interval, and the accompanying paper reports a 15--18\% expert disagreement rate.
+    \item \textbf{Missing Evidence:} There is no published run-to-run stability data for models whose outputs vary dynamically, no prompt-sensitivity analysis, and no validation of the \texttt{o3-mini} judge against expert human graders. Furthermore, the public leaderboard reports point estimates completely stripped of uncertainty intervals.
+    \item \textbf{Editor Rationale:} For a competitive leaderboard ranking frontier models separated by incredibly razor-thin margins, the total absence of uncertainty reporting and an unvalidated automated judge represent critical reliability gaps, not merely minor or incomplete documentation.
+    \item \textbf{Supported-Use and Non-Use Statement:} Under these specific constraints, HLE leaderboard results may be utilized as a coarse, high-level summary of model performance, but they should absolutely not be used to justify fine-grained, position-by-position rankings.
+\end{itemize}
+
+Ultimately, the true evaluation anchor is this comprehensive four-element profile rather than the numeric score itself; readers and future auditors can evaluate the integrity of the rating by directly inspecting which elements drove the final verdict.
+\subsection{Replication Package}
+
+The replication package is the public MESA repository at \url{https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai}. It contains this manuscript source and bibliography, the official MESA template, the reviews for HLE and ARC-AGI-2, and utility files. The package supports inspection of the framework, review materials, ratings, evidence gaps, and source boundaries used in this paper.
+
+\section{Test Application Findings}
+
+\subsection{Humanity's Last Exam (HLE)}
+
+The applied MESA review analyzes Humanity's Last Exam (HLE) as a public benchmark designed around highly challenging, closed-ended academic questions. 
+
+\subsubsection{Scope and Target Entity}
+The reviewed entity in this test application is the finalized, static HLE benchmark, which encompasses:
+\begin{itemize}
+    \item The public 2,500-question release dataset.
+    \item The documented private, held-out test split.
+    \item The official scoring and evaluation infrastructure materials.
+    \item The public reporting surfaces and leaderboards.
+\end{itemize}
+Official documentation outlines broad academic coverage across multiple-choice and short-answer formats, partial image-conditioned items, automated grading, and model-as-judge support for semantic equivalent answers \cite{phan_etal_hle_2025}. It reports traditional metrics such as accuracy, category-level performance, and calibration error\footnote{Calibration error measures the gap between a model's stated confidence and its true accuracy.}. Because automated, model-based judging introduces acute measurement risks, the MESA framework explicitly treats scorer validation as a core element of the primary evidence base rather than a minor implementation detail \cite{cheng_benchmarking_broken}.
+
+\subsubsection{Evidence Evaluation: Strengths vs. Gaps}
+The reconciled HLE application demonstrates MESA's capacity to decouple a benchmark's practical utility from broader, unsupported interpretations. Descriptively, HLE serves as an excellent academic stress test for frontier language and multimodal systems. 
+
+\paragraph{Methodological Strengths:}
+\begin{itemize}
+    \item Expert-led item development and extensive subject coverage.
+    \item Open-source transparency via public release of the main dataset, code repository, and prompting/scoring materials.
+    \item Systematic answer-confidence logging that effectively exposes model calibration failures.
+\end{itemize}
+
+\paragraph{Critical Evidence Gaps:}
+Evaluatively, the reconciled review highlights several severe evidence gaps that compromise the benchmark's statistical boundaries:
+\begin{itemize}
+    \item \textbf{Unvalidated Automated Judge:} The default large language model judge (\texttt{o3-mini})\footnote{The default judge is pinned as \texttt{o3-mini-2025-01-31} in \url{https://github.com/centerforaisafety/hle}, remains unvalidated against expert human adjudicators.
+    \item \textbf{High Answer-Key Error Rates:} The primary paper documents a 15--18\% expert disagreement rate, and an independent biochemistry and chemistry reanalysis estimates an error rate as high as 30\% in specific text-only subjects \cite{skarlinski_futurehouse_hle_2025}. This creates an unstable upper bound on maximum achievable scores.
+    \item \textbf{Flawed Reporting Surfaces:} The public leaderboard at \texttt{agi.safe.ai}\footnote{Public leaderboard available at \url{https://agi.safe.ai}, accessed 2026-05-18.} omits the original paper's non-AGI caveats and publishes decimal-precision ranks without reporting statistical confidence intervals.
+    \item \textbf{Unmeasured Variance and Baselines:} Run-to-run variance is completely unpublished for stochastic models. Furthermore, no human baseline was evaluated under identical constraints (e.g., no internet access or external tools) to scientifically ground the benchmark's ``expert-level'' claims.
+\end{itemize}
+
+\subsubsection{Supported-Use and Non-Use Boundary}
+Consequently, MESA delineates a strict boundary between what the evidence supports versus what the public framing implies.
+
+\paragraph{Supported Uses:} The evidence supports using HLE to measure model performance on difficult, closed-ended academic tasks (including specific multimodal inputs) under the official HLE prompting configurations, and as a diagnostic tool for model overconfidence and miscalibration.
+
+\paragraph{Non-Uses (Prohibitions):} HLE should not be utilized in isolation to justify fine-grained leaderboard rankings or to validate ``expert-equivalent'' capabilities. Crucially, it does not provide sufficient evidence that a system satisfies broad definitions of Artificial General Intelligence (AGI), autonomous research capability, open-ended scientific creativity, general cognitive versatility, or long-horizon planning\footnote{Long-horizon planning refers to multi-step tasks where an agent must independently plan and execute actions across numerous consecutive turns.}.
+
+\subsection{ARC-AGI-2}
+
+The applied MESA review evaluates ARC-AGI-2, the successor to the Abstraction and Reasoning Corpus for Artificial General Intelligence, which utilizes colored-grid transformation tasks to assess non-linguistic reasoning. Systems must infer a latent generative rule from a limited set of demonstration input-output pairs and construct exact output grids for unseen test inputs.
+
+\subsubsection{Scope and Target Entity}
+The reviewed entity in this test application encompasses the complete ARC-AGI-2 evaluation ecosystem:
+\begin{itemize}
+    \item Official public training and evaluation task files.
+    \item The documented semi-private and private evaluation split structures.
+    \item Public leaderboard surfaces and benchmarking materials.
+\end{itemize}
+Official documentation specifies an exact-grid scoring paradigm, controlled human testing protocols, a public benchmarking harness, a structural changelog, cost-and-efficiency framing, strict verification rules, and an active competition ecosystem \cite{chollet_arc_agi_2_2025}.
+
+\subsubsection{Evidence Evaluation: Strengths vs. Gaps}
+The reconciled ARC-AGI-2 application reveals an evaluation profile distinct from HLE, offering exceptionally strong task-level constraints but facing significant boundary challenges regarding broad capability claims.
+
+\paragraph{Methodological Strengths}
+\begin{itemize}
+    \item \textbf{Robust Task Design:} A clear, unambiguous task format paired with deterministic, exact-cell scoring and open public task files.
+    \item \textbf{Rigorous Human Baseline:} A powerful human reference point established through a 407-participant calibration campaign (515 sessions, 13{,}405 attempts) requiring at least two independent human solves per task to validate task feasibility.
+    \item \textbf{Contamination Mitigations:} Secure semi-private and private splits backed by an offline Kaggle evaluation sandbox, alongside comprehensive cost-per-task efficiency reporting.
+\end{itemize}
+
+\paragraph{Critical Evidence Gaps and Validity Limitations:}
+Despite these structural advantages, the reconciled review highlights severe statistical, procedural, and conceptual limitations:
+\begin{itemize}
+    \item \textbf{Claim Proportionality Disconnect:} Official materials frame ARC-AGI-2 as an instrument for measuring AGI, psychometric intelligence, and general fluid intelligence\footnote{Fluid intelligence refers to the biological capacity to solve entirely novel problems without relying on pre-existing knowledge or crystallized language skills.}. However, the task family completely lacks coverage of language, world knowledge, memory, planning, social cognition, embodiment, tool use, long-horizon agency, auditory processing, or real-world transfer.
+    \item \textbf{High Statistical Volatility:} The public and semi-private evaluation splits contain only 120 tasks each, meaning a minor 1\% leaderboard delta corresponds to roughly a single task. Despite this sensitivity, headline leaderboard scores are published entirely without confidence intervals, standard errors, or repeat-run variance metrics, making small ranking deltas statistically indistinguishable from noise.
+    \item \textbf{Confounded Evaluation Conditions:} The public leaderboard blends disparate runtime environments. It mixes submissions executed within Kaggle's offline sandbox (a strict 12-hour wall-clock budget on $4\times$ NVIDIA L4 cloud-grade GPUs) with submissions run against hosted APIs featuring cost-bounded but unrestricted scaffolding\footnote{Scaffolding refers to the external orchestration code, agentic loops, retrieval systems, and tool-access layers wrapped around the core model.}. These entries lack system labels, severely undermining cross-system comparability.
+    \item \textbf{Procedural Inconsistencies:} The public documentation reveals a 2-versus-3 trial inconsistency relative to the official pass@2 scoring rule\footnote{Under the pass@2 rule, a task is scored as successfully solved if the model generates the correct grid in at most two attempts.}. Additionally, the benchmark lacks per-task category labels for its four core challenge types, blocking psychometric analyses of whether the sub-categories behave as a coherent, unified construct.
+\end{itemize}
+
+\subsubsection{Supported-Use and Non-Use Boundary}
+The MESA evaluation establishes a clear boundary delineating the empirical limits of the ARC-AGI-2 benchmark instrument.
+
+\paragraph{Supported Uses:} The evidence supports using ARC-AGI-2 exclusively to measure exact-grid abstraction and programmatic rule-induction performance under specified split, attempt, verification, and compute-cost conditions. It allows valid system-to-system comparisons only when those systems are verified to have run under identical environmental and scaffolding constraints.
+
+\paragraph{Non-Uses (Prohibitions):} ARC-AGI-2 should not be used as a standalone diagnostic tool to validate holistic AGI preparedness, general human-level versatility, or broad psychometric intelligence. It serves as valid AGI-relevant evidence only when treated as one narrow, specialized component within a much larger, heterogeneous evaluation portfolio.
+
+\begin{table}[t]
+\caption{Test Application Part B Overall Ratings (0-4)}
+\label{tab:pilot-ratings}
+\centering
+\footnotesize
+\begin{tabularx}{\columnwidth}{@{}>{\raggedright\arraybackslash}Xcc@{}}
+\toprule
+Part B section & HLE & ARC-AGI-2 \\
+\midrule
+6. Rationale, documentation, and task/item quality & 2 & 3 \\
+7. Benchmark materials and usability & 3 & 3 \\
+8. Reference points and comparison groups & 2 & 3 \\
+9. Reliability and precision & 1 & 1 \\
+10. Validity support & 1 & 2 \\
+11. Fair use and comparability & 2 & 2 \\
+12. Reports, leaderboards, and public claims & 2 & 2 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% The test applications show why a requirements-oriented benchmark review is useful. HLE and ARC-AGI-2 are very different benchmarks: one is a broad academic question-answering benchmark, and the other is a narrow abstract grid benchmark. Both create a similar RE risk: benchmark success within one task family can be converted into a broader capability requirement or assurance claim without a validity argument that covers the additional meaning. The reconciled reviews also surface a shared structural risk independent of construct: statistically fragile headline scores --- driven in HLE by an unvalidated judge and answer-key noise, and in ARC-AGI-2 by 120-task split sizes without confidence intervals --- combined with broad public framing that strips the maintainers' own caveats.
+
+Table~\ref{tab:pilot-ratings} summarizes the reconciled Part B section ratings. The ratings are summaries grounded in evidence, not arithmetic averages, benchmark leaderboards, or replacements for reviewer rationale. HLE's main rating losses concentrate in reliability and validity: the unvalidated LLM judge, absent confidence intervals on the leaderboard, documented answer-key error rates, and disproportionate AGI framing degrade Sections~9 and~10 to ``inadequate'' and pull Section~12 down even though materials in Section~7 remain strong. ARC-AGI-2's losses are concentrated in reliability and the validity/breadth gap rather than in materials or baselines: deterministic exact-match scoring and a rigorous human calibration campaign hold Sections~6--8 at ``good,'' but the lack of confidence intervals on 120-task splits, cohort mixing on the public leaderboard, and the gap between a narrow task-family target and a public framing that invokes general intelligence pull Sections~9--12 down. In both cases, MESA protects the benchmark's legitimate use by separating supported task-level interpretations from broader claims that require additional evidence.
+
+\section{Discussion}
+
+\subsection{Implications for RE Practice}
+
+MESA reframes benchmark use as a requirements traceability problem. If a project requirement states that an AI system must reason reliably, answer expert-level questions or act autonomously, a benchmark score should not be treated as direct proof of an AI model's capability until the benchmark's target phenomenon, task sample, metric, execution conditions, baselines, uncertainty, and reporting claims have been reviewed. MESA supplies a structure for that review.
+
+For benchmark selection, MESA helps requirements engineers compare not only model scores but also the materials and validity support behind those scores. A benchmark with clear benchmark materials, uncertainty reporting, scorer validation, contamination controls, and bounded claims may be more useful for assurance than a more visible benchmark with ambiguous interpretation. For acceptance criteria, MESA encourages teams to specify the benchmark version, split, prompt or harness, scorer, threshold, comparator, and non-use caveats instead of naming only a leaderboard score.
+
+For trustworthy and responsible AI, MESA makes benchmark-derived claims auditable. Fairness, robustness, reliability, and capability requirements often depend on empirical tests. MESA asks whether those tests are reproducible, comparable, accessible, maintained, and valid for the intended claim. This is especially important in procurement, safety cases, policy communication, and public reporting, where benchmark scores may be detached from their measurement conditions.
+Trustworthiness properties — including safety, fairness, robustness, and accountability — are increasingly operationalised through benchmark scores in both industry practice and emerging regulatory frameworks. When those scores are accepted uncritically, undetected measurement weaknesses silently propagate into deployment decisions and compliance claims. By making the gap between benchmark scope and capability claims explicit and traceable, MESA functions as a requirements-level quality gate: not a replacement for domain-specific safety analysis, but a structured precondition for treating any benchmark-based result as trustworthy evidence.
+
+\emph{Answering RQ2}, the two test applications converged on a minimum set of material and validity-support criteria required before benchmark scores can be responsibly reused as RE evidence. This baseline requires: a precisely defined target phenomenon paired with explicit non-use caveats; transparent scoring rules backed by empirical model-as-judge validation; baseline reference points encompassing chance, human, and expert performance under identical evaluation conditions; and published uncertainty metrics, including confidence intervals, run-to-run variance, and prompt sensitivity. Furthermore, the benchmark must feature robust contamination controls, version tracking, and bounded reporting surfaces that display core limitations adjacent to the headline scores. While an instrument lacking these elements can still provide practical utility, its outputs must be constrained to task-level evidence rather than interpreted as a direct fulfillment of a broader capability requirement.
+
+\subsection{What MESA Contributes}
+
+MESA's main contribution is the disciplined separation of benchmark description from benchmark evaluation. In ordinary benchmark discourse, descriptions such as hard, new, broad, or popular often become implicit quality judgments. MESA prevents that shortcut. It asks first what the benchmark claims, how it operates, what materials are available, and what score interpretations are invited. Only then does it evaluate whether the available evidence is sufficient.
+
+This structure helps reviewers avoid two errors. The first is unsupported criticism: treating missing documentation as proof that a benchmark is poor. MESA treats missing documentation as an evidence gap whose importance depends on intended use. The second is unsupported endorsement: treating difficulty, popularity, or leaderboard visibility as proof of validity. MESA requires a validity argument that connects phenomenon, task, metric, and claim.
+
+Beyond individual audits, MESA contributes a reusable vocabulary for RE practice. The concepts of evidence gaps, claim-proportionality risks, supported-use and non-use statements, and score-condition specifications give requirements engineers precise language to document what a benchmark can and cannot certify. This vocabulary can be embedded directly into requirements specifications, procurement criteria, system assurance cases, and AI governance documentation — making benchmark-based claims first-class, traceable artifacts in the RE process rather than informal footnotes.
+
+\section{Limitations}
+\label{sec:limitations}
+
+This study has several limitations. First, MESA is an ongoing framework adaptation, not a fully validated review instrument. The two test applications show feasibility and usefulness, but they do not establish inter-rater reliability, reviewer training requirements, or generalization across benchmark types.
+
+Second, the test-application reviews were produced by two independent reviewer LLMs (ChatGPT~5.5 and Claude Opus~4.7) and reconciled by a supervising editor LLM (Gemini~3.1~Pro). Ideally, future studies would be conducted or adjudicated by real-world experts in the relevant AI fields, including requirements engineers, AI benchmark developers, domain experts, model evaluators, and downstream users. The multi-LLM pipeline reduces single-reviewer bias and exposes inter-draft disagreement, but it does not establish inter-rater reliability with human experts, and the reconciled outputs may inherit shared blind spots of large language models. Future work should incorporate human reviewers instead.
+
+Third, the MESA model now lives as a living Markdown document in the public GitHub repository. This paper therefore captures a snapshot of a framework that may continue changing as the template, examples, validation reports, and review guidance evolve. Future applications should cite or pin the repository state, commit, or access date used for a given review.
+
+Fourth, MESA's ratings are intentionally judgment-based. This matches EFPA's logic but means the framework depends on reviewer expertise. The remedy is not to remove judgment, but to make evidence, missing evidence, and explicit statements of supported and unsupported score use visible.
+
+Despite these limitations, MESA makes a concrete and immediate contribution: it provides a public, structured, and replicable artifact that requirements engineers can apply today to make benchmark-based capability claims auditable. The framework's versioned, open-source design means that limitations identified in practice can be addressed incrementally, without invalidating existing reviews. For the RE community, the most important near-term value is not a fully validated instrument, but a shared vocabulary and template for demanding evidence from the benchmarks that increasingly drive AI trustworthiness decisions.
+
+\section{Future Work}
+
+Future work will validate MESA as a review instrument through multi-reviewer studies, inter-rater agreement analysis, structured reviewer training, and refinement of ambiguous rating anchors. The review process should also be evaluated with benchmark maintainers, requirements engineers, model evaluators, psychometric experts, and downstream users. A complementary line of work will validate the multi-LLM review pipeline itself: comparing reconciled LLM outputs against expert human reviewer panels, measuring LLM-reviewer agreement, analyzing sensitivity to the choice of reviewer and editor models, and characterizing the stability of MESA judgments under prompt perturbations.
+
+A second direction is tool support. A full MESA review is intentionally detailed, but many RE workflows need a compact scorecard that preserves evidence without hiding caveats. Future tooling could generate a benchmark requirements profile, supported-interpretation statement, evidence-gap list, and non-use statements from the full review.
+
+Finally, MESA should be applied to a larger benchmark sample. The aim should not be to rank benchmarks mechanically, but to identify recurring weaknesses in benchmark documentation, scoring validity, reliability, contamination controls, maintenance, and public communication.
+
+\section{Conclusion}
+
+AI benchmark scores increasingly function as evidence in Requirements Engineering for AI systems, influencing model selection, acceptance criteria, assurance arguments, and public claims. MESA adapts the EFPA Test Review Model into a requirements-oriented review framework that preserves EFPA's rule of describing the benchmark before judging it, while integrating AI-specific concerns from benchmark-quality, construct-validity, and broad-intelligence literature. By asking reviewers to document benchmark facts before assigning evaluative ratings and to tie every judgment to evidence, missing evidence, and supported-use and non-use statements, MESA makes benchmark-based claims auditable rather than rhetorical. The HLE and ARC-AGI-2 test applications demonstrate that even widely cited benchmarks support narrower interpretations than their public framing suggests. Making that distinction explicit, and traceable from phenomenon to task to metric to claim,  is what an RE-oriented benchmark review framework should provide.
+For the trustworthy AI requirements engineering community specifically, MESA offers something more than a review checklist: it re-frames benchmark use as a requirements traceability problem. A trustworthiness claim backed by a benchmark score is only as strong as the measurement evidence behind that score. By making that evidence (and its gaps) visible, structured, and publicly replicable, MESA equips requirements engineers, AI assurance practitioners, and policymakers with the tools to demand, and demonstrate, the evidentiary standard that responsible AI deployment requires.
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
