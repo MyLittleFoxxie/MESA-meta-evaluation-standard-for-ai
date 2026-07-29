@@ -16,15 +16,16 @@
     { id: "DesignQA", label: "DesignQA" }
   ];
   var REVIEWERS = [
-    { id: "gemini_supervising_editor", label: "Reconciled — Supervising Editor", featured: true },
-    { id: "chatgpt_reviewer1", label: "Reviewer 1" },
-    { id: "claude_reviewer2", label: "Reviewer 2" }
+    { id: "gemini_supervising_editor", label: "Reconciled — Supervising Editor", model: "Gemini", featured: true },
+    { id: "chatgpt_reviewer1", label: "Reviewer 1", model: "ChatGPT" },
+    { id: "claude_reviewer2", label: "Reviewer 2", model: "Claude" }
   ];
   var DEFAULT_BENCHMARK = BENCHMARKS[0].id;
   var DEFAULT_REVIEWER = REVIEWERS[0].id; // featured reconciled review
 
-  // remembered Case Studies selection (so clicking the tab restores it)
-  var caseSel = { benchmark: DEFAULT_BENCHMARK, reviewer: DEFAULT_REVIEWER };
+  // remembered Case Studies selection (so clicking the tab restores it).
+  // benchmark === null means the Overview (About) is shown.
+  var caseSel = { benchmark: null, reviewer: DEFAULT_REVIEWER };
 
   var docCache = Object.create(null); // url -> raw markdown text
 
@@ -194,6 +195,16 @@
     bWrap.innerHTML = "";
     rWrap.innerHTML = "";
 
+    // Overview (About) pill — leads the case-study row and is the default view
+    var ov = el("button", "mesa-pill mesa-pill-overview", "Overview");
+    ov.type = "button";
+    ov.dataset.id = "overview";
+    ov.addEventListener("click", function () {
+      caseSel.benchmark = null;
+      location.hash = caseHash();
+    });
+    bWrap.appendChild(ov);
+
     BENCHMARKS.forEach(function (b) {
       var btn = el("button", "mesa-pill", b.label);
       btn.type = "button";
@@ -206,7 +217,8 @@
     });
 
     REVIEWERS.forEach(function (rv) {
-      var btn = el("button", "mesa-pill" + (rv.featured ? " mesa-pill-featured" : " mesa-pill-draft"), rv.label);
+      var label = rv.label + (rv.model ? " (" + rv.model + ")" : "");
+      var btn = el("button", "mesa-pill" + (rv.featured ? " mesa-pill-featured" : " mesa-pill-draft"), label);
       btn.type = "button";
       btn.dataset.id = rv.id;
       if (rv.featured) btn.appendChild(el("span", "mesa-badge", "authoritative"));
@@ -219,15 +231,21 @@
   }
 
   function syncCaseNavActive() {
+    var isOverview = !caseSel.benchmark;
     document.querySelectorAll("#mesa-case-benchmarks .mesa-pill").forEach(function (b) {
-      b.classList.toggle("is-active", b.dataset.id === caseSel.benchmark);
+      var active = isOverview ? b.dataset.id === "overview" : b.dataset.id === caseSel.benchmark;
+      b.classList.toggle("is-active", active);
     });
     document.querySelectorAll("#mesa-case-reviewers .mesa-pill").forEach(function (b) {
       b.classList.toggle("is-active", b.dataset.id === caseSel.reviewer);
     });
+    // the Reviewer row only applies once a specific case study is chosen
+    var rrow = $("mesa-case-reviewer-row");
+    if (rrow) rrow.hidden = isOverview;
   }
 
   function caseHash() {
+    if (!caseSel.benchmark) return "case/overview";
     return "case/" + caseSel.benchmark + "/" + caseSel.reviewer;
   }
 
@@ -236,21 +254,29 @@
   }
 
   function showCase() {
+    syncCaseNavActive();
+
+    // Overview (no specific case study selected) → render the About explanation
+    if (!caseSel.benchmark) {
+      showAbout();
+      return;
+    }
+
     var rv = known(REVIEWERS, caseSel.reviewer);
     var b = known(BENCHMARKS, caseSel.benchmark);
-    syncCaseNavActive();
+    var model = rv && rv.model ? rv.model : "an AI model";
     var intro = "";
     if (rv && rv.featured) {
       intro =
         '<div class="mesa-doc-note mesa-doc-note-editor">' +
-        "<strong>Reconciled review (Supervising Editor).</strong> Authoritative, source-grounded " +
-        "evaluation of <em>" + (b ? b.label : caseSel.benchmark) + "</em>, reconciling the two " +
-        "independent reviewer drafts. Use the Reviewer selector above to inspect those drafts." +
+        "<strong>AI model: " + model + ".</strong> Reconciled review by the Supervising Editor — " +
+        "the authoritative, source-grounded evaluation of <em>" + (b ? b.label : caseSel.benchmark) +
+        "</em>, reconciling the two independent reviewer drafts. Use the Reviewer selector above to inspect those drafts." +
         "</div>";
     } else if (rv) {
       intro =
         '<div class="mesa-doc-note mesa-doc-note-draft">' +
-        "<strong>Reviewer draft (" + rv.label + ").</strong> One of two independent drafts, shown for " +
+        "<strong>AI model: " + model + ".</strong> Independent reviewer draft (" + rv.label + "), shown for " +
         "transparency. The authoritative version is the reconciled <em>Supervising Editor</em> review." +
         "</div>";
     }
@@ -263,12 +289,14 @@
     var parts = raw.split("/").filter(Boolean);
     var head = parts[0] || "home";
     if (head === "template") return { view: "template" };
-    if (head === "about") return { view: "about" };
-    if (head === "case") {
-      var b = known(BENCHMARKS, parts[1]) ? parts[1] : DEFAULT_BENCHMARK;
-      var r = known(REVIEWERS, parts[2]) ? parts[2] : DEFAULT_REVIEWER;
-      caseSel.benchmark = b;
-      caseSel.reviewer = r;
+    // legacy #about now lands on the Case Studies Overview
+    if (head === "about" || head === "case") {
+      if (head === "case" && known(BENCHMARKS, parts[1])) {
+        caseSel.benchmark = parts[1];
+        if (known(REVIEWERS, parts[2])) caseSel.reviewer = parts[2];
+      } else {
+        caseSel.benchmark = null; // overview
+      }
       return { view: "case" };
     }
     return { view: "home" };
@@ -281,9 +309,6 @@
       case "template":
         // hand off to the form; it rebuilds the TOC via the mesa-form-built event
         if (window.MesaForm) window.MesaForm.mount();
-        break;
-      case "about":
-        showAbout();
         break;
       case "case":
         showCase();

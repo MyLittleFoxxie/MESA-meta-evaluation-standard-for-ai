@@ -64,9 +64,11 @@ body {
 
 /* Form-only toolbar controls: shown only on the Review Template tab */
 #mesa-progress,
+#btn-print,
 #btn-expand,
 #btn-reset,
 .mesa-toolbar label.filebtn { display: none; }
+body[data-view="template"] #btn-print,
 body[data-view="template"] #btn-expand,
 body[data-view="template"] #btn-reset,
 body[data-view="template"] .mesa-toolbar label.filebtn { display: inline-block; }
@@ -302,6 +304,7 @@ body[data-view="template"] #mesa-progress { display: inline; }
   gap: 8px;
 }
 .mesa-case-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mesa-case-row[hidden] { display: none; }
 .mesa-case-label {
   font-size: 11px;
   text-transform: uppercase;
@@ -326,6 +329,13 @@ body[data-view="template"] #mesa-progress { display: inline; }
 }
 .mesa-pill:hover { border-color: var(--navy); }
 .mesa-pill.is-active { background: var(--navy); color: #fff; border-color: var(--navy); }
+/* Overview (About) — set apart from the benchmark options */
+.mesa-pill-overview {
+  border-style: dashed;
+  color: var(--muted);
+  margin-right: 4px;
+}
+.mesa-pill-overview.is-active { background: var(--navy); color: #fff; border-style: solid; }
 /* featured reconciled/editor option */
 .mesa-pill-featured { border-color: var(--accent); color: #8a3d0f; font-weight: 600; }
 .mesa-pill-featured.is-active { background: var(--accent); color: #fff; border-color: var(--accent); }
