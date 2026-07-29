@@ -381,7 +381,6 @@
       ctx.root.appendChild(banner);
       ctx.mount = ctx.root;
       ctx.currentSection = null;
-      addToc(block.text, 1, banner);
       return;
     }
     if (block.level === 2) {
@@ -395,14 +394,12 @@
       ctx.root.appendChild(details);
       ctx.mount = body;
       ctx.currentSection = details;
-      addToc(block.text, 2, summary);
       return;
     }
     var hTag = "h" + Math.min(block.level, 6);
     var hEl = el(hTag, "mesa-h mesa-h" + block.level);
     hEl.innerHTML = inlineMD(block.text);
     (ctx.mount || ctx.root).appendChild(hEl);
-    if (block.level === 3) addToc(block.text, 3, hEl);
   }
 
   function renderMermaid(block) {
@@ -466,24 +463,6 @@
     }
   }
 
-  /* ---------- table of contents ---------- */
-  var tocEl;
-  var anchorN = 0;
-  function addToc(text, level, target) {
-    if (!tocEl) return;
-    var aid = "sec-" + anchorN++;
-    target.id = aid;
-    var a = el("a", "mesa-toc-l" + level, text.replace(/<[^>]*>/g, ""));
-    a.href = "#" + aid;
-    a.addEventListener("click", function (e) {
-      e.preventDefault();
-      var sec = target.closest("details.mesa-section");
-      if (sec) sec.open = true;
-      document.getElementById(aid).scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    tocEl.appendChild(a);
-  }
-
   /* ---------- progress ---------- */
   function updateProgress() {
     var pe = document.getElementById("mesa-progress");
@@ -500,11 +479,8 @@
   /* ---------- build ---------- */
   function build(md) {
     usedIds = Object.create(null);
-    anchorN = 0;
     var root = document.getElementById("mesa-form");
     root.innerHTML = "";
-    tocEl = document.getElementById("mesa-toc");
-    if (tocEl) tocEl.innerHTML = "";
     ctx = { path: "intro", mount: root, root: root, mermaidNodes: [], currentSection: null };
 
     var blocks = parse(md);
@@ -530,6 +506,9 @@
     flagOrphans(root);
     updateProgress();
     setStatus("");
+    built = true;
+    // let the site shell (router) rebuild the sidebar TOC from the form
+    try { window.dispatchEvent(new CustomEvent("mesa-form-built")); } catch (e) { /* older browsers */ }
   }
 
   // warn if saved answers no longer map to anything in the current template
@@ -560,9 +539,8 @@
   }
 
   function wireToolbar() {
-    var print = document.getElementById("btn-print");
-    if (print) print.addEventListener("click", function () { window.print(); });
-
+    // Note: the Print button is wired by the site shell (mesa-site.js) so it
+    // works on every tab, not just the Review Template form.
     var expand = document.getElementById("btn-expand");
     if (expand) expand.addEventListener("click", function () {
       var open = expand.dataset.state !== "collapsed";
@@ -595,9 +573,19 @@
     });
   }
 
-  /* ---------- init ---------- */
-  function init() {
-    wireToolbar();
+  /* ---------- mount (invoked by the site shell / router) ---------- */
+  var built = false;
+  var toolbarWired = false;
+
+  // Build the interactive form the first time the Review Template tab is shown.
+  // Safe to call repeatedly: the fetch + build only run once.
+  function mount() {
+    if (!toolbarWired) { wireToolbar(); toolbarWired = true; }
+    if (built) {
+      // already built once — re-announce so the router can restore the TOC
+      try { window.dispatchEvent(new CustomEvent("mesa-form-built")); } catch (e) {}
+      return;
+    }
     setStatus("Loading template…");
     fetch(TEMPLATE_URL, { cache: "no-store" })
       .then(function (r) {
@@ -613,9 +601,8 @@
       });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+  window.MesaForm = {
+    mount: mount,
+    isBuilt: function () { return built; }
+  };
 })();
