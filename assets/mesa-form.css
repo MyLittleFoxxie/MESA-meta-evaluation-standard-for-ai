@@ -1,0 +1,285 @@
+:root {
+  --navy: #004771;
+  --steel: #b0c4de;
+  --accent: #d2691e;
+  --ink: #1c2733;
+  --muted: #5a6b7b;
+  --line: #d8dee6;
+  --bg: #f4f6f9;
+  --panel: #ffffff;
+  --shadow: 0 1px 3px rgba(0, 30, 60, 0.08);
+  --maxw: 980px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+/* ---------- top bar ---------- */
+.mesa-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  box-shadow: var(--shadow);
+}
+.mesa-topbar h1 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.mesa-topbar .spacer { flex: 1; }
+.mesa-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.mesa-toolbar button,
+.mesa-toolbar label.filebtn {
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+.mesa-toolbar button:hover,
+.mesa-toolbar label.filebtn:hover { background: rgba(255, 255, 255, 0.2); }
+#btn-print { background: var(--accent); border-color: var(--accent); }
+#btn-print:hover { filter: brightness(1.08); }
+.mesa-toolbar input[type="file"] { display: none; }
+#mesa-progress { font-size: 12px; color: var(--steel); white-space: nowrap; }
+
+/* ---------- layout ---------- */
+.mesa-wrap {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 24px;
+  max-width: calc(var(--maxw) + 284px);
+  margin: 0 auto;
+  padding: 22px 18px 80px;
+  align-items: start;
+}
+.mesa-nav {
+  position: sticky;
+  top: 64px;
+  max-height: calc(100vh - 84px);
+  overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+.mesa-nav h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin: 0 0 8px; }
+#mesa-toc { display: flex; flex-direction: column; gap: 1px; }
+#mesa-toc a { color: var(--ink); text-decoration: none; font-size: 13px; padding: 3px 6px; border-radius: 5px; }
+#mesa-toc a:hover { background: var(--bg); }
+.mesa-toc-l1 { font-weight: 700; margin-top: 8px; color: var(--navy) !important; }
+.mesa-toc-l2 { font-weight: 600; }
+.mesa-toc-l3 { padding-left: 16px !important; color: var(--muted) !important; }
+
+.mesa-main {
+  background: transparent;
+  min-width: 0;
+}
+#mesa-status { color: var(--muted); font-style: italic; padding: 8px 0; }
+#mesa-orphan-note {
+  display: none;
+  background: #fff6e9;
+  border: 1px solid var(--accent);
+  color: #7a4410;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+/* ---------- content blocks ---------- */
+.mesa-part {
+  font-size: 24px;
+  color: var(--navy);
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 6px;
+  margin: 28px 0 8px;
+}
+.mesa-section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 14px 0;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.mesa-section > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 14px 18px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--navy);
+  background: linear-gradient(0deg, #fff, #fbfcfe);
+  border-bottom: 1px solid var(--line);
+}
+.mesa-section > summary::-webkit-details-marker { display: none; }
+.mesa-section > summary::before { content: "▸ "; color: var(--accent); }
+.mesa-section[open] > summary::before { content: "▾ "; }
+.mesa-section-body { padding: 8px 18px 18px; }
+
+.mesa-h { color: var(--navy); line-height: 1.3; }
+.mesa-h3 { font-size: 16px; margin: 20px 0 6px; padding-top: 6px; border-top: 1px solid var(--line); }
+.mesa-h4 { font-size: 14.5px; margin: 16px 0 4px; }
+.mesa-h5 { font-size: 13.5px; margin: 12px 0 4px; }
+
+.mesa-prose { margin: 8px 0; color: #2b3946; }
+.mesa-prose p { margin: 6px 0; }
+.mesa-prose code { background: #eef1f5; padding: 1px 4px; border-radius: 4px; font-size: 0.92em; }
+
+.mesa-grouplabel { font-weight: 600; margin: 12px 0 4px; color: var(--ink); }
+.mesa-bullet { margin: 3px 0 3px 18px; position: relative; color: #3a4754; }
+.mesa-bullet::before { content: "•"; color: var(--accent); position: absolute; left: -14px; }
+.mesa-anchor {
+  margin: 6px 0;
+  padding: 8px 12px;
+  background: #f0f5fa;
+  border-left: 3px solid var(--steel);
+  border-radius: 0 6px 6px 0;
+  font-size: 13.5px;
+  color: #2b3946;
+}
+.mesa-sep { border: none; border-top: 1px dashed var(--line); margin: 14px 0; }
+
+/* ---------- inputs ---------- */
+.mesa-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 8px;
+  margin: 1px 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.mesa-check:hover { background: var(--bg); }
+.mesa-check input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--navy); }
+
+.mesa-field { margin: 10px 0; }
+.mesa-field-label { font-weight: 600; margin-bottom: 4px; color: var(--ink); }
+.mesa-text {
+  width: 100%;
+  font: inherit;
+  font-size: 13.5px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  resize: vertical;
+  background: #fff;
+  color: var(--ink);
+  overflow: hidden;
+}
+.mesa-text:focus { outline: 2px solid var(--steel); border-color: var(--navy); }
+.mesa-text-big { min-height: 90px; }
+
+.mesa-rating { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 4px; }
+.mesa-rating-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  background: #fff;
+  user-select: none;
+}
+.mesa-rating-opt input { accent-color: var(--navy); }
+.mesa-rating-opt:hover { border-color: var(--navy); }
+.mesa-rating-opt.is-selected {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+.mesa-select { font: inherit; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; }
+
+/* ---------- tables ---------- */
+.mesa-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+  font-size: 13px;
+  background: #fff;
+}
+.mesa-table th, .mesa-table td {
+  border: 1px solid var(--line);
+  padding: 7px 9px;
+  text-align: left;
+  vertical-align: top;
+}
+.mesa-table thead th { background: #eef2f7; color: var(--navy); font-weight: 600; }
+.mesa-table-ref thead th { background: var(--navy); color: #fff; }
+.mesa-table-ref td:first-child { text-align: center; font-weight: 600; width: 60px; }
+.mesa-cell-check { text-align: center; }
+.mesa-cell-check input { width: 16px; height: 16px; accent-color: var(--navy); }
+.mesa-table td .mesa-text { font-size: 12.5px; min-height: 30px; }
+.mesa-addrow {
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  border: 1px dashed var(--navy);
+  background: #fff;
+  color: var(--navy);
+  padding: 5px 12px;
+  border-radius: 6px;
+  margin: 2px 0 12px;
+}
+.mesa-addrow:hover { background: #eef2f7; }
+
+.mesa-figure { overflow: auto; text-align: center; margin: 12px 0; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+.mesa-code { background: #f3f5f8; border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow: auto; font-size: 12px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 860px) {
+  .mesa-wrap { grid-template-columns: 1fr; }
+  .mesa-nav { display: none; }
+}
+
+/* ---------- print ---------- */
+@media print {
+  body { background: #fff; }
+  .mesa-topbar, .mesa-nav, .mesa-addrow, #mesa-status, #mesa-orphan-note { display: none !important; }
+  .mesa-wrap { display: block; max-width: none; padding: 0; }
+  .mesa-section, .mesa-figure, .mesa-anchor { box-shadow: none; }
+  .mesa-section { border: none; margin: 0; }
+  .mesa-section > summary { background: none; border: none; padding: 8px 0; font-size: 16px; }
+  .mesa-section > summary::before { content: "" !important; }
+  .mesa-section-body { padding: 0; }
+  .mesa-part { page-break-before: always; }
+  .mesa-h3, .mesa-h4, .mesa-check, .mesa-field, .mesa-rating, .mesa-table, .mesa-figure {
+    page-break-inside: avoid;
+  }
+  .mesa-text {
+    border: none;
+    border-bottom: 1px solid #999;
+    border-radius: 0;
+    padding: 2px 0;
+    resize: none;
+  }
+  .mesa-text:empty::after { content: " "; }
+  .mesa-rating-opt { border: 1px solid #999; }
+  .mesa-rating-opt.is-selected { background: #000 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .mesa-table-ref thead th, .mesa-table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  a[href]::after { content: ""; }
+}
