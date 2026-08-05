@@ -330,6 +330,11 @@
 
     var print = $("btn-print");
     if (print) print.addEventListener("click", function () { window.print(); });
+
+    var exportPdf = $("btn-export-pdf");
+    if (exportPdf) exportPdf.addEventListener("click", function () {
+      if (window.MesaPdf) window.MesaPdf.exportPdf();
+    });
   }
 
   function init() {

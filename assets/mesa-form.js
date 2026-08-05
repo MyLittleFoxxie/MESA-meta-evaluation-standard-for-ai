@@ -22,6 +22,7 @@
 
   var state = { answers: loadAnswers() };
   var usedIds = Object.create(null);
+  var blocks = [];
 
   /* ---------- persistence ---------- */
   function loadAnswers() {
@@ -106,7 +107,7 @@
       return r.some(function (c) { return /\[( |x|X)\]/.test(c); });
     });
     var hasFill = body.some(function (r) {
-      return r.some(function (c) { return /_\(.*?\)_/.test(c); });
+      return r.some(function (c) { return /^_\(.*\)_$/.test(c.trim()); });
     });
     var kind = "ref";
     if (hasCheckbox) kind = "checkbox";
@@ -262,6 +263,7 @@
     var input = el("input");
     input.type = "checkbox";
     var id = controlId([ctx.path, block.label]);
+    block.id = id;
     bindInput(input, id, "check");
     var span = el("span");
     span.innerHTML = inlineMD(block.label);
@@ -274,6 +276,8 @@
     var opts = block.raw.split("|").map(function (s) { return s.trim(); }).filter(Boolean);
     if (!opts.length) opts = RATING_FALLBACK.slice();
     var id = controlId([ctx.path, "rating"]);
+    block.id = id;
+    block.options = opts;
     var wrap = el("div", "mesa-rating");
     wrap.dataset.mesaRating = id;
     var saved = state.answers[id];
@@ -314,10 +318,14 @@
       block.header.forEach(function (hc, idx) { if (/overall rating/i.test(hc)) ratingCol = idx; });
       if (ratingCol === -1) ratingCol = block.header.length - 1;
     }
+    // fieldIds mirrors block.body: fieldIds[rowIdx][colIdx] = the control id of that
+    // cell's input, or null for static cells. Only covers the base template rows —
+    // rows added at runtime via "+ Add row" are not back-filled here.
+    block.fieldIds = block.body.map(function (r) { return r.map(function () { return null; }); });
 
     function buildRow(cells, rowIdx) {
       var tr = el("tr");
-      var rowKey = cells[0] && !/_\(.*\)_/.test(cells[0]) ? cells[0] : "row" + rowIdx;
+      var rowKey = cells[0] && !/^_\(.*\)_$/.test(cells[0].trim()) ? cells[0] : "row" + rowIdx;
       cells.forEach(function (cell, c) {
         var td = el("td");
         var colKey = block.header[c] || "c" + c;
@@ -325,16 +333,19 @@
           var input = el("input");
           input.type = "checkbox";
           var cid = controlId([ctx.path, rowKey, colKey]);
+          if (block.fieldIds[rowIdx]) block.fieldIds[rowIdx][c] = cid;
           if (/\[x\]/i.test(cell)) { /* default checked in source */ }
           bindInput(input, cid, "check");
           td.className = "mesa-cell-check";
           td.appendChild(input);
-        } else if (block.kind === "fill" && /_\(.*?\)_/.test(cell)) {
-          var ph = (cell.match(/_\((.*?)\)_/) || [, ""])[1];
+        } else if (block.kind === "fill" && /^_\(.*\)_$/.test(cell.trim())) {
+          var ph = (cell.trim().match(/^_\((.*)\)_$/) || [, ""])[1];
           var tid = controlId([ctx.path, rowKey, colKey]);
+          if (block.fieldIds[rowIdx]) block.fieldIds[rowIdx][c] = tid;
           td.appendChild(makeTextarea(tid, ph, false));
         } else if (block.kind === "summary" && c === ratingCol) {
           var sid = controlId([ctx.path, "summary", rowKey]);
+          if (block.fieldIds[rowIdx]) block.fieldIds[rowIdx][c] = sid;
           var sel = el("select", "mesa-select");
           sel.dataset.mesaId = sid;
           ["", "n/a", "0", "1", "2", "3", "4"].forEach(function (o) {
@@ -445,6 +456,9 @@
         wrap.appendChild(el("div", "mesa-field-label", label + ":"));
         var big = /free text/i.test(label) || /evaluative report|conclusion|recommendation/i.test(label);
         var id = controlId([ctx.path, /free text/i.test(label) ? "freetext" : /reviewer comments/i.test(label) ? "comments" : label]);
+        block.id = id;
+        block.label_clean = label;
+        block.big = big;
         wrap.appendChild(makeTextarea(id, "", big));
         mount.appendChild(wrap);
         break;
@@ -483,7 +497,7 @@
     root.innerHTML = "";
     ctx = { path: "intro", mount: root, root: root, mermaidNodes: [], currentSection: null };
 
-    var blocks = parse(md);
+    blocks = parse(md);
     blocks.forEach(renderBlock);
 
     // grow restored textareas
@@ -598,11 +612,36 @@
           "Could not load the template automatically (" + err.message +
             "). If you opened this file directly, use “Load template file…” to pick MESA EFPA template official.md, or serve the folder over http."
         );
+        try { window.dispatchEvent(new CustomEvent("mesa-form-error", { detail: { message: err.message } })); } catch (e) {}
       });
+  }
+
+  // Resolves once the template has been fetched and built (ids stamped onto
+  // blocks), triggering mount() if it hasn't run yet — lets other modules
+  // (e.g. the PDF exporter) use the parsed form without visiting its tab first.
+  var readyPromise = null;
+  function ready() {
+    if (built) return Promise.resolve();
+    if (readyPromise) return readyPromise;
+    readyPromise = new Promise(function (resolve, reject) {
+      function onBuilt() { cleanup(); resolve(); }
+      function onError(e) { cleanup(); reject(new Error((e.detail && e.detail.message) || "template failed to load")); }
+      function cleanup() {
+        window.removeEventListener("mesa-form-built", onBuilt);
+        window.removeEventListener("mesa-form-error", onError);
+      }
+      window.addEventListener("mesa-form-built", onBuilt);
+      window.addEventListener("mesa-form-error", onError);
+      mount();
+    });
+    return readyPromise;
   }
 
   window.MesaForm = {
     mount: mount,
-    isBuilt: function () { return built; }
+    isBuilt: function () { return built; },
+    ready: ready,
+    getBlocks: function () { return blocks; },
+    getAnswers: function () { return state.answers; }
   };
 })();
