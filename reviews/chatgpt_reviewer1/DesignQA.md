@@ -1,5 +1,26 @@
 # MESA Review: DesignQA
 
+Review status: full Part A + Part B MESA review  
+Reviewed entity: DesignQA public benchmark, including the paper-described dataset, the official GitHub repository with dataset and evaluation code, the official project website, and the manually maintained leaderboard  
+Reviewer profile: `.codex/agents/benchmark-reviewer.md`  
+Date of current review: 2026-06-28
+
+## Source Registry
+
+| ID | Source | Access date | Use in this review |
+| :-- | :-- | :-- | :-- |
+| S01 | Doris et al., [DesignQA: A Multimodal Benchmark for Evaluating Large Language Models' Understanding of Engineering Documentation](https://arxiv.org/abs/2404.07917), arXiv:2404.07917v2, and local transcription `literature/DesignQA.md` | 2026-06-28 | Main benchmark paper: item construction, subset structure, scoring metrics, evaluation conditions, baseline results, limitations. |
+| S02 | DesignQA official repository, [`anniedoris/design_qa`](https://github.com/anniedoris/design_qa/) | 2026-06-28 | Dataset directories, evaluation code, README setup and submission instructions, license status. |
+| S03 | DesignQA official website and leaderboard route, <https://design-qa.github.io/> | 2026-06-28 | Public reporting surface, leaderboard presentation, submission route. |
+| S04 | DesignQA repository `dataset/` directory | 2026-06-28 | Public task set and the 1,451 QA items across the six subsets. |
+| S05 | DesignQA repository `eval/full_evaluation.py` and `eval/metrics/metrics.py` | 2026-06-28 | Scoring procedure, metric implementations, error handling, results output. |
+| S06 | Original PDF source, `Papers/DesignQA.pdf` | 2026-06-28 | Figures, tables, and appendix material supporting the paper transcript. |
+| S07 | MESA template, `MESA EFPA template official.md` | 2026-06-28 | Required review structure, field guidance, rating scale. |
+| S08 | EFPA Test Review Model, `literature/EFPA_Test_Review_Model_2025_Markdown.md` | 2026-06-28 | Review architecture and descriptive/evaluative separation. |
+| S09 | BetterBench, `literature/betterbench.md` | 2026-06-28 | Benchmark lifecycle, documentation, reproducibility, contamination, usability, and maintenance criteria. |
+| S10 | Measuring what Matters, `literature/Measuring_what_Matters.md` | 2026-06-28 | Construct-validity chain: phenomenon, task, metric, claim. |
+| S11 | Repository report, `benchmark_official_documentation_inventory.md` | 2026-06-28 | Local source-inventory starting point for DesignQA. |
+
 ## Short Stand-Alone Non-Evaluative Benchmark Description
 
 DesignQA is a public multimodal benchmark for evaluating multimodal large language models on engineering requirements question answering. It is based on the 2024 Formula SAE rules and MIT Motorsports design artifacts, including CAD-derived images, engineering drawings, and functional performance visuals. The benchmark contains 1,451 question-answer pairs across Rule Extraction, Rule Comprehension, and Rule Compliance tasks. Its public materials include the DesignQA paper, an official GitHub repository with dataset and evaluation code, an official project website, and a manually maintained leaderboard.
@@ -484,6 +505,10 @@ Part B judgments use the Part A evidence above plus the MESA template, EFPA revi
 ## Explanation of Ratings
 
 Ratings use the MESA/EFPA-style scale: `n/a`, `0`, `1`, `2`, `3`, and `4`. A rating of `3` indicates mostly adequate support with limited gaps; `2` indicates cautious use with important gaps; `1` indicates serious evidence limitations; `0` indicates absent or unusable support; `4` indicates comprehensive support.
+
+## General Guidance on Assigning Ratings
+
+Missing documentation is treated as an evidence gap, not as proof of poor quality. Ratings are not mechanically averaged. The overall rating in each section reflects the strength of evidence for DesignQA's intended score meaning: multimodal engineering documentation understanding and requirements compliance reasoning under documented DesignQA conditions.
 
 ---
 

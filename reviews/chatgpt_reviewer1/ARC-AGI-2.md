@@ -23,6 +23,10 @@ Date of current review: 2026-05-17
 | S12 | Measuring what Matters, `literature/Measuring_what_Matters.md`                                                                                                      | 2026-05-17  | Construct-validity chain: phenomenon, task, metric, claim.                                                                          |
 | S13 | A Definition of AGI, `literature/A_Definition_of_AGI.md`                                                                                                            | 2026-05-17  | Broad AGI/CHC-style capability breadth cautions.                                                                                    |
 
+## Short Stand-Alone Non-Evaluative Benchmark Description
+
+ARC-AGI-2 is a public grid-transformation benchmark in the ARC-AGI family. Each task presents a small number of demonstration input-output grids and asks the evaluated system to infer the underlying rule and produce exact output grid(s) for unseen test input(s). The public release contains 1,000 training tasks and 120 public evaluation tasks, with additional 120-task semi-private and private evaluation sets used for controlled leaderboard and competition purposes. ARC Prize positions the benchmark as a harder successor to ARC-AGI-1, designed to challenge current reasoning systems, reduce brute-force susceptibility, improve human calibration, and report both performance and efficiency. The strongest descriptive classification is performance on ARC-style exact-grid abstraction tasks under specified access, attempt, and compute conditions.
+
 # Part A. Description of the Benchmark
 
 Part A is descriptive. It records what the available sources state or make inspectable. Evaluative judgments are reserved for Part B.
@@ -55,7 +59,7 @@ Reviewer comments: Full MESA Part A + Part B review of ARC-AGI-2 public benchmar
 | License & Access Terms                 | Public repository materials are under Apache License 2.0 [S02]. Semi-private and private evaluation sets are controlled-access and not included in the public repository [S01, S05, S06].               |
 | Persistent Identifier / DOI / Citation | arXiv:2505.11831, DOI 10.48550/arXiv.2505.11831 [S04].                                                                                                                                                  |
 
-### 1.3 Artifacts, Sources, & Access Tracking
+### 1.3 Materials, Sources, & Access Tracking
 
 | Material / Artifact Type       | URL, Location, or Identifier                                                                                                        | Access Date |
 | :----------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- | :---------- |
@@ -793,7 +797,7 @@ Reviewer comments: Recipients include AI researchers, ARC Prize participants, mo
 
 ---
 
-## Section 5. Benchmark Access, Artifacts, and Lifecycle
+## Section 5. Benchmark Access, Materials, and Lifecycle
 
 ### 5.1 Distribution and Access Model
 
@@ -1018,7 +1022,7 @@ Ratings use the MESA/EFPA-style scale: `n/a`, `0`, `1`, `2`, `3`, `4`, where `2`
 
 Ratings below are based on intended score meaning, not mechanical averaging. For ARC-AGI-2, the narrow interpretation is ARC-style exact-grid abstraction under specified conditions; broad AGI/general-intelligence interpretation requires stronger evidence across broader capability domains [S12, S13].
 
-## Section 6. Quality of Rationale, Development, Documentation, and Task/Item Quality
+## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 ### 6.1 Rationale and Development
 
@@ -1300,9 +1304,9 @@ Reviewer comments: ARC-AGI-2 has clear official rationale, unusually detailed hu
 
 ---
 
-## Section 7. Quality and Usability of Benchmark Artifacts
+## Section 7. Quality and Usability of Benchmark Materials
 
-### 7.1 Quality of Benchmark Artifacts
+### 7.1 Quality of Benchmark Materials
 
 #### 7.1.1 Dataset, task set, or evaluation environment availability
 

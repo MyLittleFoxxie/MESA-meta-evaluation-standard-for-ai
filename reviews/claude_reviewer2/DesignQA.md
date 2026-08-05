@@ -637,7 +637,7 @@ DesignQA is a static, fully public multimodal QA benchmark that tests whether ML
 
 Part B evaluates DesignQA against the meaning users are expected to draw from its scores: a fine-grained, per-subset diagnosis of whether an MLLM can extract, comprehend, and apply engineering requirements from one real rule document, under a stated context-delivery condition. Ratings are anchored to that modest, well-bounded interpretation. Interpretive criteria are disciplined with `literature/Measuring_what_Matters.md` (construct validity), `literature/betterbench.md` (lifecycle quality, reproducibility, contamination, usability, maintenance), and `literature/A_Definition_of_AGI.md` (CHC domain mapping). Each item carries evidence, missing evidence, reviewer rationale, and an interpretation caution where consequential.
 
-## Section 6. Quality of Rationale, Development, Documentation, and Task/Item Quality
+## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 ### 6.1 Rationale and Development
 

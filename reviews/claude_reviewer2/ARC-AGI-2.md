@@ -6,6 +6,31 @@ Template: `MESA EFPA template official.md` (MESA EFPA Template v2)
 
 ---
 
+## Short Stand-Alone Non-Evaluative Benchmark Description
+
+ARC-AGI-2 is the second-generation public benchmark in the Abstraction and Reasoning Corpus family, created by François Chollet and colleagues at the ARC Prize Foundation. Each item is a grid puzzle composed of 2-5 demonstration input/output integer-grid pairs and 1-2 held-out test inputs, newly curated to target four compositional "challenge types": multi-rule reasoning, multi-step reasoning, contextual rule application, and in-context symbol definition. The benchmark releases a 1,000-task uncalibrated training set and a 120-task calibrated public evaluation set under Apache-2.0, with two further 120-task evaluation sets (semi-private and private) withheld by the maintainers for the Kaggle leaderboard and the ARC Prize contest. All three evaluation sets are described as statistically similar and were calibrated through a human-testing campaign with 407 participants across 515 sessions. Scoring is exact-match: a task counts as solved if all test outputs are reproduced correctly within two attempts, and the headline metric is unweighted accuracy across an evaluation split, reported alongside a cost-per-task axis. The benchmark is administered in two materially different regimes: an offline Kaggle sandbox (no internet, four NVIDIA L4 GPUs, 12-hour budget for 240 tasks) and an API-hosted public leaderboard used for frontier-model reporting.
+
+---
+
+## Source Inventory
+
+| Material / Source Type         | URL, Location, or Identifier                                                                                                       | Access Date |
+| :----------------------------- | :--------------------------------------------------------------------------------------------------------------------------------- | :---------- |
+| Paper / Technical Report       | Chollet et al., "ARC-AGI-2: A New Challenge for Frontier AI Reasoning Systems," arXiv:2505.11831v2 (PRIMARY)                       | 2026-05-18  |
+| Website / Documentation Hub    | `https://arcprize.org/arc-agi/2`                                                                                                   | 2026-05-18  |
+| Code Repository                | `https://github.com/arcprize/ARC-AGI-2` (Apache-2.0)                                                                               | 2026-05-18  |
+| Dataset / Task / Prompt Set    | `data/training/` (1,000 tasks), `data/evaluation/` (120 public eval tasks); semi-private and private sets not in repository        | 2026-05-18  |
+| Evaluation Harness / Runner    | Public repository contains task data; Kaggle competition provides the official scoring runtime (Kaggle sandbox, NVIDIA L4 GPUs)    | 2026-05-18  |
+| Leaderboard / Results Portal   | `https://arcprize.org/leaderboard`; Kaggle competition leaderboard `kaggle.com/competitions/arc-prize-2026-arc-agi-2/leaderboard`  | 2026-05-18  |
+| License                        | Apache-2.0 on `arcprize/ARC-AGI-2`                                                                                                 | 2026-05-18  |
+| Changelog / Release Logs       | arXiv revision history (v1 2025-05; v2 2026-01); ARC Prize blog posts. No formal benchmark-data changelog inspected                | 2026-05-18  |
+| Contextual Literature          | Chollet, "On the Measure of Intelligence" (2019); Hendrycks et al., "A Definition of AGI" (2025); BetterBench (Reuel et al., 2024) | 2026-05-18  |
+| Feedback / Contact Channels    | GitHub issues on `arcprize/ARC-AGI-2`; Kaggle discussion forum                                                                     | 2026-05-18  |
+
+Reviewer comments: Part A facts trace to the arXiv technical report, the official ARC Prize pages, and the public repository. Independent third-party leaderboard aggregators report ARC-AGI-2 scores for many models, but those values are not part of the official benchmark report and are used here only as contextual signals. The semi-private set is accessible only via Kaggle submission and the private set is not externally accessible; contamination and scoring judgments should be read with that access constraint in mind.
+
+---
+
 # Part A. Description of the Benchmark
 
 ## Section 1. Factual Description
@@ -588,7 +613,7 @@ ARC-AGI-2 is the second-generation public benchmark in the Abstraction and Reaso
 
 # Part B. Evaluation of the Benchmark
 
-## Section 6. Quality of Rationale, Development, Documentation, and Task/Item Quality
+## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 ### 6.1 Rationale and Development
 

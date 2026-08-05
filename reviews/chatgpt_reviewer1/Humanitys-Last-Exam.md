@@ -871,7 +871,7 @@ Ratings follow the active MESA template: `n/a` means the criterion is not applic
 
 Missing documentation is treated as an evidence gap, not as proof of poor quality. Ratings are not mechanically averaged. The overall rating in each section reflects the strength of evidence for HLE's intended score meaning: difficult closed-ended academic question answering under documented HLE conditions.
 
-## Section 6. Quality of Rationale, Development, Documentation, and Task/Item Quality
+## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 ### 6.1 Rationale and Development
 

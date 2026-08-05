@@ -239,8 +239,6 @@ Stated claims include "understanding engineering documentation" and "real-world 
 
 ---
 
-# Part A. Description of the Benchmark (Scoring)
-
 ## Section 3. Measurement and Scoring
 
 ### 3.1 Scoring Procedure
@@ -276,27 +274,57 @@ No score transformations (such as standardization, Equating, or norming) are app
 
 Point estimates only. No confidence intervals or standard errors are reported for the main model cohort. Standard deviation is reported only for the 5-run LLaVA-1.5 GuaranteedRAG diagnostic.
 
-### 3.7 Stated Score Interpretation
+### 3.7 Documented Metric Rationale and Stated Score Interpretation
 
 Scores represent a model's capacity to handle the specific tasks and formatting rules of the DesignQA subsets. The authors explicitly identify automatic metric limits, such as format penalties, child-rule false negatives, and BLEU/ROUGE brevity bias.
 
 ---
 
-# Part A. Description of the Benchmark (Outputs/Lifecycle)
-
 ## Section 4. Benchmark Outputs and Reports
 
 ### 4.1 Output Availability
 
-Granular paper tables and local `results.txt` files containing subset and per-question scores are available. Complete raw model responses for the paper runs are not released as a dataset. The leaderboard is hosted at `design-qa.github.io`.
+Granular paper tables and local `results.txt` files containing subset and per-question scores are available. Complete raw model responses for the paper runs are not released as a dataset. The leaderboard is hosted at `design-qa.github.io`. No confidence intervals, error bars, submission-metadata catalogue, or leaderboard snapshot export is published.
 
-### 4.2 Output Structure
+### 4.2 Output Name or Description
 
-Results are reported by task family (per-subset scores) and broken down by diagnostic parameters in the paper (mention type, dimensioning system, and context).
+| Output | Description | Public/private | Maintainer / host |
+| :--- | :--- | :--- | :--- |
+| Paper Tables 2-5 (arXiv v2) | Per-subset model and baseline scores; GuaranteedRAG diagnostic; component-mention-type breakdown; dimensioning-system effect | Public | Authors |
+| `results.txt` (scorer output) | Overall simple-average score plus per-question diagnostic scores for a submitted run | Local, submitter-generated | Evaluator |
+| DesignQA leaderboard | Community-submitted model scores at `design-qa.github.io` | Public | Maintainers, issue-mediated and manually verified |
 
-### 4.3 Sensitivity to Context
+### 4.3 Output Design or Presentation
 
-No context-dependent reporting formatting is defined; a single leaderboard represents all model types.
+The paper presents static tables by subset and model condition. The repository scorer produces a plain-text results file. The official website presents public benchmark information and a leaderboard route. Dataset CSVs and `results.txt` are downloadable. There is no interactive dashboard, results API, or graph-based primary output surface.
+
+### 4.4 Output Structure
+
+Results are reported by task family (per-subset scores) and broken down by diagnostic parameters in the paper (mention type, dimensioning system, and context). Reporting is additionally error-analysis based (qualitative failure modes per subset) and rank based (best-performer comparisons). No capability-domain profile, criterion threshold, cost-adjusted, or difficulty-band reporting is defined.
+
+### 4.5 Sensitivity to Context
+
+No context-dependent reporting formatting is defined; a single leaderboard represents all model types. The paper does study sensitivity to rule-context delivery, contrasting AllRules, simple RAG, and GuaranteedRAG, along with drawing dimensioning type and additional image or prompt context, but these are paper diagnostics rather than a formal uncertainty model applied to all submissions.
+
+### 4.6 Development of Outputs
+
+Outputs derive from the benchmark authors' design and from automated scoring scripts, with human annotation supplying the manually authored QA items and the human reference explanations. Leaderboard entries require manual verification by the maintainers according to the repository README. No model-as-judge or platform-generated scoring is used.
+
+### 4.7 Modifiability
+
+Users may run the public scorer against their own prediction CSVs, and the scoring logic can be inspected and modified locally. Modification is therefore limited to the submitter's own run. No formal versioning policy governs modified scorers or forked benchmark forms.
+
+### 4.8 Documented Linkage Status Between Tasks, Scoring, and Report Labels
+
+The paper and README link each subset to a specific task family, scoring metric, and engineering-skill interpretation, giving clear task-to-score-to-label traceability. The overall score is documented as a simple average across the six segments, which is transparent but material to interpretation because segment item counts differ by nearly two orders of magnitude (1,192 versus 16).
+
+### 4.9 Output Content
+
+Outputs include numeric subset scores, per-subset diagnostics, per-question scores, aggregate best-performer rankings, error categories, worked success and failure examples (Figure 3), explicit caveats in the Limitations section, and future-work interpretation notes. No model card, benchmark card, capability-domain profile, confidence-interval report, cost or latency data, or signed audit log was identified.
+
+### 4.10 Intended Recipients
+
+Primary recipients are AI researchers, model developers, benchmark maintainers, engineering-design researchers, and public leaderboard readers. Safety evaluators, policy actors, and procurement audiences are not named as intended recipients.
 
 ---
 
@@ -304,21 +332,64 @@ No context-dependent reporting formatting is defined; a single leaderboard repre
 
 ### 5.1 Distribution and Access Model
 
-Fully public repository and website. No hidden splits or private scorers.
+Fully public repository and website. No hidden splits or private scorers. Materials present are the arXiv technical report, the repository README, scoring documentation in the README and metric code, and worked evaluation examples. No user guide, API documentation, dataset card, rubric or annotation guide, FAQ, or changelog was identified.
 
-### 5.2 Provenance and Contamination Documentation
+### 5.2 Distribution and Access Model
 
-Provenance is well-documented (Formula SAE rules and MIT Motorsports CAD data). Contamination audits, canary strings, and training-data filters are absent. The paper recommends using the Retrieval QAs for model fine-tuning (test set tuning).
+Access is fully public, with a leaderboard-only submission route mediated by filing a GitHub issue with results and code for manual verification. No private, semi-private, or controlled-access split was identified, and all items, answers, and the source rule text are public.
 
-### 5.3 Maintenance and Versioning
+### 5.3 Methods of Publication
 
-No formal release tags, changelogs, or deprecation rules are provided. The leaderboard is updated manually via GitHub issues. Last repository push occurred on 2025-08-10.
+| Publication route | Description |
+| :--- | :--- |
+| arXiv | Public paper at arXiv:2404.07917. |
+| Journal | Journal of Computing and Information Science in Engineering, 25(2), 021009, 2025. |
+| GitHub repository | Dataset, evaluation code, README, and scripts. |
+| Official website | Project page and leaderboard route at `design-qa.github.io`. |
+
+### 5.4 User Requirements or Qualifications
+
+Users need Python and command-line ability, access to a model capable of handling the relevant text and visual inputs (provider API keys for closed models, or local weights for LLaVA-1.5), OpenAI embedding credentials for the RAG condition, the ability to format predictions into the expected CSV files, and a GitHub account to file a leaderboard issue. Engineering-domain familiarity is helpful for interpreting results but is not required to run the benchmark. No formal user qualification, licence acceptance, eligibility term, or data-use obligation was identified.
+
+### 5.5 Dataset and Item Access
+
+Public evaluation items, answer keys, metadata, and human verification labels are all openly available in the repository, together with the dataset CSVs and image folders. No training or development split, private or held-out evaluation set, secret reserve, private leaderboard set, or retired-item archive exists. Raw model outputs from the paper runs are not released as a dataset, and submitted model traces are not centrally archived. The Formula SAE rules serve as the source document, extracted and filtered from the published PDF.
+
+### 5.6 Provenance and Contamination Documentation
+
+Provenance is well-documented (Formula SAE rules and MIT Motorsports CAD data), including source-material dating, contributor qualifications, and the authors' statement that the visual inputs were not seen by models during pre-training in the same form. Contamination audits, canary strings, deduplication or overlap checks, prior-exposure screening, and training-data filters are absent. There is no dataset DOI, no leak-response or rerun policy, and no training-use prohibition. The rules are public and web-searchable, and the paper recommends using the Retrieval QAs for model fine-tuning, which amounts to optimising directly against released test items.
+
+### 5.7 Reproducibility Materials
+
+| Material | Availability |
+| :--- | :--- |
+| Dataset files | Public in repository. |
+| Prompt templates | Public in paper and README. |
+| Administration and scoring code | Public (`eval/full_evaluation.py`, `eval/metrics/metrics.py`). |
+| Setup instructions | Public README with conda and Python 3.10 setup. |
+| Example evaluation command | Public README includes the full evaluation command and a LLaVA example. |
+| Model-generation code for all paper results | Not established from the inspected sources. |
+| Exact model API versions and settings | Paper appendix documents model identifiers and some LlamaIndex defaults. |
+| Environment lockfile or container | Requirements file exists; no container or lockfile identified. |
+| Random seeds or deterministic settings | Absent. |
+| Smoke-test fixtures, expected outputs, or CI | Absent. |
+| One-command reproduction of published tables | Absent. |
+
+### 5.8 Maintenance and Versioning
+
+No formal release tags, changelogs, or deprecation rules are provided. The leaderboard is updated manually via GitHub issues, with no documented submission eligibility, rerun, stale-score, or model-version update policy. Maintainer identity is the corresponding author (`anniedoris`) and co-authors, with no named ongoing maintenance team. The repository has no GitHub Releases and no CI or build status, and presents 166 commits with an active issue queue (13 open at access date). Last repository push occurred on 2025-08-10, and a README note referencing an IDETC Hackathon 2025 indicates continuing use beyond the original paper. Long-term archival rests on arXiv for the paper and GitHub for data and code, with no DOI archive or mirror identified.
+
+---
+
+## Appendix A. General Description of the Benchmark
+
+DesignQA is a public multimodal question-answering benchmark that tests whether multimodal large language models can locate, interpret, and apply engineering requirements drawn from a real technical document. It pairs the 140-page Formula SAE 2024 rule document with CAD models, engineering drawings, and test data from the MIT Motorsports team, producing 1,451 question-answer pairs across three segments (Rule Extraction, Rule Comprehension, Rule Compliance) and six subsets (Retrieval, Compilation, Definition, Presence, Dimension, Functional Performance). Its distinguishing feature is multi-source visual question answering: the input image and the governing rule text come from different sources, and the images were not part of model pre-training in the same form. Every subset is scored automatically, using F1 variants, accuracy, and BLEU-2/ROUGE-L/Sentence-BERT similarity for compliance explanations, so new systems can be scored without human raters. Models are evaluated under two context-delivery conditions, full rules in context (AllRules) and a LlamaIndex retrieval pipeline (RAG), with a keyword-matched GuaranteedRAG diagnostic. The benchmark, its answer keys, and its scorer are distributed publicly through the `anniedoris/design_qa` repository and an official website carrying a manually maintained, issue-mediated leaderboard.
 
 ---
 
 # Part B. Evaluation of the Benchmark
 
-## Section 6. Quality of Rationale, Development, Documentation, and Task/Item Quality
+## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 ### 6.1 Rationale and Development
 
