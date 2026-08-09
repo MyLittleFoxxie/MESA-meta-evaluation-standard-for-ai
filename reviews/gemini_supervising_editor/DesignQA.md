@@ -389,6 +389,45 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 
 # Part B. Evaluation of the Benchmark
 
+## Information Sources
+
+Information sources that might inform Part B include:
+
+- Official benchmark papers, technical reports, model cards, dataset cards, websites, documentation hubs, repositories, leaderboards, scorecards, dashboards, and changelogs supplied or maintained by benchmark creators.
+- Public benchmark materials such as task files, prompts, rubrics, reference answers, scorer code, harness code, examples, raw outputs, submission rules, issue trackers, release notes, and archived versions.
+- Open information in academic literature, benchmark-quality literature, audit reports, replication studies, analyses of prior model exposure to benchmark items or answers, validation studies, and independent technical commentary. Use these sources to contextualize or challenge score interpretations, not to replace official facts.
+- Maintainer-provided or access-controlled information that is not normally supplied to users. If such material affects a rating, state clearly in the Reviewer notes that the rating depends on non-public material inspected by the reviewer.
+- Confidential or restricted technical information, such as hidden test splits, item provenance, audits for prior exposure to benchmark items or answers, scorer validation reports, calibration data for scoring by another model, or security details. If reviewed under access restrictions, describe only the rating implication and the access status, without disclosing restricted content.
+
+## Explanation of Ratings
+
+All rating items use the EFPA-style scale below unless a section states otherwise. Detailed "Excellent" anchors identify what a rating of `4` would require for that item. Lower ratings should be assigned by reviewer judgment, considering the benchmark's intended use, scope of score interpretation, decision stakes, technical complexity, evidence quality, and consequences of misinterpretation.
+
+Where a `0` or `1` rating is assigned to an attribute that is critical for the benchmark's stated purpose, the review should caution that the benchmark is suitable only for limited exploratory, research, or expert-qualified use unless stronger evidence is supplied. Critical attributes will vary by benchmark: for example, controls for prior model exposure to benchmark items or answers may be critical for public knowledge benchmarks, scorer consistency may be critical for open-ended generation benchmarks, and reference points used to interpret scores may be critical for leaderboards used in procurement or policy.
+
+Overall ratings must be based on reviewer judgment rather than mechanical averaging. A single severe gap may dominate the overall rating when it undermines the intended score meaning; conversely, a narrow gap may be less consequential when the benchmark's score interpretation is modest and clearly bounded.
+
+### Rating Scale
+
+| Rating | Meaning                                                                                |
+| :----: | :------------------------------------------------------------------------------------- |
+|  n/a   | This attribute is not applicable to this benchmark or its stated use.                  |
+|   0    | Not possible to rate because no, or insufficient, information is provided.             |
+|   1    | Inadequate for the benchmark's stated purpose or intended interpretation.              |
+|   2    | Adequate: sufficient for cautious use, with limitations that should be stated.         |
+|   3    | Good: clear, relevant, and mostly complete support, with no major interpretive threat. |
+|   4    | Excellent: comprehensive, well-documented, and strongly aligned with the item anchor.  |
+
+## General Guidance on Assigning Ratings
+
+It is difficult to set universal thresholds for benchmark quality. The adequacy of evidence depends on what capability or quality the benchmark claims to measure, how scores are used, whether comparisons are high stakes, whether tasks are public or hidden, whether scoring is deterministic or judgment-based, and whether the benchmark is stable or regularly refreshed. Ratings should therefore be anchored in the intended score meaning, not in a generic expectation that every benchmark must supply every possible form of evidence.
+
+For descriptive gaps, first ask what evidence would be needed to support the benchmark's actual score interpretation. A missing human reference point, for example, may be serious for a benchmark claiming expert-level performance but less central for a narrow regression test. A missing audit for prior model exposure may be serious for public web-derived knowledge tasks but less central for a private live-environment evaluation with documented release controls.
+
+For broad interpretations made from benchmark scores about intelligence, AGI, reasoning, agency, autonomy, or cross-domain competence, require stronger breadth and validity evidence than for narrow capability interpretations.
+
+Ratings should be based on the information available, with comments explaining consequential evidence, limitations, and rating rationale where needed.
+
 ## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 ### 6.1 Rationale and Development
@@ -438,7 +477,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 - **Missing evidence:** No item difficulty parameters, item discrimination, or IRT-style statistics are reported.
 - **Reviewer/editor rationale:** Floor behavior is established, but formal psychometric item validation is absent.
 
-#### 6.1.8 Adaptation, translation, source reuse, or benchmark slice
+#### 6.1.8 Adaptation, translation, source reuse, derived entity, or benchmark slice
 - **Rating:** n/a
 - **Evidence:** DesignQA is a newly constructed benchmark, not an adaptation or slice of a prior benchmark.
 
@@ -486,7 +525,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 - **Missing evidence:** No release tags, versioned branches, or deprecation policies. Last push occurred in August 2025.
 - **Reviewer/editor rationale:** Maintenance is active but informal, lacking standard version control tags.
 
-#### 6.2.8 Adequacy of documentation overall
+#### 6.2.8 Adequacy of documentation available to users
 - **Rating:** 2
 - **Reviewer/editor rationale:** Strong on purpose and scoring; weak on uncertainty, validity limits, and lifecycle tags.
 
@@ -523,7 +562,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 - **Rating:** 3
 - **Evidence:** Standard academic citations are thorough and cross-linked.
 
-#### 6.3.7 Quality of procedural instructions overall
+#### 6.3.7 Quality of procedural instructions
 - **Rating:** 2
 - **Reviewer/editor rationale:** Usable for research replication, but requires unguided environment reconstruction.
 
@@ -740,7 +779,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 
 ### 10.4 Validity Evidence Based on Relations to Other Variables
 
-#### 10.4.1 Relations with other benchmarks or realistic settings
+#### 10.4.1 Relations with other benchmarks, humans, criteria, or realistic settings
 - **Rating:** 1
 - **Evidence:** None. No empirical correlation with other benchmarks or human engineering tasks.
 
@@ -786,7 +825,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 
 ### 11.1 Rationale and Documentation for Fair Use
 
-#### 11.1.1 Relevance across systems, groups, and contexts
+#### 11.1.1 Relevance of the construct across systems, groups, and contexts
 - **Rating:** 2
 - **Evidence:** Relevant for MLLMs intended for engineering assistance.
 - **Missing evidence:** Relevance across different multimodal interface types is not analyzed.
@@ -830,7 +869,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 - **Rating:** 2
 - **Evidence:** Paper breaks down performance by component mention type and drawing dimension type.
 
-#### 11.4.2 Reliability and validity across subgroups
+#### 11.4.2 Reliability and validity across relevant subgroups or contexts
 - **Rating:** 1
 - **Evidence:** None.
 
@@ -856,7 +895,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 
 ### 12.1 Scope and Coverage
 
-#### 12.1.1 Report, leaderboard, or reporting-material scope
+#### 12.1.1 Report, leaderboard, dashboard, or reporting-material scope
 - **Rating:** 3
 - **Evidence:** The paper provides detailed subset tables, and the scorer writes per-question results locally.
 
@@ -905,7 +944,7 @@ DesignQA is a public multimodal question-answering benchmark that tests whether 
 - **Missing evidence:** Opaque, currently unrenderable leaderboard table; lack of formal submission rules, stale policies, or test-set tuning disclosures.
 - **Reviewer/editor rationale:** Leaderboard lacks formal governance controls.
 
-### 12.5 Overall Quality of Reports, Leaderboards, Dashboards, and Claims
+### 12.5 Overall Quality of Reports, Leaderboards, Dashboards, and Public Claims
 - **Rating:** 2
 - **Reviewer/editor rationale:** Paper reporting is clear and transparent, but overall reporting is capped at a 2 due to the un-governed leaderboard, lack of uncertainty reporting, and over-precise point estimates.
 

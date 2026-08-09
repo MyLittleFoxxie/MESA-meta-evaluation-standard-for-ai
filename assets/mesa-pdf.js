@@ -43,6 +43,19 @@
     return s.replace(/\s+/g, " ").trim();
   }
 
+  // Splits "Capability-domain" into ["Capability-", "domain"] -- each piece
+  // keeps its trailing hyphen so pieces can be rejoined without extra spaces.
+  function splitAfterHyphens(w) {
+    var parts = [];
+    var cur = "";
+    for (var i = 0; i < w.length; i++) {
+      cur += w[i];
+      if (w[i] === "-") { parts.push(cur); cur = ""; }
+    }
+    if (cur) parts.push(cur);
+    return parts;
+  }
+
   function wrapText(font, size, text, maxWidth) {
     var words = String(text || "").split(/\s+/).filter(Boolean);
     var lines = [];
@@ -58,17 +71,32 @@
         line = w;
         return;
       }
-      // single word wider than the column: hard-break it
+      // single word wider than the column: prefer breaking right after a
+      // hyphen (e.g. "Capability-domain" -> "Capability-" / "domain") over an
+      // arbitrary mid-word character break.
+      var pieces = w.indexOf("-") === -1 ? [w] : splitAfterHyphens(w);
       var chunk = "";
-      for (var i = 0; i < w.length; i++) {
-        var t2 = chunk + w[i];
-        if (chunk && font.widthOfTextAtSize(t2, size) > maxWidth) {
+      pieces.forEach(function (piece) {
+        var test = chunk + piece;
+        if (chunk && font.widthOfTextAtSize(test, size) > maxWidth) {
           lines.push(chunk);
-          chunk = w[i];
-        } else {
-          chunk = t2;
+          chunk = "";
         }
-      }
+        if (font.widthOfTextAtSize(piece, size) <= maxWidth) {
+          chunk += piece;
+          return;
+        }
+        // even this piece doesn't fit on its own: hard-break it character by character
+        for (var i = 0; i < piece.length; i++) {
+          var t2 = chunk + piece[i];
+          if (chunk && font.widthOfTextAtSize(t2, size) > maxWidth) {
+            lines.push(chunk);
+            chunk = piece[i];
+          } else {
+            chunk = t2;
+          }
+        }
+      });
       line = chunk;
     });
     if (line) lines.push(line);
@@ -294,16 +322,21 @@
       });
     }
 
+    function headerLines() {
+      return header.map(function (h, i) { return wrapText(headerFont, headerSize, mdToPlain(h), colWidths[i] - 2 * padding); });
+    }
+
     function drawHeaderRow() {
-      var rowH = 20;
+      var lines = headerLines();
+      var maxLines = lines.reduce(function (m, l) { return Math.max(m, l.length); }, 1);
+      var rowH = Math.max(18, maxLines * headerSize * 1.25 + padding * 2);
       ensureSpace(state, rowH);
       var topY = state.y;
       state.y -= rowH;
       state.page.drawRectangle({ x: MARGIN, y: topY - rowH, width: CONTENT_W, height: rowH, color: state.colors.headerBg });
       var x = MARGIN;
-      header.forEach(function (h, i) {
-        var lines = wrapText(headerFont, headerSize, mdToPlain(h), colWidths[i] - 2 * padding);
-        state.page.drawText(lines[0] || "", { x: x + padding, y: topY - rowH + (rowH - headerSize) / 2.6, size: headerSize, font: headerFont, color: state.colors.navy });
+      lines.forEach(function (colLines, i) {
+        placeTextLines(state.page, colLines, x + padding, topY, headerFont, headerSize, state.colors.navy, headerSize * 1.25);
         x += colWidths[i];
       });
       drawRowBorders(topY, rowH, colWidths);
@@ -478,5 +511,33 @@
     });
   }
 
-  window.MesaPdf = { exportPdf: exportPdf };
+  // Reads a MESA-exported fillable PDF back into an { id: value } answers map.
+  // Field names in that PDF are exactly the app's controlId()-generated ids
+  // (see buildPdfDocument above), so this is a lookup, not a re-parse.
+  function importAnswers(arrayBuffer) {
+    if (!window.PDFLib) return Promise.reject(new Error("the pdf-lib library failed to load"));
+    var PDFLib = window.PDFLib;
+    return PDFLib.PDFDocument.load(arrayBuffer).then(function (doc) {
+      var fields = doc.getForm().getFields();
+      var out = {};
+      fields.forEach(function (f) {
+        var name = f.getName();
+        if (f instanceof PDFLib.PDFTextField) {
+          var text = f.getText();
+          if (text) out[name] = text;
+        } else if (f instanceof PDFLib.PDFCheckBox) {
+          if (f.isChecked()) out[name] = true;
+        } else if (f instanceof PDFLib.PDFRadioGroup) {
+          var selected = f.getSelected();
+          if (selected) out[name] = selected;
+        } else if (f instanceof PDFLib.PDFDropdown) {
+          var options = f.getSelected();
+          if (options && options.length) out[name] = options[0];
+        }
+      });
+      return out;
+    });
+  }
+
+  window.MesaPdf = { exportPdf: exportPdf, importAnswers: importAnswers };
 })();

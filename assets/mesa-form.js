@@ -23,6 +23,7 @@
   var state = { answers: loadAnswers() };
   var usedIds = Object.create(null);
   var blocks = [];
+  var lastMd = null;
 
   /* ---------- persistence ---------- */
   function loadAnswers() {
@@ -492,6 +493,7 @@
 
   /* ---------- build ---------- */
   function build(md) {
+    lastMd = md;
     usedIds = Object.create(null);
     var root = document.getElementById("mesa-form");
     root.innerHTML = "";
@@ -576,9 +578,28 @@
     if (loader) loader.addEventListener("change", function () {
       var f = loader.files[0];
       if (!f) return;
+      var isPdf = f.type === "application/pdf" || /\.pdf$/i.test(f.name);
       var reader = new FileReader();
-      reader.onload = function () { build(String(reader.result)); };
-      reader.readAsText(f);
+      if (isPdf) {
+        reader.onload = function () {
+          if (!window.MesaPdf) { setStatus("Could not read answers from this PDF: the PDF module failed to load."); return; }
+          window.MesaPdf.importAnswers(reader.result)
+            .then(function (imported) {
+              var keys = Object.keys(imported);
+              keys.forEach(function (id) { state.answers[id] = imported[id]; });
+              saveAnswers();
+              if (lastMd != null) build(lastMd);
+              setStatus(keys.length ? "Imported " + keys.length + " answer(s) from the PDF." : "No filled-in answers were found in that PDF.");
+            })
+            .catch(function (err) {
+              setStatus("Could not read answers from this PDF: " + err.message);
+            });
+        };
+        reader.readAsArrayBuffer(f);
+      } else {
+        reader.onload = function () { build(String(reader.result)); };
+        reader.readAsText(f);
+      }
     });
 
     window.addEventListener("beforeprint", function () {

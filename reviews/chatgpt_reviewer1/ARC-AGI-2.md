@@ -5,7 +5,11 @@ Reviewed entity: ARC-AGI-2 official benchmark, public data, semi-private/private
 Reviewer profile: `.codex/agents/benchmark-reviewer.md`  
 Date of current review: 2026-05-17
 
-## Source Registry
+## Short Stand-Alone Non-Evaluative Benchmark Description
+
+ARC-AGI-2 is a public grid-transformation benchmark in the ARC-AGI family. Each task presents a small number of demonstration input-output grids and asks the evaluated system to infer the underlying rule and produce exact output grid(s) for unseen test input(s). The public release contains 1,000 training tasks and 120 public evaluation tasks, with additional 120-task semi-private and private evaluation sets used for controlled leaderboard and competition purposes. ARC Prize positions the benchmark as a harder successor to ARC-AGI-1, designed to challenge current reasoning systems, reduce brute-force susceptibility, improve human calibration, and report both performance and efficiency. The strongest descriptive classification is performance on ARC-style exact-grid abstraction tasks under specified access, attempt, and compute conditions.
+
+## Source Inventory
 
 | ID  | Source                                                                                                                                                              | Access date | Use in this review                                                                                                                  |
 | :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------- | :---------------------------------------------------------------------------------------------------------------------------------- |
@@ -22,10 +26,6 @@ Date of current review: 2026-05-17
 | S11 | BetterBench, `literature/betterbench.md`                                                                                                                            | 2026-05-17  | Documentation, implementation, reproducibility, and maintenance criteria.                                                           |
 | S12 | Measuring what Matters, `literature/Measuring_what_Matters.md`                                                                                                      | 2026-05-17  | Construct-validity chain: phenomenon, task, metric, claim.                                                                          |
 | S13 | A Definition of AGI, `literature/A_Definition_of_AGI.md`                                                                                                            | 2026-05-17  | Broad AGI/CHC-style capability breadth cautions.                                                                                    |
-
-## Short Stand-Alone Non-Evaluative Benchmark Description
-
-ARC-AGI-2 is a public grid-transformation benchmark in the ARC-AGI family. Each task presents a small number of demonstration input-output grids and asks the evaluated system to infer the underlying rule and produce exact output grid(s) for unseen test input(s). The public release contains 1,000 training tasks and 120 public evaluation tasks, with additional 120-task semi-private and private evaluation sets used for controlled leaderboard and competition purposes. ARC Prize positions the benchmark as a harder successor to ARC-AGI-1, designed to challenge current reasoning systems, reduce brute-force susceptibility, improve human calibration, and report both performance and efficiency. The strongest descriptive classification is performance on ARC-style exact-grid abstraction tasks under specified access, attempt, and compute conditions.
 
 # Part A. Description of the Benchmark
 
@@ -1114,7 +1114,7 @@ Ratings below are based on intended score meaning, not mechanical averaging. For
 
 ---
 
-#### 6.1.9 Overall quality of rationale, development, and task or item quality
+#### 6.1.9 Overall Rationale, development, and task or item quality
 
 - Excellent: Reviewer judgment, based on items 6.1.1-6.1.8, supports the conclusion that the benchmark rationale, definition of what is being measured, development process, and task or item quality are comprehensive and fit for the intended score meaning. Do not mechanically average ratings.
 - Rating: 3
@@ -1319,7 +1319,7 @@ Reviewer comments: ARC-AGI-2 has clear official rationale, unusually detailed hu
 
 ---
 
-#### 7.1.2 Prompts, instructions, and input artifacts
+#### 7.1.2 Prompts, instructions, and input materials
 
 - Excellent: Prompts, task instructions, examples, system messages, input files, context windows, multimodal assets, GUI screenshot assets, video assets, document images or PDFs, layout annotations, filesystem or simulator state, and any hidden or private instructions are documented or controlled in a way that supports reproducible evaluation and fair interpretation.
 - Rating: 3
@@ -1385,7 +1385,7 @@ Reviewer comments: ARC-AGI-2 has clear official rationale, unusually detailed hu
 
 ---
 
-#### 7.1.8 Overall quality of benchmark artifacts
+#### 7.1.8 Overall quality of benchmark materials
 
 - Excellent: Reviewer judgment, based on items 7.1.1-7.1.7, supports the conclusion that benchmark materials are complete, usable, accessible, reproducible, and appropriate for the intended evaluation. Do not mechanically average ratings.
 - Rating: 3
@@ -1946,7 +1946,7 @@ Reviewer comments: ARC-AGI-2 has clear integrity-oriented policies and strong pu
 
 ### 12.1 Scope and Coverage
 
-#### 12.1.1 Report, leaderboard, dashboard, or result artifact scope
+#### 12.1.1 Report, leaderboard, dashboard, or reporting-material scope
 
 - Excellent: Reports, leaderboards, dashboards, tables, scorecards, downloadable files, or papers cover the scores, subscores, and capability-domain profiles relevant to the benchmark's intended use without omitting essential context or implying unsupported granularity.
 - Rating: 3

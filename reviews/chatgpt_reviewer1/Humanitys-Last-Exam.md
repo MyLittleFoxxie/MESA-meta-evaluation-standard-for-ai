@@ -5,7 +5,11 @@ Reviewed entity: finalized static Humanity's Last Exam benchmark, including the 
 Reviewer profile: `.codex/agents/benchmark-reviewer.md`  
 Date of current review: 2026-05-17
 
-## Source Registry
+## Short Stand-Alone Non-Evaluative Benchmark Description
+
+Humanity's Last Exam (HLE) is a public benchmark of 2,500 difficult closed-ended academic questions across more than one hundred subjects. The paper describes HLE as a multimodal benchmark at the frontier of human knowledge, with multiple-choice and short-answer items suitable for automated grading, a private held-out set for overfitting checks, and official prompting that asks models for an explanation, final answer, and confidence. The strongest descriptive classification is expert-level closed-ended academic question answering, including a text-plus-image subset and calibration/error reporting.
+
+## Source Inventory
 
 | ID | Source | Access date | Use in this review |
 | :-- | :-- | :-- | :-- |
@@ -25,10 +29,6 @@ Date of current review: 2026-05-17
 | S14 | Measuring what Matters, `literature/Measuring_what_Matters.md` | 2026-05-17 | Construct-validity chain: phenomenon, task, metric, claim. |
 | S15 | A Definition of AGI, `literature/A_Definition_of_AGI.md` | 2026-05-17 | CHC/AGI breadth framing for broad intelligence and cognitive-domain cautions. |
 | S16 | Repository report, `reports/benchmark_official_documentation_inventory.md` | 2026-05-17 | Local source-inventory starting point for HLE. |
-
-## Short Stand-Alone Non-Evaluative Benchmark Description
-
-Humanity's Last Exam (HLE) is a public benchmark of 2,500 difficult closed-ended academic questions across more than one hundred subjects. The paper describes HLE as a multimodal benchmark at the frontier of human knowledge, with multiple-choice and short-answer items suitable for automated grading, a private held-out set for overfitting checks, and official prompting that asks models for an explanation, final answer, and confidence. The strongest descriptive classification is expert-level closed-ended academic question answering, including a text-plus-image subset and calibration/error reporting.
 
 # Part A. Description of the Benchmark
 
@@ -939,7 +939,7 @@ Missing documentation is treated as an evidence gap, not as proof of poor qualit
 - Rationale: The criterion does not apply to the primary reviewed entity.
 - Reviewer caution: Individual questions may synthesize published information, but the benchmark is not a reused human-exam source.
 
-#### 6.1.9 Overall quality of rationale, development, and task or item quality
+#### 6.1.9 Overall Rationale, development, and task or item quality
 
 - Rating: 3
 - Evidence: Strong rationale, expert construction, filtering, review, feedback, and documented caveats [S03].

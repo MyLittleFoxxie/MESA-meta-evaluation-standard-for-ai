@@ -176,10 +176,12 @@
     // toolbar/progress visibility is driven by [data-view] in CSS
     var form = $("mesa-form");
     var doc = $("mesa-doc");
+    var paper = $("mesa-paper-frame");
     var caseNav = $("mesa-case-nav");
     var showForm = view === "template";
     if (form) form.hidden = !showForm;
-    if (doc) doc.hidden = showForm;
+    if (doc) doc.hidden = showForm || view === "paper";
+    if (paper) paper.hidden = view !== "paper";
     if (caseNav) caseNav.hidden = view !== "case";
     // active tab styling
     document.querySelectorAll(".mesa-tab").forEach(function (b) {
@@ -289,6 +291,7 @@
     var parts = raw.split("/").filter(Boolean);
     var head = parts[0] || "home";
     if (head === "template") return { view: "template" };
+    if (head === "paper") return { view: "paper" };
     // legacy #about now lands on the Case Studies Overview
     if (head === "about" || head === "case") {
       if (head === "case" && known(BENCHMARKS, parts[1])) {
@@ -313,6 +316,10 @@
       case "case":
         showCase();
         break;
+      case "paper":
+        buildToc(null, []);
+        setStatus("");
+        break;
       default: // home
         showDoc("README.md", null);
     }
@@ -328,10 +335,7 @@
       });
     });
 
-    var print = $("btn-print");
-    if (print) print.addEventListener("click", function () { window.print(); });
-
-    var exportPdf = $("btn-export-pdf");
+    var exportPdf = $("btn-print");
     if (exportPdf) exportPdf.addEventListener("click", function () {
       if (window.MesaPdf) window.MesaPdf.exportPdf();
     });

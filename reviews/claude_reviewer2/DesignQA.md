@@ -495,7 +495,7 @@ Reviewer comments: Each subset's task, metric, and engineering-skill interpretat
 
 ## Section 5. Benchmark Access, Materials, and Lifecycle
 
-### 5.1 Distribution and Access Model (materials present)
+### 5.1 Distribution and Access Model
 
 - [x] Technical report (arXiv paper)
 - [x] Repository README
@@ -503,7 +503,7 @@ Reviewer comments: Each subset's task, metric, and engineering-skill interpretat
 - [x] Evaluation examples (Figure 3; worked scoring examples)
 - [ ] User guide; API documentation; Dataset card; Model submission instructions (beyond "file a GitHub issue"); Rubric/annotation guide; FAQ/forum; Changelog/release notes
 
-### 5.2 Distribution and Access Model (access type)
+### 5.2 Distribution and Access Model
 
 - [x] Fully public materials
 - [x] Leaderboard-only submission route (issue-mediated)
@@ -637,6 +637,45 @@ DesignQA is a static, fully public multimodal QA benchmark that tests whether ML
 
 Part B evaluates DesignQA against the meaning users are expected to draw from its scores: a fine-grained, per-subset diagnosis of whether an MLLM can extract, comprehend, and apply engineering requirements from one real rule document, under a stated context-delivery condition. Ratings are anchored to that modest, well-bounded interpretation. Interpretive criteria are disciplined with `literature/Measuring_what_Matters.md` (construct validity), `literature/betterbench.md` (lifecycle quality, reproducibility, contamination, usability, maintenance), and `literature/A_Definition_of_AGI.md` (CHC domain mapping). Each item carries evidence, missing evidence, reviewer rationale, and an interpretation caution where consequential.
 
+## Information Sources
+
+Information sources that might inform Part B include:
+
+- Official benchmark papers, technical reports, model cards, dataset cards, websites, documentation hubs, repositories, leaderboards, scorecards, dashboards, and changelogs supplied or maintained by benchmark creators.
+- Public benchmark materials such as task files, prompts, rubrics, reference answers, scorer code, harness code, examples, raw outputs, submission rules, issue trackers, release notes, and archived versions.
+- Open information in academic literature, benchmark-quality literature, audit reports, replication studies, analyses of prior model exposure to benchmark items or answers, validation studies, and independent technical commentary. Use these sources to contextualize or challenge score interpretations, not to replace official facts.
+- Maintainer-provided or access-controlled information that is not normally supplied to users. If such material affects a rating, state clearly in the Reviewer notes that the rating depends on non-public material inspected by the reviewer.
+- Confidential or restricted technical information, such as hidden test splits, item provenance, audits for prior exposure to benchmark items or answers, scorer validation reports, calibration data for scoring by another model, or security details. If reviewed under access restrictions, describe only the rating implication and the access status, without disclosing restricted content.
+
+## Explanation of Ratings
+
+All rating items use the EFPA-style scale below unless a section states otherwise. Detailed "Excellent" anchors identify what a rating of `4` would require for that item. Lower ratings should be assigned by reviewer judgment, considering the benchmark's intended use, scope of score interpretation, decision stakes, technical complexity, evidence quality, and consequences of misinterpretation.
+
+Where a `0` or `1` rating is assigned to an attribute that is critical for the benchmark's stated purpose, the review should caution that the benchmark is suitable only for limited exploratory, research, or expert-qualified use unless stronger evidence is supplied. Critical attributes will vary by benchmark: for example, controls for prior model exposure to benchmark items or answers may be critical for public knowledge benchmarks, scorer consistency may be critical for open-ended generation benchmarks, and reference points used to interpret scores may be critical for leaderboards used in procurement or policy.
+
+Overall ratings must be based on reviewer judgment rather than mechanical averaging. A single severe gap may dominate the overall rating when it undermines the intended score meaning; conversely, a narrow gap may be less consequential when the benchmark's score interpretation is modest and clearly bounded.
+
+### Rating Scale
+
+| Rating | Meaning                                                                                |
+| :----: | :------------------------------------------------------------------------------------- |
+|  n/a   | This attribute is not applicable to this benchmark or its stated use.                  |
+|   0    | Not possible to rate because no, or insufficient, information is provided.             |
+|   1    | Inadequate for the benchmark's stated purpose or intended interpretation.              |
+|   2    | Adequate: sufficient for cautious use, with limitations that should be stated.         |
+|   3    | Good: clear, relevant, and mostly complete support, with no major interpretive threat. |
+|   4    | Excellent: comprehensive, well-documented, and strongly aligned with the item anchor.  |
+
+## General Guidance on Assigning Ratings
+
+It is difficult to set universal thresholds for benchmark quality. The adequacy of evidence depends on what capability or quality the benchmark claims to measure, how scores are used, whether comparisons are high stakes, whether tasks are public or hidden, whether scoring is deterministic or judgment-based, and whether the benchmark is stable or regularly refreshed. Ratings should therefore be anchored in the intended score meaning, not in a generic expectation that every benchmark must supply every possible form of evidence.
+
+For descriptive gaps, first ask what evidence would be needed to support the benchmark's actual score interpretation. A missing human reference point, for example, may be serious for a benchmark claiming expert-level performance but less central for a narrow regression test. A missing audit for prior model exposure may be serious for public web-derived knowledge tasks but less central for a private live-environment evaluation with documented release controls.
+
+For broad interpretations made from benchmark scores about intelligence, AGI, reasoning, agency, autonomy, or cross-domain competence, require stronger breadth and validity evidence than for narrow capability interpretations.
+
+Ratings should be based on the information available, with comments explaining consequential evidence, limitations, and rating rationale where needed.
+
 ## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
 ### 6.1 Rationale and Development
@@ -690,7 +729,7 @@ Part B evaluates DesignQA against the meaning users are expected to draw from it
 - Rating: n/a
 - Evidence: DesignQA is an original construction, not an adaptation or slice of a prior benchmark.
 
-#### 6.1.9 Overall quality of rationale, development, and task or item quality
+#### 6.1.9 Overall Rationale, development, and task or item quality
 - Rating: 3
 - Reviewer rationale: A clearly defined, honestly bounded construct; an expertise-driven, cross-reviewed manual authoring process; and purpose-built multimodal item designs support qualified diagnostic use. The residual gaps are small-sample thoroughness and absent per-item quality statistics, which constrain - but do not undermine - the rationale.
 

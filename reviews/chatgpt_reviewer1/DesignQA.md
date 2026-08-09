@@ -5,7 +5,11 @@ Reviewed entity: DesignQA public benchmark, including the paper-described datase
 Reviewer profile: `.codex/agents/benchmark-reviewer.md`  
 Date of current review: 2026-06-28
 
-## Source Registry
+## Short Stand-Alone Non-Evaluative Benchmark Description
+
+DesignQA is a public multimodal benchmark for evaluating multimodal large language models on engineering requirements question answering. It is based on the 2024 Formula SAE rules and MIT Motorsports design artifacts, including CAD-derived images, engineering drawings, and functional performance visuals. The benchmark contains 1,451 question-answer pairs across Rule Extraction, Rule Comprehension, and Rule Compliance tasks. Its public materials include the DesignQA paper, an official GitHub repository with dataset and evaluation code, an official project website, and a manually maintained leaderboard.
+
+## Source Inventory
 
 | ID | Source | Access date | Use in this review |
 | :-- | :-- | :-- | :-- |
@@ -20,10 +24,6 @@ Date of current review: 2026-06-28
 | S09 | BetterBench, `literature/betterbench.md` | 2026-06-28 | Benchmark lifecycle, documentation, reproducibility, contamination, usability, and maintenance criteria. |
 | S10 | Measuring what Matters, `literature/Measuring_what_Matters.md` | 2026-06-28 | Construct-validity chain: phenomenon, task, metric, claim. |
 | S11 | Repository report, `benchmark_official_documentation_inventory.md` | 2026-06-28 | Local source-inventory starting point for DesignQA. |
-
-## Short Stand-Alone Non-Evaluative Benchmark Description
-
-DesignQA is a public multimodal benchmark for evaluating multimodal large language models on engineering requirements question answering. It is based on the 2024 Formula SAE rules and MIT Motorsports design artifacts, including CAD-derived images, engineering drawings, and functional performance visuals. The benchmark contains 1,451 question-answer pairs across Rule Extraction, Rule Comprehension, and Rule Compliance tasks. Its public materials include the DesignQA paper, an official GitHub repository with dataset and evaluation code, an official project website, and a manually maintained leaderboard.
 
 ---
 
