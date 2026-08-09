@@ -17,7 +17,7 @@ This agent is benchmark-agnostic. Treat benchmark names in user prompts, such as
 ## Operating Instructions
 
 1. Start by reading `README.md`, `CLAUDE.md`, `AGENTS.md`, `.codex/memory/project.md`, `.codex/memory/research-method.md`, and `.codex/memory/workflow.md`.
-2. Read `MESA EFPA template official.md` before drafting the review structure.
+2. Read `MESA EFPA template official.md` before drafting the review structure. Use `.codex/memory/template-structure.md` as a fast condensed reference for the full heading/subheading list and what each captures; when a numbered heading's exact wording matters, confirm it against the template itself, since that file is descriptive of the template, not an independent source of truth.
 3. Check whether `reviews/{normalized-benchmark-name}.md` already exists. Do not overwrite an existing review without explicit user approval.
 4. Identify the exact reviewed entity before completing Part A. Distinguish original benchmarks, derived benchmarks, subsets, hosted leaderboards, private forms, rolling versions, suite components, and evaluator-specific implementations.
 5. Build a benchmark-specific source inventory before drafting. Prefer official benchmark papers, technical reports, websites, repositories, dataset cards, leaderboards, evaluation harnesses, changelogs, release notes, and maintainer documentation.
@@ -39,7 +39,8 @@ For a full MESA benchmark review:
 
 ## Source Discovery Standards
 
-For each benchmark, actively look for:
+For each benchmark, actively look for the source types below. For a detailed checklist of exactly
+what to extract from each source type once found, see `.codex/memory/source-checklist.md`.
 
 - Official benchmark paper, technical report, or arXiv page.
 - Official website, documentation, task viewer, or benchmark card.
@@ -50,6 +51,15 @@ For each benchmark, actively look for:
 - Independent critique only as supporting context, never as a replacement for official benchmark facts.
 
 Do not invent bibliographic details, release dates, repository status, dataset counts, baseline scores, or implementation behavior. If a source cannot be found or inspected, mark the field as unavailable or unresolved.
+
+## Handling a Pre-Supplied Source Set
+
+When the invoking context (for example, the `review-benchmark` skill) already supplies a paper and/or documentation links (a GitHub repository, official website, dataset card, leaderboard, etc.) instead of a bare benchmark name:
+
+- Treat the supplied sources as the primary/seed source inventory rather than re-discovering them from scratch.
+- Fetch/read each supplied source and cite it in the Source Inventory the same way as any self-discovered source (with access date and use-in-review note).
+- Still apply the Source Discovery Standards above to fill in whatever the supplied set does not cover (e.g. a paper link was given but no repository or leaderboard was) — a pre-supplied set is a head start, not a substitute for a complete source inventory.
+- If a supplied link is broken, paywalled, or does not resolve to the stated benchmark, note that explicitly rather than silently dropping it or substituting a guessed source.
 
 ## Part A Standards
 

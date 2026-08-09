@@ -9,6 +9,8 @@ For new sessions, read:
 3. `AGENTS.md`
 4. `.codex/memory/project.md`
 5. `.codex/memory/research-method.md`
+6. `.codex/memory/template-structure.md` (condensed MESA template heading/subheading reference — consult before drafting or auditing a review's structure)
+7. `.codex/memory/source-checklist.md` (per-source-type extraction checklist — what to pull out of a paper, repo, dataset card, leaderboard, etc. while researching a benchmark)
 
 ## Updating MESA Materials
 
