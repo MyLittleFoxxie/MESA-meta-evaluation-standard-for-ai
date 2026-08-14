@@ -17,6 +17,11 @@ Each category ends with a "Feeds" line pointing at the template section(s) it pr
 use that to jump straight to `template-structure.md` for the full field description once the source
 type is known.
 
+Template v2 single-home rules to respect when filing facts: score definitions live **only in 3.2**
+(2.5 records just the primary score's name); the audience/recipients question lives **only in 2.4**
+(4.10 is retired); response formats live **only in 2.9** (2.6 is retired); the General Description
+and the Source Inventory are now template sections at the head of Part A, not house conventions.
+
 ## 1. Official paper / technical report
 
 - Exact benchmark name, authors, venue, publication date, DOI/arXiv ID, and citation form.
@@ -36,7 +41,7 @@ type is known.
   should *not* be taken to mean.
 - License, access terms, and whether public/private/hidden splits are described.
 
-**Feeds:** 1.2, 1.3, 2.1, 2.5-2.9, 3.1-3.7, 5.6-5.7, 6.1, 8.1, 9.1-9.4, 10.1-10.6.
+**Feeds:** General Description, Source Inventory, 1.2, 1.3, 2.1 (incl. the construct-in-own-words rows), 2.5, 2.7-2.9, 3.1-3.7 (all score definitions go to 3.2), 5.6-5.7, 6.1, 8.1, 9.1-9.4, 10.1-10.6.
 
 ## 2. Official website / documentation hub
 
@@ -49,7 +54,7 @@ type is known.
 - Version/release history, if the site is the authoritative place it's tracked (rather than a
   separate changelog file).
 
-**Feeds:** 1.2, 1.3, 4.1-4.3, 5.1-5.3, 6.2.1, 6.3.3.
+**Feeds:** 1.2, 1.3, 2.4, 4.1-4.3, 5.1-5.3, 6.2.1, 6.3.3.
 
 ## 3. Code repository (harness, scorer, prompts)
 
@@ -65,7 +70,7 @@ type is known.
 - Issue tracker activity and recent commit history, as a maintenance/currency signal.
 - Tags/releases, and whether they map to the version(s) reported in the paper or on the leaderboard.
 
-**Feeds:** 1.3, 2.6-2.9, 2.13, 3.1-3.2, 5.1, 5.3, 5.7-5.8, 6.3.1-6.3.2, 7.1.1-7.1.5, 9.3.1, 9.4.3.
+**Feeds:** 1.3, 2.7-2.9, 2.13, 3.1-3.2, 5.1, 5.3, 5.7-5.8, 6.3.1-6.3.2, 7.1.1-7.1.5, 9.3.1, 9.4.3.
 
 ## 4. Dataset host / dataset card
 
@@ -91,7 +96,7 @@ type is known.
 - Version/cohort labeling on entries — can a viewer tell which benchmark version and which model
   version/date produced each row?
 
-**Feeds:** 2.12, 4.1-4.2, 4.4, 5.8, 8.1.3, 9.5.1, 12.1-12.2.
+**Feeds:** 2.4, 2.12, 4.1-4.2, 4.4, 5.8, 8.1.3, 9.5.1, 12.1-12.2.
 
 ## 6. Changelog / release notes / version history
 

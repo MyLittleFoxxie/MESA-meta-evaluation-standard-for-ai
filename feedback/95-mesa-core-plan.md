@@ -4,6 +4,10 @@ Consumes the completed self-review (31/31 units `done`; 122 findings, 0 Blockers
 `90-synthesis.md`). This is a **plan**: no template text, agent file, or website asset is
 edited here. Every recommendation cites the finding that motivates it.
 
+**Amended 2026-08-10:** the case-study coverage check (Part 1) has been executed; nine items
+escaped both Core and their triggers and are promoted to Core (31 → 40 rated items,
+estimate 10-14 h). Parts 1-3 and 5 reflect the post-check state.
+
 **Governing invariants**
 
 1. *In-paper authorization:* "many RE workflows need a compact scorecard that preserves
@@ -38,13 +42,15 @@ ID stability. Recorded here as a conflict resolution, not an oversight.
 
 ## Part 1 — MESA Core
 
-**Target: 31 rated items (of the trimmed template's 84) plus a compressed Part A of
-~26 descriptive units. Estimated completion time: 8-12 hours** (Part A ≈ 3-5 h, Part B ≈
-4-6 h, Final Evaluation ≈ 1 h), versus 22-35 h for the full review after the filed trims
-(`80-xcut-length-budget`). Item count and time target are the synthesis's own derivation
+**Target: 40 rated items (of the trimmed template's 84) plus a compressed Part A of
+~26 descriptive units. Estimated completion time: 10-14 hours** (Part A ≈ 3-5 h, Part B ≈
+6-8 h, Final Evaluation ≈ 1 h), versus 22-35 h for the full review after the filed trims
+(`80-xcut-length-budget`). The synthesis's a-priori derivation was 30-35 items / 8-12 h
 (`90-synthesis` §3: "approximately 30-35 rated items centered on the sections where the
 case-study ratings actually turned (8-10 and 12), a compressed Part A, the Gap Register, and
-the supported-use/non-use statement — targeting 8-12 hours").
+the supported-use/non-use statement — targeting 8-12 hours"); the completed coverage check
+(below) then forced nine promotions that band did not anticipate, and the pre-committed
+empirical rule outranks the estimate.
 
 **Selection principle.** Core Part B = the items whose ratings decided the three case-study
 verdicts (Sections 8-10 and 12 per `80-xcut-length-budget`; anchor-traffic evidence in
@@ -54,16 +60,16 @@ collects → 10.6 rates proportionality → 11.5 rates use guidance → 12.3 rat
 Core Part A = exactly the descriptive fields those Part B items consume, plus every field
 that carries an Extended-block trigger (a trigger field must always be answered).
 
-### Core Part B items (31)
+### Core Part B items (40)
 
 | § | Core items | Grounding |
 |---|---|---|
-| 6 (6 of 25) | 6.1.1, 6.1.3, 6.2.3, 6.2.7, 6.3.1, 6.4 | 6.1.3/6.2.7/6.3.1 are the section's highest-traffic anchors and BetterBench's weak spots (F-20-template-s06-1); 6.1.1 + 6.1.3 fix the construct and the phenomenon-task-metric-claim chain that Section 10 consumes; 6.2.3 is the scoring documentation Part B cannot proceed without; 6.4 feeds the Summary |
-| 7 (3 of 8) | 7.1.1, 7.1.4, 7.1.8 | availability and harness quality gate whether anything else is checkable (F-20-template-s07 preamble); 7.1.8 feeds the Summary |
+| 6 (7 of 25) | 6.1.1, 6.1.3, 6.2.3, 6.2.4, 6.2.7, 6.3.1, 6.4 | 6.1.3/6.2.7/6.3.1 are the section's highest-traffic anchors and BetterBench's weak spots (F-20-template-s06-1); 6.1.1 + 6.1.3 fix the construct and the phenomenon-task-metric-claim chain that Section 10 consumes; 6.2.3 is the scoring documentation Part B cannot proceed without; 6.2.4 promoted by the coverage check (rated 1 in all three case studies); 6.4 feeds the Summary |
+| 7 (4 of 8) | 7.1.1, 7.1.4, 7.1.7, 7.1.8 | availability and harness quality gate whether anything else is checkable (F-20-template-s07 preamble); 7.1.7 promoted by the coverage check (DesignQA rated it 1 with no firing trigger); 7.1.8 feeds the Summary |
 | 8 (4 of 8) | 8.1.1, 8.1.2, 8.1.3, 8.2 | "8.1.2/8.1.3 are where HLE and ARC-AGI-2 ratings actually turned" (F-20-template-s08-3); the reference-kind typology (:1547) is on the protect list; 8.2 feeds the Summary |
-| 9 (5 of 11) | 9.1.1, 9.2.1, 9.2.2, 9.5.1, 9.6 | 9.1.1 as inventory per F-20-template-s09-1; DesignQA's verdict hinged on uncertainty reporting (9.2.2) and item-count sensitivity (9.5.1; `paper.tex:232-234` thresholds, protect list); 9.6 feeds the Summary |
-| 10 (7 of 14) | 10.1.1, 10.3.1, 10.3.2, 10.5.1, 10.5.2, 10.6.1, 10.7 | the section the synthesis calls the intellectual center; contamination/gameability and proportionality are the MESA-original additions the case studies exercised (F-20-template-s10b preamble); 10.6.1 is the merged proportionality item (F-20-template-s10b-3); 10.7 feeds the Summary |
-| 11 (3 of 11) | 11.3.1, 11.5.1, 11.6 | 11.3.1 is the merged comparability item (F-20-template-s11-2); 11.5.1 is the claims-pipeline stage; 11.6 feeds the Summary |
+| 9 (6 of 11) | 9.1.1, 9.2.1, 9.2.2, 9.4.1, 9.5.1, 9.6 | 9.1.1 as inventory per F-20-template-s09-1; DesignQA's verdict hinged on uncertainty reporting (9.2.2) and item-count sensitivity (9.5.1; `paper.tex:232-234` thresholds, protect list); 9.4.1 promoted by the coverage check (rated 1 in all three); 9.6 feeds the Summary |
+| 10 (10 of 14) | 10.1.1, 10.3.1, 10.3.2, 10.4.1, 10.4.2, 10.4.3, 10.5.1, 10.5.2, 10.6.1, 10.7 | the section the synthesis calls the intellectual center; contamination/gameability and proportionality are the MESA-original additions the case studies exercised (F-20-template-s10b preamble); 10.4.1-10.4.3 promoted by the coverage check (external-evidence absence decided ratings in all three case studies); 10.6.1 is the merged proportionality item (F-20-template-s10b-3); 10.7 feeds the Summary |
+| 11 (6 of 11) | 11.1.2, 11.2.2, 11.3.1, 11.4.2, 11.5.1, 11.6 | 11.3.1 is the merged comparability item (F-20-template-s11-2); 11.5.1 is the claims-pipeline stage; 11.1.2/11.2.2/11.4.2 promoted by the coverage check (each rated 1 in all three case studies); 11.6 feeds the Summary |
 | 12 (3 of 10) | 12.2.1, 12.3.1, 12.5 | the HLE pattern — careful paper, caveat-dropping leaderboard — is decided at 12.2.1 (condition/version labeling) and 12.3.1 (claim-score linkage) (F-20-template-s12-1 context; inference-level principle :2322 on the protect list); 12.5 feeds the Summary |
 
 ### Core Part A (~26 units)
@@ -89,24 +95,28 @@ Trigger-bearing fields are all Core by construction: 2.2 (high-stakes use), 2.15
   points (3.5), forms and contamination surface (2.15-2.17, 5.5-5.8). Does not produce: the
   full classification profile (2.4, 2.7, 2.10, 2.13, 2.14), output-surface catalog beyond
   4.1-4.2, or distribution/qualification detail (5.1, 5.3, 5.4).
-- **§6:** preserves whether the score has a stated meaning at all (construct + chain) and
-  whether scoring, versioning, and setup are documented well enough to reproduce. Cannot
-  certify documentation completeness or development-process quality (6.1.4-6.1.7, 6.2.x
-  balance) — that is certification-tier work.
-- **§7:** preserves whether the materials exist and the harness runs. Cannot judge usability,
-  accessibility, or licensing risk.
+- **§6:** preserves whether the score has a stated meaning at all (construct + chain),
+  whether scoring, versioning, and setup are documented well enough to reproduce, and —
+  post-check — whether reliability documentation exists at all (6.2.4). Cannot certify the
+  rest of documentation completeness or development-process quality (6.1.4-6.1.7, remaining
+  6.2.x) — that is certification-tier work.
+- **§7:** preserves whether the materials exist, the harness runs, and licensing/use
+  constraints are stated (7.1.7, post-check). Cannot judge usability or accessibility.
 - **§8:** preserves whether *any* reference anchors the intended score meaning (chance,
   human, model cohort — the typology at :1547). Cannot judge representativeness or currency
   of those references.
 - **§9:** preserves whether reported differences are distinguishable from noise (evidence
-  inventory, run-to-run stability, uncertainty, meaningfulness of differences). Cannot judge
-  scorer-type-specific reliability unless the matching Extended trigger fires.
+  inventory, run-to-run stability, uncertainty, prompt sensitivity (post-check),
+  meaningfulness of differences). Cannot judge scorer-type-specific reliability unless the
+  matching Extended trigger fires.
 - **§10:** preserves the validity core the case studies actually used: content
   representativeness, scoring-pathway validity, shortcut sensitivity, contamination,
-  gameability, claim proportionality. Cannot assess internal structure (10.2) or relations to
-  other variables (10.4).
-- **§11:** preserves cross-system comparability and the benchmark's own use guidance. Cannot
-  assess subgroup fairness, inclusive design, or differential performance (11.1, 11.2, 11.4).
+  gameability, claim proportionality, and — post-check — relations to other variables
+  (10.4.1-10.4.3). Cannot assess internal structure (10.2).
+- **§11:** preserves cross-system comparability, the benchmark's own use guidance, and —
+  post-check — fair-use documentation (11.1.2), coverage breadth (11.2.2), and
+  subgroup/context robustness (11.4.2). Cannot assess construct relevance across groups
+  (11.1.1), inclusive design process (11.2.1), or differential-performance analysis (11.4.1).
 - **§12:** preserves whether the headline surface labels conditions/versions/uncertainty and
   whether public claims trace to scores. Cannot audit every surface or leaderboard
   governance depth.
@@ -123,14 +133,54 @@ minimum-standard verdict on critical attributes (restored EFPA rule, F-20-templa
 **What it cannot conclude:** certification-grade fitness for procurement, policy, or safety
 cases — which is precisely why the high-stakes trigger (E5, Part 2) forces the full item set.
 
-**Evidence-sufficiency caveat.** The synthesis fixes the Core's *shape* (sections 8-10 and
-12, 30-35 items) but no feedback unit produced an item-level list of which ratings moved in
-the case studies. The item-grain choices above (e.g., 9.4.1 prompt sensitivity excluded from
-Core; 12.2.2 excluded) are this plan's judgment. Before template v2 ships, run a 1-2 h check
-of the three `reviews/gemini_supervising_editor/` rating tables: **every item rated 0 or 1
-in any reconciled case study must be Core or have its Extended trigger fire for that
-benchmark.** If any 0/1-rated item escapes both, promote it to Core and record the change
-here. Do not ship the tier markers without this check.
+**Case-study coverage check — completed 2026-08-10** (replaces the former
+evidence-sufficiency caveat). Rule applied as pre-committed: every item rated 0 or 1 in a
+reconciled case study (`reviews/gemini_supervising_editor/`) must be Core or have its
+Extended trigger fire for that benchmark; any item escaping both is promoted to Core.
+Extraction paired every `Rating` line with its item heading: **34 items rated 1 in HLE, 17
+in ARC-AGI-2, 19 in DesignQA; no item was rated 0 in any review.** Trigger facts, read from
+each review's own Part A:
+
+- **HLE** fires E1-E5 — its 2.2 checks *Safety evaluation* and *Policy or governance
+  analysis*, so E5 forces the full item set and every HLE deficiency is covered by
+  construction.
+- **ARC-AGI-2** fires E1 ("AGI", "general fluid intelligence" in 2.18), E3
+  (arcprize.org + Kaggle leaderboards in 4.1), E4 (semi-private/private hidden sets in
+  2.15/2.16), and the subscores narrow trigger (per-split subscores in 3.2). It does **not**
+  fire E2 (3.1: deterministic exact-match, no judge) or E5 (2.2: no safety, policy, or
+  procurement use).
+- **DesignQA** fires E3 (`design-qa.github.io` leaderboard in 4.1), the parser trigger for
+  9.3.1 (CSV scoring, format failures score 0), the external-service trigger for 9.4.3
+  (OpenAI embedding dependency in 2.13), and the multimodal trigger. It does **not** fire E1
+  (2.18: "no claims regarding AGI or general intelligence"), E4 (2.15: single static public
+  form), or E5.
+
+**Nine items escaped and are promoted to Core** (v1 numbering):
+
+| Item | Rated 1 in | Escaped at |
+|---|---|---|
+| 6.2.4 reliability/stability/uncertainty documentation | all three | ARC, DesignQA |
+| 7.1.7 licensing, use requirements, risk warnings | DesignQA | DesignQA |
+| 9.4.1 prompt/instruction/formatting sensitivity | all three | ARC, DesignQA |
+| 10.4.1 relations with other benchmarks, humans, criteria | DesignQA | DesignQA |
+| 10.4.2 convergent and discriminant evidence | all three | DesignQA (HLE/ARC covered by E1) |
+| 10.4.3 ecological or predictive relevance | HLE, ARC | ARC (HLE covered by E5) |
+| 11.1.2 documentation of fair-use considerations | all three | ARC, DesignQA |
+| 11.2.2 domain/language/modality/subgroup coverage | all three | ARC, DesignQA |
+| 11.4.2 reliability/validity across subgroups/contexts | all three | ARC, DesignQA |
+
+Items rated 1 only where a trigger fires stay Extended as designed — 6.1.7, 6.2.5, 6.3.3,
+8.1.6, 9.3.3, 9.4.2, 9.4.3, 10.2.1, 10.2.2, 11.3.3, 11.4.1, 12.3.2, 12.4.3 were each
+covered at their rating site by E1-E5 or a narrow trigger. Two observations recorded, not
+acted on: (a) ARC's 10.2.1/10.2.2 coverage rides on the subscores trigger reading *per-split*
+subscores — that trigger wording is load-bearing and must survive template drafting verbatim;
+(b) six of the nine promotions were rated 1 in **all three** case studies, i.e. the
+deficiencies are benchmark-type-independent — which is why trigger-widening was rejected in
+favor of promotion. Consequence: Core grows 31 → 40 items and the estimate moves to 10-14 h,
+overshooting the synthesis's 30-35-item / 8-12 h band; the pre-committed empirical rule
+outranks the a-priori band. If the 8-12 h budget ever becomes hard, the only defensible lever
+is demoting the single-benchmark escapes (7.1.7, 10.4.1, 10.4.3) behind new narrow triggers —
+recorded as an option, not a recommendation.
 
 ---
 
@@ -143,11 +193,11 @@ the Summary of Ratings notes untriggered blocks). If it fires, the block is mand
 
 | Block | Trigger (evaluated from) | Items |
 |---|---|---|
-| **E1 — Broad-capability claims** | 2.18 records claims of general intelligence, AGI, broad cross-domain capability, autonomy/agency, or human-level comparison. *Narrowed from the current screen: drop "reasoning" from the trigger list — it fires on essentially every modern benchmark and saves no one any work (Cross-cutting log :87, `80-xcut-length-budget` §1).* | 2.1 secondary-domain profile (beyond the 3-primary cap, F-20-template-s02a-3), 10.1.2, 10.4.2; the broad-claims conditional inside 10.6.1's merged anchor escalates (10.5.1 two-tier pattern, F-20-template-s10b-3) |
+| **E1 — Broad-capability claims** | 2.18 records claims of general intelligence, AGI, broad cross-domain capability, autonomy/agency, or human-level comparison. *Narrowed from the current screen: drop "reasoning" from the trigger list — it fires on essentially every modern benchmark and saves no one any work (Cross-cutting log :87, `80-xcut-length-budget` §1).* | 2.1 secondary-domain profile (beyond the 3-primary cap, F-20-template-s02a-3), 10.1.2; the broad-claims conditional inside 10.6.1's merged anchor escalates (10.5.1 two-tier pattern, F-20-template-s10b-3). *10.4.2 was E1-listed pre-check; the coverage check promoted it to Core* |
 | **E2 — Model-based scoring** | 3.1 records an LLM equality-checker or LLM judge (boundary wording per F-20-template-s03-2). | 9.3.3; judge-validation elements of 10.3.1's anchor escalate; Part B source list's "tuning data for model-based scorers" (F-20-template-partb-3) becomes a required source to seek |
 | **E3 — Hosted leaderboard / public results portal** | 4.1 records a hosted leaderboard, dashboard, or public results portal. | 2.4 (with recipient-competence column, F-20-template-s04-2), 4.3-4.9, 8.1.6, 12.1.1, 12.1.2, 12.2.2, 12.3.2, 12.4.1, 12.4.2, 12.4.3 |
 | **E4 — Private, held-out, or rolling/refreshed forms** | 2.15 lists private/hidden forms, or 2.16 records dynamic/rolling task determination. | 8.1.4, 9.4.2, 11.3.3; the high-disclosure-risk tier of 10.5.1's anchor escalates (the anchor already contains this conditional — make it structural, F-20-template-s10b preamble) |
-| **E5 — High-stakes use** | 2.2 or 2.18 records intended or observed use in procurement, policy, safety cases, or other high-stakes comparison. | **All remaining Extended items** — E5 forces every block plus the certification-tier items with no narrower trigger: 2.7*, 2.10*, 2.13*, 2.14, 3.3, 3.4*, 3.7, 5.1, 5.3, 5.4, 6.1.2, 6.1.4-6.1.9, 6.2.1, 6.2.2, 6.2.4-6.2.6, 6.2.8, 6.3.2-6.3.7, 7.1.2, 7.1.3, 7.1.5-7.1.7, 8.1.5*, 8.1.6, 8.1.7, 9.3.1*, 9.3.2*, 9.4.1, 9.4.3*, 10.2.1-10.2.3*, 10.4.1-10.4.3, 11.1.1, 11.1.2, 11.2.1, 11.2.2, 11.4.1, 11.4.2, 11.5.2*, 12.4.1, 12.4.2 |
+| **E5 — High-stakes use** | 2.2 or 2.18 records intended or observed use in procurement, policy, safety cases, or other high-stakes comparison. | **All remaining Extended items** — E5 forces every block plus the certification-tier items with no narrower trigger: 2.7*, 2.10*, 2.13*, 2.14, 3.3, 3.4*, 3.7, 5.1, 5.3, 5.4, 6.1.2, 6.1.4-6.1.9, 6.2.1, 6.2.2, 6.2.5, 6.2.6, 6.2.8, 6.3.2-6.3.7, 7.1.2, 7.1.3, 7.1.5, 7.1.6, 8.1.5*, 8.1.6, 8.1.7, 9.3.1*, 9.3.2*, 9.4.3*, 10.2.1-10.2.3*, 11.1.1, 11.2.1, 11.4.1, 11.5.2*, 12.4.1, 12.4.2. *(6.2.4, 7.1.7, 9.4.1, 10.4.1-10.4.3, 11.1.2, 11.2.2, 11.4.2 left this list for Core via the coverage check.)* |
 
 *Starred items also carry a narrow item-level trigger that can fire without E5:*
 
@@ -254,7 +304,7 @@ the retire-don't-renumber rule).
 | 6.2.3 Translation/adaptation docs | `:788` | — | Merged into §6.1.8 | rated with the adaptation item it documents |
 | 6.2.4 Standardisation procedure | `:792` | — | Merged into §8.1.2/8.1.6 | documented baseline-collection procedure is rated in situ at §8 |
 | 6.2.5 Norms documentation | `:796` | — | Merged into §8 | reference-group documentation rated directly at 8.1.x (norms→reference points) |
-| 6.2.6 Reliability documentation | `:800` | 6.2.4 | Extended (E5) | |
+| 6.2.6 Reliability documentation | `:800` | 6.2.4 | Core | coverage-check promotion — rated 1 in all three case studies |
 | 6.2.7 Validity docs: content | `:804` | — | Merged into §6.2.5 | MESA 6.2.5 consolidates EFPA 6.2.7-6.2.10 |
 | 6.2.8 Validity docs: internal structure | `:808` | — | Merged into §6.2.5 | |
 | 6.2.9 Validity docs: other variables | `:812` | — | Merged into §6.2.5 | |
@@ -366,9 +416,9 @@ the retire-don't-renumber rule).
 | 10.2.1 Designs/techniques (structure) | `:2000` | 10.2.1 | Extended (subscores/E5) | |
 | 10.2.2 Factor-analysis support | `:2012` | — | Merged into §10.2.1 | factor-analytic machinery generalized to structure evidence |
 | 10.2.3 Invariance / DIF | `:2023` | — | Merged into §11.4.1 | differential functioning across groups/contexts |
-| 10.3.1.1 Designs/techniques (relations) | `:2042` | 10.4.1 | Extended (E5) | |
+| 10.3.1.1 Designs/techniques (relations) | `:2042` | 10.4.1 | Core | coverage-check promotion (DesignQA) |
 | 10.3.1.2 Group mean differences | `:2055` | — | Merged into §10.4.1 | |
-| 10.3.1.3 Correlations with similar constructs | `:2068` | 10.4.2 | Extended (E1/E5) | |
+| 10.3.1.3 Correlations with similar constructs | `:2068` | 10.4.2 | Core | coverage-check promotion — rated 1 in all three case studies |
 | 10.3.1.4 Discriminant validity | `:2080` | — | Merged into §10.4.2 | |
 | 10.3.1.5 MTMM designs | `:2092` | — | Merged into §10.4.2 | MTMM practice absent in AI benchmarking; convergent/discriminant function survives |
 | 10.3.1.6 (Quasi)experimental designs | `:2106` | — | Merged into §10.4.1 | |
@@ -377,7 +427,7 @@ the retire-don't-renumber rule).
 | 10.3.1.9 Quality of marker instruments | `:2144` | — | Merged into §10.4.1 anchor | |
 | 10.3.1.10 Age of validity studies | `:2155` | — | Merged into §10.4 anchors + §8.1.7 | currency element |
 | 10.3.1.11 Overall adequacy (relations) | `:2162` | — | Merged into §10.7 | |
-| 10.3.2.1 Type of criterion study | `:2175` | 10.4.3 | Extended (E5) | ecological/predictive relevance |
+| 10.3.2.1 Type of criterion study | `:2175` | 10.4.3 | Core | ecological/predictive relevance; coverage-check promotion (ARC-AGI-2) |
 | 10.3.2.2 Sample sizes (criterion) | `:2185` | — | Merged into §10.4.3 anchor | |
 | 10.3.2.3 Quality of criterion measures | `:2198` | — | Merged into §10.4.3 anchor | |
 | 10.3.2.4 Strength of test-criterion relation | `:2208` | — | Merged into §10.4.3 | |
@@ -395,7 +445,7 @@ the retire-don't-renumber rule).
 | EFPA § | EFPA line ref | MESA § (new) | Disposition | Note |
 |---|---|---|---|---|
 | 11.1.1 Construct relevance across groups | `:2420` | 11.1.1 | Extended (E5) | |
-| 11.1.2 Documentation (fair use) | `:2425` | 11.1.2 | Extended (E5) | boundary bullet vs 6.2.6 (F-20-template-s11-3) |
+| 11.1.2 Documentation (fair use) | `:2425` | 11.1.2 | Core | boundary bullet vs 6.2.6 (F-20-template-s11-3); coverage-check promotion — rated 1 in all three case studies |
 | 11.2 Development — design | `:2430` | 11.2.1 | Extended (E5) | |
 | 11.3 Development — piloting and analysis | `:2435` | — | Merged into §11.4.1 + §11.2.2 | DIF-informed selection and coverage |
 | 11.4 Reliability (subgroups) | `:2440` | — | Merged into §11.4.2 | |
@@ -444,14 +494,14 @@ the retire-don't-renumber rule).
 | 6.2.3 | Documentation of scoring and metrics | Core | no EFPA 6.2 counterpart |
 | 6.2.7 | Documentation of maintenance and versioning | Core | BetterBench-derived |
 | 7.1.1 | Dataset/task/environment availability | Core | EFPA assumes materials are supplied |
-| 7.1.7 | Licensing, use requirements, risk warnings | Extended (E5) | |
+| 7.1.7 | Licensing, use requirements, risk warnings | Core | coverage-check promotion (DesignQA rated it 1 with no firing trigger) |
 | 8.1.1 | Random/chance/floor/ceiling baselines | Core | EFPA has no chance-level norm concept |
 | 8.1.4 | Historical, version, benchmark-family comparators | Extended (E4) | |
 | 9.2.1 | Run-to-run stability, seeds, sampling | Core | receives EFPA 9.3's merged function |
 | 9.2.2 | Score uncertainty / CIs / SEs | Core | receives EFPA 9.2's merged function |
 | 9.3.1 | Automated scorer/parser reliability | Extended (parser) | AI-specific extension of EFPA 9.6's rater function |
 | 9.3.3 | Model-as-judge reliability | Extended (E2) | as 9.3.1 |
-| 9.4.1 | Prompt/instruction/formatting sensitivity | Extended (E5) | |
+| 9.4.1 | Prompt/instruction/formatting sensitivity | Core | coverage-check promotion — rated 1 in all three case studies |
 | 9.4.2 | Form/split/version/refresh equivalence | Extended (E4) | receives EFPA 9.4's merged function |
 | 9.4.3 | Execution environment and dependency stability | Extended (env/E5) | |
 | 9.5.1 | Meaningfulness of score differences | Core | the paper's quantified-threshold pattern (`paper.tex:224-234`) |
@@ -475,11 +525,12 @@ the retire-don't-renumber rule).
 ### Count
 
 **EFPA rows: 192** (every numbered heading and rated sub-item above) —
-**Core 52 · Extended 54 · Merged 63 · Dropped 23.**
+**Core 57 · Extended 49 · Merged 63 · Dropped 23** (post-coverage-check; five EFPA rows
+moved Extended → Core: `:800`, `:2042`, `:2068`, `:2175`, `:2425`).
 Every Merged row names its surviving home; every Dropped row's reason is AI-inapplicability
 (paper-and-pencil administration ×7, human-sample coefficient machinery ×10, IRT latent-trait
 scaling ×4, continuous norming ×2). MESA-original items: 44 rows in the second table. The
-table shows the intended headline: the template gets shorter for the common case (31 Core
+table shows the intended headline: the template gets shorter for the common case (40 Core
 ratings instead of 89) while **no EFPA function disappears silently** — 88% of EFPA items
 survive as Core, Extended, or a named merge target.
 
@@ -545,8 +596,8 @@ Order: 1 → (2 ∥ 3) → 4 → 5 (decision, before 6) → 6 → 7. Estimated t
   index table in the front matter, and the five Extended block trigger sentences.
 - **Numbering:** retire-don't-renumber (see header). Retired IDs (2.6, 4.10, 10.6.2, 11.3.2)
   get one-line tombstones ("merged into §X in v2") so old citations resolve.
-- Run the case-study coverage check from Part 1 (evidence-sufficiency caveat) before
-  finalizing tier markers.
+- The case-study coverage check (Part 1) was completed 2026-08-10; its nine promotions are
+  already folded into the tier assignments in Parts 1-3. No further gate before tier markers.
 - Protect list (`90-synthesis` §4) is the review gate for this step: escape-hatch discipline,
   2.14's documented-estimates rule, 10.5.1's anchor, the reference-kind typology (:1547), the
   anti-difficulty rule (:1932), :1747 and :2322, the Gap Register, n/a-0-1 semantics.
@@ -692,10 +743,12 @@ Finally, reload the live form and confirm per-section field counts against the v
 ## Success check
 
 The success condition is visible in Part 3's close: 192 EFPA rows, none silently dropped —
-52 Core, 54 Extended, 63 with a named merge home, 23 dropped for stated AI-inapplicability
-reasons only. A reviewer completes 31 ratings instead of 89 in the common case, in 8-12 hours
-instead of a working week, and every removed or deferred item is either recoverable through a
-trigger or traceable to the line of EFPA it came from. The trim makes MESA shorter without
-making it less faithful — and where the feedback could not support a cut (6.1.8/6.2.14/6.3.10,
-the item-grain Core membership pending the case-study check), this plan says so rather than
-cutting.
+57 Core, 49 Extended, 63 with a named merge home, 23 dropped for stated AI-inapplicability
+reasons only. A reviewer completes 40 ratings instead of 89 in the common case, in 10-14
+hours instead of a working week, and every removed or deferred item is either recoverable
+through a trigger or traceable to the line of EFPA it came from. The trim makes MESA shorter
+without making it less faithful — and where the feedback could not support a cut
+(6.1.8/6.2.14/6.3.10), this plan says so rather than cutting. The item-grain Core membership,
+formerly the plan's one open evidence gap, is now settled by the completed coverage check:
+no item that produced a deficiency rating in any reconciled case study can be skipped in a
+Core review of a benchmark with the same trigger profile.

@@ -1,5 +1,7 @@
 # MESA Review: DesignQA
 
+> **Version note:** Reviewed against an earlier version of the MESA template (89 items), 2025-2026. Section numbers cite v1; see `feedback/95-mesa-core-plan.md` Part 3 for the v1→v2 mapping.
+
 Review status: full Part A + Part B MESA review  
 Reviewed entity: DesignQA public benchmark, including the paper-described dataset, the official GitHub repository with dataset and evaluation code, the official project website, and the manually maintained leaderboard  
 Reviewer profile: `.codex/agents/benchmark-reviewer.md`  

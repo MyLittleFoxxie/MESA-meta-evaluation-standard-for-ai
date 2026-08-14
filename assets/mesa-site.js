@@ -178,7 +178,7 @@
     var doc = $("mesa-doc");
     var paper = $("mesa-paper-frame");
     var caseNav = $("mesa-case-nav");
-    var showForm = view === "template";
+    var showForm = view === "template" || view === "scorecard";
     if (form) form.hidden = !showForm;
     if (doc) doc.hidden = showForm || view === "paper";
     if (paper) paper.hidden = view !== "paper";
@@ -291,6 +291,7 @@
     var parts = raw.split("/").filter(Boolean);
     var head = parts[0] || "home";
     if (head === "template") return { view: "template" };
+    if (head === "scorecard") return { view: "scorecard" };
     if (head === "paper") return { view: "paper" };
     // legacy #about now lands on the Case Studies Overview
     if (head === "about" || head === "case") {
@@ -310,8 +311,9 @@
     setView(r.view);
     switch (r.view) {
       case "template":
+      case "scorecard":
         // hand off to the form; it rebuilds the TOC via the mesa-form-built event
-        if (window.MesaForm) window.MesaForm.mount();
+        if (window.MesaForm) window.MesaForm.mount(r.view);
         break;
       case "case":
         showCase();
@@ -346,7 +348,8 @@
     wireTabs();
     // when the form finishes (re)building, refresh the sidebar TOC if it's active
     window.addEventListener("mesa-form-built", function () {
-      if (document.body.getAttribute("data-view") === "template") tocForForm();
+      var v = document.body.getAttribute("data-view");
+      if (v === "template" || v === "scorecard") tocForForm();
     });
     window.addEventListener("hashchange", route);
     route(); // initial view from the current hash (defaults to Home)

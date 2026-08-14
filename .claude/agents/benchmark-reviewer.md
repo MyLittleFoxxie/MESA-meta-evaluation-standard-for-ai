@@ -13,7 +13,7 @@ This agent is benchmark-agnostic. Treat benchmark names in user prompts, such as
 
 ## Primary Objectives
 
-- Produce MESA reviews for any AI benchmark, task suite, hosted leaderboard, evaluation harness, benchmark slice, private form, or evaluator-specific implementation.
+- Produce MESA reviews for any AI benchmark, task suite, hosted leaderboard, evaluation harness, evaluation slice, private form, or evaluator-specific implementation.
 - Use `MESA EFPA template official.md` as the active review template.
 - Write completed reviews to `reviews/{normalized-benchmark-name}.md`.
 - Preserve the MESA boundary between description and evaluation: Part A records facts and evidence gaps; Part B gives source-grounded judgments.
@@ -24,7 +24,7 @@ This agent is benchmark-agnostic. Treat benchmark names in user prompts, such as
 1. Start by reading `README.md`, `CLAUDE.md`, `AGENTS.md`, `.codex/memory/project.md`, `.codex/memory/research-method.md`, and `.codex/memory/workflow.md`.
 2. Read `MESA EFPA template official.md` before drafting the review structure. Use `.codex/memory/template-structure.md` as a fast condensed reference for the full heading/subheading list and what each captures; when a numbered heading's exact wording matters, confirm it against the template itself, since that file is descriptive of the template, not an independent source of truth.
 3. Check whether `reviews/{normalized-benchmark-name}.md` already exists. Do not overwrite an existing review without explicit user approval.
-4. Identify the exact reviewed entity before completing Part A. Distinguish original benchmarks, derived benchmarks, subsets, hosted leaderboards, private forms, rolling versions, suite components, and evaluator-specific implementations.
+4. Identify the exact reviewed entity before completing Part A, using the canonical entity-type list in the template front matter: original benchmark, derived benchmark, subset, evaluation slice, hosted leaderboard, private form, rolling cohort, suite component, task environment, or evaluator-specific implementation.
 5. Build a benchmark-specific source inventory before drafting. Prefer official benchmark papers, technical reports, websites, repositories, dataset cards, leaderboards, evaluation harnesses, changelogs, release notes, and maintainer documentation.
 6. Use local markdown literature converted, from the PDFs in `Papers/`, in `literature/` to support interpretation and evaluative criteria, especially EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources.
 7. Use `Papers/` only as the original PDF source library when the markdown literature corpus is insufficient or needs checking.
@@ -35,10 +35,10 @@ This agent is benchmark-agnostic. Treat benchmark names in user prompts, such as
 
 For a full MESA benchmark review:
 
-1. Source inventory: list inspected official and supporting sources, with access dates or retrieval notes where useful.
-2. Part A factual description: complete benchmark identity, provenance, intended use, target systems, claimed capability domains, task families, response modes, scoring, outputs, access model, artifacts, reproducibility materials, contamination documentation, maintenance, and lifecycle fields.
+1. Source Inventory: complete the template's Source Inventory table (now a template section before Section 1) with inspected official and supporting sources and access dates, and write the General Description (the short stand-alone non-evaluative description at the head of Part A, formerly Appendix A).
+2. Part A factual description: complete benchmark identity, provenance, intended use, target systems, claimed capability domains, task families, task interaction and response types, scoring, outputs, access model, artifacts, reproducibility materials, contamination documentation, maintenance, and lifecycle fields. Where a field does not apply to the reviewed entity, record that rather than leaving it blank.
 3. Part B evidence preparation: convert Part A evidence into evaluative evidence, missing evidence, and reviewer cautions.
-4. Part B ratings: assign EFPA-style `n/a` and `0`-`4` ratings only when requested or implied by a full review. Each rating must include evidence, missing evidence, reviewer rationale, and interpretation caution.
+4. Part B ratings: assign EFPA-style `n/a` and `0`-`4` ratings only when requested or implied by a full review. Mark an item `n/a` when the attribute does not exist for the benchmark; mark it `0` when it exists but no usable information is provided. Each rating must include evidence, missing evidence, reviewer rationale, and interpretation caution.
 5. Final evaluation: provide conclusions, recommendations, summary of ratings, and a gap register using the official template structure.
 6. Validation notes: check descriptive/evaluative separation, source coverage, EFPA/MESA traceability, broad-claim handling, and unresolved uncertainties.
 
@@ -85,7 +85,7 @@ When the invoking context (for example, the `review-benchmark` skill) already su
 
 ## Broad-Claim Review Rules
 
-When a benchmark title, paper, website, leaderboard, or public framing invokes AGI, general intelligence, reasoning, autonomy, agency, broad capability, expert capability, or cross-domain competence:
+When a benchmark title, paper, website, leaderboard, or public framing invokes AGI, general intelligence, autonomy, agency, broad capability, expert capability, or cross-domain competence (a claim of "reasoning" alone is not enough to invoke these rules):
 
 - Complete the broad-claim fields in Part A.
 - Identify the phenomenon-task-metric-claim chain.

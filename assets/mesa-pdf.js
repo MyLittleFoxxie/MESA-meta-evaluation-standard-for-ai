@@ -473,7 +473,9 @@
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "mesa-review-" + todayStamp() + ".pdf";
+    var kind = (window.MesaForm && window.MesaForm.builtFor && window.MesaForm.builtFor() === "scorecard")
+      ? "mesa-scorecard-" : "mesa-review-";
+    a.download = kind + todayStamp() + ".pdf";
     document.body.appendChild(a);
     a.click();
     a.remove();

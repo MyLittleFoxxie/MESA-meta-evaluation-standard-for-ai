@@ -1,5 +1,7 @@
 # Editor's Prefatory Notes
 
+> **Version note:** Reviewed against an earlier version of the MESA template (89 items), 2025-2026. Section numbers cite v1; see `feedback/95-mesa-core-plan.md` Part 3 for the v1→v2 mapping.
+
 ## Editor Reconciliation Note
 
 This final MESA evaluation reconciles two independent reviewer drafts assessing _Humanity's Last Exam (HLE)_. Both drafts correctly identified the reviewed entity as the public 2,500-question test split, the official CAIS evaluation harness, and the associated reporting surfaces. The reconciliation process focused on resolving discrepancies in the weighting of answer-key errors, the evaluation of the LLM-as-a-judge scoring pipeline, and the tension between the paper's cautious scope claims and the public leaderboard's framing. The final review preserves the rigorous descriptive tracking of Part A and applies a strict, evidence-grounded approach in Part B, penalizing reliability and reporting due to missing statistical uncertainty and unvalidated judge dependencies.
