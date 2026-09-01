@@ -6,6 +6,11 @@ descriptive fields those questions depend on and the full closing evaluation. It
 routine work: comparing candidate benchmarks, deciding whether a published score can support a
 claim, or recording a benchmark's known limits before its scores are reused.
 
+As in the full template, the seven section-overall ratings form the non-composite MESA Benchmark
+Artifact Profile: Documentation, Usability, Interpretation, Reliability, Validity, Fairness, and
+Reporting. Each metric value is a judgment based on the retained evidence in its section; never
+average, weight, rank, or collapse the profile into a single score.
+
 **Use the full template instead when the review supports a procurement decision, a policy
 position, or a safety case.** The full template (`MESA EFPA template official.md`) carries 87
 rated items and is the certification-grade instrument; this scorecard is deliberately narrower and
@@ -31,6 +36,7 @@ hand — edit the template or `tools/scorecard-manifest.md` and re-run the gener
 - **Construct-irrelevant variance**: score effects from outside the target capability (kept as a technical term only in the Section 10.3.2 heading).
 - **Evidence gap**: descriptive or evaluative information that is missing or inaccessible, recorded rather than guessed; a gap is not automatically a defect (see rating `0` vs `1`).
 - **Gameability**: a high score obtainable through shortcuts, exposure, formatting, tuning, or scaffolding rather than the target capability.
+- **MESA Benchmark Artifact Profile**: the seven-value profile formed by the Part B section-overall ratings: Documentation, Usability, Interpretation, Reliability, Validity, Fairness, and Reporting. The values are not averaged or combined into a composite score.
 - **Model-as-judge**: a separate AI model that decides whether an answer matches the reference or rates open-ended output quality.
 - **Reference interpretation**: interpreting scores against reference points such as chance floors, human or expert performance, documented model cohorts, or score bands (Section 8).
 - **Run conditions**: the prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules under which an evaluation executes.
@@ -736,6 +742,8 @@ Where a `0` or `1` rating is assigned to an attribute that is critical for the b
 
 Overall ratings must be based on reviewer judgment rather than mechanical averaging. A single severe gap may dominate the overall rating when it undermines the intended score meaning; conversely, a narrow gap may be less consequential when the benchmark's score interpretation is modest and clearly bounded.
 
+Each Part B section is an evaluative artifact. Its overall rating is the value of the corresponding profile metric: Section 6 **Documentation**, Section 7 **Usability**, Section 8 **Interpretation**, Section 9 **Reliability**, Section 10 **Validity**, Section 11 **Fairness**, and Section 12 **Reporting**. The underlying item ratings provide evidence for that artifact value; they are not independently averaged submetrics. Report the seven values together as the MESA Benchmark Artifact Profile and never average, weight, rank, or collapse them into a composite score.
+
 The claims pipeline runs through Part B in four stages: 2.18 *collects* the benchmark's broad claims; 10.6 rates whether the *evidence is proportional* to them; 11.5 rates the benchmark's *own use guidance*; and 12.3 rates *how claims are communicated*. Rate each stage on its own question.
 
 ### Rating Scale
@@ -759,7 +767,7 @@ For broad interpretations made from benchmark scores about intelligence, AGI, ag
 
 ## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
-EFPA Section 6 asks whether the test explains its rationale, development, documentation, and item quality. MESA asks whether the benchmark defines the real capability or behavior of interest, explains why its tasks and scoring rules operationalize that phenomenon, documents task development, supports item quality, and gives users enough procedural information for cautious qualified use.
+**Artifact profile metric: Documentation.** This section asks whether the benchmark defines the real capability or behavior of interest, explains why its tasks and scoring rules operationalize that phenomenon, documents task development, supports item quality, and gives users enough procedural information for cautious qualified use.
 
 BetterBench is used in this section to sharpen MESA's review of benchmark documentation and procedural quality [3]. It motivates attention to documented purpose and scope, construction decisions, implementation instructions, statistical uncertainty, licenses and release requirements, support channels, and evidence that code, data, and evaluation procedures remain maintained enough for qualified users to interpret results responsibly.
 
@@ -853,7 +861,7 @@ Reviewer comments:
 
 ## Section 7. Quality and Usability of Benchmark Materials
 
-EFPA Section 7 asks whether the test materials are well designed and usable; MESA asks the same of the datasets, task files, prompts, rubrics, scoring code, harnesses, interfaces, access routes, setup instructions, and accessibility of benchmark materials needed to inspect, run, score, reproduce, or audit the evaluation. Material quality includes both what is available and whether intended users can run or inspect it without hidden procedural knowledge.
+**Artifact profile metric: Usability.** This section evaluates the datasets, task files, prompts, rubrics, scoring code, harnesses, interfaces, access routes, setup instructions, and accessibility of benchmark materials needed to inspect, run, score, reproduce, or audit the evaluation. Material quality includes both what is available and whether intended users can run or inspect it without hidden procedural knowledge.
 
 BetterBench is also used here to treat benchmark materials as usable evaluation resources, not only as descriptive appendices [3]. Reviewers should look for accessible data or generation mechanisms, evaluation code, API and local-model routes where relevant, replication scripts, dependency or environment specifications, build or smoke-test signals, and issue or feedback channels that support independent use and audit.
 
@@ -910,7 +918,7 @@ Reviewer comments:
 
 ## Section 8. Baselines, Comparators, and Reference Interpretation
 
-EFPA Section 8 evaluates reference distributions and criterion interpretation. MESA translates that logic into reference points used to interpret AI benchmark scores: random or chance floors, human or expert performance, documented groups of models, previous benchmark versions, score boundaries for pass/fail or tier claims, score-ceiling evidence, and qualitative score bands. A benchmark can be useful without human reference samples, but the interpretation of scores should be anchored somehow.
+**Artifact profile metric: Interpretation.** This section evaluates reference points used to interpret AI benchmark scores: random or chance floors, human or expert performance, documented groups of models, previous benchmark versions, score boundaries for pass/fail or tier claims, score-ceiling evidence, and qualitative score bands. A benchmark can be useful without human reference samples, but the interpretation of scores should be anchored somehow.
 
 Condition-matched comparison is central. Contest human populations, professional annotators, expert validators, public/private split comparators, suite-component comparators, and tool-enabled versus no-tool cohorts should be interpreted only when their conditions are mapped to the reviewed entity. A human baseline from a source instrument does not automatically support AI-system comparison unless timing, tools, eligibility, instructions, and scoring conditions are comparable or explicitly caveated.
 
@@ -959,7 +967,7 @@ Reviewer comments:
 
 ## Section 9. Reliability, Precision, and Score Stability
 
-EFPA Section 9 evaluates reliability and precision. MESA asks whether benchmark scores are stable enough for their intended use across runs, prompts, seeds, forms, raters, judges, scorers, benchmark versions, and execution environments. Reliability is especially important when public leaderboards encourage small score differences to be interpreted as meaningful.
+**Artifact profile metric: Reliability.** This section asks whether benchmark scores are stable enough for their intended use across runs, prompts, seeds, forms, raters, judges, scorers, benchmark versions, and execution environments. Reliability is especially important when public leaderboards encourage small score differences to be interpreted as meaningful.
 
 BetterBench informs the reproducibility and implementation side of this section [3]. Its benchmark-quality criteria support checking whether run settings, dependency and environment assumptions, build or usability signals, replication scripts, statistical uncertainty, and versioned evaluation conditions are documented well enough for reported score differences to be interpreted.
 
@@ -1027,7 +1035,7 @@ Reviewer comments:
 
 ## Section 10. Validity Evidence
 
-EFPA Section 10 evaluates validity support for intended score interpretation. MESA centers the chain from real capability or behavior to task design, scoring, and score interpretation: what capability or behavior is claimed, how tasks operationalize it, what rule or quantity converts behavior into a score, and what interpretation the score is used to support. For broad intelligence, AGI, autonomy, or agency interpretations, validity review must check breadth across the relevant capability domains selected in 2.1 rather than treating isolated performance as broad capability.
+**Artifact profile metric: Validity.** This section centers the chain from real capability or behavior to task design, scoring, and score interpretation: what capability or behavior is claimed, how tasks operationalize it, what rule or quantity converts behavior into a score, and what interpretation the score is used to support. For broad intelligence, AGI, autonomy, or agency interpretations, validity review must check breadth across the relevant capability domains selected in 2.1 rather than treating isolated performance as broad capability.
 
 MESA uses Bean et al.'s _Measuring what Matters_ [2] as the primary AI-benchmark construct-validity source for this section. It grounds review in the phenomenon-task-metric-claim chain and motivates attention to task representativeness, metric validity, statistical comparison, error analysis, and proportionality between benchmark evidence and claims.
 
@@ -1139,7 +1147,7 @@ Reviewer comments:
 
 ## Section 11. Fair Use, Comparability, and Appropriate Use
 
-EFPA Section 11 evaluates responsible use across groups and contexts. MESA evaluates whether benchmark use is fair and comparable across relevant AI systems, modalities, capability domains, languages, access modes, compute budgets, and user contexts. The question is not only whether a score can be produced, but whether it can be compared and interpreted responsibly.
+**Artifact profile metric: Fairness.** This section evaluates whether benchmark use is fair and comparable across relevant AI systems, modalities, capability domains, languages, access modes, compute budgets, and user contexts. The question is not only whether a score can be produced, but whether it can be compared and interpreted responsibly.
 
 Responsible use in AI benchmark review includes, but is broader than, demographic fairness. It covers whether tasks, inputs, languages, modalities, capability-domain claims, infrastructure, access rules, scoring, and reporting allow intended systems and users to be evaluated under comparable and appropriate conditions. It also covers whether users are warned when scores should not be compared or should not be used for a particular decision.
 
@@ -1226,7 +1234,7 @@ Reviewer comments:
 
 ## Section 12. Quality of Reports, Leaderboards, Dashboards, and Public Claims
 
-EFPA Section 12 evaluates digitally generated reports. MESA applies that logic to AI benchmark outputs: paper tables, scorecards, leaderboards, dashboards, downloadable result files, raw traces, public interpretations made from benchmark scores, and score interpretations. A reporting output should make clear what score was produced, under what run conditions, with what uncertainty, and what users should and should not infer.
+**Artifact profile metric: Reporting.** This section evaluates AI benchmark outputs: paper tables, scorecards, leaderboards, dashboards, downloadable result files, raw traces, public interpretations made from benchmark scores, and score interpretations. A reporting output should make clear what score was produced, under what run conditions, with what uncertainty, and what users should and should not infer.
 
 BetterBench [3] and Singh et al.'s _The Leaderboard Illusion_ [5] inform this section's attention to whether benchmark outputs are usable, interpretable, and honestly governed for intended stakeholders. Reports, leaderboards, scorecards, and public claims should communicate scope, uncertainty, eligibility rules, score traceability, maintenance status, version or cohort labels, and limits on what benchmark scores should be used to claim.
 
@@ -1302,17 +1310,19 @@ State what users, maintainers, or future reviewers should do next. Keep recommen
 
 Free Text:
 
-### Summary of Ratings
+### MESA Benchmark Artifact Profile
 
-| Section                                                                 | Overall Rating (`n/a`, `0`-`4`) |
-| :---------------------------------------------------------------------- | :-----------------------------: |
-| Section 6. Rationale, Development, Documentation, and Task/Item Quality |                                 |
-| Section 7. Quality and Usability of Benchmark Materials                 |                                 |
-| Section 8. Baselines, Comparators, and Reference Interpretation         |                                 |
-| Section 9. Reliability, Precision, and Score Stability                  |                                 |
-| Section 10. Validity Evidence                                           |                                 |
-| Section 11. Fair Use, Comparability, and Appropriate Use                |                                 |
-| Section 12. Quality of Reports, Leaderboards, Dashboards, and Public Claims |                             |
+The artifact value is the corresponding section's judgment-based overall rating. Preserve all seven values as a profile; do not calculate a composite.
+
+| Section                                                                 | Metric         | Artifact Value / Overall Rating (`n/a`, `0`-`4`) |
+| :---------------------------------------------------------------------- | :------------- | :-----------------------------------------------: |
+| Section 6. Rationale, Development, Documentation, and Task/Item Quality | Documentation  |                                                   |
+| Section 7. Quality and Usability of Benchmark Materials                 | Usability      |                                                   |
+| Section 8. Baselines, Comparators, and Reference Interpretation         | Interpretation |                                                   |
+| Section 9. Reliability, Precision, and Score Stability                  | Reliability    |                                                   |
+| Section 10. Validity Evidence                                           | Validity       |                                                   |
+| Section 11. Fair Use, Comparability, and Appropriate Use                | Fairness       |                                                   |
+| Section 12. Quality of Reports, Leaderboards, Dashboards, and Public Claims | Reporting  |                                                   |
 
 Reviewer comments:
 

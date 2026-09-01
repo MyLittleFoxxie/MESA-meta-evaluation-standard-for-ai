@@ -55,7 +55,7 @@ sentence rewritten, because the ranges they cite in the full template no longer 
 - Glossary
 - Explanation of Ratings (including the `n/a` vs `0` rule) and the Rating Scale table
 - General Guidance on Assigning Ratings
-- Final Evaluation: Evaluative Report, Conclusions, Recommendations, Summary of Ratings, Gap Register
+- Final Evaluation: Evaluative Report, Conclusions, Recommendations, MESA Benchmark Artifact Profile, Gap Register
 - Bibliography
 
 The Introduction, "How the MESA Model Should Be Used", and Figures 1-5 are replaced by a short

@@ -55,7 +55,7 @@ KEEP_BLOCKS = [
     "Evaluative Report of the Benchmark",
     "Conclusions",
     "Recommendations",
-    "Summary of Ratings",
+    "MESA Benchmark Artifact Profile",
     "Gap Register",
     "Bibliography",
 ]
@@ -129,6 +129,11 @@ the ones whose ratings decided the outcome in MESA's pilot case studies — toge
 descriptive fields those questions depend on and the full closing evaluation. It is intended for
 routine work: comparing candidate benchmarks, deciding whether a published score can support a
 claim, or recording a benchmark's known limits before its scores are reused.
+
+As in the full template, the seven section-overall ratings form the non-composite MESA Benchmark
+Artifact Profile: Documentation, Usability, Interpretation, Reliability, Validity, Fairness, and
+Reporting. Each metric value is a judgment based on the retained evidence in its section; never
+average, weight, rank, or collapse the profile into a single score.
 
 **Use the full template instead when the review supports a procurement decision, a policy
 position, or a safety case.** The full template (`MESA EFPA template official.md`) carries 87

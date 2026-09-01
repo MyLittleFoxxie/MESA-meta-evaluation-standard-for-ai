@@ -14,7 +14,7 @@ MESA is built on three pillars:
 * **Engineering Quality (BetterBench):** Treats benchmarks as lifecycle software artifacts, emphasizing reproducibility and maintenance.
 
 ## How a MESA Review Works
-A MESA review has two phases, adapted from the EFPA Test Review Model. The **descriptive phase** records what the benchmark is and how it operates — a standardized "spec sheet" that makes benchmark claims transparent and comparable, without judging them. The **evaluative phase** then judges how good the benchmark is as a measurement instrument, using EFPA-style `n/a` and `0`-`4` ratings to assess whether the available evidence supports the benchmark's stated interpretation. (In the template itself, these two phases are labeled Part A and Part B.)
+A MESA review has two phases, adapted from the EFPA Test Review Model. The **descriptive phase** records what the benchmark is and how it operates — a standardized "spec sheet" that makes benchmark claims transparent and comparable, without judging them. The **evaluative phase** then judges how good the benchmark is as a measurement instrument, using `n/a` and `0`-`4` ratings to assess whether the available evidence supports the benchmark's stated interpretation. (In the template itself, these two phases are labeled Part A and Part B.)
 
 A review opens with a **General Description** (a short stand-alone, non-evaluative summary) and a **Source Inventory** recording every source consulted with its access date.
 
@@ -26,7 +26,7 @@ A review opens with a **General Description** (a short stand-alone, non-evaluati
 5.  **Benchmark Access, Materials, and Lifecycle:** Access routes, contamination documentation, reproducibility materials, licensing, maintenance, and versioning.
 
 ### What the evaluative phase covers:
-Seven rated sections: Rationale, Development, Documentation, and Task/Item Quality (6) · Quality and Usability of Benchmark Materials (7) · Baselines, Comparators, and Reference Interpretation (8) · Reliability, Precision, and Score Stability (9) · Validity Evidence (10) · Fair Use, Comparability, and Appropriate Use (11) · Quality of Reports, Leaderboards, Dashboards, and Public Claims (12) — each rolling up into evidence-grounded ratings, closing with a Final Evaluation, Summary of Ratings, and Gap Register.
+Seven rated sections: Rationale, Development, Documentation, and Task/Item Quality (6) · Quality and Usability of Benchmark Materials (7) · Baselines, Comparators, and Reference Interpretation (8) · Reliability, Precision, and Score Stability (9) · Validity Evidence (10) · Fair Use, Comparability, and Appropriate Use (11) · Quality of Reports, Leaderboards, Dashboards, and Public Claims (12). Their section-overall ratings form the **MESA Benchmark Artifact Profile**: **Documentation, Usability, Interpretation, Reliability, Validity, Fairness, and Reporting**. The seven `n/a`/`0`-`4` values remain separate evidence-grounded judgments and are never averaged into a composite score. A review closes with the profile, Final Evaluation, and Gap Register.
 
 ## Not Every Question Applies to Every Benchmark
 Following EFPA, a review completes every section that applies and marks the rest `n/a`. There is no separate short form: a benchmark with no leaderboard, no model-based scorer, and a single static form simply marks those items `n/a`, and the review records why.
