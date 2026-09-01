@@ -1,39 +1,53 @@
-# MESA EFPA Template
+# MESA Test Review Model — Review Template
 
 ## Introduction
 
-MESA is a structured description and evaluation model for AI benchmarks treated as measurement instruments. It adapts the EFPA Test Review Model 2025 from human psychological and educational testing to AI benchmark review. It provides a structure for describing and evaluating AI benchmarks, task suites, leaderboards, evaluation harnesses that administer tasks and often run scoring, score reports, and benchmark materials needed to inspect, run, score, reproduce, or audit evaluations used in research, model development, safety evaluation, deployment governance, procurement, policy analysis, and public communication.
+MESA is a structured description and evaluation model for AI benchmarks treated as measurement instruments. It adapts the EFPA Test Review Model 2025 [4] from human psychological and educational testing to AI benchmark review. It provides a structure for describing and evaluating AI benchmarks and the artifacts around them: task suites, leaderboards, evaluation harnesses, score reports, and the materials needed to inspect, run, score, reproduce, or audit an evaluation. It applies wherever benchmark scores inform research, model development, safety evaluation, deployment governance, procurement, policy analysis, or public communication.
 
-In MESA, an AI benchmark is treated as a structured measurement instrument: it samples the behavior of an AI system in a specified domain, then quantifies, scores, interprets, and reports that behavior through a standardized or documented process for evaluative or comparative conclusions. This includes benchmarks for language, reasoning, knowledge, coding, multimodality, tool use, agency, safety, robustness, calibration, domain expertise, or other capabilities or qualities the benchmark claims to measure.
+In MESA, an AI benchmark is treated as a structured measurement instrument: it samples the behavior of an AI system in a specified domain, then quantifies, scores, interprets, and reports that behavior through a standardized or documented process for evaluative or comparative conclusions, adapting the definition of a test in the AERA Standards [6] as used by the EFPA model. This includes benchmarks for language, reasoning, knowledge, coding, multimodality, tool use, agency, safety, robustness, calibration, domain expertise, or other capabilities or qualities the benchmark claims to measure.
 
 Review information presented in this structure should support benchmark developers, maintainers, suppliers, platform hosts, evaluators, auditors, trainers, policy makers, model developers, procurement teams, and benchmark users. It should help improve benchmark design and evaluation practice, support standards for benchmark review, and give users a more authoritative, unbiased, and consistent basis for interpreting score-based benchmark claims.
 
-This model is divided into two main review parts plus supporting appendices. Part A describes the benchmark in detail: what it is, what capability or quality it claims to measure, how it is administered and scored, what materials exist, and what inspectable or reproducible benchmark materials are available. Part B evaluates whether the benchmark supports the specific meaning users are supposed to draw from a score, using EFPA-style ratings translated for AI benchmark concerns such as evidence that scores support the intended capability interpretation, whether scoring rewards the target capability rather than irrelevant score effects, reproducibility, prior model exposure to benchmark items or answers, maintenance, fair comparison, and public reporting. The appendices and checklists support review discipline and template validation.
+This model is divided into two main review parts plus supporting appendices. Part A describes the benchmark in detail: what it is, what capability or quality it claims to measure, how it is administered and scored, what materials exist, and what inspectable or reproducible benchmark materials are available. Part B evaluates whether the benchmark supports the meaning users are supposed to draw from a score (hereafter *the intended score meaning*), using EFPA-style ratings adapted to AI benchmark concerns; Figure 1 lists the seven evaluation sections. Each Part B section is an evaluative artifact whose overall rating supplies one value in the non-composite MESA Benchmark Artifact Profile. The appendices and checklists support review discipline and template validation.
 
-A MESA review must identify the exact benchmark entity under review before Part A is completed. The reviewed entity may be an original benchmark, derived benchmark, subset, evaluation slice, hosted leaderboard, private form, rolling version, hosted suite, benchmark suite, task environment, or evaluator-specific implementation. Parent benchmarks and source instruments should be recorded separately from the reviewed entity.
+A MESA review must identify the exact benchmark entity under review before Part A is completed. The reviewed entity may be an original benchmark, derived benchmark, subset, evaluation slice, hosted leaderboard, private form, rolling cohort, suite component, task environment, or evaluator-specific implementation. This is the canonical entity-type list; later sections refer to any reviewed entity listed in the front matter, and an evaluation slice may be called a slice after first use. Parent benchmarks and source instruments should be recorded separately from the reviewed entity.
 
 ## How the MESA Model Should Be Used
 
 Use this template as a review instrument, not as a scoring shortcut. Effective implementation depends on expert judgment, source-grounded interpretation, and careful separation between description and evaluation. Part A should remain descriptive: record facts, uncertainty, access limits, and documentation gaps without assigning quality ratings. Part B should remain evaluative: use Part A as the factual base, then judge adequacy for the benchmark's stated use.
 
-This model is designed to guide reviewers, not to provide a closed set of rules. It should be adapted to the benchmark's domain, modality, evaluation setting, and scope of score interpretation while preserving the core review logic: first describe the benchmark as a measurement instrument, then evaluate whether the available evidence supports the specific meaning users are supposed to draw from a score. Missing documentation is missing or inaccessible information needed for interpretation, not automatic proof that the benchmark is poor. Do not mechanically average ratings; the final judgment should explain how the strongest support and most consequential gaps affect the intended score meaning.
+This model is designed to guide reviewers, not to provide a closed set of rules. It should be adapted to the benchmark's domain, modality, evaluation setting, and scope of score interpretation while preserving the core review logic: first describe the benchmark as a measurement instrument, then evaluate whether the available evidence supports the intended score meaning. Treat missing documentation as an evidence gap: record what could not be found, and do not treat the gap itself as proof that the benchmark is poor. Do not mechanically average ratings; the final judgment should explain how the strongest support and most consequential gaps affect the intended score meaning.
 
-When the reviewed object is a slice, variant, suite component, hosted leaderboard, private form, rolling cohort, or evaluator-specific implementation, complete the review for that entity. Do not inherit descriptions, ratings, validity claims, or conclusions from a parent benchmark unless the reviewed entity's documentation supports that transfer.
+When the reviewed entity is any entity listed in the front matter other than the original benchmark, complete the review for that entity. Do not inherit descriptions, ratings, validity claims, or conclusions from a parent benchmark unless the reviewed entity's documentation supports that transfer.
 
 MESA reviews evaluate benchmarks and the technical information supporting them. A completed MESA review does not imply endorsement, approval, or recommendation by MESA or by the reviewer unless this is stated explicitly. Public descriptions of a reviewed benchmark should not imply such endorsement; they should reference the review model and the evidence basis of the review.
 
 Before completing the review, inspect the most authoritative available materials. Prefer official benchmark papers, websites, repositories, data hosts, leaderboards, harnesses, changelogs, and maintainer statements. Independent commentary should be used only for context, external critique, or disputed claims, and should not replace official benchmark facts.
 
-### Figure 1. Structure of the MESA Review Model
+## Glossary
+
+- **Capability domain**: one of the CHC-inspired broad domains used to classify what a benchmark claims to measure (Section 2.1), grounded in Hendrycks et al.'s *A Definition of AGI* [1].
+- **Claim proportionality**: whether public claims stay within what the measured evidence supports (Section 10.6).
+- **Construct validity**: whether the benchmark actually measures the capability it claims to measure.
+- **Construct-irrelevant variance**: score effects from outside the target capability (kept as a technical term only in the Section 10.3.2 heading).
+- **Evidence gap**: descriptive or evaluative information that is missing or inaccessible, recorded rather than guessed; a gap is not automatically a defect (see rating `0` vs `1`).
+- **Gameability**: a high score obtainable through shortcuts, exposure, formatting, tuning, or scaffolding rather than the target capability.
+- **MESA Benchmark Artifact Profile**: the seven-value profile formed by the Part B section-overall ratings: Documentation, Usability, Interpretation, Reliability, Validity, Fairness, and Reporting. The values are not averaged or combined into a composite score.
+- **Model-as-judge**: a separate AI model that decides whether an answer matches the reference or rates open-ended output quality.
+- **Reference interpretation**: interpreting scores against reference points such as chance floors, human or expert performance, documented model cohorts, or score bands (Section 8).
+- **Run conditions**: the prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules under which an evaluation executes.
+- **Supported-use / non-use statement**: the review's closing statement of what interpretations the scores support, what they do not, and the run conditions that must hold (Final Evaluation).
+
+### Figure 1. Structure of the MESA Test Review Model
 
 ```mermaid
 flowchart TD
 
     %% Main Header
-    Main("MESA Review Model")
+    Main("MESA Test Review Model")
 
-    %% Standalone Box for Short Description
-    ShortDesc("Short stand-alone non-evaluative benchmark description")
+    %% Standalone Box for the General Description
+    ShortDesc("General Description — short stand-alone non-evaluative benchmark description")
 
     %% Left Side Group: Description of the Benchmark
     subgraph G_DESC ["Part A. Description of the Benchmark"]
@@ -43,14 +57,12 @@ flowchart TD
         A3("3. Measurement and Scoring")
         A4("4. Benchmark Outputs and Reports")
         A5("5. Benchmark Access, Materials, and Lifecycle")
-        AA("Appendix A. General Description of the Benchmark")
 
         %% Invisible links for vertical stacking
         A1 ~~~ A2
         A2 ~~~ A3
         A3 ~~~ A4
         A4 ~~~ A5
-        A5 ~~~ AA
     end
 
     %% Right Side Group: Evaluation of the Benchmark
@@ -91,20 +103,38 @@ flowchart TD
 
     %% Style for the internal list items
     classDef detail fill:#004771,color:#fff,stroke:#D2691E,stroke-dasharray: 5 5;
-    class A1,A2,A3,A4,A5,AA,B6,B7,B8,B9,B10,B11,B12 detail;
+    class A1,A2,A3,A4,A5,B6,B7,B8,B9,B10,B11,B12 detail;
 ```
 
 ---
 
 # Part A. Description of the Benchmark
 
+## General Description of the Benchmark
+
+Describe what the benchmark is, what it claims to measure, its task and score structure, documented baselines or reference points, intended users, available versions and forms, and any unusual features or relevant history. Aim for 200-400 words (longer for multi-component suites). Write it to stand alone outside this review — this section is the short stand-alone non-evaluative benchmark description shown in Figure 1 — and expect to repeat facts recorded in Sections 1-5. Keep this descriptive and defer evaluation to Part B. (Formerly Appendix A; merged with the stand-alone Short Description in v2.)
+
+Free Text:
+
+## Source Inventory
+
+List every source consulted for this review, with access dates; later sections may cite sources by ID from this table. Add rows as needed. This inventory, formerly a house convention in completed reviews, is the review's evidentiary backbone.
+
+| Source ID | Source (type and citation or URL)                 | Access Date    | Used for                          |
+| :-------- | :------------------------------------------------ | :------------- | :-------------------------------- |
+| _(S1)_    | _(e.g., official paper, repository, leaderboard)_ | _(YYYY-MM-DD)_ | _(Sections or items it informed)_ |
+| _(S2)_    | _(Source citation or URL)_                        | _(YYYY-MM-DD)_ | _(Sections or items it informed)_ |
+| _(S3)_    | _(Source citation or URL)_                        | _(YYYY-MM-DD)_ | _(Sections or items it informed)_ |
+
+Reviewer comments:
+
 ## Section 1. Factual Description
 
-Section 1 identifies the review event, the exact benchmark entity under review, the benchmark provenance, and the public materials inspected. EFPA begins with factual identification of the instrument and the information available to reviewers. MESA keeps that function but moves the inventory of reviewed materials into this section so later descriptive and evaluative judgments can be traced to the review base.
+Section 1 identifies the review event, the exact benchmark entity under review, the benchmark provenance, and the public materials inspected. EFPA begins with factual identification of the instrument and the information available to reviewers. MESA keeps that function but moves the inventory of reviewed materials into this section so later descriptive and evaluative judgments can be traced to the specific materials that were actually inspected.
 
 ### 1.1 Review Administration
 
-| Prompt                                    | Description                 |
+| Prompt                                    | Response                    |
 | :---------------------------------------- | :-------------------------- |
 | Reviewer Name                             | _(Reviewer or review team)_ |
 | Date of Current Review                    | _(YYYY-MM-DD)_              |
@@ -112,19 +142,19 @@ Section 1 identifies the review event, the exact benchmark entity under review, 
 
 ### 1.2 Benchmark Identity & Provenance
 
-| Prompt                                 | Description                                                                |
-| :------------------------------------- | :------------------------------------------------------------------------- |
-| Reviewed Entity Name                   | _(Name precisely, e.g., specific slice, private form, cohort, etc.)_       |
-| Short Name / Acronym                   | _(Common acronym or abbreviated label)_                                    |
-| Entity Type                            | _(Original benchmark, derived variant, hosted leaderboard, harness, etc.)_ |
-| Parent / Source Benchmark              | _(If inherited or modified from a prior family/instrument)_                |
-| Exact Version / Release Split          | _(Dataset version, split, form, or task-pack identifier)_                  |
-| Implementation / Scorer Version        | _(Harness, parser, judge, or evaluation platform version)_                 |
-| Creators & Current Maintainers         | _(Original creators and active maintainers, if different)_                 |
-| Host Organization / Repository Owner   | _(Platform, organization, repository owner, or distributor)_               |
-| Release Dates                          | _(Original Release Date / Current Revision Date)_                          |
-| License & Access Terms                 | _(Public, private, semi-private, controlled-access, etc.)_                 |
-| Persistent Identifier / DOI / Citation | _(DOI, arXiv ID, canonical citation, or stable URL)_                       |
+| Prompt                                 | Response                                                                                                                                                                                                                        |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Reviewed Entity Name                   | _(Name precisely, e.g., specific slice, private form, cohort, etc.)_                                                                                                                                                            |
+| Short Name / Acronym                   | _(Common acronym or abbreviated label)_                                                                                                                                                                                         |
+| Entity Type                            | _(one of: original benchmark / derived benchmark / subset / evaluation slice / hosted leaderboard / private form / rolling cohort / suite component / task environment / evaluator-specific implementation / other — describe)_ |
+| Parent / Source Benchmark              | _(If inherited or modified from a prior family/instrument)_                                                                                                                                                                     |
+| Exact Version / Release Split          | _(Dataset version, split, form, or task-pack identifier)_                                                                                                                                                                       |
+| Implementation / Scorer Version        | _(Harness, parser, judge, or evaluation platform version)_                                                                                                                                                                      |
+| Creators & Current Maintainers         | _(Original creators and active maintainers, if different)_                                                                                                                                                                      |
+| Host Organization / Repository Owner   | _(Platform, organization, repository owner, or distributor)_                                                                                                                                                                    |
+| Release Dates                          | _(Original Release Date / Current Revision Date)_                                                                                                                                                                               |
+| License & Access Terms                 | _(Public, private, semi-private, controlled-access, etc.)_                                                                                                                                                                      |
+| Persistent Identifier / DOI / Citation | _(DOI, arXiv ID, canonical citation, or stable URL)_                                                                                                                                                                            |
 
 ### 1.3 Materials, Sources, & Access Tracking
 
@@ -148,11 +178,11 @@ Reviewer comments:
 
 ## Section 2. Classification
 
-Section 2 classifies the benchmark's intended measurement domain, target AI systems, users, item/task structure, and administration conditions. EFPA uses this section to clarify who and what the test is for. MESA translates that into benchmark-use context: what systems are evaluated, what forms of model output are required, and which prompts, settings, tools, time limits, access rules, hardware, or human-intervention rules shape interpretation.
+Section 2 classifies the benchmark's intended measurement domain, target AI systems, users, item/task structure, and administration conditions. EFPA uses this section to clarify who and what the test is for. MESA translates that into benchmark-use context: what systems are evaluated, what forms of model output are required, and which run conditions shape interpretation — the prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules under which an evaluation executes.
 
 MESA uses the CHC-inspired framework from Hendrycks et al.'s _A Definition of AGI_ [1] as a working basis for associating AI benchmark claims with broad capability domains. The ten domains are not treated as a final or exhaustive taxonomy for AI capability measurement; they provide a structured starting point for classification and validity review, and may change as MESA incorporates additional evidence, benchmark types, and AI-specific measurement considerations.
 
-A brief description of the ten AGI-derived domains are:
+Brief descriptions of the ten AGI-derived domains:
 
 - **General Knowledge (K):** factual understanding of the world, including commonsense, science, social science, history, and culture.
 - **Reading and Writing Ability (RW):** written-language comprehension and production, including decoding, reading comprehension, composition, and usage.
@@ -167,7 +197,7 @@ A brief description of the ten AGI-derived domains are:
 
 ### 2.1 Claimed Capability Domains
 
-Specify the capabilities, phenomena, or qualities the benchmark claims to measure, using the CHC-inspired domains above where applicable.
+Specify the capabilities, phenomena, or qualities the benchmark claims to measure, using the CHC-inspired domains above where applicable. Select at most three primary domains — the capabilities the documentation itself claims; note any secondary domains in Reviewer comments. CHC domains name the claimed cognitive interpretation; the applied labels below the separator name the task family. Select from both groups only when the documentation claims both (e.g., a coding benchmark claims "Coding"; add "R" only if the authors claim reasoning).
 
 - [ ] Not explicitly stated
 - [ ] General Knowledge (K)
@@ -180,6 +210,9 @@ Specify the capabilities, phenomena, or qualities the benchmark claims to measur
 - [ ] Visual Processing (V)
 - [ ] Auditory Processing (A)
 - [ ] Speed (S)
+
+---
+
 - [ ] Coding or software engineering
 - [ ] Specialized scientific or technical expertise
 - [ ] Domain-specific professional expertise
@@ -192,6 +225,16 @@ Specify the capabilities, phenomena, or qualities the benchmark claims to measur
 - [ ] Safety, refusal, or policy compliance
 - [ ] Robustness
 - [ ] Calibration or uncertainty
+- [ ] Other (describe in Reviewer comments)
+
+Claimed construct in the benchmark's own words:
+
+| Prompt                                                             | Response                                                  |
+| :----------------------------------------------------------------- | :-------------------------------------------------------- |
+| Capability, phenomenon, or quality the benchmark claims to measure | _(Claimed construct, behavior, or quality)_               |
+| Definition of the capability or quality being measured             | _(Author definition or documented wording)_               |
+| Subcomponents of the claimed capability, phenomenon, or quality    | _(Named domains, skills, dimensions, or task groups)_     |
+| Excluded scope or non-target abilities                             | _(Abilities, contexts, or uses explicitly outside scope)_ |
 
 Reviewer comments:
 
@@ -210,6 +253,7 @@ Select all documented use contexts.
 - [ ] Internal regression testing
 - [ ] Public communication or marketing
 - [ ] Policy or governance analysis
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
@@ -230,12 +274,13 @@ Only record systems stated or clearly implied by benchmark documentation.
 - [ ] Domain-specialized models
 - [ ] Open-weight local models
 - [ ] API-hosted models
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
-### 2.4 Intended Users of Benchmark Outputs
+### 2.4 Intended Users and Recipients of Benchmark Outputs
 
-Select all that apply.
+Select all that apply. This section is the single home for the audience question; it absorbs the former Intended Recipients subsection.
 
 - [ ] Not explicitly stated
 - [ ] Benchmark creators or maintainers
@@ -247,53 +292,37 @@ Select all that apply.
 - [ ] Procurement or enterprise decision-makers
 - [ ] Educators or academic reviewers
 - [ ] Public leaderboard users
+- [ ] Public audience
+- [ ] Other (describe in Reviewer comments)
+
+For each recipient class selected, record whether benchmark outputs are interpretable by that class without benchmark-specific expertise:
+
+| Recipient class              | Interpretive competence assumed                                          |
+| :--------------------------- | :----------------------------------------------------------------------- |
+| _(Class from the list above)_ | _(Interprets technical output / needs pre-digested caveats / not documented)_ |
+| _(Class from the list above)_ | _(Interprets technical output / needs pre-digested caveats / not documented)_ |
+| _(Class from the list above)_ | _(Interprets technical output / needs pre-digested caveats / not documented)_ |
 
 Reviewer comments:
 
-### 2.5 Task Families, Subdomains, and Scores
+### 2.5 Task Families, Subdomains, and Splits
 
-Describe the number and meaning of task families, subdomains, splits, score families, aggregate scoring rules, subscores, or derived outputs. This section is descriptive; do not judge representativeness here.
+Describe the number and meaning of task families, subdomains, and splits. In this table, *unit* means an item, prompt, episode, environment, or interaction. Score definitions are recorded once, in 3.2; the claimed construct is recorded in 2.1. This section is descriptive; do not judge representativeness here.
 
-| Component                                                                                          | Description                                                           |
-| :------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| Capability, phenomenon, or quality the benchmark claims to measure                                 | _(Claimed construct, behavior, or quality)_                           |
-| Definition of the capability or quality being measured                                             | _(Author definition or documented wording)_                           |
-| Subcomponents of the claimed capability, phenomenon, or quality                                    | _(Named domains, skills, dimensions, or task groups)_                 |
-| Excluded scope or non-target abilities                                                             | _(Abilities, contexts, or uses explicitly outside scope)_             |
-| Benchmark item, prompt, episode, environment, or interaction families or subdomains                | _(Item/task families, environments, episodes, or interaction types)_  |
-| Sources for benchmark items, prompts, episodes, environments, or interactions                      | _(Datasets, contests, corpora, experts, generators, or environments)_ |
-| Sampling method for benchmark items, prompts, episodes, environments, or interactions              | _(Random, stratified, curated, generated, convenience, etc.)_         |
-| Selection or filtering logic for benchmark items, prompts, episodes, environments, or interactions | _(Inclusion, exclusion, screening, or filtering rules)_               |
-| Splits or partitions                                                                               | _(Train, dev, test, public, private, hidden, cohort, etc.)_           |
-| Primary score                                                                                      | _(Main reported score and unit)_                                      |
-| Subscores                                                                                          | _(Named subdomain, split, or component scores)_                       |
-| Derived scores or scores combined from item, task-family, or subscore results                      | _(Aggregation formulas or combined score definitions)_                |
-| Qualitative score ranges such as low/medium/high or novice/expert                                  | _(Named bands and thresholds, if used)_                               |
-| Boundaries or caveats for interpretations made from benchmark scores                               | _(Documented limits on score interpretation)_                         |
+| Component                        | Description                                                           |
+| :------------------------------- | :-------------------------------------------------------------------- |
+| Unit families or subdomains      | _(Item/task families, environments, episodes, or interaction types)_  |
+| Unit sources                     | _(Datasets, contests, corpora, experts, generators, or environments)_ |
+| Unit sampling method             | _(Random, stratified, curated, generated, convenience, etc.)_         |
+| Unit selection or filtering logic | _(Inclusion, exclusion, screening, or filtering rules)_               |
+| Splits or partitions             | _(Train, dev, test, public, private, hidden, cohort, etc.)_           |
+| Primary score name               | _(Name only; define all scores in 3.2)_                               |
 
 Reviewer comments:
 
-### 2.6 Model Response Mode
+### 2.6 Model Response Mode (retired)
 
-Select all that apply.
-
-- [ ] Not explicitly stated
-- [ ] Multiple choice
-- [ ] Short text
-- [ ] Long-form text
-- [ ] Structured output, such as JSON or XML
-- [ ] Code
-- [ ] Mathematical expression
-- [ ] Tool call
-- [ ] Browser or web action
-- [ ] File, document, or other output generation
-- [ ] Image output
-- [ ] Audio output
-- [ ] Video output
-- [ ] Interaction in a simulated environment
-- [ ] Interaction in a real or external environment
-
-Reviewer comments:
+Merged into §2.9 in v2; record response formats there.
 
 ### 2.7 Prerequisites for Evaluated Systems
 
@@ -316,12 +345,13 @@ EFPA asks about demands placed on the person being assessed. MESA translates thi
 | API compatibility                                               |             [ ]             |             [ ]             |         [ ]         |
 | Latency or time budget                                          |             [ ]             |             [ ]             |         [ ]         |
 | Cost or compute budget                                          |             [ ]             |             [ ]             |         [ ]         |
+| Other requirement _(describe in Reviewer comments)_             |             [ ]             |             [ ]             |         [ ]         |
 
 Reviewer comments:
 
 ### 2.8 Evaluation Conditions
 
-EFPA records special testing conditions because scores can change when administration changes. MESA records the prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules under which AI systems are evaluated. These conditions are part of the benchmark definition, not implementation trivia.
+EFPA records special testing conditions because scores can change when administration changes. MESA records the run conditions under which AI systems are evaluated. These conditions are part of the benchmark definition, not implementation trivia.
 
 | Condition                                     | Description                                                            |
 | :-------------------------------------------- | :--------------------------------------------------------------------- |
@@ -329,6 +359,7 @@ EFPA records special testing conditions because scores can change when administr
 | System prompt                                 | _(Required system or developer instructions, if any)_                  |
 | Few-shot examples                             | _(Number, source, and placement of examples)_                          |
 | Sampling settings                             | _(Temperature, top_p, max tokens, seeds, etc.)_                        |
+| Runs policy                                   | _(Number of runs, pass@k or multi-run sampling policy, aggregation of repeats)_ |
 | Tool permissions                              | _(Allowed and disallowed tools)_                                       |
 | Tool/API credential policy                    | _(Who provides credentials and under what limits)_                     |
 | Time limits                                   | _(Per item, per run, or leaderboard deadline)_                         |
@@ -342,9 +373,9 @@ EFPA records special testing conditions because scores can change when administr
 
 Reviewer comments:
 
-### 2.9 Task Interaction and Observable Evidence Types
+### 2.9 Task Interaction, Response Types, and Observable Evidence
 
-Record the task interaction pattern and the observable evidence generated during evaluation. Use 2.6 for the model's response format.
+Record the task interaction pattern, the response formats the model must produce, and the observable evidence generated during evaluation. This section is the single home for response formats (it absorbs the former response-mode checklist).
 
 Selection or judgment tasks:
 
@@ -353,18 +384,21 @@ Selection or judgment tasks:
 - [ ] Ranking
 - [ ] Classification
 - [ ] Pairwise preference
+- [ ] Other selection or judgment task (describe in Reviewer comments)
 
 Production or construction tasks:
 
 - [ ] Open-ended text
 - [ ] Code generation
 - [ ] Proof, derivation, or explanation
+- [ ] Mathematical expression or formal notation
 - [ ] Structured data
 - [ ] Generated media
 - [ ] Deliverable production
 - [ ] Patch or repository modification
 - [ ] Coordinate, bounding target, or GUI-grounding target
 - [ ] Document parsing, layout reconstruction, or OCR-style extraction
+- [ ] Other production task (describe in Reviewer comments)
 
 Interaction or environment tasks:
 
@@ -377,6 +411,7 @@ Interaction or environment tasks:
 - [ ] Terminal, shell, or filesystem task
 - [ ] User-simulator interaction
 - [ ] Long-horizon episode or stateful task
+- [ ] Other interaction or environment task (describe in Reviewer comments)
 
 Observable evidence or process data:
 
@@ -392,6 +427,7 @@ Observable evidence or process data:
 - [ ] Environment or simulator state
 - [ ] Leaderboard submission metadata
 - [ ] Raw output or audit trace under controlled access
+- [ ] Other observable evidence (describe in Reviewer comments)
 
 Reviewer comments:
 
@@ -417,28 +453,34 @@ Select all that apply.
 - [ ] Dynamic environment
 - [ ] Simulation state
 - [ ] External search results
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 2.11 Number of Items or Measurement Points
 
-Where the benchmark is dynamic, record minimum, maximum, and typical task counts.
+Where the benchmark is dynamic, record minimum, maximum, and typical task counts. Complete the five core rows for every review.
 
-| Prompt                                                         | Response                                                  |
-| :------------------------------------------------------------- | :-------------------------------------------------------- |
-| Total public items or tasks                                    | _(Count or range visible to users)_                       |
-| Total private or hidden items                                  | _(Count or range hidden or controlled)_                   |
-| Development or example items                                   | _(Examples, validation, practice, or dev set count)_      |
-| Test items                                                     | _(Official scored item count)_                            |
-| Dynamic or generated tasks                                     | _(Generated, sampled, refreshed, or live task count)_     |
-| Episodes, trials, or measurement points                        | _(Runs, trials, environments, or measurement events)_     |
-| Counts by split, form, or variant                              | _(Breakdown by split, form, variant, or cohort)_          |
-| Counts by language, culture, or locale                         | _(Breakdown by language, culture, or locale)_             |
-| Counts by claimed capability domain                            | _(Breakdown mapped to 2.1 domains, if documented)_        |
-| Counts by context-length bin                                   | _(Counts by token or window size, if documented)_         |
-| Counts by difficulty band                                      | _(Counts by stated difficulty level, if documented)_      |
-| Counts by public, private, hidden, or controlled-access status | _(Breakdown by access status)_                            |
-| Item count uncertainty                                         | _(Unknown, changing, approximate, or conflicting counts)_ |
+| Prompt                        | Response                                                  |
+| :---------------------------- | :-------------------------------------------------------- |
+| Total public items or tasks   | _(Count or range visible to users)_                       |
+| Total private or hidden items | _(Count or range hidden or controlled)_                   |
+| Development or example items  | _(Examples, validation, practice, or dev set count)_      |
+| Test items                    | _(Official scored item count)_                            |
+| Item count uncertainty        | _(Unknown, changing, approximate, or conflicting counts)_ |
+
+Complete only the breakdowns the documentation provides:
+
+| Prompt                                                         | Response                                              |
+| :------------------------------------------------------------- | :---------------------------------------------------- |
+| Dynamic or generated tasks                                     | _(Generated, sampled, refreshed, or live task count)_ |
+| Episodes, trials, or measurement points                        | _(Runs, trials, environments, or measurement events)_ |
+| Counts by split, form, or variant                              | _(Breakdown by split, form, variant, or cohort)_      |
+| Counts by language, culture, or locale                         | _(Breakdown by language, culture, or locale)_         |
+| Counts by claimed capability domain                            | _(Breakdown mapped to 2.1 domains, if documented)_    |
+| Counts by context-length bin                                   | _(Counts by token or window size, if documented)_     |
+| Counts by difficulty band                                      | _(Counts by stated difficulty level, if documented)_  |
+| Counts by public, private, hidden, or controlled-access status | _(Breakdown by access status)_                        |
 
 Reviewer comments:
 
@@ -447,27 +489,37 @@ Reviewer comments:
 Select all that apply.
 
 - [ ] Not indicated
+
+Venue:
+
 - [ ] Local batch evaluation
 - [ ] Hosted benchmark platform
-- [ ] Leaderboard submission
 - [ ] Private controlled evaluation
+- [ ] Registry-hosted task pack
+- [ ] Third-party evaluator implementation
+
+Openness and submission route:
+
 - [ ] Public open evaluation
+- [ ] Leaderboard submission
+- [ ] Competition or challenge submission
+- [ ] Benchmark suite or sub-leaderboard
+
+Cadence and interaction:
+
+- [ ] Continuous or rolling evaluation
 - [ ] Interactive agent evaluation
 - [ ] Human-in-the-loop evaluation
-- [ ] Continuous or rolling evaluation
-- [ ] Benchmark suite or sub-leaderboard
-- [ ] Competition or challenge submission
-- [ ] Third-party evaluator implementation
-- [ ] Registry-hosted task pack
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 Identity and condition controls:
 
-- [ ] No control over submitted systems
-- [ ] Some control over submitted systems
-- [ ] Controlled model access or audit
-- [ ] Controlled evaluation center or private harness
+- [ ] No control over submitted systems (open submission; identity and run conditions self-reported)
+- [ ] Some control over submitted systems (gated submission, e.g. account or API key, but model identity and conditions not verified)
+- [ ] Controlled model access or audit (organizers run or verify the model, or audit submitted outputs)
+- [ ] Controlled evaluation center or private harness (organizers administer the full evaluation on their own infrastructure)
 - [ ] Not documented
 
 Reviewer comments:
@@ -492,6 +544,7 @@ Mark A for available and R for required where documentation permits.
 | Benchmark registry or task environment | [ ] | [ ] |
 | Simulator or user simulator            | [ ] | [ ] |
 | Filesystem, terminal, or sandbox state | [ ] | [ ] |
+| Other _(describe in Reviewer comments)_ | [ ] | [ ] |
 
 Reviewer comments:
 
@@ -515,10 +568,12 @@ Reviewer comments:
 
 ### 2.15 Benchmark Forms, Versions, and Variants
 
-Describe public/private forms, alternate forms, short forms, language variants, domain subsets, slices, rolling cohorts, hidden forms, and deprecated versions. State whether the benchmark documentation treats scores from each form or variant as comparable.
+Describe public/private forms, alternate forms, short forms, language variants, domain subsets, slices, rolling cohorts, hidden forms, and deprecated versions. State whether the benchmark documentation treats scores from each form or variant as comparable. Add rows as needed; note additional forms in Reviewer comments if the form limits entries.
 
 | Form or variant                            | Purpose                  | Stated score-comparability interpretation       | Status                                   |
 | :----------------------------------------- | :----------------------- | :---------------------------------------------- | :--------------------------------------- |
+| _(Name, split, version, cohort, or slice)_ | _(Why this form exists)_ | _(Comparable, non-comparable, or undocumented)_ | _(Active, retired, hidden, draft, etc.)_ |
+| _(Name, split, version, cohort, or slice)_ | _(Why this form exists)_ | _(Comparable, non-comparable, or undocumented)_ | _(Active, retired, hidden, draft, etc.)_ |
 | _(Name, split, version, cohort, or slice)_ | _(Why this form exists)_ | _(Comparable, non-comparable, or undocumented)_ | _(Active, retired, hidden, draft, etc.)_ |
 
 Reviewer comments:
@@ -539,6 +594,7 @@ Select all that apply.
 - [ ] Translated or localized form
 - [ ] Stateful environment instance
 - [ ] Not explicitly stated
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
@@ -546,8 +602,9 @@ Describe task selection method:
 
 ### 2.17 Evidence Sources Used in Scoring
 
-Select all that apply.
+List only evidence the scoring procedure actually consumes to produce scores. 2.9 records everything the evaluation generates; a source belongs here only if it affects the score.
 
+- [ ] Not explicitly stated
 - [ ] Model final answer
 - [ ] Model intermediate trace
 - [ ] Tool-use trace
@@ -565,25 +622,26 @@ Select all that apply.
 - [ ] Ensemble or panel adjudication
 - [ ] External verifier
 - [ ] Leaderboard submission metadata
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 2.18 Broad-Claim Flags for Later Evaluation
 
-Complete this descriptive screen when the benchmark title, paper, website, or leaderboard uses terms such as intelligence, general intelligence, AGI, reasoning, agency, autonomy, broad capability, expert capability, or cross-domain competence. Record only interpretations made or clearly implied from benchmark scores; put evaluation and reviewer caution in Part B.
+Complete this descriptive screen when the benchmark title, paper, website, or leaderboard uses terms such as intelligence, general intelligence, AGI, agency, autonomy, broad capability, expert capability, or cross-domain competence. Record only interpretations made or clearly implied from benchmark scores; put evaluation and reviewer caution in Part B.
 
-| Prompt                                                         | Response                                                    |
-| :------------------------------------------------------------- | :---------------------------------------------------------- |
-| Term used for broad interpretation from benchmark scores       | _(Exact term used by authors, site, paper, or leaderboard)_ |
-| Breadth implied by the score interpretation across domains     | _(Domains, tasks, settings, or populations implied)_        |
-| Depth or proficiency level implied by the score interpretation | _(Expert, human-level, frontier, novice, etc.)_             |
-| Capability domains from 2.1 explicitly covered                 | _(Domains selected in 2.1 and explicitly covered)_          |
-| Capability domains from 2.1 explicitly excluded or not tested  | _(Domains excluded, untested, or caveated)_                 |
-| Coverage across modalities, tools, memory, planning, or speed  | _(Modalities, tools, memory, planning, speed, etc.)_        |
-| Whether aggregate scores preserve capability-domain caveats    | _(How reports preserve or collapse domain caveats)_         |
-| Stated AGI, autonomy, or agency caveats                        | _(Author caveats about AGI, autonomy, or agency)_           |
-| Documented broad-claim limits or non-use statements            | _(Non-use statements or interpretation boundaries)_         |
-| Documented caveats to carry forward into Part B                | _(Caveats to revisit in validity and reporting ratings)_    |
+| Prompt                                                         | Response                                                     |
+| :------------------------------------------------------------- | :----------------------------------------------------------- |
+| Term used for broad interpretation from benchmark scores       | _(Exact term used by authors, site, paper, or leaderboard)_  |
+| Breadth implied by the score interpretation across domains     | _(Domains, tasks, settings, or populations implied)_         |
+| Depth or proficiency level implied by the score interpretation | _(Expert, human-level, frontier, novice, etc.)_              |
+| Capability domains from 2.1 explicitly covered                 | _(Domains selected in 2.1 and explicitly covered)_           |
+| Capability domains from 2.1 explicitly excluded or not tested  | _(Domains excluded, untested, or caveated)_                  |
+| Coverage across modalities, tools, memory, planning, or speed  | _(e.g., text-only, no tool use, no persistent memory tested)_ |
+| Whether aggregate scores preserve capability-domain caveats    | _(How reports preserve or collapse domain caveats; see 3.2 for score definitions)_ |
+| Stated AGI, autonomy, or agency caveats                        | _(Quote the caveat, e.g. "not a test of AGI")_               |
+| Documented broad-claim limits or non-use statements            | _(Non-use statements or interpretation boundaries)_          |
+| Documented caveats to carry forward into Part B                | _(Caveats to revisit in validity and reporting ratings)_     |
 
 Reviewer comments:
 
@@ -595,35 +653,45 @@ Section 3 describes how model behavior becomes a score. EFPA separates scoring p
 
 ### 3.1 Scoring Procedure
 
-Select scoring methods only. Do not describe the scoring pipeline in this subsection.
+Select scoring methods only. Do not describe the scoring pipeline in this subsection (3.2 records the pipeline, including any parsing or extraction step; the runs policy is recorded in 2.8).
 
 - [ ] Not explicitly stated
+
+Answer matching:
+
 - [ ] Automated exact-match scoring
-- [ ] LLM equality-checker scoring
+- [ ] LLM equality-checker (a model decides only whether the answer matches the reference)
 - [ ] Automated semantic or embedding-based scoring
 - [ ] String-similarity or edit-distance scoring
-- [ ] Unit-test or execution-based scoring
-- [ ] Patch, verifier, or final-state scoring
 - [ ] Rule-based scoring
 - [ ] Coordinate or bounding-target scoring
 - [ ] Document structure, layout, or OCR scoring
+
+Execution or environment verification:
+
+- [ ] Unit-test or execution-based scoring
+- [ ] Patch, verifier, or final-state scoring
 - [ ] State-based environment reward
 - [ ] Simulator-verified task success
+
+Judge-based or human scoring:
+
+- [ ] LLM judge (a model rates open-ended output quality against a rubric)
 - [ ] Human rating
-- [ ] Scoring by another model that evaluates outputs
-- [ ] Output parser or extractor that turns model responses into scoreable values
-- [ ] Fuzzy, schema-aware, or admissible-variant parsing
-- [ ] Pairwise preference scoring
 - [ ] Hybrid automated and human scoring
-- [ ] Leaderboard service scoring
-- [ ] Multi-run or pass@k sampling policy
 - [ ] Manual adjudication
+
+Preference, ranking, or platform:
+
+- [ ] Pairwise preference scoring
+- [ ] Leaderboard service scoring
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 3.2 Scores and Metrics
 
-Describe the scoring pipeline, including how model responses, logs, judge decisions, reference answers, unit tests, or platform outputs become global and partial scores.
+Describe the scoring pipeline, including how model responses, logs, judge decisions, reference answers, unit tests, or platform outputs become global and partial scores. This table is the single home for score definitions.
 
 | Score or scoring rule/quantity | Definition                                    | How item, task-family, or subscore results are combined | Capability-domain linkage stated by authors | Interpretation stated by authors     |
 | :----------------------------- | :-------------------------------------------- | :------------------------------------------------------ | :------------------------------------------ | :----------------------------------- |
@@ -632,7 +700,9 @@ Describe the scoring pipeline, including how model responses, logs, judge decisi
 | Derived score                  | _(Formula, normalization, or transformation)_ | _(Inputs and combination rule)_                         | _(Linked domains or none stated)_           | _(Stated use of derived score)_      |
 | Qualitative band               | _(Band name and threshold rule)_              | _(How band is assigned)_                                | _(Linked domains or none stated)_           | _(Meaning of each band)_             |
 
-Treatment of responses that fail format, schema, refusal, completion, or parsing requirements, or are missing or refused:
+Output parsing or extraction step in the pipeline (parser, extractor, fuzzy or schema-aware matching), if any:
+
+Treatment of responses that are missing, refused, incomplete, or that fail format, schema, or parsing requirements:
 
 Treatment of eligibility failures, API or tool blocks, timeouts, tool-call failures, environment crashes, malformed final states, duplicate submissions, and other run failures:
 
@@ -644,6 +714,7 @@ Reviewer comments:
 
 Select all that apply.
 
+- [ ] Not explicitly stated
 - [ ] Raw score
 - [ ] Accuracy
 - [ ] Success rate
@@ -666,12 +737,13 @@ Select all that apply.
 - [ ] Calibration or uncertainty score
 - [ ] Percentile or normalized score
 - [ ] Threshold or decision index
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 3.4 Score Transformation
 
-Select all that apply.
+A transformation changes the scale of raw results (e.g., normalization to a reference point is linear; Elo updating or logistic scaling is non-linear). Select all that apply.
 
 - [ ] No transformation
 - [ ] Linear transformation
@@ -679,34 +751,19 @@ Select all that apply.
 - [ ] Normalization against a reference point used to interpret scores
 - [ ] Weighting across subdomains
 - [ ] Weighting across capability domains
-- [ ] Formula for combining item, task-family, or subscore results documented
-- [ ] Formula for combining item, task-family, or subscore results partially documented
-- [ ] Formula for combining item, task-family, or subscore results not documented
 - [ ] Domain aggregation caveats documented
 - [ ] Not applicable
+- [ ] Other (describe in Reviewer comments)
+
+Combining-formula documentation status (documented / partially documented / not documented):
 
 Reviewer comments:
 
 ### 3.5 Documented Reference Groups, Baselines, and Comparators
 
-Select all that apply.
+Record each documented reference point or comparison group in the table; leave rows empty and note "n/a" where a type does not exist. This field records the material Section 8 evaluates.
 
 - [ ] No reference point or documented comparison group used to interpret scores
-- [ ] Expected performance from random guessing or trivial selection
-- [ ] Performance from human participants under documented conditions
-- [ ] Performance from qualified domain experts
-- [ ] Contest human population under source-instrument conditions
-- [ ] Professional annotator or expert validator
-- [ ] Performance from a reference model used to interpret scores
-- [ ] Previous model cohort
-- [ ] Commercial system used as a documented comparison point
-- [ ] Open-weight model used as a documented comparison point
-- [ ] Domain-specific reference group
-- [ ] Public/private split comparator
-- [ ] Suite component comparator
-- [ ] Tool-enabled versus no-tool comparator
-
-Reviewer comments:
 
 | Reference point or documented comparison group                    | Construction method                                   | Intended score interpretation                |
 | :---------------------------------------------------------------- | :---------------------------------------------------- | :------------------------------------------- |
@@ -715,6 +772,8 @@ Reviewer comments:
 | Qualified domain-expert performance                               | _(Expert criteria, task conditions, and scoring)_     | _(Expert comparison meaning)_                |
 | Contest human population or source-instrument reference           | _(Source contest, population, date, and conditions)_  | _(How source performance frames scores)_     |
 | Documented group of models used for comparison                    | _(Model cohort, versions, dates, and run conditions)_ | _(Relative model comparison meaning)_        |
+| Commercial or open-weight comparison system                       | _(System, version, and run conditions)_               | _(What the comparison is meant to show)_     |
+| Domain-specific reference group                                   | _(Group definition and conditions)_                   | _(Meaning of the domain comparison)_         |
 | Public/private split, suite-component, or tool/no-tool comparator | _(Split, component, or condition contrast)_           | _(What the contrast is meant to show)_       |
 | Prior benchmark or version                                        | _(Version relationship and changed conditions)_       | _(Comparability with earlier results)_       |
 | Score boundary or lower/upper reference point                     | _(Threshold source and rule)_                         | _(Boundary meaning for interpretation)_      |
@@ -723,7 +782,7 @@ Reviewer comments:
 
 ### 3.6 Score Uncertainty and Stability
 
-This remains descriptive in Part A. Record whether uncertainty or similar scores across repeated evaluations under documented conditions are reported.
+This remains descriptive in Part A. Record whether the documentation reports uncertainty estimates for scores (intervals, standard errors) or evidence of score stability across repeated evaluations, seeds, judges, or prompt variations.
 
 - [ ] Reported ranges expressing uncertainty around a score or comparison
 - [ ] Standard errors
@@ -739,25 +798,24 @@ This remains descriptive in Part A. Record whether uncertainty or similar scores
 - [ ] Score changes caused by prompt wording, small input changes, ordering, phrasing, format, or response schema
 - [ ] IRT, adaptive testing, or item-parameter precision estimates
 - [ ] Not reported
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 3.7 Documented Metric Rationale and Stated Score Interpretation
 
-This remains descriptive in Part A. Record the documented link between scoring-rule behavior and interpretations made from benchmark scores.
+This remains descriptive in Part A. Record the documented link between scoring-rule behavior and interpretations made from benchmark scores. Score definitions and their stated domain linkage are recorded once, in 3.2.
 
 | Prompt                                                                                  | Response                                                        |
 | :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------- |
 | Why the primary rule or quantity used to convert model behavior into a score was chosen | _(Author rationale for metric or scoring rule)_                 |
 | Whether lower or upper limits of the score rule are documented                          | _(Score range, floor/ceiling, and boundary meanings)_           |
-| Whether documentation identifies possible non-target rewarded behavior                  | _(Shortcuts, formatting, memorization, leakage, etc.)_          |
+| Whether documentation identifies possible score effects from outside the target capability | _(Shortcuts, formatting, memorization, leakage, etc.)_       |
 | Whether parser, judge, or scorer validation is documented                               | _(Validation evidence or not documented)_                       |
 | Whether response-format burden is separated from the target capability                  | _(Whether format errors are distinguished from target ability)_ |
 | Whether score changes from small item or prompt changes affect the score interpretation | _(Documented sensitivity or not documented)_                    |
 | Whether score uncertainty affects interpretation                                        | _(How intervals or variance affect claims)_                     |
 | Whether score differences are interpreted statistically                                 | _(Tests, intervals, or practical thresholds used)_              |
-| Whether score or subscore interpretations are linked to capability domains from 2.1     | _(Stated mapping to 2.1 domains)_                               |
-| Whether aggregate score interpretations preserve capability-domain caveats              | _(How caveats are retained in aggregates)_                      |
 | Whether benchmark reports state what users should not infer                             | _(Non-use statements or prohibited interpretations)_            |
 
 Reviewer comments:
@@ -766,7 +824,7 @@ Reviewer comments:
 
 ## Section 4. Benchmark Outputs and Reports
 
-Section 4 adapts EFPA's digitally generated reports to AI benchmark outputs: papers, leaderboards, dashboards, result files, scorecards, APIs, raw traces, and public interpretations made from benchmark scores. Record what reports exist and how they present scores; evaluate report quality in Part B.
+Section 4 adapts EFPA's digitally generated reports to AI benchmark outputs: papers, leaderboards, dashboards, result files, scorecards, APIs, raw traces, and public interpretations made from benchmark scores. Record what reports exist and how they present scores; evaluate report quality in Part B. Intended recipients of outputs are recorded in 2.4.
 
 ### 4.1 Output Availability
 
@@ -774,8 +832,8 @@ Section 4 adapts EFPA's digitally generated reports to AI benchmark outputs: pap
 - [ ] Public aggregate scores available
 - [ ] Public capability-domain scores or profiles available
 - [ ] Public per-item scores available
-- [ ] Public model responses, traces, logs, judge rationales, or per-item data available
-- [ ] Public traces or logs available
+- [ ] Public model responses, judge rationales, or per-item data available
+- [ ] Public execution traces or logs available
 - [ ] Leaderboard snapshot or export available
 - [ ] Submission metadata available
 - [ ] Evaluation date or cohort labels available
@@ -785,13 +843,18 @@ Section 4 adapts EFPA's digitally generated reports to AI benchmark outputs: pap
 - [ ] Retired-item or post-evaluation releases available
 - [ ] Private reports available only to submitters
 - [ ] No formal report or leaderboard documented
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 4.2 Output Name or Description
 
+If more than one output exists, complete 4.2-4.9 for each output, or state in this table which single output the following answers describe.
+
 | Output                                              | Description                                    | Public/private                    | Maintainer, platform host, third-party evaluator, or leaderboard operator |
 | :-------------------------------------------------- | :--------------------------------------------- | :-------------------------------- | :------------------------------------------------------------------------ |
+| _(Report, leaderboard, dashboard, file, API, etc.)_ | _(Scores, traces, claims, or fields included)_ | _(Access level and restrictions)_ | _(Responsible operator or host)_                                          |
+| _(Report, leaderboard, dashboard, file, API, etc.)_ | _(Scores, traces, claims, or fields included)_ | _(Access level and restrictions)_ | _(Responsible operator or host)_                                          |
 | _(Report, leaderboard, dashboard, file, API, etc.)_ | _(Scores, traces, claims, or fields included)_ | _(Access level and restrictions)_ | _(Responsible operator or host)_                                          |
 
 Reviewer comments:
@@ -808,6 +871,7 @@ Select all that apply.
 - [ ] Downloadable CSV or JSON
 - [ ] API output
 - [ ] Paper-only results
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
@@ -815,21 +879,15 @@ Reviewer comments:
 
 Select all that apply.
 
-- [ ] Aggregate-score based
-- [ ] Capability-domain based
-- [ ] Capability-domain profile based
-- [ ] Task-family based
-- [ ] Criterion-threshold based
-- [ ] Pairwise-comparison based
-- [ ] Rank based
-- [ ] Cost or efficiency adjusted
-- [ ] Error-analysis based
-- [ ] Trace or process based
-- [ ] Suite-aggregate based
-- [ ] Split or cohort based
-- [ ] Version-window based
-- [ ] Environment-episode based
-- [ ] Difficulty-band based
+- [ ] Aggregate score (one headline score or ranking across all tasks)
+- [ ] Capability-domain profile (scores broken out per domain, with or without a total)
+- [ ] Task-family based (scores reported per task family or split)
+- [ ] Criterion-threshold based (results reported against pass/fail points or bands)
+- [ ] Pairwise or rank based (results as head-to-head comparisons or rank order)
+- [ ] Cost or efficiency adjusted (scores conditioned on cost, latency, or compute)
+- [ ] Trace or process based (results organized around execution traces or episodes)
+- [ ] Version- or cohort-windowed (results reported per version, date, or cohort window)
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
@@ -851,11 +909,12 @@ Reviewer comments:
 Select all that apply.
 
 - [ ] Based on benchmark authors' design
-- [ ] Based on empirical or actuarial relationships
+- [ ] Based on documented statistical relationships with outcomes
 - [ ] Based on expert judgment
 - [ ] Based on human annotation
 - [ ] Based on outputs scored by another model
 - [ ] Automatically generated by benchmark platform
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
@@ -877,10 +936,9 @@ Reviewer comments:
 Select one.
 
 - [ ] Clear linkage between benchmark tasks, scores, reported score interpretations, and capability-domain labels
-- [ ] Partial linkage between benchmark tasks, scores, reported score interpretations, and capability-domain labels
-- [ ] Linkage is not obvious from available documentation
-- [ ] Mixture of clear and concealed linkage
-- [ ] Not documented
+- [ ] Mixed linkage (some scores clearly linked, others not)
+- [ ] No discernible linkage (black box)
+- [ ] No documentation to judge from
 
 Reviewer comments:
 
@@ -900,23 +958,13 @@ Select all that apply.
 - [ ] Process traces
 - [ ] Recommendations or interpretation notes
 - [ ] Warnings or caveats
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
-### 4.10 Intended Recipients
+### 4.10 Intended Recipients (retired)
 
-Select all that apply.
-
-- [ ] Benchmark maintainers
-- [ ] Model developers
-- [ ] AI researchers
-- [ ] Safety evaluators
-- [ ] Policy or governance actors
-- [ ] Product or deployment teams
-- [ ] Procurement teams
-- [ ] Public audience
-
-Reviewer comments:
+Merged into §2.4 in v2; recipient classes and their interpretive competence are recorded there.
 
 ---
 
@@ -926,7 +974,7 @@ Section 5 records how benchmark materials are distributed, accessed, reproduced,
 
 MESA uses Reuel et al.'s _BetterBench_ [3] as a working benchmark-quality framework for treating AI benchmarks as maintained evaluation systems, not only as papers, datasets, or score tables. BetterBench organizes benchmark quality around design, implementation, documentation, maintenance, and usability criteria; MESA uses this framing to inform the fields on access routes, public and hidden materials, contamination controls, reproducibility resources, licenses, release requirements, maintenance, versioning, feedback channels, and archival or retirement policies.
 
-### 5.1 Distribution and Access Model
+### 5.1 Supporting Documentation Provided to Users
 
 Select all that apply.
 
@@ -941,6 +989,7 @@ Select all that apply.
 - [ ] Evaluation examples
 - [ ] FAQ or discussion forum
 - [ ] Changelog or release notes
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
@@ -978,12 +1027,13 @@ Select all that apply.
 - [ ] Controlled-access data host
 - [ ] Downloadable documents
 - [ ] Private distribution
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 5.4 User Requirements or Qualifications
 
-Describe any requirements specified for running, submitting to, interpreting, or maintaining the benchmark.
+Describe any requirements specified for running, submitting to, interpreting, or maintaining the benchmark. Write "none (stated)" where documentation explicitly says no requirement exists, and "not documented" where it is silent. Do not leave cells blank.
 
 | Requirement type                             | Requirement                                                       |
 | :------------------------------------------- | :---------------------------------------------------------------- |
@@ -1023,6 +1073,8 @@ Reviewer comments:
 
 ### 5.6 Provenance and Contamination Documentation
 
+5.6 records item *integrity* (origin, exposure, leaks); 5.8 records *operations* (who maintains what, versioning, comparability).
+
 | Topic                                                                        | Documented | Partially documented | Not documented |
 | :--------------------------------------------------------------------------- | :--------: | :------------------: | :------------: |
 | Data origin or task creation                                                 |    [ ]     |         [ ]          |      [ ]       |
@@ -1036,7 +1088,6 @@ Reviewer comments:
 | Canary strings or training-data warnings                                     |    [ ]     |         [ ]          |      [ ]       |
 | Diagnostic task for performance driven by prior exposure to items or answers |    [ ]     |         [ ]          |      [ ]       |
 | Pre-exposure or source-material searchability checks                         |    [ ]     |         [ ]          |      [ ]       |
-| Public-source searchability                                                  |    [ ]     |         [ ]          |      [ ]       |
 | Post-release contamination risk                                              |    [ ]     |         [ ]          |      [ ]       |
 | Training-use prohibition                                                     |    [ ]     |         [ ]          |      [ ]       |
 | Private-set owner                                                            |    [ ]     |         [ ]          |      [ ]       |
@@ -1044,7 +1095,6 @@ Reviewer comments:
 | Rerun or replacement trigger                                                 |    [ ]     |         [ ]          |      [ ]       |
 | Hash commitments, signatures, or tamper-evident audit logs                   |    [ ]     |         [ ]          |      [ ]       |
 | Encrypted, secret, or controlled-release item reserve                        |    [ ]     |         [ ]          |      [ ]       |
-| Rules for updating, rotating, replacing, or adding benchmark items over time |    [ ]     |         [ ]          |      [ ]       |
 | Reporting of known unintended disclosures or deprecated/archived items       |    [ ]     |         [ ]          |      [ ]       |
 
 Reviewer comments:
@@ -1058,8 +1108,7 @@ Select all that apply.
 - [ ] Code or platform that administers tasks, collects outputs, and often runs scoring
 - [ ] Scoring code
 - [ ] Environment file or dependency list
-- [ ] Container or reproducible environment
-- [ ] Container image
+- [ ] Container or pinned reproducible environment
 - [ ] Task environment registry
 - [ ] Simulator or user simulator version
 - [ ] Evaluation adapter
@@ -1067,56 +1116,43 @@ Select all that apply.
 - [ ] Version pinning
 - [ ] Random seeds or deterministic settings
 - [ ] Model responses, traces, logs, judge rationales, or per-item data
-- [ ] Reproduction script for published results
-- [ ] Push-button replication script or single documented command
-- [ ] Expected-output fixtures or smoke-test example
-- [ ] Scorer fixtures
+- [ ] Replication script for published results (ideally single-command)
+- [ ] Expected-output or scorer fixtures
 - [ ] Known-good baseline run
-- [ ] Task-level expected outputs
-- [ ] Continuous integration or test suite
-- [ ] Public build status or equivalent passing-test signal
+- [ ] CI or public passing-test signal
+- [ ] None documented
+- [ ] Other (describe in Reviewer comments)
 
 Reviewer comments:
 
 ### 5.8 Maintenance and Versioning
 
-| Topic                                                                                               | Response                                                    |
-| :-------------------------------------------------------------------------------------------------- | :---------------------------------------------------------- |
-| Maintainer identity                                                                                 | _(Named active person, organization, or team)_              |
-| Private or held-out set owner                                                                       | _(Who controls hidden or reserve materials)_                |
-| Leaderboard operator                                                                                | _(Platform or organization operating submissions/results)_  |
-| Submission eligibility rules                                                                        | _(Who may submit and under what limits)_                    |
-| Rerun policy                                                                                        | _(When and how systems can be reevaluated)_                 |
-| Stale-score policy                                                                                  | _(How old scores are labeled, retired, or refreshed)_       |
-| Model-version update policy                                                                         | _(Rules for new model versions or aliases)_                 |
-| Scorer, judge, parser, or harness versioning                                                        | _(Version labels for scorer, judge, parser, or harness)_    |
-| Cohort or evaluation-window labels                                                                  | _(Dates, cohorts, rounds, or rolling windows)_              |
-| Public/private score aggregation policy                                                             | _(How public and private scores are combined)_              |
-| Retirement and archival policy                                                                      | _(How versions, items, or results are retired)_             |
-| Documented release names, tags, changes, and score-comparability implications                       | _(Tags, releases, changes, and comparability notes)_        |
-| Changelog or update record                                                                          | _(Location and coverage of update record)_                  |
-| Issue or feedback process                                                                           | _(Issue tracker, contact, discussion, or appeal route)_     |
-| Item correction process                                                                             | _(How item errors are reported and fixed)_                  |
-| Deprecated item handling                                                                            | _(Removal, replacement, rescoring, or annotation rules)_    |
-| Rules for updating, rotating, replacing, or adding hidden evaluation items over time                | _(Refresh, rotation, replacement, or addition rules)_       |
-| Last code-usability or harness health check                                                         | _(Date or signal of recent code usability check)_           |
-| Build, CI, or smoke-test status                                                                     | _(CI, tests, smoke run, or status badge)_                   |
-| Score-ceiling threshold or criteria for deprecating, archiving, or ending use                       | _(Ceiling or saturation trigger for deprecation)_           |
-| Policy for deprecating, archiving, or ending use of items, versions, leaderboards, or the benchmark | _(End-of-life policy for benchmark surfaces)_               |
-| Retired-item publication or audit policy                                                            | _(Whether retired items are released or audited)_           |
-| Score comparability across versions                                                                 | _(Comparable, bridged, broken, or undocumented)_            |
-| Policy for comparing scores across dates, cohorts, refreshes, or rolling windows                    | _(Rules for date, cohort, refresh, or rolling comparisons)_ |
-| Long-term archival plan                                                                             | _(Repository, DOI, archive, mirror, or preservation plan)_  |
+5.8 records *operations* (who maintains what, versioning, comparability); 5.6 records item *integrity* (origin, exposure, leaks).
+
+| Topic                                                                                | Response                                                    |
+| :----------------------------------------------------------------------------------- | :---------------------------------------------------------- |
+| Maintainer identity                                                                  | _(Named active person, organization, or team)_              |
+| Private or held-out set owner                                                        | _(Who controls hidden or reserve materials)_                |
+| Leaderboard operator                                                                 | _(Platform or organization operating submissions/results)_  |
+| Submission eligibility rules                                                         | _(Who may submit and under what limits)_                    |
+| Rerun policy                                                                         | _(When and how systems can be reevaluated)_                 |
+| Stale-score policy                                                                   | _(How old scores are labeled, retired, or refreshed)_       |
+| Model-version update policy                                                          | _(Rules for new model versions or aliases)_                 |
+| Scorer, judge, parser, or harness versioning                                         | _(Version labels for scorer, judge, parser, or harness)_    |
+| Cohort or evaluation-window labels                                                   | _(Dates, cohorts, rounds, or rolling windows)_              |
+| Public/private score aggregation policy                                              | _(How public and private scores are combined)_              |
+| Release tags, changelog, and comparability notes                                     | _(Tags, releases, changes, and comparability notes)_        |
+| Issue or feedback process                                                            | _(Issue tracker, contact, discussion, or appeal route)_     |
+| Item correction process                                                              | _(How item errors are reported and fixed)_                  |
+| Deprecated item handling                                                             | _(Removal, replacement, rescoring, or annotation rules)_    |
+| Rules for updating, rotating, replacing, or adding items over time (public or hidden) | _(Refresh, rotation, replacement, or addition rules)_       |
+| Last code-usability or harness health check                                          | _(Date or signal of recent code usability check)_           |
+| Build, CI, or smoke-test status                                                      | _(CI, tests, smoke run, or status badge)_                   |
+| Deprecation, archival, and retired-item policy (including score-ceiling triggers and retired-item release) | _(End-of-life rules, saturation triggers, retired-item release or audit)_ |
+| Score comparability across versions, cohorts, and refreshes                          | _(Comparable, bridged, broken, or undocumented; rules for date, cohort, refresh, or rolling comparisons)_ |
+| Long-term archival plan                                                              | _(Repository, DOI, archive, mirror, or preservation plan)_  |
 
 Reviewer comments:
-
----
-
-## Appendix A. General Description of the Benchmark
-
-Write a concise descriptive summary of the benchmark for readers who have not inspected the materials. Keep this descriptive and defer evaluation to Part B.
-
-Free Text:
 
 ---
 
@@ -1131,16 +1167,22 @@ Information sources that might inform Part B include:
 - Official benchmark papers, technical reports, model cards, dataset cards, websites, documentation hubs, repositories, leaderboards, scorecards, dashboards, and changelogs supplied or maintained by benchmark creators.
 - Public benchmark materials such as task files, prompts, rubrics, reference answers, scorer code, harness code, examples, raw outputs, submission rules, issue trackers, release notes, and archived versions.
 - Open information in academic literature, benchmark-quality literature, audit reports, replication studies, analyses of prior model exposure to benchmark items or answers, validation studies, and independent technical commentary. Use these sources to contextualize or challenge score interpretations, not to replace official facts.
-- Maintainer-provided or access-controlled information that is not normally supplied to users. If such material affects a rating, state clearly in the Reviewer notes that the rating depends on non-public material inspected by the reviewer.
-- Confidential or restricted technical information, such as hidden test splits, item provenance, audits for prior exposure to benchmark items or answers, scorer validation reports, calibration data for scoring by another model, or security details. If reviewed under access restrictions, describe only the rating implication and the access status, without disclosing restricted content.
+- Maintainer-provided or access-controlled information that is not normally supplied to users. If such material affects a rating, state clearly in the Reviewer notes that the rating depends on non-public material inspected by the reviewer. Where valuable non-public reports exist, the review should recommend that maintainers publish them.
+- Confidential or restricted technical information, such as hidden test splits, item provenance, audits for prior exposure to benchmark items or answers, scorer validation reports, tuning data for model-based scorers, or security details. Where another model scores responses, tuning and validation data for that scorer should be actively sought. If reviewed under access restrictions, describe only the rating implication and the access status, without disclosing restricted content.
 
 ## Explanation of Ratings
 
-All rating items use the EFPA-style scale below unless a section states otherwise. Detailed "Excellent" anchors identify what a rating of `4` would require for that item. Lower ratings should be assigned by reviewer judgment, considering the benchmark's intended use, scope of score interpretation, decision stakes, technical complexity, evidence quality, and consequences of misinterpretation.
+All rating items use the EFPA-style scale below unless a section states otherwise. Detailed "Excellent" anchors identify what a rating of `4` would require for that item. To assign `1`-`3`, apply the Rating Scale meanings to the item's Excellent anchor: `2` means the anchor's core function is met with stated limitations; `1` means the function is not met for the stated purpose; `3` means it is met with only minor gaps. Lower ratings remain reviewer judgments, considering the benchmark's intended use, scope of score interpretation, decision stakes, technical complexity, evidence quality, and consequences of misinterpretation.
 
-Where a `0` or `1` rating is assigned to an attribute that is critical for the benchmark's stated purpose, the review should caution that the benchmark is suitable only for limited exploratory, research, or expert-qualified use unless stronger evidence is supplied. Critical attributes will vary by benchmark: for example, controls for prior model exposure to benchmark items or answers may be critical for public knowledge benchmarks, scorer consistency may be critical for open-ended generation benchmarks, and reference points used to interpret scores may be critical for leaderboards used in procurement or policy.
+Mark an item `n/a` when the attribute does not exist for this benchmark — there is no judge to validate, no subscores whose structure could be examined, no alternate forms to equate. Mark it `0` when the attribute exists but the documentation provides no usable information about it. The distinction matters: `n/a` records that the question does not arise, `0` records that it arises and is unanswered. Where a whole sub-section does not apply, mark its items `n/a` and say so in that section's Reviewer comments.
+
+Where a `0` or `1` rating is assigned to an attribute that is critical for the benchmark's stated purpose, the review should caution that the benchmark is suitable only for limited exploratory, research, or expert-qualified use unless stronger evidence is supplied. A benchmark with one or more `0`/`1` ratings on attributes critical to its stated use falls below the minimum standard for that use; the Final Evaluation must say so explicitly. Mark critical-attribute ratings in **bold** in the completed review. Critical attributes will vary by benchmark: for example, controls for prior model exposure to benchmark items or answers may be critical for public knowledge benchmarks, scorer consistency may be critical for open-ended generation benchmarks, and reference points used to interpret scores may be critical for leaderboards used in procurement or policy.
 
 Overall ratings must be based on reviewer judgment rather than mechanical averaging. A single severe gap may dominate the overall rating when it undermines the intended score meaning; conversely, a narrow gap may be less consequential when the benchmark's score interpretation is modest and clearly bounded.
+
+Each Part B section is an evaluative artifact. Its overall rating is the value of the corresponding profile metric: Section 6 **Documentation**, Section 7 **Usability**, Section 8 **Interpretation**, Section 9 **Reliability**, Section 10 **Validity**, Section 11 **Fairness**, and Section 12 **Reporting**. The underlying item ratings provide evidence for that artifact value; they are not independently averaged submetrics. Report the seven values together as the MESA Benchmark Artifact Profile and never average, weight, rank, or collapse them into a composite score.
+
+The claims pipeline runs through Part B in four stages: 2.18 *collects* the benchmark's broad claims; 10.6 rates whether the *evidence is proportional* to them; 11.5 rates the benchmark's *own use guidance*; and 12.3-12.4 rate *how claims are communicated*. Rate each stage on its own question.
 
 ### Rating Scale
 
@@ -1159,17 +1201,15 @@ It is difficult to set universal thresholds for benchmark quality. The adequacy 
 
 For descriptive gaps, first ask what evidence would be needed to support the benchmark's actual score interpretation. A missing human reference point, for example, may be serious for a benchmark claiming expert-level performance but less central for a narrow regression test. A missing audit for prior model exposure may be serious for public web-derived knowledge tasks but less central for a private live-environment evaluation with documented release controls.
 
-For broad interpretations made from benchmark scores about intelligence, AGI, reasoning, agency, autonomy, or cross-domain competence, require stronger breadth and validity evidence than for narrow capability interpretations.
-
-Ratings should be based on the information available, with comments explaining consequential evidence, limitations, and rating rationale where needed.
+For broad interpretations made from benchmark scores about intelligence, AGI, agency, autonomy, or cross-domain competence, require stronger breadth and validity evidence than for narrow capability interpretations.
 
 ## Section 6. Rationale, Development, Documentation, and Task/Item Quality
 
-EFPA Section 6 asks whether the test explains its rationale, development, documentation, and item quality. MESA asks whether the benchmark defines the real capability or behavior of interest, explains why its tasks and scoring rules operationalize that phenomenon, documents task development, supports item quality, and gives users enough procedural information for cautious qualified use.
+**Artifact profile metric: Documentation.** This section asks whether the benchmark defines the real capability or behavior of interest, explains why its tasks and scoring rules operationalize that phenomenon, documents task development, supports item quality, and gives users enough procedural information for cautious qualified use.
 
 BetterBench is used in this section to sharpen MESA's review of benchmark documentation and procedural quality [3]. It motivates attention to documented purpose and scope, construction decisions, implementation instructions, statistical uncertainty, licenses and release requirements, support channels, and evidence that code, data, and evaluation procedures remain maintained enough for qualified users to interpret results responsibly.
 
-This section should be revisited after completing Sections 8-12, because later evidence about reference points, reliability, validity, responsible use, and reporting may reveal strengths or weaknesses in the original rationale and documentation. A benchmark can have useful tasks but still receive a low rating here if users cannot determine what the tasks are meant to support, how they were selected, or what interpretations should be avoided.
+Later sections may bear on these ratings; a revisit checkpoint appears in the Final Evaluation. A benchmark can have useful tasks but still receive a low rating here if users cannot determine what the tasks are meant to support, how they were selected, or what interpretations should be avoided.
 
 When rating this section, distinguish the quality of the benchmark's design argument from the benchmark's observed performance results. High model scores, leaderboard popularity, or broad adoption do not by themselves establish a clear definition of the capability or quality being measured, defensible task-development process, or adequate documentation. Conversely, a benchmark with modest scope can rate well if its score interpretation is precise, its materials are traceable, and its limitations are explicit.
 
@@ -1186,7 +1226,7 @@ Section-level rating guidance:
 ### 6.1 Rationale and Development
 
 - This sub-section concerns the benchmark's rationale, definition of the capability or quality being measured, task or item development, and evidence that the benchmark content was built to support the intended score meaning.
-- Consider whether reviewers can trace the benchmark from the claimed capability to task design, item sources, scoring decisions, score combination, and intended use. For broad score interpretations, check whether the rationale covers the relevant capability domains selected in 2.1 or mapped in 2.5 rather than relying on a benchmark title or leaderboard framing.
+- Consider whether reviewers can trace the benchmark from the claimed capability to task design, item sources, scoring decisions, score combination, and intended use. For broad score interpretations, check whether the rationale covers the relevant capability domains selected in 2.1 rather than relying on a benchmark title or leaderboard framing.
 - Items to be rated `n/a` or `0`-`4`.
 
 #### 6.1.1 Rationale and construct definition
@@ -1205,7 +1245,8 @@ Section-level rating guidance:
 
 #### 6.1.3 Phenomenon-task-metric-claim chain
 
-- Excellent: The documentation explicitly links the real capability or behavior being measured to task design, response requirements, the rule or quantity used to convert behavior into a score, any claimed capability-domain mapping, the method for combining scores, and the intended score meaning, with plausible confounds, non-target tactics, formatting effects, parser effects, prior exposure to items or answers, sensitivity to small item changes, and benchmark-specific tuning considered.
+- Excellent: The documentation explicitly links the real capability or behavior being measured to task design, response requirements, the rule or quantity used to convert behavior into a score, any claimed capability-domain mapping, the method for combining scores, and the intended score meaning.
+- Consider also whether plausible confounds are addressed: non-target tactics, formatting and parser effects, prior exposure to items or answers, sensitivity to small item changes, and benchmark-specific tuning. Absence of this supporting analysis alone does not preclude a `3`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1234,20 +1275,21 @@ Section-level rating guidance:
 #### 6.1.7 Quantitative evidence of task or item quality
 
 - Excellent: Quantitative item or task evidence is reported where appropriate, such as difficulty, discrimination, ceiling and floor effects, domain coverage, inter-item redundancy, scorer behavior, model cohort performance, human or expert performance, or other benchmark-relevant indicators.
+- Assign `n/a` only when the benchmark is not item-based (e.g., a single continuous environment). For item-based benchmarks, absent quantitative evidence is `0`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 6.1.8 Adaptation, translation, source reuse, derived entity, or benchmark slice
 
-- Excellent: Any adaptation, translation, source-instrument reuse, domain transfer, dataset reuse, synthetic data generation, benchmark refresh, derived entity, hosted implementation, or benchmark slice follows a documented process with expert review, source-limit analysis, equivalence checks, cultural or domain considerations where relevant, and clear limits on comparability with parent benchmarks or prior versions.
+- Excellent: Any adaptation, translation, source-instrument reuse, domain transfer, dataset reuse, synthetic data generation, benchmark refresh, derived entity, hosted implementation, or benchmark slice follows a documented process with expert review, source-limit analysis, equivalence checks, cultural or domain considerations where relevant, documentation of the process, and clear limits on comparability with parent benchmarks or prior versions.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 6.1.9 Overall Rationale, development, and task or item quality
 
-- Excellent: Reviewer judgment, based on items 6.1.1-6.1.8, supports the conclusion that the benchmark rationale, definition of what is being measured, development process, and task or item quality are comprehensive and fit for the intended score meaning. Do not mechanically average ratings.
+- Excellent: Reviewer judgment, based on items 6.1.1-6.1.8, supports the conclusion that the benchmark rationale, definition of what is being measured, development process, and task or item quality are comprehensive and fit for the intended score meaning.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1256,7 +1298,7 @@ Section-level rating guidance:
 
 - This sub-section covers the comprehensiveness, clarity, currency, and ability to connect reported scores to source materials, run conditions, outputs, scoring code, and versions in documentation available to benchmark users, reviewers, and maintainers.
 - Documentation should be evaluated as a user-facing support for responsible benchmark use. Private evidence may inform a rating if inspected, but lack of public access should be described because it affects independent auditability and ordinary user interpretation.
-- For slices, variants, hosted leaderboards, private forms, rolling cohorts, and evaluator-specific implementations, documentation quality includes clarity about the reviewed entity's relationship to any parent or source benchmark and whether standalone documentation exists.
+- For any reviewed entity listed in the front matter other than the original benchmark, documentation quality includes clarity about the reviewed entity's relationship to any parent or source benchmark and whether standalone documentation exists.
 - Items to be rated `n/a` or `0`-`4`.
 
 #### 6.2.1 Documentation of benchmark purpose and intended use
@@ -1297,20 +1339,22 @@ Section-level rating guidance:
 #### 6.2.6 Documentation of fair use and comparability
 
 - Excellent: Documentation describes fairness, accessibility, language or domain coverage, cross-system comparability, evaluation-condition comparability, and any restrictions needed to interpret results responsibly.
+- This item rates whether fair-use documentation exists and is usable; 11.1.2 rates whether the documented consideration was substantively adequate.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 6.2.7 Documentation of maintenance and versioning
 
-- Excellent: Documentation provides version history, changelog, release rules, refresh policy, deprecation or retirement policy, saturation or archival criteria where relevant, data or task updates, leaderboard operator identity, private split ownership, scorer or judge changes, stale-score policy, leaderboard update practices, and clear guidance on comparability across versions or temporal cohorts.
+- Excellent: Documentation provides version history, release and refresh policy, and clear guidance on comparability across versions or temporal cohorts.
+- Supporting detail (deprecation, retirement, saturation, or archival criteria; leaderboard operator identity; private-split ownership; scorer or judge change logs; stale-score policy; leaderboard update practices) strengthens the rating but its absence alone does not preclude a `3`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 6.2.8 Adequacy of documentation available to users
 
-- Excellent: Reviewer judgment, based on items 6.2.1-6.2.7, supports the conclusion that documentation is comprehensive, current, traceable, and sufficient for qualified users to run, inspect, score, and interpret the benchmark responsibly. Do not mechanically average ratings.
+- Excellent: Reviewer judgment, based on items 6.2.1-6.2.7, supports the conclusion that documentation is comprehensive, current, traceable, and sufficient for qualified users to run, inspect, score, and interpret the benchmark responsibly.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1318,19 +1362,20 @@ Section-level rating guidance:
 ### 6.3 Quality of Procedural Instructions
 
 - This sub-section covers instructions for administering, running, scoring, interpreting, and maintaining the benchmark.
-- Procedural quality includes reproducibility and error handling, not only whether a benchmark can be run by its creators. Instructions should make prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules explicit enough that qualified users can reproduce or audit scores and understand when runs are no longer comparable.
+- Procedural quality includes reproducibility and error handling, not only whether a benchmark can be run by its creators. Instructions should make run conditions explicit enough that qualified users can reproduce or audit scores and understand when runs are no longer comparable.
 - Items to be rated `n/a` or `0`-`4`.
 
 #### 6.3.1 Evaluation setup and administration
 
-- Excellent: Step-by-step setup and administration instructions are complete, reproducible, and include required environment, dependencies, credentials, compute assumptions, seeds, sampling settings, tool permissions, hosted submission procedures, controlled private evaluation routes, registry task execution, environment setup, smoke-test or replication commands where relevant, and handling of expected failures.
+- Excellent: Setup and administration instructions are complete and reproducible: environment and dependencies, credentials and access route, compute assumptions, sampling settings and seeds, and handling of expected failures.
+- Supporting detail (hosted submission procedures, controlled private evaluation routes, registry task execution, smoke-test or replication commands) strengthens the rating but its absence alone does not preclude a `3`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 6.3.2 Scoring procedure and error handling
 
-- Excellent: Scoring instructions are clear and include checks for parser failures, malformed outputs, format retries or repairs, judge failures, missing responses, duplicate submissions, manual overrides, and audit trails for any corrections.
+- Excellent: Scoring instructions are clear and include checks for parser failures, malformed outputs, format retries or repairs, judge failures, missing responses, duplicate submissions, automated score-transformation or normalization checks, manual overrides, and audit trails for any corrections.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1344,7 +1389,7 @@ Section-level rating guidance:
 
 #### 6.3.4 Restrictions, prerequisites, and appropriate use
 
-- Excellent: The benchmark clearly states system prerequisites, access requirements, tool-use assumptions, modality requirements, unsupported system classes, prohibited uses, and the consequences of violating prompts, settings, tools, time limits, access rules, hardware, or human-intervention rules.
+- Excellent: The benchmark clearly states system prerequisites, access requirements, tool-use assumptions, modality requirements, unsupported system classes, prohibited uses, and the consequences of violating documented run conditions.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1365,7 +1410,7 @@ Section-level rating guidance:
 
 #### 6.3.7 Quality of procedural instructions
 
-- Excellent: Reviewer judgment, based on items 6.3.1-6.3.6, supports the conclusion that procedural instructions are complete, reproducible, and sufficient for qualified users to run and interpret the benchmark without hidden procedural knowledge. Do not mechanically average ratings.
+- Excellent: Reviewer judgment, based on items 6.3.1-6.3.6, supports the conclusion that procedural instructions are complete, reproducible, and sufficient for qualified users to run and interpret the benchmark without hidden procedural knowledge.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1382,15 +1427,13 @@ Reviewer comments:
 
 ## Section 7. Quality and Usability of Benchmark Materials
 
-MESA evaluates benchmark materials needed to inspect, run, score, reproduce, or audit the evaluation: datasets, task files, prompts, rubrics, scoring code, harnesses, interfaces, access routes, setup instructions, accessibility, and usability. Material quality includes both what is available and whether intended users can run or inspect it without hidden procedural knowledge.
+**Artifact profile metric: Usability.** This section evaluates the datasets, task files, prompts, rubrics, scoring code, harnesses, interfaces, access routes, setup instructions, and accessibility of benchmark materials needed to inspect, run, score, reproduce, or audit the evaluation. Material quality includes both what is available and whether intended users can run or inspect it without hidden procedural knowledge.
 
 BetterBench is also used here to treat benchmark materials as usable evaluation resources, not only as descriptive appendices [3]. Reviewers should look for accessible data or generation mechanisms, evaluation code, API and local-model routes where relevant, replication scripts, dependency or environment specifications, build or smoke-test signals, and issue or feedback channels that support independent use and audit.
 
-Rate benchmark materials in relation to the benchmark's intended users and access model. Fully public materials are not always required, especially when hidden or restricted evaluation items are needed to reduce prior exposure or leaderboard gaming, but the access route, restrictions, auditability, and consequences for reproducibility should be clear. A benchmark with controlled access can rate well when the controls are justified and reviewers can inspect enough information to judge quality.
+Rate benchmark materials in relation to the benchmark's intended users and access model. Fully public materials are not always required, especially when hidden or restricted evaluation items are needed to reduce prior exposure or leaderboard gaming. A benchmark with controlled access can rate well when the controls are justified, the audit route is documented, and reviewers can inspect enough information to judge quality.
 
-For open-ended, interactive, tool-use, multimodal, or environment-based benchmarks, benchmark materials include more than item text. They also include system prompts, task environments, Docker images, filesystem snapshots, tool/API configuration, simulator state, user simulators, GUI screenshot assets, video assets, document images or PDFs, layout annotations, dependency versions, scoring scripts, judge prompts, rubrics, examples, failure handling, and any infrastructure needed to produce comparable scores.
-
-Hosted or private materials can rate well when access control is justified, the controlled audit route is documented, and enough evidence is available for reviewers to inspect, run, score, reproduce, or audit the benchmark within its stated access model.
+For interactive, tool-use, multimodal, or environment-based benchmarks, materials include the full execution infrastructure needed to produce comparable scores, not only item text.
 
 Section-level rating guidance:
 
@@ -1417,7 +1460,8 @@ Section-level rating guidance:
 
 #### 7.1.2 Prompts, instructions, and input materials
 
-- Excellent: Prompts, task instructions, examples, system messages, input files, context windows, multimodal assets, GUI screenshot assets, video assets, document images or PDFs, layout annotations, filesystem or simulator state, and any hidden or private instructions are documented or controlled in a way that supports reproducible evaluation and fair interpretation.
+- Excellent: Prompts and task instructions, multimodal assets, environment or simulator state, and the handling of hidden or private instructions are documented or controlled in a way that supports reproducible evaluation and fair interpretation.
+- Supporting assets (examples, system messages, input files, context windows, GUI screenshot or video assets, document images or PDFs, layout annotations, filesystem snapshots) strengthen the rating but their absence alone does not preclude a `3`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1431,7 +1475,8 @@ Section-level rating guidance:
 
 #### 7.1.4 Evaluation harness, scorer, and implementation quality
 
-- Excellent: The harness, hosted scorer, task environment, simulator or user simulator, and scoring tools are runnable or auditable through a documented route, tested, robust to common errors and malformed outputs, version-pinned where needed, covered by smoke tests or CI/build status where relevant, and include a replication script or examples that reproduce expected outputs.
+- Excellent: The harness, hosted scorer, task environment, and scoring tools are runnable or auditable through a documented route, robust to common errors and malformed outputs, version-pinned where needed, and accompanied by a replication script or examples that reproduce expected outputs.
+- Supporting signals (smoke tests, CI or build status, simulator or user-simulator versioning) strengthen the rating but their absence alone does not preclude a `3`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1445,7 +1490,7 @@ Section-level rating guidance:
 
 #### 7.1.6 Accessibility across modalities, languages, and system types
 
-- Excellent: Benchmark materials and workflows are usable by design for relevant modalities, languages, deployment modes, API or local systems, and assistive or alternate interaction needs, with justified adaptations when usability is limited.
+- Excellent: Materials support the benchmark's relevant modalities, languages, and deployment modes (API or local) for evaluated systems, and the human operator workflow is usable without specialized tooling, with justified adaptations where either is limited.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1468,7 +1513,7 @@ Reviewer comments:
 
 ## Section 8. Baselines, Comparators, and Reference Interpretation
 
-EFPA Section 8 evaluates reference distributions and criterion interpretation. MESA translates that logic into reference points used to interpret AI benchmark scores: random or chance floors, human or expert performance, documented groups of models, previous benchmark versions, score boundaries for pass/fail or tier claims, score-ceiling evidence, and qualitative score bands. A benchmark can be useful without human reference samples, but the interpretation of scores should be anchored somehow.
+**Artifact profile metric: Interpretation.** This section evaluates reference points used to interpret AI benchmark scores: random or chance floors, human or expert performance, documented groups of models, previous benchmark versions, score boundaries for pass/fail or tier claims, score-ceiling evidence, and qualitative score bands. A benchmark can be useful without human reference samples, but the interpretation of scores should be anchored somehow.
 
 Condition-matched comparison is central. Contest human populations, professional annotators, expert validators, public/private split comparators, suite-component comparators, and tool-enabled versus no-tool cohorts should be interpreted only when their conditions are mapped to the reviewed entity. A human baseline from a source instrument does not automatically support AI-system comparison unless timing, tools, eligibility, instructions, and scoring conditions are comparable or explicitly caveated.
 
@@ -1484,9 +1529,8 @@ flowchart LR
     %% Main Header
     Main("Section 8. Baselines, Comparators,<br/>and Reference Interpretation")
 
-    %% Tier 1: Main categories
+    %% Tier 1: Main category
     S81("8.1 Baseline and Comparator<br/>Interpretation")
-    S82("8.2 Overall Adequacy of<br/>Baselines and Reference Interpretation")
 
     %% Tier 2: Reference anchors
     subgraph G81 ["Reference anchors"]
@@ -1507,8 +1551,8 @@ flowchart LR
         S82a ~~~ S82b ~~~ S82c
     end
 
-    %% Tier 4: Final checks
-    subgraph G83 ["Final checks"]
+    %% Tier 4: Overall judgment considerations
+    subgraph G83 ["Overall judgment considerations (feed 8.2)"]
         direction TB
         C1("Anchors support the<br/>intended score interpretation")
         C2("Uncertainty and limits<br/>are documented")
@@ -1521,11 +1565,9 @@ flowchart LR
 
     %% Horizontal Connections
     Main --> S81
-    Main --> S82
 
     S81 --> G81
     S81 --> G82
-    S82 --> Overall
 
     G81 --> G83
     G82 --> G83
@@ -1535,16 +1577,15 @@ flowchart LR
     style Main fill:#B0C4DE,color:#000,stroke:#D2691E,stroke-width:2px
     style Overall fill:#B0C4DE,color:#000,stroke:#004771,stroke-width:2px
     style S81 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
-    style S82 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
 
     %% Style for the internal list items
     classDef detail fill:#004771,color:#fff,stroke:#D2691E,stroke-dasharray: 5 5;
     class S81a,S81b,S81c,S81d,S82a,S82b,S82c,C1,C2,C3 detail;
 ```
 
-Reference interpretation should be rated in relation to the meanings users are expected to draw from scores. If a benchmark only supports within-benchmark ordering under fixed conditions, then reference points and documented comparison groups should make that narrow use clear. If a benchmark supports interpretations about expert performance, real-world readiness, general capability, capability-domain proficiency, or scores approaching a ceiling, stronger reference evidence is required.
+If a benchmark only supports within-benchmark ordering under fixed conditions, then reference points and documented comparison groups should make that narrow use clear. If a benchmark supports interpretations about expert performance, real-world readiness, general capability, capability-domain proficiency, or scores approaching a ceiling, stronger reference evidence is required.
 
-Reference points and documented comparison groups are not interchangeable. Chance and trivial-strategy references help detect whether tasks are meaningful; human and expert performance helps interpret difficulty and score-claim scope; model cohorts support relative comparison; score boundaries or qualitative bands support categorical interpretations. Reviewers should note which kinds of reference evidence are available and which are missing for the intended score meaning.
+Kinds of reference evidence are not interchangeable. Chance and trivial-strategy references help detect whether tasks are meaningful; human and expert performance helps interpret difficulty and score-claim scope; model cohorts support relative comparison; score boundaries or qualitative bands support categorical interpretations. Reviewers should note which kinds of reference evidence are available and which are missing for the intended score meaning.
 
 Section-level rating guidance:
 
@@ -1553,13 +1594,14 @@ Section-level rating guidance:
 |   0    | No usable reference information is available for interpreting scores.                                                                     |
 |   1    | Available reference points or documented comparison groups are inappropriate, undocumented, stale, or misleading for the intended use.    |
 |   2    | Reference information supports cautious interpretation but leaves important gaps in comparison-group selection, uncertainty, or currency. |
-|   3    | Reference points and documented comparison groups are relevant, documented, and mostly sufficient for the intended score meaning.         |
+|   3    | Reference information is relevant, documented, and mostly sufficient for the intended score meaning.                                      |
 |   4    | Score interpretation is comprehensive, current, uncertainty-aware, and clearly tied to score claims and comparison limits.                |
 
 ### 8.1 Baseline and Comparator Interpretation
 
 - This sub-section concerns the reference information used to make benchmark scores interpretable.
-- Repeat or qualify ratings where the benchmark has multiple task families, subscores, capability domains, model cohorts, or versions with different reference anchors. A strong reference point for one domain should not be assumed to support another without evidence.
+- Where task families or versions have different reference anchors, rate the weakest anchor that the intended score interpretation depends on, and itemize the divergent families in Reviewer comments. A strong reference point for one domain should not be assumed to support another without evidence.
+- A missing human or expert baseline is `0`, not `n/a`, when the benchmark's claims depend on human comparison. Mark `n/a` only where the intended score interpretation needs no such reference point.
 - Items to be rated `n/a` or `0`-`4`.
 
 #### 8.1.1 Random, chance, floor, and ceiling baselines
@@ -1571,35 +1613,37 @@ Section-level rating guidance:
 
 #### 8.1.2 Human or expert baselines
 
-- Excellent: Human, contest-population, professional annotator, or expert performance is collected or reported with clear sampling, qualification, task exposure, instructions, timing, tools, uncertainty, coverage of relevant capability domains when broad human-level claims are made, and limits on comparability to AI systems.
+- Excellent: Human, contest-population, professional annotator, or expert performance is reported with clear sampling and qualification, condition comparability to AI systems (timing, tools, instructions), uncertainty, and limits on comparability.
+- Supporting detail (task exposure, instruction detail) strengthens the rating. Coverage of relevant capability domains escalates to a core requirement when broad human-level claims are made.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 8.1.3 Model comparator cohort
 
-- Excellent: Documented model comparison groups are selected and documented to support the intended score meaning, including model identity, version, date, public/private split or suite component, access mode, prompting, sampling settings, tool-enabled or no-tool condition, compute conditions, and uncertainty.
+- Excellent: Documented model comparison groups are selected and documented to support the intended score meaning, with model identity, version, and date, access mode, run conditions, and uncertainty documented.
+- Supporting detail (public/private split or suite component, tool-enabled or no-tool condition, compute conditions) strengthens the rating.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 8.1.4 Historical, version, or benchmark-family comparators
 
-- Excellent: Comparisons to previous benchmark versions, related benchmarks, earlier model generations, or reference suites are clearly documented, justified, and caveated for differences in task content, scoring, risk of unintended disclosure, and prompts, settings, tools, time limits, access rules, hardware, or human-intervention rules.
+- Excellent: Comparisons to previous benchmark versions, related benchmarks, earlier model generations, or reference suites are clearly documented, justified, and caveated for differences in task content, scoring, risk of unintended disclosure, and run conditions.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 8.1.5 Criterion thresholds, score bands, or performance categories
 
-- Excellent: Any score boundaries, qualitative bands, pass/fail points, capability labels, score-ceiling interpretations, or tier labels are empirically justified, uncertainty-aware, and tied to intended use rather than arbitrary leaderboard convenience.
+- Excellent: Any score boundaries, qualitative bands, pass/fail points, capability labels, score-ceiling interpretations, or tier labels are empirically justified, uncertainty-aware, and tied to intended use rather than arbitrary leaderboard convenience, with fairness across systems and contexts considered where thresholds gate decisions.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 8.1.6 Representativeness of reference groups
 
-- Excellent: Reference points and documented comparison groups are representative of the intended score interpretation, with documented inclusion criteria, known gaps, subgroup or capability-domain coverage where relevant, condition-matching evidence, small-sample cautions where relevant, and implications for interpreting benchmark results.
+- Excellent: The reference points and documented comparison groups used are representative of the intended score interpretation, with documented inclusion criteria, known gaps, subgroup or capability-domain coverage where relevant, condition-matching evidence, small-sample cautions where relevant, and implications for interpreting benchmark results.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1614,7 +1658,7 @@ Section-level rating guidance:
 ### 8.2 Overall Adequacy of Baselines and Reference Interpretation
 
 - This overall rating is based on reviewer judgment across sub-section 8.1. Do not mechanically average ratings.
-- Excellent: Reference-based score interpretation is comprehensive, relevant, current, uncertainty-aware, and sufficient to support cautious interpretations of benchmark scores and comparisons.
+- Excellent: Reference-based score interpretation is comprehensive, relevant, current, uncertainty-aware, and sufficient to support cautious interpretations of benchmark scores and comparisons. A complete absence of reference points is rated here through the `0`/`1` semantics.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 Reviewer comments:
@@ -1623,11 +1667,11 @@ Reviewer comments:
 
 ## Section 9. Reliability, Precision, and Score Stability
 
-EFPA Section 9 evaluates reliability and precision. MESA asks whether benchmark scores are stable enough for their intended use across runs, prompts, seeds, forms, raters, judges, scorers, benchmark versions, and execution environments. Reliability is especially important when public leaderboards encourage small score differences to be interpreted as meaningful.
+**Artifact profile metric: Reliability.** This section asks whether benchmark scores are stable enough for their intended use across runs, prompts, seeds, forms, raters, judges, scorers, benchmark versions, and execution environments. Reliability is especially important when public leaderboards encourage small score differences to be interpreted as meaningful.
 
 BetterBench informs the reproducibility and implementation side of this section [3]. Its benchmark-quality criteria support checking whether run settings, dependency and environment assumptions, build or usability signals, replication scripts, statistical uncertainty, and versioned evaluation conditions are documented well enough for reported score differences to be interpreted.
 
-Reliability and precision refer to the consistency and uncertainty of benchmark scores across replications of the evaluation procedure. For AI benchmarks, the relevant sources of variation may include stochastic decoding, API or model-version changes, external service drift, tool availability drift, search-index drift, simulator or user-model stability, environment nondeterminism, prompt wording, response parsing, scorer or judge model version drift, human raters, task sampling, hidden/public split equivalence, translation or localization stability, context-window or tokenizer stability, leaderboard rerun consistency, and dependency versions.
+Reliability and precision refer to the consistency and uncertainty of benchmark scores across replications of the evaluation procedure. For AI benchmarks, sources of variation include decoding stochasticity, scoring mechanisms, prompt and version changes, and execution environment — itemized in 9.2-9.5.
 
 There is no single reliability coefficient that fits all AI benchmarks. Deterministic exact-match tests, open-ended generation evaluations, interactive environments, evaluations scored by another model, and human-rated tasks require different evidence. Reviewers should judge whether the methods used are appropriate for the benchmark design and whether the reported uncertainty is sufficient for the intended comparison or decision. Exact-match deterministic scoring does not remove uncertainty when item counts are small, task samples are refreshed, or evaluated systems are stochastic.
 
@@ -1699,7 +1743,7 @@ flowchart TD
     class S92a,S92b,S93a,S93b,S93c,S94a,S94b,S94c,S95a detail;
 ```
 
-When ratings depend on numerical evidence, reviewers should consider the benchmark's stakes and score use. A small amount of instability may be acceptable for exploratory research but unacceptable when leaderboards rank systems by narrow margins, when procurement or policy decisions rely on the scores, or when public score interpretations imply meaningful superiority.
+A small amount of instability may be acceptable for exploratory research but unacceptable when leaderboards rank systems by narrow margins, when procurement or policy decisions rely on the scores, or when public score interpretations imply meaningful superiority.
 
 Section-level rating guidance:
 
@@ -1713,20 +1757,16 @@ Section-level rating guidance:
 
 ### 9.1 Data Provided About Reliability, Precision, and Stability
 
-- This sub-section concerns the evidence available for judging whether benchmark scores are stable enough for the intended use.
-- Selectively note which sources of variation have evidence and which do not. A benchmark may have strong repeat-run evidence but weak scorer evidence, or strong scorer agreement but no evidence about prompt sensitivity or model-version drift.
-- Items to be rated `n/a` or `0`-`4`.
-
 #### 9.1.1 Coverage of reliability and stability evidence
 
-- Excellent: The benchmark reports reliability, precision, or stability evidence across the major sources of score variation relevant to the benchmark, including repeated runs, prompt wording, small item changes, claimed capability domains or capability-domain profiles where applicable, scorers, judges, parsers, scorer or judge versions, external APIs and services, search indexes, tools, simulators, user models, tokenizers, context bins, versions, forms, public/private splits, temporal cohorts, environments, leaderboard reruns, and model settings.
+- Excellent: Evidence exists for each source of variation material to this benchmark's design (see 9.2-9.5), and which sources lack evidence is explicitly stated. This item is the inventory of reliability evidence; 9.2-9.5 carry the per-source judgments and 9.6 the overall judgment.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 ### 9.2 Run-to-Run Stability and Uncertainty
 
-This sub-section concerns score variation when the same benchmark is run repeatedly under documented prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules. Reviewers should check whether repeat-run evidence covers the settings that materially affect the benchmark, including temperature, sampling, seeds, tool use, API state, and environment variation.
+This sub-section concerns score variation when the same benchmark is run repeatedly under documented run conditions. Reviewers should check whether repeat-run evidence covers the settings that materially affect the benchmark, including temperature, sampling, seeds, tool use, API state, and environment variation.
 
 #### 9.2.1 Run-to-run stability, seeds, and sampling settings
 
@@ -1744,7 +1784,7 @@ This sub-section concerns score variation when the same benchmark is run repeate
 
 ### 9.3 Scorer, Judge, Parser, and Rater Reliability
 
-This sub-section concerns consistency introduced by the mechanism that converts model behavior into scores. For open-ended responses, human scoring, rubric scoring, parsers, and scoring by another model should be treated as measurement components requiring evidence, not as neutral implementation details.
+This sub-section concerns consistency introduced by the mechanism that converts model behavior into scores. For open-ended responses, human scoring, rubric scoring, parsers, and scoring by another model should be treated as measurement components requiring evidence, not as neutral implementation details. Rate only the items matching the scoring pathway recorded in 3.1, and mark the others `n/a`.
 
 #### 9.3.1 Automated scorer or parser reliability
 
@@ -1781,24 +1821,23 @@ This sub-section concerns whether scores remain comparable when benchmark forms,
 #### 9.4.2 Form, split, version, or refresh equivalence
 
 - Excellent: Alternate forms, public and hidden splits, benchmark item updates, capability-domain slices or profiles, translated versions, rolling cohorts, and version updates have documented equivalence evidence, score normalization or equating where needed, or clear warnings about non-comparability.
+- Mark `n/a` where the benchmark has a single static form. Where more than one form exists, absent equivalence evidence is `0`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 9.4.3 Execution environment and dependency stability
 
-- Excellent: Environment, dependency, API, hardware, external-tool, search-index, simulator, user-model, tokenizer, context-window, and data-access variation is controlled or tested, with guidance on how such variation affects reproducibility and score interpretation.
+- Excellent: Environment, dependency, API, hardware, external-tool, search-index, simulator, user-model, tokenizer, context-window, and data-access variation is controlled or tested — including drift in external services over time — with guidance on how such variation affects reproducibility and score interpretation.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 ### 9.5 Statistical Comparison Quality
 
-This sub-section concerns whether reported score differences are large enough and well-estimated enough to support rank ordering or comparative score interpretations. Reviewers should distinguish statistical significance, practical significance, and leaderboard convenience.
-
 #### 9.5.1 Meaningfulness of score differences
 
-- Excellent: The benchmark provides statistically justified guidance for interpreting model differences, including uncertainty, multiple comparisons where relevant, practical significance, limits on comparing scores across dates or cohorts, and cases where rank differences should not be treated as meaningful.
+- Excellent: The benchmark provides statistically justified guidance for interpreting model differences, including uncertainty, multiple comparisons where relevant, practical significance, limits on comparing scores across dates or cohorts, and cases where rank differences should not be treated as meaningful. Distinguish statistical significance, practical significance, and leaderboard convenience.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1815,15 +1854,15 @@ Reviewer comments:
 
 ## Section 10. Validity Evidence
 
-EFPA Section 10 evaluates validity support for intended score interpretation. MESA centers the chain from real capability or behavior to task design, scoring, and score interpretation: what capability or behavior is claimed, how tasks operationalize it, what rule or quantity converts behavior into a score, and what interpretation the score is used to support. For broad intelligence, AGI, reasoning, autonomy, or agency interpretations, validity review must check breadth across the relevant capability domains selected in 2.1 or mapped in 2.5 rather than treating isolated performance as broad capability.
+**Artifact profile metric: Validity.** This section centers the chain from real capability or behavior to task design, scoring, and score interpretation: what capability or behavior is claimed, how tasks operationalize it, what rule or quantity converts behavior into a score, and what interpretation the score is used to support. For broad intelligence, AGI, autonomy, or agency interpretations, validity review must check breadth across the relevant capability domains selected in 2.1 rather than treating isolated performance as broad capability.
 
 MESA uses Bean et al.'s _Measuring what Matters_ [2] as the primary AI-benchmark construct-validity source for this section. It grounds review in the phenomenon-task-metric-claim chain and motivates attention to task representativeness, metric validity, statistical comparison, error analysis, and proportionality between benchmark evidence and claims.
 
 BetterBench also informs the contamination, leakage, and gameability parts of this section [3], especially risks from public-item overfitting, prior exposure, repeated optimization against known scoring rules, and benchmark-specific tuning.
 
-Validity is not a property of a score in isolation; it is the degree to which evidence and theory support the interpretations and uses made from benchmark scores. The same benchmark may have strong validity support for a narrow interpretation and weak support for a broader public interpretation. Reviewers should therefore identify the specific meaning users are supposed to draw from a score before rating each source of validity evidence.
+Validity is not a property of a score in isolation; it is the degree to which evidence and theory support the interpretations and uses made from benchmark scores. The same benchmark may have strong validity support for a narrow interpretation and weak support for a broader public interpretation. Reviewers should therefore identify the intended score meaning before rating each source of validity evidence.
 
-MESA validity review should consider both psychometric-style evidence and AI-specific threats. Content coverage, internal structure, relations with other evidence, and response-process logic remain central, but benchmark review must also examine whether scoring rewards the target capability, score effects caused by scorers or parsers, prior exposure to benchmark items or answers, unintended disclosure of hidden materials, benchmark-specific tuning, public/hidden split design, and whether public interpretations are proportional to the evidence.
+Content coverage, internal structure, relations with other evidence, and response-process logic remain central; AI-specific threats — scoring effects, prior exposure, tuning, disclosure — are itemized in 10.3 and 10.5-10.6.
 
 The figure below visualizes the structure of the possible steps in the review of validity evidence.
 
@@ -1883,9 +1922,7 @@ flowchart TD
 
     subgraph G106 [" "]
         direction TB
-        D106a("Proportionality of<br/>stated benchmark claims")
-        D106b("Broad intelligence, AGI,<br/>agency, or autonomy claims")
-        D106a ~~~ D106b
+        D106a("Proportionality of score interpretations,<br/>including broad-claim conditions")
     end
 
     %% Final Bottom Box
@@ -1926,7 +1963,7 @@ flowchart TD
 
     %% Dashed styling for internal list items
     classDef detail fill:#004771,color:#fff,stroke:#D2691E,stroke-dasharray: 5 5;
-    class D101a,D101b,D102a,D102b,D102c,D103a,D103b,D104a,D104b,D104c,D105a,D105b,D106a,D106b detail;
+    class D101a,D101b,D102a,D102b,D102c,D103a,D103b,D104a,D104b,D104c,D105a,D105b,D106a detail;
 ```
 
 Ratings in this section should not be inferred from benchmark popularity, leaderboard difficulty, or whether current models perform poorly. Difficulty can be useful, but validity depends on whether task performance supports the intended score meaning and whether the scoring rule rewards the target capability rather than non-target tactics, prior exposure to items or answers, formatting compliance, or benchmark-specific optimization.
@@ -1944,12 +1981,13 @@ Section-level rating guidance:
 ### 10.1 Validity Evidence Based on Benchmark Content
 
 - This sub-section concerns whether the benchmark content represents the capability domain or use context the benchmark claims to measure.
-- Consider the match between the intended capability space and the sampled tasks, domains, modalities, difficulty levels, and contexts. For broad score interpretations, the review should look for explicit coverage analysis and evidence across relevant capability domains selected in 2.1 or mapped in 2.5.
+- Consider the match between the intended capability space and the sampled tasks, domains, modalities, difficulty levels, and contexts. For broad score interpretations, the review should look for explicit coverage analysis and evidence across relevant capability domains selected in 2.1.
 - Items to be rated `n/a` or `0`-`4`.
 
 #### 10.1.1 Content validity and task representativeness
 
-- Excellent: The task sample comprehensively represents the intended capability domain or use context, with explicit coverage analysis across relevant language families, scripts, cultures, modalities, application domains, environment states, context-length bins, difficulty bands, task horizons, expert review where relevant, documented exclusions, and clear limits on generalization.
+- Excellent: The task sample represents the intended capability domain or use context, with coverage analysis matching the claimed capability space, documented exclusions, clear limits on generalization, and expert review where relevant.
+- Supporting coverage dimensions (language families, scripts, cultures, context-length bins, task horizons, environment states, difficulty bands) are rated only where the construct claims them.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -1963,7 +2001,7 @@ Section-level rating guidance:
 
 ### 10.2 Validity Evidence Based on Internal Structure
 
-This sub-section concerns whether the benchmark's internal organization supports the way scores and subscores are interpreted. Capability-domain labels, task clusters, aggregate scores, and capability profiles should have conceptual or empirical support rather than being assumed from task labels alone.
+This sub-section concerns whether the benchmark's internal organization supports the way scores and subscores are interpreted. Capability-domain labels, task clusters, aggregate scores, and capability profiles should have conceptual or empirical support rather than being assumed from task labels alone. Mark these items `n/a` where the benchmark reports no subscores or capability-domain profiles (see 3.2); where it does report them, absent structural evidence is `0`.
 
 #### 10.2.1 Internal structure, subscores, or dimensionality
 
@@ -1988,18 +2026,19 @@ This sub-section concerns whether the benchmark's internal organization supports
 
 ### 10.3 Validity Evidence Based on Metrics and Scoring
 
-This sub-section concerns the score-production step in the chain from real capability or behavior to task design, scoring, and score interpretation. Reviewers should check whether the scoring rule rewards the intended capability or whether it can be driven by score variation caused by factors outside the target capability, such as formatting, verbosity, refusal style, memorized strings, judge preferences, or tool-specific advantages.
+This sub-section concerns the score-production step in the chain from real capability or behavior to task design, scoring, and score interpretation. Reviewers should check whether the scoring rule rewards the intended capability or whether it can be driven by score effects from outside the target capability — *construct-irrelevant variance* — such as formatting, verbosity, refusal style, memorized strings, judge preferences, or tool-specific advantages.
 
 #### 10.3.1 Metric, scorer, and aggregation validity
 
-- Excellent: Scoring rules, scorers, rubrics, parsers, equality-checker LLMs, models used as judges, hash-prefix or strict output rules, coordinate formats, bank-balance or accumulated-return rewards, simulator-based rewards, and score-combination rules are justified and validated as measuring the intended capability rather than irrelevant behavior, output format compliance, parser strictness, verbosity, prior exposure to items or answers, or benchmark-specific tactics; strict formats are tested, relaxed, retried, or justified when they are not part of the target capability.
+- Excellent: The scoring pathway — rules, scorers, parsers, model-based judges, and score combination — is justified and validated as rewarding the intended capability rather than formatting compliance, verbosity, parser strictness, prior exposure, or benchmark-specific tactics. Strict output formats are tested, relaxed, retried, or justified when format is not part of the target capability. (Task-appropriate reward signals — e.g., simulator returns or accumulated-reward metrics — are held to the same standard.)
+- Where another model scores responses, evidence that the judge has been validated is required for a rating above `2`.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
 #### 10.3.2 Sensitivity to shortcuts and construct-irrelevant variance
 
-- Excellent: The benchmark tests or convincingly mitigates non-target tactics, superficial cues, score effects caused by response-format compliance, judge preferences, unintended disclosure through prompts, score changes caused by small item changes, prior exposure to items or answers, tool-specific advantages, and other score variation caused by factors outside the target capability.
+- Excellent: The benchmark tests or convincingly mitigates non-target tactics, superficial cues, score effects caused by response-format compliance, judge preferences, unintended disclosure through prompts, score changes caused by small item changes, prior exposure to items or answers, tool-specific advantages, and other score effects from outside the target capability.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -2031,11 +2070,12 @@ This sub-section concerns whether benchmark results behave as expected in relati
 
 ### 10.5 Contamination, Leakage, and Gameability
 
-This sub-section concerns whether scores can be inflated by prior exposure, public availability, unintended disclosure of test content or answers, overfitting, reverse engineering, or repeated optimization against the benchmark. The seriousness of these threats depends on release model, task source, public/hidden split design, and how the benchmark is used.
+This sub-section concerns whether scores can be inflated by prior exposure, public availability, unintended disclosure of test content or answers, overfitting, reverse engineering, or repeated optimization against the benchmark. A benchmark is *gameable* to the extent that a high score can be obtained through shortcuts, exposure, formatting, tuning, or scaffolding rather than the target capability. The seriousness of these threats depends on release model, task source, public/hidden split design, and how the benchmark is used.
 
 #### 10.5.1 Contamination and leakage controls
 
 - Excellent: The benchmark documents data provenance, source-release timing, contest-source leakage controls, public/hidden splits, release rules, canaries or audits where appropriate, searchability risks, training-data exposure risks, diagnostics for prior exposure to benchmark items or answers, and procedures for responding to suspected prior exposure. For benchmarks with high risk of unintended disclosure, live benchmarks, or certification-style benchmarks, stronger evidence may include secret or encrypted reserves, hash commitments, signed logs, synchronized evaluation, post-retirement release, or tasks that test whether performance is driven by prior exposure to items or answers.
+- Where the benchmark uses private, hidden, or rolling forms, the stronger evidence described above is required rather than optional.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -2049,19 +2089,19 @@ This sub-section concerns whether scores can be inflated by prior exposure, publ
 
 ### 10.6 Claim Proportionality
 
-This sub-section concerns whether interpretations made from benchmark scores are bounded by the evidence. The broader the interpretation, the stronger and broader the evidence required; claims about general intelligence, AGI, agency, autonomy, or broad reasoning require more than high performance on a narrow task set and should be checked against the capability-domain mapping in 2.1 and 2.5 where applicable.
+This sub-section concerns whether interpretations made from benchmark scores are bounded by the evidence. The broader the interpretation, the stronger and broader the evidence required; claims about general intelligence, AGI, agency, or autonomy require more than high performance on a narrow task set and should be checked against the capability-domain mapping in 2.1 where applicable.
 
-#### 10.6.1 Proportionality of stated benchmark claims
+#### 10.6.1 Proportionality of score interpretations
 
-- Excellent: Score interpretations are explicitly bounded to what the reviewed entity, task sample, scoring rule, validation evidence, and uncertainty support, and public language avoids unsupported extrapolation from scores to broad capability, expert-level competence, long-horizon agency, real-world readiness, AGI, autonomy, or general intelligence.
+- Excellent: Score interpretations are explicitly bounded by what the reviewed entity, task sample, scoring rule, validation evidence, and uncertainty support, and public language avoids unsupported extrapolation from scores to broad capability, expert-level competence, long-horizon agency, real-world readiness, AGI, autonomy, or general intelligence. Where broad interpretations are made, the benchmark provides evidence across the relevant capability domains (2.1); otherwise it explicitly rejects or limits such interpretations.
+- Where the benchmark makes broad-capability claims, the second sentence of this anchor is required rather than optional.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
-#### 10.6.2 Broad intelligence, AGI, agency, or autonomy claims
+#### 10.6.2 Broad intelligence, AGI, agency, or autonomy claims (retired)
 
-- Excellent: If broad score interpretations are made, the benchmark provides evidence across relevant capability domains, modalities, planning horizons, memory demands, tool-use conditions, and transfer contexts; otherwise it explicitly rejects or limits such interpretations.
-- Rating: [n/a | 0 | 1 | 2 | 3 | 4]
+Merged into §10.6.1 in v2; the broad-claims conditional now lives inside that item's anchor.
 
 ---
 
@@ -2077,120 +2117,22 @@ Reviewer comments:
 
 ## Section 11. Fair Use, Comparability, and Appropriate Use
 
-EFPA Section 11 evaluates responsible use across groups and contexts. MESA evaluates whether benchmark use is fair and comparable across relevant AI systems, modalities, capability domains, languages, access modes, compute budgets, and user contexts. The question is not only whether a score can be produced, but whether it can be compared and interpreted responsibly.
+**Artifact profile metric: Fairness.** This section evaluates whether benchmark use is fair and comparable across relevant AI systems, modalities, capability domains, languages, access modes, compute budgets, and user contexts. The question is not only whether a score can be produced, but whether it can be compared and interpreted responsibly.
 
 Responsible use in AI benchmark review includes, but is broader than, demographic fairness. It covers whether tasks, inputs, languages, modalities, capability-domain claims, infrastructure, access rules, scoring, and reporting allow intended systems and users to be evaluated under comparable and appropriate conditions. It also covers whether users are warned when scores should not be compared or should not be used for a particular decision.
 
-For multilingual, cultural, tool-use, hosted, and contest-derived benchmarks, review language-family and script coverage, local cultural authorship, translation or adaptation method, community consent or participation where relevant, model access mode, API/local comparability, tool availability, context length, safety or refusal policy, and compute budget. Leaderboards comparing API-hosted, open-weight, tool-using, and local systems need condition labels or separate cohorts when those differences affect interpretation.
+For multilingual, cultural, and contest-derived benchmarks, also review local cultural authorship and community consent or participation where relevant. Leaderboards comparing API-hosted, open-weight, tool-using, and local systems need condition labels or separate cohorts when those differences affect interpretation.
 
-Relevant information for this section may also have been rated in other sections. The figure below shows sections where ratings will have particular relevance to responsible use across intended systems and contexts, comparability, and use cases or restrictions that bound interpretation. Ratings in this section may still take a broader perspective and therefore need not be identical to the referenced ratings.
+Relevant information for this section may also have been rated in other sections. The table below lists ratings with particular relevance to each sub-section; ratings here may take a broader perspective and need not be identical to the referenced ratings.
 
-#### Figure 5: Relevant Ratings for Fair Use, Comparability, and Appropriate Use from Other Sections
-
-```mermaid
-flowchart TD
-
-    %% Main Header
-    Main("Section 11. Fair Use, Comparability,<br/>and Appropriate Use")
-
-    %% Row 1: Sub-section Headers
-    S111("11.1 Rationale and<br/>Documentation for Fair Use")
-    S112("11.2 Development, Design,<br/>and Accessibility")
-    S113("11.3 Cross-System and<br/>Evaluation-Condition Comparability")
-    S114("11.4 Evidence for<br/>Fairness and Bias")
-    S115("11.5 Appropriate Use<br/>and Restrictions")
-    S116("12.4 Fairness, Acceptability,<br/>and Public Communication")
-
-    %% Column 1 Ratings
-    subgraph G111 [" "]
-        direction TB
-        D111a("6.1.1")
-        D111b("6.2.1")
-        D111c("6.2.6")
-        D111d("6.3.4")
-        D111a ~~~ D111b ~~~ D111c ~~~ D111d
-    end
-
-    %% Column 2 Ratings
-    subgraph G112 [" "]
-        direction TB
-        D112a("6.1.5")
-        D112b("7.1.2")
-        D112c("7.1.5")
-        D112d("7.1.6")
-        D112a ~~~ D112b ~~~ D112c ~~~ D112d
-    end
-
-    %% Column 3 Ratings
-    subgraph G113 [" "]
-        direction TB
-        D113a("8.1.2")
-        D113b("8.1.3")
-        D113c("8.1.6")
-        D113d("9.4.3")
-        D113a ~~~ D113b ~~~ D113c ~~~ D113d
-    end
-
-    %% Column 4 Ratings
-    subgraph G114 [" "]
-        direction TB
-        D114a("9.3.3")
-        D114b("10.2.2")
-        D114c("10.3.2")
-        D114d("10.4.2")
-        D114a ~~~ D114b ~~~ D114c ~~~ D114d
-    end
-
-    %% Column 5 Ratings
-    subgraph G115 [" "]
-        direction TB
-        D115a("5.4")
-        D115b("5.5")
-        D115c("7.1.7")
-        D115d("10.5")
-        D115a ~~~ D115b ~~~ D115c ~~~ D115d
-    end
-
-    %% Column 6 Ratings
-    subgraph G116 [" "]
-        direction TB
-        D116a("12.3.1")
-        D116b("12.4.1")
-        D116c("12.4.2")
-        D116d("12.4.3")
-        D116a ~~~ D116b ~~~ D116c ~~~ D116d
-    end
-
-    %% Final Bottom Box
-    Overall("11.6 Overall Fair Use,<br/>Comparability, and Appropriate Use")
-
-    %% Layout Connections
-    Main ~~~ S111 & S112 & S113 & S114 & S115 & S116
-
-    S111 ~~~ G111
-    S112 ~~~ G112
-    S113 ~~~ G113
-    S114 ~~~ G114
-    S115 ~~~ G115
-    S116 ~~~ G116
-
-    G111 & G112 & G113 & G114 & G115 & G116 ~~~ Overall
-
-    %% Styling
-    style Main fill:#B0C4DE,color:#000,stroke:#D2691E,stroke-width:2px
-    style Overall fill:#B0C4DE,color:#000,stroke:#004771,stroke-width:2px
-
-    style S111 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
-    style S112 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
-    style S113 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
-    style S114 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
-    style S115 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
-    style S116 fill:#004771,color:#fff,stroke:#D2691E,stroke-width:2px
-
-    %% Class definition for dashed internal items
-    classDef detail fill:#004771,color:#fff,stroke:#D2691E,stroke-dasharray: 5 5;
-    class D111a,D111b,D111c,D111d,D112a,D112b,D112c,D112d,D113a,D113b,D113c,D113d,D114a,D114b,D114c,D114d,D115a,D115b,D115c,D115d,D116a,D116b,D116c,D116d detail;
-```
+| Sub-section                                                | Related ratings elsewhere      | Note                       |
+| :--------------------------------------------------------- | :----------------------------- | :------------------------- |
+| 11.1 Rationale and Documentation for Fair Use               | 6.1.1, 6.2.1, 6.2.6, 6.3.4     |                            |
+| 11.2 Development, Design, and Accessibility                 | 6.1.5, 7.1.2, 7.1.5, 7.1.6     |                            |
+| 11.3 Cross-System and Evaluation-Condition Comparability    | 8.1.2, 8.1.3, 8.1.6, 9.4.3     |                            |
+| 11.4 Evidence for Fairness and Bias                         | 9.3.3, 10.2.2, 10.3.2, 10.4.2  |                            |
+| 11.5 Appropriate Use and Restrictions                       | 5.4, 5.5, 7.1.7, 10.5.1-10.5.2 |                            |
+| 12.4 Fairness, Acceptability, and Public Communication      | 12.3.1, 12.4.1-12.4.3          | Revisit after Section 12   |
 
 Groups, contexts, and systems should be defined by the benchmark's intended use. Relevant differences may include model family, language, modality, API versus local deployment, context window, tool access, refusal behavior, safety policy, compute budget, domain expertise, capability-domain coverage where applicable, geographic or cultural coverage, user population, and accessibility needs. A benchmark may be fair for one intended context and not for another.
 
@@ -2218,6 +2160,7 @@ This sub-section concerns whether the benchmark explains the contexts, systems, 
 #### 11.1.2 Documentation of fair-use considerations
 
 - Excellent: Documentation gives clear details of fairness, accessibility, bias, language, domain, modality, sensitive-content, and comparability issues considered during benchmark design, evaluation, and interpretation.
+- Boundary: 6.2.6 rates whether fair-use documentation *exists and is usable*; this item rates whether the fairness consideration it documents was *substantively adequate* for the intended contexts. Divergent ratings should be explained in comments.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -2244,17 +2187,16 @@ This sub-section concerns whether fairness, accessibility, and coverage were con
 
 This sub-section concerns whether different systems can be compared under conditions that preserve the intended interpretation. Differences in context length, tools, API access, local hardware, safety policies, latency limits, multimodal affordances, benchmark version, or evaluation cohort should be documented and managed.
 
-#### 11.3.1 Cross-system comparability
+#### 11.3.1 Cross-system and access-condition comparability
 
-- Excellent: Prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules support fair comparison across intended AI systems, including model versions, API or local access modes, tool availability, context limits, compute budget, multimodal inputs, safety or refusal policies, latency constraints, and system-specific affordances.
+- Excellent: Run conditions and access constraints — API or local mode, tool availability, compute and hardware, context limits, safety or refusal policies, latency constraints, external service access, and hosted or private evaluation routes — are documented and managed so intended systems can be compared without undisclosed distortion; condition labels or separate cohorts are used where differences affect interpretation.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
 
-#### 11.3.2 Access, compute, tooling, and API or local comparability
+#### 11.3.2 Access, compute, tooling, and API or local comparability (retired)
 
-- Excellent: Access routes, compute requirements, hardware assumptions, API limitations, local execution constraints, tool-use differences, context windows, external service access, and hosted/private evaluation routes are documented and managed so that score comparisons are not distorted without warning.
-- Rating: [n/a | 0 | 1 | 2 | 3 | 4]
+Merged into §11.3.1 in v2; access-condition comparability is rated there.
 
 ---
 
@@ -2267,11 +2209,11 @@ This sub-section concerns whether different systems can be compared under condit
 
 ### 11.4 Evidence for Fairness and Bias
 
-This sub-section concerns evidence about differential performance, scorer bias, judge bias, coverage gaps, or unequal measurement quality across relevant systems, domains, languages, modalities, user groups, or use contexts.
+This sub-section concerns evidence about differential performance, scorer bias, judge bias, coverage gaps, or unequal measurement quality across relevant systems, domains, languages, modalities, user groups, or use contexts. Mark these items `n/a` only where no relevant subgroups or contexts exist for the intended use; where they do exist, absent analysis is `0`.
 
 #### 11.4.1 Differential performance or bias analysis
 
-- Excellent: The benchmark investigates performance differences, scorer bias, model-judge bias, language or domain bias, accessibility effects, and other differential impacts relevant to the intended use, with implications clearly explained.
+- Excellent: The benchmark investigates performance differences, scorer bias, model-judge bias, language or domain bias, accessibility effects, differential functioning across groups or contexts, and other differential impacts relevant to the intended use, with implications clearly explained.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 ---
@@ -2313,15 +2255,15 @@ Reviewer comments:
 
 ## Section 12. Quality of Reports, Leaderboards, Dashboards, and Public Claims
 
-EFPA Section 12 evaluates digitally generated reports. MESA applies that logic to AI benchmark outputs: paper tables, scorecards, leaderboards, dashboards, downloadable result files, raw traces, public interpretations made from benchmark scores, and score interpretations. A reporting output should make clear what score was produced, under what prompts, settings, tools, time limits, access rules, hardware, or human-intervention rules, with what uncertainty, and what users should and should not infer.
+**Artifact profile metric: Reporting.** This section evaluates AI benchmark outputs: paper tables, scorecards, leaderboards, dashboards, downloadable result files, raw traces, public interpretations made from benchmark scores, and score interpretations. A reporting output should make clear what score was produced, under what run conditions, with what uncertainty, and what users should and should not infer.
 
-BetterBench informs this section's attention to whether benchmark outputs are usable and interpretable for intended stakeholders [3]. Reports, leaderboards, scorecards, and public claims should communicate scope, uncertainty, eligibility rules, score traceability, maintenance status, version or cohort labels, and limits on what benchmark scores should be used to claim.
+BetterBench [3] and Singh et al.'s _The Leaderboard Illusion_ [5] inform this section's attention to whether benchmark outputs are usable, interpretable, and honestly governed for intended stakeholders. Reports, leaderboards, scorecards, and public claims should communicate scope, uncertainty, eligibility rules, score traceability, maintenance status, version or cohort labels, and limits on what benchmark scores should be used to claim.
 
 This section should be completed for any reporting material that translates benchmark runs into a result used by others, even when there is no formal generated report. A static paper table, public leaderboard, hosted dashboard, badge, press release, downloadable CSV, benchmark card, or model score page can all shape interpretation and should be reviewed when it is part of the benchmark's public use.
 
 Ratings should consider whether reports support the level of inference they invite. Rank-ordered leaderboards need clear release/version labeling, eligibility rules, uncertainty, prompts and settings, and caveats about meaningful differences. Technical score reports need enough detail for audit and reproduction. Public-facing score interpretations need stronger safeguards against overinterpretation, especially when the benchmark title implies broad intelligence, broad capability-domain coverage, or real-world readiness.
 
-Judge reporting quality for each major output surface that shapes use: paper tables, dataset cards, hosted leaderboards, downloadable results, public announcements, scorecards, badges, dashboards, and model-result pages. Suite scores and public rankings require explicit component-level or capability-domain caveats, uncertainty, and claim limits when they invite broad interpretations.
+Judge reporting quality for each major output surface that shapes use: paper tables, dataset cards, hosted leaderboards, downloadable results, public announcements, scorecards, badges, dashboards, and model-result pages. Rate each item against the most consequential public surface (normally the primary leaderboard or headline report); where another surface would rate materially differently, name it and its divergent rating in the item's Reviewer comments. Suite scores and public rankings require explicit component-level or capability-domain caveats, uncertainty, and claim limits when they invite broad interpretations.
 
 Section-level rating guidance:
 
@@ -2353,12 +2295,14 @@ This sub-section concerns whether reporting materials cover the scores, subscore
 
 ### 12.2 Reliability and Traceability of Reports
 
-This sub-section concerns whether a reported score can be traced to the prompts, settings, tools, time limits, access rules, hardware, and human-intervention rules that produced it and whether users can tell when differences are stable enough to interpret.
+This sub-section concerns whether a reported score can be traced to the run conditions that produced it and whether users can tell when differences are stable enough to interpret.
 
 #### 12.2.1 Uncertainty, version labeling, and evaluation-condition labeling
 
-- Excellent: Reports identify benchmark version, model version, evaluation date, cohort or rolling-window label where relevant, prompts, settings, tools, time limits, access rules, hardware, human-intervention rules, uncertainty, confidence or variability information, and whether differences are meaningful or comparable across dates or cohorts.
+- Excellent: Reports identify benchmark version, model version, evaluation date, cohort or rolling-window label where relevant, run conditions, uncertainty or variability information, and whether differences are meaningful or comparable across dates or cohorts.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
+
+Reviewer comments:
 
 ---
 
@@ -2378,16 +2322,12 @@ This sub-section concerns whether reports connect scores to justified interpreta
 - Excellent: Reports clearly explain what each score supports, what it does not support, how scores relate to score interpretations, where capability-domain coverage does or does not support broad claims, and where uncertainty, validity limits, prior-exposure risk, limits on comparing scores across time, stale scores, or score ceilings affect interpretation.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
-Reviewer comments:
-
 ---
 
 #### 12.3.2 Raw outputs, per-item data, or trace availability
 
 - Excellent: Raw outputs, per-item results, traces, judge rationales, error categories, retired-item materials, signed logs, or sufficiently detailed audit materials are available or access-controlled in a way that supports independent scrutiny while respecting privacy and release limits.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
-
-Reviewer comments:
 
 ---
 
@@ -2400,25 +2340,23 @@ This sub-section concerns whether reporting language, design, access, and govern
 - Excellent: Reports and public materials use inclusive, non-misleading language; identify potential bias, capability-domain coverage gaps, or other coverage limits; and avoid interpretations that would be unfair across relevant systems, domains, languages, or user groups.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
-Reviewer comments:
-
 ---
 
 #### 12.4.2 Acceptability and usability for intended audiences
 
-- Excellent: Reports are understandable, appropriately detailed, accessible, and suited to intended audiences, including technical reviewers, benchmark users, model developers, decision-makers, or the public as applicable.
+- Excellent: Reports are understandable, appropriately detailed, accessible, and suited to intended audiences, including technical reviewers, benchmark users, model developers, decision-makers, or the public as applicable, with stakeholder communication handled respectfully.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
-
-Reviewer comments:
 
 ---
 
 #### 12.4.3 Public communication and leaderboard governance
 
-- Excellent: Public score interpretations, rankings, badges, headlines, and rules for leaderboard submissions, eligibility, updates, versions, ranking, audits, and public score claims are transparent, cautious, versioned, resistant to overinterpretation, and clear about update rules, eligibility, cohort or refresh labels, deprecation or archival rules, ranking uncertainty, raw output or trace audit route, private-set governance, public claim rules, capability-domain claim limits where applicable, and known limitations.
+- Excellent: Public rankings, badges, and headlines are transparent, cautious, and versioned; leaderboard governance states submission and eligibility rules, update and refresh labels, deprecation or archival rules, ranking uncertainty, audit routes for raw outputs or traces, private-set governance, and claim limits (capability-domain limits where applicable), with known limitations acknowledged.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]
 
 Reviewer comments:
+
+---
 
 ### 12.5 Overall Quality of Reports, Leaderboards, Dashboards, and Public Claims
 
@@ -2434,7 +2372,9 @@ Reviewer comments:
 
 ### Evaluative Report of the Benchmark
 
-This section should contain a concise, clearly argued judgment about the reviewed entity as a measurement instrument. It should describe its strengths and limitations, give general recommendations about how and when it may be used, and include warnings where necessary about when it should not be used. Include relevant positive or negative points about adapted, translated, derived, rolling, hosted, sliced, private, or versioned benchmark forms. State whether consequential strengths or gaps affect the original benchmark, reviewed slice, hosted implementation, leaderboard, private form, reporting surface, or the benchmark family more broadly. Include comments on known ongoing research, maintenance plans, planned revisions, or future developments by the benchmark creators, maintainers, platform hosts, or suppliers.
+This section should contain a concise, clearly argued judgment about the reviewed entity as a measurement instrument. It should describe its strengths and limitations, give general recommendations about how and when it may be used, and include warnings where necessary about when it should not be used. State explicitly, as the review's supported-use / non-use statement: (1) the interpretations the scores support; (2) the interpretations they do not support; (3) the run conditions that must be held fixed for comparisons to be meaningful (version, split, prompts, scorer, comparator cohort, uncertainty basis). If any critical attribute is rated `0` or `1`, state that the benchmark falls below the minimum standard for its stated use. Before concluding, re-check ratings 6.1.1, 6.1.3, and 6.2.5 against your Section 8-10 findings and note any rating changed.
+
+Include relevant positive or negative points about any reviewed entity listed in the front matter, and state whether consequential strengths or gaps affect the original benchmark, the reviewed entity, its reporting surfaces, or the benchmark family more broadly. Include comments on known ongoing research, maintenance plans, planned revisions, or future developments by the benchmark creators, maintainers, platform hosts, or suppliers.
 
 Free Text:
 
@@ -2446,29 +2386,35 @@ Free Text:
 
 ### Recommendations
 
-State what users, maintainers, or future reviewers should do next. Keep recommendations tied to the review findings and specify whether each recommendation concerns the original benchmark, reviewed slice, hosted implementation, leaderboard, private form, or reporting surface.
+State what users, maintainers, or future reviewers should do next. Keep recommendations tied to the review findings and specify whether each recommendation concerns the reviewed entity, its parent benchmark, or a reporting surface.
 
 Free Text:
 
-### Summary of Ratings
+### MESA Benchmark Artifact Profile
 
-| Section                                                      | Overall Rating (`n/a`, `0`-`4`) |
-| :----------------------------------------------------------- | :-----------------------------: |
-| Section 6. Rationale, documentation, and task/item quality   |                                 |
-| Section 7. Benchmark materials and usability                 |                                 |
-| Section 8. Reference points and documented comparison groups |                                 |
-| Section 9. Reliability and precision                         |                                 |
-| Section 10. Validity support                                 |                                 |
-| Section 11. Fair use and comparability                       |                                 |
-| Section 12. Reports, leaderboards, and public score claims   |                                 |
+The artifact value is the corresponding section's judgment-based overall rating. Preserve all seven values as a profile; do not calculate a composite.
+
+| Section                                                                 | Metric         | Artifact Value / Overall Rating (`n/a`, `0`-`4`) |
+| :---------------------------------------------------------------------- | :------------- | :-----------------------------------------------: |
+| Section 6. Rationale, Development, Documentation, and Task/Item Quality | Documentation  |                                                   |
+| Section 7. Quality and Usability of Benchmark Materials                 | Usability      |                                                   |
+| Section 8. Baselines, Comparators, and Reference Interpretation         | Interpretation |                                                   |
+| Section 9. Reliability, Precision, and Score Stability                  | Reliability    |                                                   |
+| Section 10. Validity Evidence                                           | Validity       |                                                   |
+| Section 11. Fair Use, Comparability, and Appropriate Use                | Fairness       |                                                   |
+| Section 12. Quality of Reports, Leaderboards, Dashboards, and Public Claims | Reporting  |                                                   |
 
 Reviewer comments:
 
 ### Gap Register
 
+Record every evidence gap that affected interpretation. Duplicate rows as needed — one row per gap.
+
 | Missing or inaccessible information needed for interpretation | Affected entity or reporting surface                         | Affected capability domain or score interpretation       | Affected rating(s)                  | Why it matters                         | Needed for a higher rating    |
 | :------------------------------------------------------------ | :----------------------------------------------------------- | :------------------------------------------------------- | :---------------------------------- | :------------------------------------- | :---------------------------- |
-| _(Specific missing or inaccessible evidence)_                 | _(Benchmark, slice, implementation, report, or leaderboard)_ | _(Capability, score, claim, or interpretation affected)_ | _(Section or item rating affected)_ | _(Why the gap changes interpretation)_ | _(Evidence or access needed)_ |
+| _(Specific missing or inaccessible evidence)_                 | _(Any reviewed entity or reporting surface)_                 | _(Capability, score, claim, or interpretation affected)_ | _(Section or item rating affected)_ | _(Why the gap changes interpretation)_ | _(Evidence or access needed)_ |
+| _(Specific missing or inaccessible evidence)_                 | _(Any reviewed entity or reporting surface)_                 | _(Capability, score, claim, or interpretation affected)_ | _(Section or item rating affected)_ | _(Why the gap changes interpretation)_ | _(Evidence or access needed)_ |
+| _(Specific missing or inaccessible evidence)_                 | _(Any reviewed entity or reporting surface)_                 | _(Capability, score, claim, or interpretation affected)_ | _(Section or item rating affected)_ | _(Why the gap changes interpretation)_ | _(Evidence or access needed)_ |
 
 ## Bibliography
 
@@ -2477,3 +2423,9 @@ Reviewer comments:
 [2] A. M. Bean et al., "Measuring what Matters: Construct Validity in Large Language Model Benchmarks," arXiv preprint arXiv:2511.04703, 2025, doi: 10.48550/arXiv.2511.04703. [Online]. Available: <https://arxiv.org/abs/2511.04703>. Accessed: May 17, 2026.
 
 [3] A. Reuel et al., "BetterBench: Assessing AI Benchmarks, Uncovering Issues, and Establishing Best Practices," arXiv preprint arXiv:2411.12990, 2024, doi: 10.48550/arXiv.2411.12990. [Online]. Available: <https://arxiv.org/abs/2411.12990>. Accessed: May 17, 2026.
+
+[4] European Federation of Psychologists' Associations (EFPA), "EFPA Test Review Model — Version 2025," 2025. [Online]. Available: <https://www.efpa.eu/efpa-test-review-model-version-2025>. Accessed: Aug. 10, 2026.
+
+[5] S. Singh et al., "The Leaderboard Illusion," arXiv preprint arXiv:2504.20879, 2025. [Online]. Available: <https://arxiv.org/abs/2504.20879>. Accessed: Aug. 10, 2026.
+
+[6] American Educational Research Association, American Psychological Association, and National Council on Measurement in Education, Standards for Educational and Psychological Testing. Washington, DC: American Educational Research Association, 2014.

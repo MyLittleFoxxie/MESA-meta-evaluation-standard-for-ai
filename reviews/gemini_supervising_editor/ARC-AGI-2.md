@@ -1,5 +1,7 @@
 # Editor's Prefatory Notes
 
+> **Version note:** Reviewed against an earlier version of the MESA template (89 items), 2025-2026. Section numbers cite v1; see `feedback/95-mesa-core-plan.md` Part 3 for the v1→v2 mapping.
+
 ## Editor Reconciliation Note
 
 As the MESA Supervising Editor Agent, I have reconciled two independently generated draft MESA reviews for the ARC-AGI-2 benchmark into a single, authoritative, source-grounded evaluation. Both reviewers operated from the same source packet and produced high-quality, comprehensive drafts. Reviewer 1 (R1) meticulously documented the official documentation's textual inconsistencies (e.g., a conflict between 2-trial and 3-trial rules) and detailed the exact-match scoring mechanisms. Reviewer 2 (R2) provided a rigorous statistical critique, emphasizing the fragility of leaderboard rankings on 120-task splits without confidence intervals, and astutely separated the "Kaggle cohort" (offline, compute-bounded) from the "API-hosted cohort" (cost-bounded). This final evaluation synthesizes R1's procedural attention to detail with R2's rigorous psychometric and statistical limits, applying the _BetterBench_, _Measuring what Matters_, and _A Definition of AGI_ literature to discipline the benchmark's broad claims.

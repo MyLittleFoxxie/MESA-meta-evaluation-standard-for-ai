@@ -1,5 +1,7 @@
 # MESA Review: Humanity's Last Exam
 
+> **Version note:** Reviewed against an earlier version of the MESA template (89 items), 2025-2026. Section numbers cite v1; see `feedback/95-mesa-core-plan.md` Part 3 for the v1→v2 mapping.
+
 Review status: full Part A + Part B MESA review  
 Reviewed entity: finalized static Humanity's Last Exam benchmark, including the public 2,500-question release, documented private held-out set, official scoring materials, official reporting surfaces, and contextual HLE-Rolling/HLE-Verified materials where relevant  
 Reviewer profile: `.codex/agents/benchmark-reviewer.md`  

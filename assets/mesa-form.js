@@ -16,8 +16,16 @@
 (function () {
   "use strict";
 
-  var TEMPLATE_URL = "MESA EFPA template official.md";
-  var STORAGE_KEY = "mesa-form-answers-v1";
+  // The two fillable documents. Both are parsed by the same conventions above; the scorecard is
+  // a generated subset of the full template (see tools/build-scorecard.py) and deliberately
+  // reuses the full template's item numbers, so an answer is stored under the same key in either
+  // view — filling the scorecard leaves those items already answered in the full review.
+  var TEMPLATES = {
+    template: "MESA EFPA template official.md",
+    scorecard: "MESA scorecard.md"
+  };
+  var DEFAULT_TEMPLATE = "template";
+  var STORAGE_KEY = "mesa-form-answers-v2";
   var RATING_FALLBACK = ["n/a", "0", "1", "2", "3", "4"];
 
   var state = { answers: loadAnswers() };
@@ -610,28 +618,32 @@
 
   /* ---------- mount (invoked by the site shell / router) ---------- */
   var built = false;
+  var builtFor = null;   // which key of TEMPLATES is currently rendered
   var toolbarWired = false;
 
-  // Build the interactive form the first time the Review Template tab is shown.
-  // Safe to call repeatedly: the fetch + build only run once.
-  function mount() {
+  // Build the interactive form for `which` ("template" or "scorecard"), fetching it the first
+  // time that document is shown. Safe to call repeatedly: a rebuild only happens when the
+  // requested document differs from the one on screen.
+  function mount(which) {
+    if (!TEMPLATES[which]) which = DEFAULT_TEMPLATE;
     if (!toolbarWired) { wireToolbar(); toolbarWired = true; }
-    if (built) {
-      // already built once — re-announce so the router can restore the TOC
+    if (built && builtFor === which) {
+      // this document is already on screen — re-announce so the router can restore the TOC
       try { window.dispatchEvent(new CustomEvent("mesa-form-built")); } catch (e) {}
       return;
     }
-    setStatus("Loading template…");
-    fetch(TEMPLATE_URL, { cache: "no-store" })
+    var url = TEMPLATES[which];
+    setStatus("Loading…");
+    fetch(url, { cache: "no-store" })
       .then(function (r) {
         if (!r.ok) throw new Error("HTTP " + r.status);
         return r.text();
       })
-      .then(build)
+      .then(function (md) { builtFor = which; build(md); })
       .catch(function (err) {
         setStatus(
-          "Could not load the template automatically (" + err.message +
-            "). If you opened this file directly, use “Load template file…” to pick MESA EFPA template official.md, or serve the folder over http."
+          "Could not load “" + url + "” automatically (" + err.message +
+            "). If you opened this file directly, use “Load template file…” to pick it, or serve the folder over http."
         );
         try { window.dispatchEvent(new CustomEvent("mesa-form-error", { detail: { message: err.message } })); } catch (e) {}
       });
@@ -661,6 +673,7 @@
   window.MesaForm = {
     mount: mount,
     isBuilt: function () { return built; },
+    builtFor: function () { return builtFor; },
     ready: ready,
     getBlocks: function () { return blocks; },
     getAnswers: function () { return state.answers; }

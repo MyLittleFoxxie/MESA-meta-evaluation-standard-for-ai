@@ -1,5 +1,7 @@
 # MESA Review: DesignQA
 
+> **Version note:** Reviewed against an earlier version of the MESA template (89 items), 2025-2026. Section numbers cite v1; see `feedback/95-mesa-core-plan.md` Part 3 for the v1→v2 mapping.
+
 Reviewer: Claude (Opus 4.8), as MESA benchmark reviewer agent (reviewer 2)
 Date of review: 2026-06-28
 Template: `MESA EFPA template official.md` (MESA EFPA Template)

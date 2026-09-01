@@ -1,5 +1,7 @@
 # MESA Review: ARC-AGI-2
 
+> **Version note:** Reviewed against an earlier version of the MESA template (89 items), 2025-2026. Section numbers cite v1; see `feedback/95-mesa-core-plan.md` Part 3 for the v1→v2 mapping.
+
 Reviewer: Claude (Opus 4.7), as MESA benchmark reviewer agent
 Date of review: 2026-05-18
 Template: `MESA EFPA template official.md` (MESA EFPA Template v2)

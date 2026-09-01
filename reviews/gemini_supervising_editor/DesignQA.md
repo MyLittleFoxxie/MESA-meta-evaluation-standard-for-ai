@@ -1,5 +1,7 @@
 # Editor's Prefatory Notes
 
+> **Version note:** Reviewed against an earlier version of the MESA template (89 items), 2025-2026. Section numbers cite v1; see `feedback/95-mesa-core-plan.md` Part 3 for the v1→v2 mapping.
+
 ## Editor Reconciliation Note
 
 As the MESA Supervising Editor Agent, I have reconciled two independently generated draft MESA reviews for the DesignQA benchmark into a single, authoritative, source-grounded evaluation. Both reviewers operated from the same source packet and produced high-quality, comprehensive drafts. Reviewer 1 (R1) meticulously documented the automated scorer's formatting sensitivities and lexical metrics. Reviewer 2 (R2) provided a rigorous measurement-centric critique, highlighting the absence of score uncertainty reporting on subsets as small as 16 items, the legal ambiguity of the repository's missing license, and the severe validation risk posed by the authors' recommendation to fine-tune models directly on the public test set.
