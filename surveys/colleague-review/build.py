@@ -12,7 +12,7 @@ lines+=['Your name: ____________________','','When you finish a benchmark online
 for term,meaning in d['terms']:lines+=['- **'+term+':** '+meaning]
 lines+=['','Under each numbered question, **Meaning** explains the wording. It is not an extra question. Choose just one answer for the numbered question.','','This is a pilot questionnaire, not a validated certification instrument. The packet contains selected source-based facts and clearly stated limits, not recommended answers.','']
 dq=d['designqa']
-lines+=['## DesignQA — answered example','',dq['overview'],'','**Which test this example covers:** '+dq['scope'],'','### Reading passage','']
+lines+=['## DesignQA — answered example','',dq['overview'],'','**Which test this survey covers:** '+dq['scope'],'','**How to interpret its scores:** '+dq['intended_use'],'','### Reading passage','']
 for paragraph in dq['reading']:
  lines+=['#### '+paragraph['title'],'',paragraph['text']+' Sources: '+' '.join('['+sid+'](#source-'+sid+')' for sid in paragraph['sources'])+'.','']
 lines+=['### Answered questions','','These are the reviewer’s answers for DesignQA. Your ARC-AGI-2 and HLE answers remain for you to choose.','']

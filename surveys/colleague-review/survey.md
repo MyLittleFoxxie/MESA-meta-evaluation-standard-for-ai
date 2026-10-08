@@ -35,9 +35,11 @@ This is a pilot questionnaire, not a validated certification instrument. The pac
 
 ## DesignQA — answered example
 
-DesignQA tests how well an AI can use written engineering rules together with vehicle images and drawings. The passage below describes the original benchmark and explains the background to the completed review that follows.
+The AI receives written engineering rules, vehicle images or drawings and must answer questions about them. It may need to find a rule, explain a technical term, identify a part, or check whether a design meets a requirement. The questions draw on Formula SAE, a competition in which university students design and build racing cars. You do not need engineering knowledge or to solve these problems to follow the completed example.
 
-**Which test this example covers:** The original DesignQA benchmark described in the 2024 paper, together with the public scoring software examined for the existing review.
+**Which test this survey covers:** The original DesignQA benchmark described in the 2024 paper, together with its public scoring software. Sources were inspected on 6 October 2026. Later changes to the questions or software may affect results.
+
+**How to interpret its scores:** Using scores to compare how well AI systems find and apply engineering rules and understand vehicle drawings, while considering how far these results support claims about understanding other engineering documents.
 
 ### Reading passage
 
