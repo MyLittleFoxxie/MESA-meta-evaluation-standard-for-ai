@@ -81,7 +81,7 @@ These are the reviewer’s answers for DesignQA. Your ARC-AGI-2 and HLE answers 
 
 **Answer: Partly**
 
-Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
+Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Without that link, a reader cannot be sure they are using the same materials as the authors. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
 
 **Example Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
 
@@ -99,7 +99,7 @@ Why: The paper describes the questions, supplied rules and drawings, and the ans
 
 **Answer: Partly**
 
-Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
+Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. This means someone following the description may still be unable to repeat the test in exactly the same way. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
 
 **Example Q5. Is it described how answers or actions become scores and how results are presented?**
 
@@ -119,13 +119,13 @@ Why: The paper explains why finding rules, understanding drawings and applying r
 
 **Answer: Partly**
 
-Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. Sources: [DQ-P](#source-DQ-P).
+Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. This makes the test relevant to vehicle design, but does not show that the chosen questions represent engineering documents more generally. Sources: [DQ-P](#source-DQ-P).
 
 **Example Q8. Were the test problems and the answers used to mark them checked for errors during development?**
 
 **Answer: Partly**
 
-Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. Sources: [DQ-P](#source-DQ-P).
+Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. The checks therefore give some confidence in the answers, but leave parts of the test less well checked. Sources: [DQ-P](#source-DQ-P).
 
 **Example Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
 
@@ -139,13 +139,13 @@ Why: The test covers several useful engineering-document skills, but one ruleboo
 
 **Answer: Partly**
 
-Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
+Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. A lower score can therefore reflect how an answer is written as well as whether the AI understands the engineering problem. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
 
 **Example Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
 
 **Answer: Partly**
 
-Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
+Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. The final score could therefore give a misleading impression of how well the AI performs across different engineering skills. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
 
 **Example Q12. Was the marking process tested to see whether it awards the right scores consistently?**
 
@@ -157,7 +157,7 @@ Why: Small marking-test files and reported scoring problems show some checking. 
 
 **Answer: Partly**
 
-Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. Sources: [DQ-P](#source-DQ-P).
+Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. These comparisons help explain some results, but do not show how the AI compares with engineers given the same materials. Sources: [DQ-P](#source-DQ-P).
 
 ### Consistency of results
 
@@ -165,13 +165,13 @@ Why: Other AI systems and random guessing provide comparisons, but there is no r
 
 **Answer: Partly**
 
-Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. Sources: [DQ-P](#source-DQ-P).
+Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. A score change could come from different information, rather than from the AI giving different answers to the same test. Sources: [DQ-P](#source-DQ-P).
 
 **Example Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
 **Answer: Partly**
 
-Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. Sources: [DQ-P](#source-DQ-P).
+Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. This shows that some changes were tested, while leaving the effects of other changes unclear. Sources: [DQ-P](#source-DQ-P).
 
 **Example Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?**
 
@@ -191,7 +191,7 @@ Why: The paper examines some unwanted influences on scores, such as wording and 
 
 **Answer: Partly**
 
-Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Sources: [DQ-P](#source-DQ-P).
+Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Creating new images reduces one possible source of prior exposure, but does not show that the rules or answers were unfamiliar to the AI. Sources: [DQ-P](#source-DQ-P).
 
 **Example Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
 
@@ -209,7 +209,7 @@ Why: Realistic vehicle problems do not show that scores predict success on other
 
 **Answer: Partly**
 
-Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. Sources: [DQ-P](#source-DQ-P).
+Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. A score difference may therefore come from the information provided, as well as from differences between the AI systems. Sources: [DQ-P](#source-DQ-P).
 
 ### Use and reporting
 
@@ -217,25 +217,25 @@ Why: Settings are described, but some systems receive the whole rulebook and oth
 
 **Answer: Partly**
 
-Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
+Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Someone can inspect much of the test, but may still be unable to recreate the exact conditions behind a reported score. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
 
 **Example Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?**
 
 **Answer: Partly**
 
-Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
+Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Being able to download the materials does not, by itself, explain what someone is allowed to do with them. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
 
 **Example Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?**
 
 **Answer: Partly**
 
-Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. Sources: [DQ-TREE](#source-DQ-TREE).
+Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. A reader may therefore be unable to tell whether a score changed because the AI improved or because the test changed. Sources: [DQ-TREE](#source-DQ-TREE).
 
 **Example Q25. Do the published claims stay within what the evidence supports?**
 
 **Answer: Partly**
 
-Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
+Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. The stated limits help readers, but the evidence does not fully support those wider conclusions. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
 
 ## ARC-AGI-2
 
@@ -305,7 +305,7 @@ Use the reading passage to make your own judgments. All comments are optional.
 
 **Example — DesignQA: Partly**
 
-Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
+Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Without that link, a reader cannot be sure they are using the same materials as the authors. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -341,7 +341,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
+Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. This means someone following the description may still be unable to repeat the test in exactly the same way. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -379,7 +379,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. Sources: [DQ-P](#source-DQ-P).
+Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. This makes the test relevant to vehicle design, but does not show that the chosen questions represent engineering documents more generally. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -391,7 +391,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. Sources: [DQ-P](#source-DQ-P).
+Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. The checks therefore give some confidence in the answers, but leave parts of the test less well checked. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -417,7 +417,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
+Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. A lower score can therefore reflect how an answer is written as well as whether the AI understands the engineering problem. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -429,7 +429,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
+Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. The final score could therefore give a misleading impression of how well the AI performs across different engineering skills. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -453,7 +453,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. Sources: [DQ-P](#source-DQ-P).
+Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. These comparisons help explain some results, but do not show how the AI compares with engineers given the same materials. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -467,7 +467,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. Sources: [DQ-P](#source-DQ-P).
+Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. A score change could come from different information, rather than from the AI giving different answers to the same test. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -479,7 +479,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. Sources: [DQ-P](#source-DQ-P).
+Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. This shows that some changes were tested, while leaving the effects of other changes unclear. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -517,7 +517,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Sources: [DQ-P](#source-DQ-P).
+Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Creating new images reduces one possible source of prior exposure, but does not show that the rules or answers were unfamiliar to the AI. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -553,7 +553,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. Sources: [DQ-P](#source-DQ-P).
+Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. A score difference may therefore come from the information provided, as well as from differences between the AI systems. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -567,7 +567,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
+Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Someone can inspect much of the test, but may still be unable to recreate the exact conditions behind a reported score. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -579,7 +579,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
+Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Being able to download the materials does not, by itself, explain what someone is allowed to do with them. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -591,7 +591,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. Sources: [DQ-TREE](#source-DQ-TREE).
+Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. A reader may therefore be unable to tell whether a score changed because the AI improved or because the test changed. Sources: [DQ-TREE](#source-DQ-TREE).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -603,7 +603,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
+Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. The stated limits help readers, but the evidence does not fully support those wider conclusions. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -689,7 +689,7 @@ Use the reading passage to make your own judgments. All comments are optional.
 
 **Example — DesignQA: Partly**
 
-Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
+Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Without that link, a reader cannot be sure they are using the same materials as the authors. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -725,7 +725,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
+Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. This means someone following the description may still be unable to repeat the test in exactly the same way. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -763,7 +763,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. Sources: [DQ-P](#source-DQ-P).
+Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. This makes the test relevant to vehicle design, but does not show that the chosen questions represent engineering documents more generally. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -775,7 +775,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. Sources: [DQ-P](#source-DQ-P).
+Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. The checks therefore give some confidence in the answers, but leave parts of the test less well checked. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -801,7 +801,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
+Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. A lower score can therefore reflect how an answer is written as well as whether the AI understands the engineering problem. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -813,7 +813,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
+Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. The final score could therefore give a misleading impression of how well the AI performs across different engineering skills. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -837,7 +837,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. Sources: [DQ-P](#source-DQ-P).
+Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. These comparisons help explain some results, but do not show how the AI compares with engineers given the same materials. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -851,7 +851,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. Sources: [DQ-P](#source-DQ-P).
+Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. A score change could come from different information, rather than from the AI giving different answers to the same test. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -863,7 +863,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. Sources: [DQ-P](#source-DQ-P).
+Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. This shows that some changes were tested, while leaving the effects of other changes unclear. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -901,7 +901,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Sources: [DQ-P](#source-DQ-P).
+Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Creating new images reduces one possible source of prior exposure, but does not show that the rules or answers were unfamiliar to the AI. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -937,7 +937,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. Sources: [DQ-P](#source-DQ-P).
+Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. A score difference may therefore come from the information provided, as well as from differences between the AI systems. Sources: [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -951,7 +951,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
+Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Someone can inspect much of the test, but may still be unable to recreate the exact conditions behind a reported score. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -963,7 +963,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
+Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Being able to download the materials does not, by itself, explain what someone is allowed to do with them. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -975,7 +975,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. Sources: [DQ-TREE](#source-DQ-TREE).
+Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. A reader may therefore be unable to tell whether a score changed because the AI improved or because the test changed. Sources: [DQ-TREE](#source-DQ-TREE).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
@@ -987,7 +987,7 @@ Comments (optional): ____________________________________________________
 
 **Example — DesignQA: Partly**
 
-Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
+Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. The stated limits help readers, but the evidence does not fully support those wider conclusions. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
 
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
