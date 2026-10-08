@@ -26,6 +26,7 @@ const fs=require('fs'),path=require('path'),assert=require('assert');
   fail=false;await page.locator('#hle-send').click();await page.getByText(/Submitted to the email service at/).waitFor();assert.equal(sent[1]['Submission ID'],sent[2]['Submission ID']);
   await page.locator('header [data-page="arc"]').click();assert.equal(await page.locator('#arc-name').inputValue(),'Test participant');
   await page.locator('header [data-page="designqa"]').click();assert.equal(await page.locator('.worked-answer').count(),25);assert(!(await page.locator('#progress').innerText()).startsWith('50'));
+  assert.equal(await page.locator('#designqa-reading h3').count(),7);assert(await page.locator('#designqa-reading').evaluate(e=>Boolean(e.compareDocumentPosition(document.getElementById('designqa-answers'))&Node.DOCUMENT_POSITION_FOLLOWING)));assert(!(await page.locator('body').innerText()).includes('How the examples work'));await page.screenshot({path:'/tmp/mesa-designqa-reading.png'});
   const data=await page.evaluate(()=>JSON.parse(localStorage.getItem(JSON.parse(document.getElementById('packet').textContent).survey_id)));assert.equal(data.participant_name,'Test participant');assert(data.completions.hle.completed_at);assert.equal(data.answers.arc[1].answer,null);
   await page.reload();
   await page.evaluate(()=>window.confirm=()=>true);await page.getByRole('button',{name:'Load saved draft',exact:true}).click();assert.equal(await page.locator('#hle-name').inputValue(),'Test participant');

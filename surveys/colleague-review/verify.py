@@ -60,7 +60,13 @@ assert 'MESA-25 · packet' not in html
 assert 'id="theme-toggle"' in html
 assert '**Information:**' not in md
 assert 'respondent_code' not in html and 'respondent code' not in md.lower()
-assert not re.search(r'\b[0-9a-f]{40}\b',d['example_scope'])
+assert not re.search(r'\b[0-9a-f]{40}\b',d['designqa']['scope'])
+assert 'How the examples work' not in html and 'How the examples work' not in md
+for paragraph in d['designqa']['reading']:
+ assert paragraph['text'] in md
+ assert set(paragraph['sources'])<=source_ids
+ assert paragraph['text'].count('**')%2==0
+assert md.index(d['designqa']['reading'][-1]['text'])<md.index('**Example Q1.')
 assert len(re.findall(r'^\*\*Example Q\d+\.',md,re.M))==25
 # Extract executable JavaScript for a separate syntax check.
 scripts=re.findall(r'<script>(.*?)</script>',html,re.S)

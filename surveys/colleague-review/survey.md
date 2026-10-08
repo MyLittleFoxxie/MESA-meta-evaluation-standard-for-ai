@@ -33,17 +33,45 @@ Under each numbered question, **Meaning** explains the wording. It is not an ext
 
 This is a pilot questionnaire, not a validated certification instrument. The packet contains selected source-based facts and clearly stated limits, not recommended answers.
 
-## How the examples work
-
-DesignQA tests AI on questions about vehicle drawings and engineering rules. Each “Example” shows a brief answer from the existing DesignQA review and why that answer was chosen. These are worked examples, not an answer key for ARC-AGI-2 or HLE. Your own choices remain blank.
-
-The DesignQA examples summarize a review of the 2024 paper and public scoring software, checked on 6 October 2026. They illustrate reviewer judgments and are not an answer key for the other benchmarks.
-
 ## DesignQA — answered example
 
-The DesignQA examples summarize a review of the 2024 paper and public scoring software, checked on 6 October 2026. They illustrate reviewer judgments and are not an answer key for the other benchmarks.
+DesignQA tests how well an AI can use written engineering rules together with vehicle images and drawings. The passage below describes the original benchmark and explains the background to the completed review that follows.
 
-These completed answers are for reference and do not count toward the 50 survey responses.
+**Which test this example covers:** The original DesignQA benchmark described in the 2024 paper, together with the public scoring software examined for the existing review.
+
+### Reading passage
+
+#### What the AI is asked to do
+
+DesignQA was created by researchers and engineers working with materials from **Formula SAE, a competition in which university students design and build racing cars**. Their aim was to test whether an AI can find engineering rules, understand technical terms and drawings, and apply rules to a design. The paper describes **1,451 question-and-answer pairs in six groups**. These ask the AI to find an individual rule, gather related rules, explain a technical term, identify whether a component is present, check dimensions, or assess performance against a requirement. Depending on the question, the AI receives written rules, a vehicle image or a drawing and must give a text answer or a yes/no answer, sometimes with an explanation. These tasks follow parts of an engineer’s work, which is the authors’ reason for using them to assess understanding of engineering documents. Sources: [DQ-P](#source-DQ-P).
+
+#### How the questions were chosen and checked
+
+The developers used a real competition rulebook, vehicle designs and test data, drawing on contributions from engineering practitioners and researchers. This gives the questions a clear connection to practical work, but the benchmark uses **one rulebook and a limited range of tasks**, rather than a representative sample of engineering work across industries. The groups are also very uneven: finding individual rules accounts for 1,192 questions, while checking functional performance accounts for only 16. The paper reports that two additional reviewers checked manually written questions, with exceptions for questions derived from others and some explanations. Those explanations received a more limited check that they supported the yes/no answer. The reviewed sources do not establish how often reviewers disagreed or how many errors remained. Sources: [DQ-P](#source-DQ-P).
+
+#### How answers earn points
+
+DesignQA uses several marking methods because its questions require different kinds of answers. Some methods compare the wording of an AI answer with a supplied answer, while yes/no questions receive credit for the correct decision and may also have their explanations scored for text similarity. These rules are described, but **wording and formatting can affect credit**: the paper gives examples involving missing commas and valid related rules that were absent from the supplied answer. The public software also produces an overall score by giving each of the six question groups equal weight, despite their different sizes and marking methods. The reviewed material does not show that this overall number, or the separate group scores, measures a distinct underlying skill. Small marking-test files and discussion of scoring problems show some checking, but do not establish a complete study of marking accuracy and consistency. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-FIX](#source-DQ-FIX).
+
+#### Testing conditions and comparisons
+
+The paper names the AI systems tested and describes instructions and settings, but **not every system receives the same information**. Some receive the whole rulebook, while others receive passages selected by search software. Their results therefore describe the AI together with its information supply, which matters when comparing systems. The authors include results from random guessing and other AI systems, but no reported baseline from human engineers taking the test. They also examine changes in the supplied passages, dimension labels, scale bars and highlighted images. One AI is tested with five different sets of rule passages, providing some information about variation. Because the passages change, this does not isolate variation when an identical test is repeated. For the main model comparisons, the reported information is insufficient to judge small score differences confidently. In the 16-question performance group, for example, one additional correct answer changes accuracy by 6.25 percentage points. Sources: [DQ-P](#source-DQ-P).
+
+#### Prior exposure and unintended ways to earn points
+
+The authors discuss influences such as formatting, wording, the quality of retrieved passages and familiarity with components. This shows attention to some factors beyond engineering understanding, but the reviewed material does not fully test ways of gaining points without that understanding. For example, the described drawings with scale bars all comply with the relevant rule. A reviewer can therefore infer that always answering “yes” would earn the yes/no credit on that portion, although this **does not show that any tested AI used that strategy**. The authors also discuss the novelty of their vehicle images and possible exposure to similar images, without directly checking every AI’s training data. The rulebook and released questions are public, and a protected test set or systematic overlap check was not established in the review. Clear enough rules on training on the questions and repeatedly submitting results were also not available in the sources examined. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-WEB](#source-DQ-WEB).
+
+#### Available materials and later changes
+
+Public questions, instructions, scoring code and some AI responses allow researchers to inspect parts of the evaluation. However, they do not provide **a complete record for repeating every result in the paper**: the exact historical software, settings and inputs are not fully linked to each result. One released answer file also contains fewer rows than the corresponding question count in the paper. Code history makes revisions identifiable, but the reviewer did not find a clear change record explaining their effects on scores, a licence file, or complete rules for responsible reuse. These findings describe limits of the materials inspected; they do not establish that permission is unavailable elsewhere or that reuse is prohibited. Sources: [DQ-R](#source-DQ-R) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT) [DQ-TREE](#source-DQ-TREE).
+
+#### What the results can support
+
+DesignQA’s paper acknowledges the limits of using one rulebook, a small set of task types and imperfect marking methods. It also says that **performance on a different technical document remains uncertain**. Real vehicle materials make the test relevant to engineering, but they do not demonstrate that its scores predict success on other standards or real engineering projects. The completed review below therefore treats the benchmark as a way to examine performance on these tasks under stated conditions. Broader claims about engineering competence, or fine distinctions between closely ranked systems, require more support. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
+
+### Answered questions
+
+These are the reviewer’s answers for DesignQA. Your ARC-AGI-2 and HLE answers remain for you to choose.
 
 ### Description
 
