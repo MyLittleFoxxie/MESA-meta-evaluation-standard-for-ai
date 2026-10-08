@@ -1,7 +1,7 @@
 /* MESA site shell
  * Lightweight hash router that turns the single review form into a multi-tab
  * static site: Home (README), Review Template (the interactive form built by
- * mesa-form.js), Case Studies (the pilot reviews under reviews/), and About.
+ * mesa-form.js), Survey (MESA-25 questions and examples), and Case Studies.
  *
  * Read-only tabs reuse the vendored marked.js + mermaid.js already loaded for
  * the form, so there are no new dependencies. Everything is fetched with
@@ -28,6 +28,7 @@
   var caseSel = { benchmark: null, reviewer: DEFAULT_REVIEWER };
 
   var docCache = Object.create(null); // url -> raw markdown text
+  var viewToken = 0; // prevents a late fetch from replacing a newer tab
 
   /* ---------- small DOM helpers ---------- */
   function $(id) { return document.getElementById(id); }
@@ -126,12 +127,22 @@
 
   // Render markdown fetched from `url` into #mesa-doc. `intro` is optional HTML
   // inserted above the rendered content (used to feature the editor review).
-  function showDoc(url, intro) {
+  function showDoc(url, intro, resolveLinks) {
     var doc = $("mesa-doc");
     if (!doc) return;
+    var token = viewToken;
 
     function paint(md) {
+      if (token !== viewToken) return;
       renderMarkdownInto(doc, md);
+      if (resolveLinks) {
+        doc.querySelectorAll("a[href]").forEach(function (link) {
+          var href = link.getAttribute("href");
+          var routes = { "designqa-example.md": "#survey/designqa-report", "designqa-comparison.md": "#survey/designqa-comparison", "questionnaire.md": "#survey" };
+          if (routes[href]) link.href = routes[href];
+          else if (href && href[0] !== "#") link.href = new URL(href, new URL(url, location.href)).href;
+        });
+      }
       if (intro) doc.insertAdjacentHTML("afterbegin", intro);
       doc.scrollTop = 0;
       window.scrollTo({ top: 0 });
@@ -149,6 +160,7 @@
       })
       .then(function (md) { docCache[url] = md; paint(md); })
       .catch(function (err) {
+        if (token !== viewToken) return;
         doc.innerHTML = "";
         setStatus(
           "Could not load “" + url + "” (" + err.message + "). " +
@@ -157,6 +169,152 @@
           "They do not work when the page is opened directly from disk (file://)."
         );
         buildToc(null, []);
+      });
+  }
+
+  function showSurvey(completed) {
+    var doc = $("mesa-doc");
+    var token = viewToken;
+    doc.replaceChildren();
+    buildToc(null, []);
+    setStatus("Loading survey…");
+    var files = ["questions.json", "introduction.json"];
+    if (completed) files.push("designqa-example.json");
+    Promise.all(files.map(function (name) {
+      return fetch("proposals/mesa-25/" + name, { cache: "no-store" })
+        .then(function (response) {
+          if (!response.ok) throw new Error("HTTP " + response.status);
+          return response.json();
+        });
+    }))
+      .then(function (data) {
+        var questions = data[0];
+        var introduction = data[1];
+        var worked = completed ? data[2] : null;
+        if (token !== viewToken) return;
+        if (!Array.isArray(questions) || questions.length !== 25 ||
+            !questions.every(function (q, i) {
+              return q.id === i + 1 && typeof q.domain === "string" &&
+                typeof q.question === "string" && typeof q.example === "string" &&
+                typeof q.explanation === "string" &&
+                q.kind === (i < 5 ? "description" : "evaluation");
+            })) throw new Error("The survey data is incomplete.");
+
+        if (!Array.isArray(introduction) || !introduction.length ||
+            !introduction.every(function (item) {
+              return typeof item.term === "string" && typeof item.meaning === "string";
+            })) throw new Error("The survey introduction is incomplete.");
+
+        if (completed && (!worked || !Array.isArray(worked.answers) || worked.answers.length !== 25 ||
+            !worked.answers.every(function (a, i) {
+              return a.id === i + 1 && ["Yes", "Partly", "No", "Not sure", "Not applicable"].indexOf(a.answer) !== -1 &&
+                typeof a.comment === "string" && typeof a.sources === "string";
+            }))) throw new Error("The completed example is incomplete.");
+
+        doc.appendChild(el("h1", null, completed ? "DesignQA — completed Survey example" : "Survey — MESA-25"));
+        var surveyNav = el("p");
+        [["Colleague survey: ARC-AGI-2 and HLE", "surveys/colleague-review/survey.html"], ["Blank questionnaire", "#survey"], ["Completed DesignQA example", "#survey/designqa"], ["Comparison with original reviews", "#survey/designqa-comparison"], ["Detailed sources and report", "#survey/designqa-report"]].forEach(function (item, i) {
+          if (i) surveyNav.appendChild(document.createTextNode(" · "));
+          var link = el("a", null, item[0]);
+          link.href = item[1];
+          surveyNav.appendChild(link);
+        });
+        doc.appendChild(surveyNav);
+        if (worked) {
+          doc.appendChild(el("p", "mesa-doc-note", worked.status + ". " + worked.date));
+          doc.appendChild(el("p", null, worked.scope));
+          doc.appendChild(el("p", null, worked.method));
+          doc.appendChild(el("p", null, worked.conclusion));
+          doc.appendChild(el("p", null, "This saved example is read-only. The blank questionnaire remains available for your own answers. Source IDs in the comments are explained in Detailed sources and report."));
+        }
+        doc.appendChild(el("p", null, "25 questions in six domains: five descriptive questions and twenty evaluative questions."));
+        doc.appendChild(el("p", "mesa-doc-note mesa-doc-note-draft", "Experimental draft 0.2. This short form has not been validated: it has not yet been shown to produce dependable review judgments."));
+        doc.appendChild(el("h2", null, "Before you begin"));
+        introduction.forEach(function (item) {
+          var paragraph = el("p");
+          paragraph.appendChild(el("strong", null, item.term + ". "));
+          paragraph.appendChild(document.createTextNode(item.meaning));
+          doc.appendChild(paragraph);
+        });
+        doc.appendChild(el("p", null, "This review concerns one version of a benchmark and one intended use. Q1–Q5 ask whether the test is described. Q6–Q25 ask about its methods and claims."));
+
+        var sources = el("p");
+        var sourceLink = el("a", null, "Example sources and qualifications");
+        sourceLink.href = "proposals/mesa-25/example-sources.md";
+        sources.appendChild(sourceLink);
+        doc.appendChild(sources);
+
+        var answers = el("details");
+        answers.open = true;
+        answers.appendChild(el("summary", null, "Answer guide"));
+        var list = el("ul");
+        [
+          "Yes: the question is satisfied.",
+          "Partly: some parts are satisfied, but not all.",
+          "No: the question is not satisfied.",
+          "Not sure: there is not enough information to decide.",
+          "Not applicable: the issue does not apply to this benchmark."
+        ].forEach(function (text) { list.appendChild(el("li", null, text)); });
+        answers.appendChild(list);
+        answers.appendChild(el("p", null, "Choose one answer per question. No written explanation, evidence, citations or closing summary is required. Missing information alone does not mean No. For questions about whether a check was performed, Yes means it was performed, not that its result was favourable. No total score is calculated. Comments are optional. Answers and comments are not saved after leaving or reloading this page."));
+        doc.appendChild(answers);
+
+        var domain = null;
+        questions.forEach(function (q) {
+          if (q.domain !== domain) {
+            domain = q.domain;
+            doc.appendChild(el("h2", null, domain));
+          }
+          doc.appendChild(el("h3", null, "Q" + q.id + ". " + q.question));
+          doc.appendChild(el("p", "mesa-survey-explanation", q.explanation));
+          var example = el("p");
+          example.appendChild(el("em", null, "Example: " + q.example));
+          doc.appendChild(example);
+          var options = el("fieldset", "mesa-survey-options");
+          options.appendChild(el("legend", null, "Answer to Q" + q.id));
+          ["Yes", "Partly", "No", "Not sure", "Not applicable"].forEach(function (answer) {
+            var label = el("label");
+            label.style.display = "inline-block";
+            label.style.margin = "0 1rem 0.5rem 0";
+            var input = el("input");
+            input.type = "radio";
+            input.name = "survey-q" + q.id;
+            input.value = answer;
+            if (worked) {
+              input.checked = worked.answers[q.id - 1].answer === answer;
+              input.disabled = true;
+            }
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(" " + answer));
+            options.appendChild(label);
+          });
+          var response = el("div", "mesa-survey-response");
+          response.appendChild(options);
+          var comments = el("div", "mesa-survey-comments");
+          var commentLabel = el("label", null, "Comments (optional)");
+          commentLabel.htmlFor = "survey-comments-" + q.id;
+          var commentInput = el("textarea");
+          commentInput.id = commentLabel.htmlFor;
+          commentInput.name = "survey-comments-" + q.id;
+          commentInput.rows = worked ? 12 : 3;
+          if (worked) {
+            commentInput.value = worked.answers[q.id - 1].comment + "\n\nSources: " + worked.answers[q.id - 1].sources;
+            commentInput.readOnly = true;
+          }
+          comments.appendChild(commentLabel);
+          comments.appendChild(commentInput);
+          response.appendChild(comments);
+          doc.appendChild(response);
+        });
+        tocForDoc();
+        window.scrollTo({ top: 0 });
+        setStatus("");
+      })
+      .catch(function (err) {
+        if (token !== viewToken) return;
+        doc.replaceChildren();
+        buildToc(null, []);
+        setStatus("Could not load the survey (" + err.message + "). Reload the page to try again.");
       });
   }
 
@@ -292,6 +450,7 @@
     var head = parts[0] || "home";
     if (head === "template") return { view: "template" };
     if (head === "scorecard") return { view: "scorecard" };
+    if (head === "survey") return { view: "survey", page: parts[1] || "" };
     if (head === "paper") return { view: "paper" };
     // legacy #about now lands on the Case Studies Overview
     if (head === "about" || head === "case") {
@@ -307,6 +466,7 @@
   }
 
   function route() {
+    viewToken++;
     var r = parseHash();
     setView(r.view);
     switch (r.view) {
@@ -317,6 +477,12 @@
         break;
       case "case":
         showCase();
+        break;
+      case "survey":
+        if (r.page === "designqa-comparison" || r.page === "designqa-report") {
+          showDoc("proposals/mesa-25/" + (r.page === "designqa-comparison" ? "designqa-comparison.md" : "designqa-example.md"),
+            '<p><a href="#survey">Blank questionnaire</a> · <a href="#survey/designqa">Completed DesignQA example</a> · <a href="#survey/designqa-comparison">Comparison</a> · <a href="#survey/designqa-report">Sources and report</a></p>', true);
+        } else showSurvey(r.page === "designqa");
         break;
       case "paper":
         buildToc(null, []);
