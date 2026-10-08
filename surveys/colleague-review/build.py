@@ -5,13 +5,18 @@ P=Path(__file__).resolve().parent
 raw=(P/'packet.json').read_bytes(); d=json.loads(raw); digest=hashlib.sha256(raw).hexdigest()
 embedded=json.dumps(d,ensure_ascii=False).replace('<','\\u003c')
 media={asset['path']:'data:'+mimetypes.guess_type(asset['path'])[0]+';base64,'+base64.b64encode((P/asset['path']).read_bytes()).decode() for b in d['benchmarks'] for key in ['official_image','logo'] if (asset:=b.get(key))}
-s=(P/'template.html').read_text().replace('__MEDIA_JSON__',json.dumps(media)).replace('__PACKET_JSON__',embedded).replace('__PACKET_HASH__',digest).replace('__PACKET_VERSION__',d['version'])
+s=(P/'template.html').read_text().replace('__MEDIA_JSON__',json.dumps(media)).replace('__PACKET_JSON__',embedded).replace('__PACKET_HASH__',digest).replace('__PACKET_VERSION__',d['version']).replace('__PAPER_TITLE__',d['paper_title']).replace('__MESA_INTRODUCTION__',d['introduction'])
 (P/'survey.html').write_text(s)
-lines=['# Reviewing two tests of AI ability','','Colleague survey · MESA-25 · packet '+d['version']+' · 7 October 2026','','## Instructions','','You are reviewing the tests, not rating particular AI systems or answering their test problems. Complete the same 25 questions for ARC-AGI-2 and HLE: 50 selections in total. Use only this packet; no source reading is required. Read each benchmark’s passage before answering its 25 questions. Interpret the supplied information and make your own judgments. You may refer back to the passage at any time; this is not a memory test. There is no time limit, answer key or total quality score.','','Choose one: **Yes** (the whole condition is supported), **Partly** (some parts are supported), **No** (the information shows the condition is not met), **Not sure** (insufficient information), or **Not applicable** (the issue does not apply). An unanswered item stays blank. Missing information is not proof of failure. For “Was it tested?”, Yes concerns whether testing happened, not whether its result was favourable. Comments are optional; no evidence notes or citations are required.','']
+lines=['# '+d['paper_title'],'','Colleague survey','','## Instructions','',d['introduction'],'','You are reviewing the tests, not rating particular AI systems or answering their test problems. Complete the same 25 questions for ARC-AGI-2 and HLE: 50 selections in total. Use only this packet; no source reading is required. Read each benchmark’s passage before answering its 25 questions. Interpret the supplied information and make your own judgments. You may refer back to the passage at any time; this is not a memory test. There is no time limit, answer key or total quality score.','','Choose one: **Yes** (the whole condition is supported), **Partly** (some parts are supported), **No** (the information shows the condition is not met), **Not sure** (insufficient information), or **Not applicable** (the issue does not apply). An unanswered item stays blank. If the passage does not describe research on an issue, that does not show poor performance; it may mean there is not enough information to decide. For “Was it tested?”, Yes concerns whether testing happened, not whether its result was favourable. Comments are optional; no evidence notes or citations are required.','']
 lines+=['Your name: ____________________','','When you finish a benchmark online, the Finish & email responses button sends your name, that benchmark’s answers and comments, and completion time to vitorraposo2@gmail.com through FormSubmit. The printable copy can be returned by email.','','## Useful terms','']
 for term,meaning in d['terms']:lines+=['- **'+term+':** '+meaning]
 lines+=['','Under each numbered question, **Meaning** explains the wording. It is not an extra question. Choose just one answer for the numbered question.','','This is a pilot questionnaire, not a validated certification instrument. The packet contains selected source-based facts and clearly stated limits, not recommended answers.','']
 lines+=['## How the examples work','',d['example_intro'],'',d['example_scope'],'']
+lines+=['## DesignQA — answered example','',d['example_scope'],'','These completed answers are for reference and do not count toward the 50 survey responses.','']
+domain=''
+for q in d['questions']:
+ if q['domain']!=domain:domain=q['domain'];lines+=['### '+domain,'']
+ lines+=['**Example Q'+str(q['id'])+'. '+q['question']+'**','','**Answer: '+q['example']['answer']+'**','','Why: '+q['example']['why']+' Sources: '+' '.join('['+sid+'](#source-'+sid+')' for sid in q['example']['sources'])+'.','']
 for b in d['benchmarks']:
  lines+=['## '+b['name'],'','!['+b['logo']['alt']+']('+b['logo']['path']+')','',b['overview'],'','**Version and scope:** '+b['scope'],'','**Intended use to consider:** '+b['intended_use'],'']
  lines+=['### Reading passage','','Read this passage before answering the questions below. You may refer back to it while answering.','']
@@ -29,11 +34,6 @@ for b in d['benchmarks']:
  for q in d['questions']:
   if q['domain']!=domain:domain=q['domain'];lines+=['### '+domain,'']
   lines+=['**Q'+str(q['id'])+'. '+q['question']+'**','','**Meaning:** '+q['help'],'','**Example — DesignQA: '+q['example']['answer']+'**','','Why: '+q['example']['why']+' Sources: '+' '.join('['+sid+'](#source-'+sid+')' for sid in q['example']['sources'])+'.','','☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable','','Comments (optional): ____________________________________________________','']
-lines+=['## DesignQA — answered example','',d['example_scope'],'','These completed answers are for reference and do not count toward the 50 survey responses.','']
-domain=''
-for q in d['questions']:
- if q['domain']!=domain:domain=q['domain'];lines+=['### '+domain,'']
- lines+=['**Example Q'+str(q['id'])+'. '+q['question']+'**','','**Answer: '+q['example']['answer']+'**','','Why: '+q['example']['why']+' Sources: '+' '.join('['+sid+'](#source-'+sid+')' for sid in q['example']['sources'])+'.','']
 lines+=['## Sources and links','','Reading these documents is not required. All necessary reading for this survey is supplied above. For issues the packet cannot settle, Not sure is available.','']
 for s in d['sources']:lines+=['<a id="source-'+s['id']+'"></a>','','- **'+s['id']+'** ['+s['title']+']('+s.get('article_url',s['url'])+'). '+s['note'],'']
 (P/'survey.md').write_text('\n'.join(lines).rstrip()+'\n')

@@ -53,6 +53,11 @@ for b in d['benchmarks']:
   assert all(step['text'] in md for step in diagram['steps'])
  assert md.index(b['reading'][-1]['text']) < md.index('**Q1.',md.index('## '+b['name']))
 assert 'Information for this question' not in html
+assert 'A missing study' not in html
+assert 'data-page="finish"' not in html and 'id="import-file"' not in html
+assert d['paper_title'] in html
+assert 'MESA-25 · packet' not in html
+assert 'id="theme-toggle"' in html
 assert '**Information:**' not in md
 assert 'respondent_code' not in html and 'respondent code' not in md.lower()
 assert not re.search(r'\b[0-9a-f]{40}\b',d['example_scope'])

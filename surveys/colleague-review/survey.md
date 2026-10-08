@@ -1,12 +1,14 @@
-# Reviewing two tests of AI ability
+# MESA: Adapting and Testing an EFPA-Based Framework for AI Benchmark Review
 
-Colleague survey · MESA-25 · packet 1.7 · 7 October 2026
+Colleague survey
 
 ## Instructions
 
+This form introduces MESA, the Meta-Evaluation Standard for AI Benchmarks. MESA is a framework for reviewing whether an AI test is well designed and whether its scores support the claims made about AI performance. Here, you will use a shorter questionnaire to review ARC-AGI-2 and Humanity’s Last Exam, with an answered DesignQA example to show how the questions work.
+
 You are reviewing the tests, not rating particular AI systems or answering their test problems. Complete the same 25 questions for ARC-AGI-2 and HLE: 50 selections in total. Use only this packet; no source reading is required. Read each benchmark’s passage before answering its 25 questions. Interpret the supplied information and make your own judgments. You may refer back to the passage at any time; this is not a memory test. There is no time limit, answer key or total quality score.
 
-Choose one: **Yes** (the whole condition is supported), **Partly** (some parts are supported), **No** (the information shows the condition is not met), **Not sure** (insufficient information), or **Not applicable** (the issue does not apply). An unanswered item stays blank. Missing information is not proof of failure. For “Was it tested?”, Yes concerns whether testing happened, not whether its result was favourable. Comments are optional; no evidence notes or citations are required.
+Choose one: **Yes** (the whole condition is supported), **Partly** (some parts are supported), **No** (the information shows the condition is not met), **Not sure** (insufficient information), or **Not applicable** (the issue does not apply). An unanswered item stays blank. If the passage does not describe research on an issue, that does not show poor performance; it may mean there is not enough information to decide. For “Was it tested?”, Yes concerns whether testing happened, not whether its result was favourable. Comments are optional; no evidence notes or citations are required.
 
 Your name: ____________________
 
@@ -36,6 +38,174 @@ This is a pilot questionnaire, not a validated certification instrument. The pac
 DesignQA tests AI on questions about vehicle drawings and engineering rules. Each “Example” shows a brief answer from the existing DesignQA review and why that answer was chosen. These are worked examples, not an answer key for ARC-AGI-2 or HLE. Your own choices remain blank.
 
 The DesignQA examples summarize a review of the 2024 paper and public scoring software, checked on 6 October 2026. They illustrate reviewer judgments and are not an answer key for the other benchmarks.
+
+## DesignQA — answered example
+
+The DesignQA examples summarize a review of the 2024 paper and public scoring software, checked on 6 October 2026. They illustrate reviewer judgments and are not an answer key for the other benchmarks.
+
+These completed answers are for reference and do not count toward the 50 survey responses.
+
+### Description
+
+**Example Q1. Are the benchmark version, set of test problems and method for calculating scores identified?**
+
+**Answer: Partly**
+
+Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
+
+**Example Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
+
+**Answer: Yes**
+
+Why: The paper describes testing AI on finding, understanding and applying engineering rules, to help researchers compare strengths and weaknesses. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q3. Are the test problems, the information provided and the required answers or actions described?**
+
+**Answer: Yes**
+
+Why: The paper describes the questions, supplied rules and drawings, and the answers the AI must give. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q4. Are the instructions, resources and limits for taking the test described?**
+
+**Answer: Partly**
+
+Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
+
+**Example Q5. Is it described how answers or actions become scores and how results are presented?**
+
+**Answer: Yes**
+
+Why: The paper and code explain how responses earn points and how group and overall scores are reported. This does not mean every scoring choice is sound. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2).
+
+### Purpose and development
+
+**Example Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
+
+**Answer: Yes**
+
+Why: The paper explains why finding rules, understanding drawings and applying rules are relevant to working with engineering documents. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
+
+**Answer: Partly**
+
+Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q8. Were the test problems and the answers used to mark them checked for errors during development?**
+
+**Answer: Partly**
+
+Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
+
+**Answer: Partly**
+
+Why: The test covers several useful engineering-document skills, but one rulebook and six question types cannot establish coverage of all engineering work. Sources: [DQ-P](#source-DQ-P).
+
+### Scoring and comparisons
+
+**Example Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
+
+**Answer: Partly**
+
+Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
+
+**Example Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
+
+**Answer: Partly**
+
+Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
+
+**Example Q12. Was the marking process tested to see whether it awards the right scores consistently?**
+
+**Answer: Partly**
+
+Why: Small marking-test files and reported scoring problems show some checking. A full study of whether the marks are correct and consistent was not established. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2) [DQ-FIX](#source-DQ-FIX).
+
+**Example Q13. Are the comparison points used to explain the scores justified for the claims being made?**
+
+**Answer: Partly**
+
+Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. Sources: [DQ-P](#source-DQ-P).
+
+### Consistency of results
+
+**Example Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
+
+**Answer: Partly**
+
+Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
+
+**Answer: Partly**
+
+Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?**
+
+**Answer: No**
+
+Why: The main comparisons lack enough information about score variation to judge small differences confidently. A limited side experiment does report some variation. Sources: [DQ-P](#source-DQ-P).
+
+### Meaning and fairness
+
+**Example Q17. Were ways of earning points without using the ability being tested investigated?**
+
+**Answer: Partly**
+
+Why: The paper examines some unwanted influences on scores, such as wording and formatting, but does not fully test ways to gain points without engineering understanding. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
+
+**Answer: Partly**
+
+Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
+
+**Answer: Not sure**
+
+Why: The reviewed sources do not provide clear enough rules on training on the questions and repeated submissions to judge whether those rules are suitable. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-WEB](#source-DQ-WEB).
+
+**Example Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?**
+
+**Answer: Not sure**
+
+Why: Realistic vehicle problems do not show that scores predict success on other rulebooks or real engineering projects. No such study was established in the reviewed sources. Sources: [DQ-P](#source-DQ-P).
+
+**Example Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?**
+
+**Answer: Partly**
+
+Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. Sources: [DQ-P](#source-DQ-P).
+
+### Use and reporting
+
+**Example Q22. Are the test materials and methods available in enough detail for someone else to repeat the evaluation or examine how it was done?**
+
+**Answer: Partly**
+
+Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
+
+**Example Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?**
+
+**Answer: Partly**
+
+Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
+
+**Example Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?**
+
+**Answer: Partly**
+
+Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. Sources: [DQ-TREE](#source-DQ-TREE).
+
+**Example Q25. Do the published claims stay within what the evidence supports?**
+
+**Answer: Partly**
+
+Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
 
 ## ARC-AGI-2
 
@@ -792,174 +962,6 @@ Why: The paper explains important limits, but broad statements about engineering
 ☐ Yes ☐ Partly ☐ No ☐ Not sure ☐ Not applicable
 
 Comments (optional): ____________________________________________________
-
-## DesignQA — answered example
-
-The DesignQA examples summarize a review of the 2024 paper and public scoring software, checked on 6 October 2026. They illustrate reviewer judgments and are not an answer key for the other benchmarks.
-
-These completed answers are for reference and do not count toward the 50 survey responses.
-
-### Description
-
-**Example Q1. Are the benchmark version, set of test problems and method for calculating scores identified?**
-
-**Answer: Partly**
-
-Why: The test and scoring code are identified, but the paper’s results are not linked to an exact saved edition of the code and data. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-TREE](#source-DQ-TREE).
-
-**Example Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
-
-**Answer: Yes**
-
-Why: The paper describes testing AI on finding, understanding and applying engineering rules, to help researchers compare strengths and weaknesses. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q3. Are the test problems, the information provided and the required answers or actions described?**
-
-**Answer: Yes**
-
-Why: The paper describes the questions, supplied rules and drawings, and the answers the AI must give. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q4. Are the instructions, resources and limits for taking the test described?**
-
-**Answer: Partly**
-
-Why: Instructions and settings are described, but the exact inputs and software needed to repeat every reported run are not fully recorded. Sources: [DQ-P](#source-DQ-P) [DQ-ENV](#source-DQ-ENV).
-
-**Example Q5. Is it described how answers or actions become scores and how results are presented?**
-
-**Answer: Yes**
-
-Why: The paper and code explain how responses earn points and how group and overall scores are reported. This does not mean every scoring choice is sound. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2).
-
-### Purpose and development
-
-**Example Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
-
-**Answer: Yes**
-
-Why: The paper explains why finding rules, understanding drawings and applying rules are relevant to working with engineering documents. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
-
-**Answer: Partly**
-
-Why: The problems use real vehicle-design materials, but mainly one competition rulebook, with very different numbers of questions in each group. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q8. Were the test problems and the answers used to mark them checked for errors during development?**
-
-**Answer: Partly**
-
-Why: Additional reviewers checked many questions, but some questions and explanations received less checking than others. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
-
-**Answer: Partly**
-
-Why: The test covers several useful engineering-document skills, but one rulebook and six question types cannot establish coverage of all engineering work. Sources: [DQ-P](#source-DQ-P).
-
-### Scoring and comparisons
-
-**Example Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
-
-**Answer: Partly**
-
-Why: Correct yes/no answers earn credit, but missing commas or different wording can also reduce scores even when an answer is useful. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2).
-
-**Example Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
-
-**Answer: Partly**
-
-Why: The question groups have clear purposes, but giving all six groups equal weight has not been shown to produce a meaningful overall ability score. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1).
-
-**Example Q12. Was the marking process tested to see whether it awards the right scores consistently?**
-
-**Answer: Partly**
-
-Why: Small marking-test files and reported scoring problems show some checking. A full study of whether the marks are correct and consistent was not established. Sources: [DQ-P](#source-DQ-P) [DQ-C2](#source-DQ-C2) [DQ-FIX](#source-DQ-FIX).
-
-**Example Q13. Are the comparison points used to explain the scores justified for the claims being made?**
-
-**Answer: Partly**
-
-Why: Other AI systems and random guessing provide comparisons, but there is no reported human-engineer baseline, and some systems receive different information. Sources: [DQ-P](#source-DQ-P).
-
-### Consistency of results
-
-**Example Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
-
-**Answer: Partly**
-
-Why: One AI was tested with five different sets of rule passages. This gives limited repeat information, but does not isolate score changes under identical conditions. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
-
-**Answer: Partly**
-
-Why: The paper tests changes to supplied passages and images, but does not examine every important change to instructions or settings. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?**
-
-**Answer: No**
-
-Why: The main comparisons lack enough information about score variation to judge small differences confidently. A limited side experiment does report some variation. Sources: [DQ-P](#source-DQ-P).
-
-### Meaning and fairness
-
-**Example Q17. Were ways of earning points without using the ability being tested investigated?**
-
-**Answer: Partly**
-
-Why: The paper examines some unwanted influences on scores, such as wording and formatting, but does not fully test ways to gain points without engineering understanding. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
-
-**Answer: Partly**
-
-Why: The authors discuss new images and possible prior exposure, but do not directly check what every AI saw during training. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
-
-**Answer: Not sure**
-
-Why: The reviewed sources do not provide clear enough rules on training on the questions and repeated submissions to judge whether those rules are suitable. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-WEB](#source-DQ-WEB).
-
-**Example Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?**
-
-**Answer: Not sure**
-
-Why: Realistic vehicle problems do not show that scores predict success on other rulebooks or real engineering projects. No such study was established in the reviewed sources. Sources: [DQ-P](#source-DQ-P).
-
-**Example Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?**
-
-**Answer: Partly**
-
-Why: Settings are described, but some systems receive the whole rulebook and others only selected passages. Those results compare the AI together with its information supply. Sources: [DQ-P](#source-DQ-P).
-
-### Use and reporting
-
-**Example Q22. Are the test materials and methods available in enough detail for someone else to repeat the evaluation or examine how it was done?**
-
-**Answer: Partly**
-
-Why: Questions, scoring code and some AI outputs are public, but the materials do not form a complete record for reproducing every published result. Sources: [DQ-R](#source-DQ-R) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT).
-
-**Example Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?**
-
-**Answer: Partly**
-
-Why: Access instructions are available, but complete reuse permissions and responsible-use rules were not found in the reviewed sources. Sources: [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-P](#source-DQ-P).
-
-**Example Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?**
-
-**Answer: Partly**
-
-Why: Code history identifies revisions, but a clear record explaining how changes affect old and new scores was not found. Sources: [DQ-TREE](#source-DQ-TREE).
-
-**Example Q25. Do the published claims stay within what the evidence supports?**
-
-**Answer: Partly**
-
-Why: The paper explains important limits, but broad statements about engineering understanding and precise rankings still need more support. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
 
 ## Sources and links
 
