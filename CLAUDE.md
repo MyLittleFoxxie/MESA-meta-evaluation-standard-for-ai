@@ -46,3 +46,7 @@ Treat AI benchmarks as formal measurement instruments. The goal is not simply to
 - Keep tables and templates easy to scan.
 - Use markdown headings, short paragraphs, and checklists where they improve review usability.
 - Preserve citation placeholders or notes if full citation management is not yet configured.
+
+## Guided survey option
+
+For survey preparation or maintenance, read `surveys/colleague-review/agent-guide.md` and the current `packet.json`. The flow is Introduction → three 1–5 familiarity self-reports → completed HLE example → ARC-AGI-2 → DesignQA → review/submit → confirmation. Use Back/Continue rather than benchmark tabs, with contents limited to the current page. Leave both participant evaluations blank, use inline definitions instead of an opening glossary, and collect no names or respondent emails. One final submission includes familiarity and all 50 answers; automated tests mock delivery. Do not convert choices to EFPA ratings, average familiarity into a knowledge score, or load older named drafts.

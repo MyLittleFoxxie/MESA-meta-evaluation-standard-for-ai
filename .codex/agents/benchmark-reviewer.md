@@ -131,3 +131,7 @@ For Part B preparation:
 - Keep prose concise, academic, and audit-friendly.
 - Prefer tables where they improve review scanability.
 - Do not overwrite papers, templates, pilot reviews, existing reviews, or notes without explicit user approval.
+
+## Guided survey option
+
+For survey preparation or maintenance, read `surveys/colleague-review/agent-guide.md` and the current `packet.json`. The flow is Introduction → three 1–5 familiarity self-reports → completed HLE example → ARC-AGI-2 → DesignQA → review/submit → confirmation. Use Back/Continue rather than benchmark tabs, with contents limited to the current page. Leave both participant evaluations blank, use inline definitions instead of an opening glossary, and collect no names or respondent emails. One final submission includes familiarity and all 50 answers; automated tests mock delivery. Do not convert choices to EFPA ratings, average familiarity into a knowledge score, or load older named drafts.
