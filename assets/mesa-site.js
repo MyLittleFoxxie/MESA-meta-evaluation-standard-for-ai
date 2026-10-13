@@ -213,7 +213,7 @@
 
         doc.appendChild(el("h1", null, completed ? "DesignQA — completed Survey example" : "Survey — MESA-25"));
         var surveyNav = el("p");
-        [["Colleague survey: ARC-AGI-2 and HLE", "surveys/colleague-review/survey.html"], ["Blank questionnaire", "#survey"], ["Completed DesignQA example", "#survey/designqa"], ["Comparison with original reviews", "#survey/designqa-comparison"], ["Detailed sources and report", "#survey/designqa-report"]].forEach(function (item, i) {
+        [["Guided colleague survey: ARC-AGI-2 and DesignQA", "surveys/colleague-review/survey.html"], ["Blank questionnaire", "#survey"], ["Completed DesignQA example", "#survey/designqa"], ["Comparison with original reviews", "#survey/designqa-comparison"], ["Detailed sources and report", "#survey/designqa-report"]].forEach(function (item, i) {
           if (i) surveyNav.appendChild(document.createTextNode(" · "));
           var link = el("a", null, item[0]);
           link.href = item[1];
