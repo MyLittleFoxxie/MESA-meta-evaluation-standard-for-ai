@@ -1,5 +1,7 @@
 # MESA Template Structure Reference (v2)
 
+2026-09-25 wording update: item IDs and headings remain unchanged. The front matter now gives a short workflow, source-note reuse, and limits on validation. Rating guidance distinguishes missing studies from demonstrated inadequacy. Item 9.2.1 clarifies that run settings alone do not establish stability.
+
 This file mirrors the current structure of `MESA EFPA template official.md` (repo root) as a
 condensed heading map with one-line descriptions, so a reviewer agent (or anyone drafting/auditing
 a review) can quickly confirm what a complete review needs without re-reading or re-deriving the

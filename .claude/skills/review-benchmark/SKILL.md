@@ -12,6 +12,10 @@ rules (Part A/Part B standards, EFPA rating discipline, broad-claim handling, ou
 live in `.claude/agents/benchmark-reviewer.md` (mirrored at `.codex/agents/benchmark-reviewer.md`)
 and must not be duplicated here.
 
+## Survey routing
+
+When the user explicitly requests the pilot survey or a completed questionnaire example, read `surveys/colleague-review/agent-guide.md` and pass that output mode to the reviewer. Use the survey questions and response conventions rather than the full-template output path below. Preparing a colleague form leaves participant answers blank; producing selected reviewer responses requires a request for a completed example. Survey comparison does not establish validation. Unqualified MESA reviews still follow the full-review workflow.
+
 ## Workflow
 
 1. **Identify and normalize the benchmark entity.** Derive a clear name from what the user supplied

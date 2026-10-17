@@ -55,7 +55,7 @@ KEEP_BLOCKS = [
     "Evaluative Report of the Benchmark",
     "Conclusions",
     "Recommendations",
-    "MESA Benchmark Artifact Profile",
+    "Summary of Ratings",
     "Gap Register",
     "Bibliography",
 ]
@@ -124,22 +124,13 @@ def drop_s11_xref(body):
 
 INTRO = """# MESA Scorecard — Short Form of the Review Template
 
-This scorecard is the short form of the MESA Test Review Model. It carries 40 rated questions —
-the ones whose ratings decided the outcome in MESA's pilot case studies — together with the
-descriptive fields those questions depend on and the full closing evaluation. It is intended for
-routine work: comparing candidate benchmarks, deciding whether a published score can support a
-claim, or recording a benchmark's known limits before its scores are reused.
+This scorecard retains 40 questions from the full 87-item MESA template, with the descriptive
+fields they need and the closing evaluation. The questions were selected using the three pilot
+reviews. Their adequacy on other benchmarks and the time needed to complete them remain untested.
 
-As in the full template, the seven section-overall ratings form the non-composite MESA Benchmark
-Artifact Profile: Documentation, Usability, Interpretation, Reliability, Validity, Fairness, and
-Reporting. Each metric value is a judgment based on the retained evidence in its section; never
-average, weight, rank, or collapse the profile into a single score.
-
-**Use the full template instead when the review supports a procurement decision, a policy
-position, or a safety case.** The full template (`MESA EFPA template official.md`) carries 87
-rated items and is the certification-grade instrument; this scorecard is deliberately narrower and
-does not examine development process, materials usability, internal structure, scorer and judge
-reliability, or leaderboard governance in their own right.
+Consult the full template when an omitted question matters. In particular, this form does not
+separately assess scorer and judge reliability in Section 9.3. Neither form has been validated
+for certification, procurement, policy, or safety decisions.
 
 Item numbers here are the full template's own numbers. Nothing is renumbered, so a scorecard
 review can be extended into a full review at any time simply by answering the items it omits, and

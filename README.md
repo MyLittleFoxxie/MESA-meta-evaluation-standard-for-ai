@@ -1,60 +1,85 @@
-# MESA-meta-evaluation-standard-for-ai
+# MESA: AI benchmark review questionnaire
 
-This repository is the replication package for the paper **MESA: Requirements-Oriented Review of AI Benchmarks as Measurement Instruments**, by Vitor Raposo (Faculty of Engineering, Ontario Tech University), manuscript in preparation, 2026.
+MESA draws on established guidance for reviewing psychological and educational tests and adapts it into a **25-question questionnaire** for AI benchmark review. It examines which concerns carry over, which change meaning, and which need additions for AI. The questions address what a benchmark claims to measure, how its scores are produced, what the available information supports, and what remains unknown.
 
-The paper argues that AI benchmark scores are routinely used to justify capability, safety, and procurement claims, yet the benchmarks themselves are rarely audited as measurement instruments. MESA adapts the psychometric EFPA Test Review Model into a requirements-oriented framework for reviewing AI benchmarks before their scores are trusted to back such claims.
+The accompanying paper is **MESA: Adapting the EFPA Test Review Model for AI Benchmark Review.** Existing research already provides benchmark-quality checklists and guidance on interpreting scores. The CHASE paper examines a specific question: how can the EFPA Test Review Model (EFPA-TRM) be adapted to a test review model for AI benchmarks, and what changes or detail are lost? Its three deliverables are the questionnaire, an explanation of the adaptation decisions and trade-offs, and an initial examination using GPT-6.1 Sol reviews. The adaptation explanation is the central research contribution. The study illustrates practical limits; it does not establish better reviews or the same range of checks. Human evaluation is future work.
 
-## Overview
-MESA is a structured review framework designed to audit AI benchmarks as measurement instruments. Instead of treating benchmark scores as unquestioned proof of capability, MESA provides a methodology to review the benchmarks themselves—evaluating what they claim to measure, how they operate, and whether their engineering infrastructure is trustworthy.
+One possible application is for an evaluator to prepare a review, colleagues to inspect its reasons and unresolved questions, and a team to consider whether benchmark results support a claim used to select an AI component. The wider purpose is to examine AI benchmarks using adapted human-test review guidance. Effects on collaboration and decisions have not been evaluated. Comments remain optional; colleagues may need to ask for a missing reason before relying on an important judgment. A recorded DesignQA example in the paper shows two exact questions and their saved model choices, rather than prescribing correct answers.
 
-## Theoretical Foundations
-MESA is built on three pillars:
-* **Psychometric Discipline (EFPA):** Adapts the structured instrument-description logic used in human psychological testing.
-* **Cognitive Mapping (CHC):** Grounded in the Cattell-Horn-Carroll (CHC) theory to define specific capability domains (Reasoning, Knowledge, Multimodality, etc.).
-* **Engineering Quality (BetterBench):** Treats benchmarks as lifecycle software artifacts, emphasizing reproducibility and maintenance.
+## Start here
 
-## How a MESA Review Works
-A MESA review has two phases, adapted from the EFPA Test Review Model. The **descriptive phase** records what the benchmark is and how it operates — a standardized "spec sheet" that makes benchmark claims transparent and comparable, without judging them. The **evaluative phase** then judges how good the benchmark is as a measurement instrument, using `n/a` and `0`-`4` ratings to assess whether the available evidence supports the benchmark's stated interpretation. (In the template itself, these two phases are labeled Part A and Part B.)
+- [Guided questionnaire](surveys/colleague-review/survey.html): the participant survey, including a completed teaching example and two benchmarks to review.
+- [Questionnaire and reading passages in Markdown](surveys/colleague-review/survey.md).
+- [CHASE study guide](CHASE-study.md): experimental methods, results, exact prompts, raw responses, failed runs, and analysis commands.
+- [CHASE manuscript](paper_chase.tex): IEEE manuscript for submission to CHASE.
+- [REFSQ manuscript](paper_refsq.tex): planned extension of the CHASE paper with human evaluation, for submission to REFSQ.
 
-A review opens with a **General Description** (a short stand-alone, non-evaluative summary) and a **Source Inventory** recording every source consulted with its access date.
+## The questionnaire
 
-### What the descriptive phase covers:
-1.  **Factual Description:** Provenance, authors, versioning, and code/data repositories.
-2.  **Classification:** Intended systems (e.g., Frontier LLMs), task interaction and response types (e.g., multiple choice, code generation), and evaluation conditions.
-3.  **Measurement and Scoring:** The logic of how outputs become scores (e.g., exact match vs. model-as-judge).
-4.  **Benchmark Outputs and Reports:** The structure of reports, leaderboards, and process data (like token usage).
-5.  **Benchmark Access, Materials, and Lifecycle:** Access routes, contamination documentation, reproducibility materials, licensing, maintenance, and versioning.
+The questions cover six domains:
 
-### What the evaluative phase covers:
-Seven rated sections: Rationale, Development, Documentation, and Task/Item Quality (6) · Quality and Usability of Benchmark Materials (7) · Baselines, Comparators, and Reference Interpretation (8) · Reliability, Precision, and Score Stability (9) · Validity Evidence (10) · Fair Use, Comparability, and Appropriate Use (11) · Quality of Reports, Leaderboards, Dashboards, and Public Claims (12). Their section-overall ratings form the **MESA Benchmark Artifact Profile**: **Documentation, Usability, Interpretation, Reliability, Validity, Fairness, and Reporting**. The seven `n/a`/`0`-`4` values remain separate evidence-grounded judgments and are never averaged into a composite score. A review closes with the profile, Final Evaluation, and Gap Register.
+| Domain | Questions | Main concern |
+| --- | --- | --- |
+| Description | 1–5 | Whether the benchmark, tasks, conditions, and scoring are documented |
+| Purpose and development | 6–9 | Reasons for the tasks, checking for errors, and coverage of the claimed ability |
+| Scoring and comparisons | 10–13 | Whether scoring and comparison points support the intended interpretation |
+| Consistency of results | 14–16 | Repeated runs, changed conditions, and score variation |
+| Meaning and fairness | 17–21 | Shortcuts, prior exposure, training rules, broader claims, and fair comparisons |
+| Use and reporting | 22–25 | Inspection, reuse, updates, and public claims |
 
-## Not Every Question Applies to Every Benchmark
-Following EFPA, a review completes every section that applies and marks the rest `n/a`. There is no separate short form: a benchmark with no leaderboard, no model-based scorer, and a single static form simply marks those items `n/a`, and the review records why.
+Every question uses five choices:
 
-The distinction that matters is `n/a` versus `0`. Mark an item `n/a` when the attribute does not exist for the benchmark — there is no judge to validate, no subscores whose structure could be examined. Mark it `0` when the attribute exists but the documentation says nothing usable about it. `n/a` records that the question does not arise; `0` records that it arises and is unanswered.
+- **Yes:** the information supports the whole condition.
+- **Partly:** the information supports some parts.
+- **No:** the information shows that the condition is not met.
+- **Not sure:** the available information is missing or insufficient.
+- **Not applicable:** the issue does not arise for the benchmark or intended use.
 
-## The Scorecard — a short form for routine use
-A full MESA review carries 87 rated items and is built for certification-grade work. For routine decisions — comparing candidate benchmarks, or checking whether a published score can carry the claim attached to it — the repository also ships **`MESA scorecard.md`**, a short form with **40 rated questions**, the Part A descriptive fields those questions depend on, and the complete Final Evaluation including the Gap Register.
+These are categories, not numerical quality ratings. MESA has **no total quality score**. Missing documentation does not establish that a benchmark is poor. When a question asks whether checking occurred, the existence of that check is separate from whether its findings were favorable.
 
-The 40 questions were not chosen by intuition. They were fixed by a coverage check against the three pilot reviews: every item that produced a deficiency rating in a reconciled case study had to be in the set, and the items that escaped were added.
+Questions 1–5 judge the availability of descriptive information; the reading passages supply the benchmark facts. The remaining questions examine reasons, checks, and the interpretation of results. Optional comments let reviewers explain their choices.
 
-Item numbers in the scorecard are the full template's own numbers, so a scorecard review can be extended into a full review at any time by answering the items it omits — nothing is renumbered, and the interactive form stores an answer under the same key in either view. Use the full template rather than the scorecard when the review supports a procurement decision, a policy position, or a safety case.
+## Guided survey
 
-The scorecard is generated, not hand-maintained: `tools/build-scorecard.py` produces it from the full template using the list in `tools/scorecard-manifest.md`, so the two cannot drift apart. Edit the template or the manifest and re-run the generator; never edit `MESA scorecard.md` directly.
+The survey follows this sequence:
 
-## The Description / Evaluation Boundary
-> [!IMPORTANT]
-> The descriptive phase should not contain ratings. The evaluative phase should not contain unsupported claims.
->
-> The descriptive phase asks *"What is this benchmark?"* The evaluative phase asks *"How good is this benchmark as a measurement instrument for its stated purpose?"* Every evaluative rating must cite evidence, missing evidence, reviewer rationale, and interpretation caution.
+Introduction → three familiarity self-reports → completed Humanity's Last Exam example → ARC-AGI-2 → DesignQA → combined review and submission → confirmation.
 
-## Repository Contents
-* `MESA EFPA template official.md` — the active unified Part A + Part B review template.
-* `MESA scorecard.md` — the 40-question short form, generated from the template by `tools/build-scorecard.py`.
-* `literature/` — markdown corpus of 13 transcribed sources, including the EFPA Test Review Model, BetterBench, Measuring what Matters, A Definition of AGI, and benchmark-critique literature.
-* `reviews/` — pilot benchmark reviews for Humanity's Last Exam, ARC-AGI-2, and DesignQA, produced by two independent reviewer models and reconciled by a supervising editor, organized under `chatgpt_reviewer1/`, `claude_reviewer2/`, and `gemini_supervising_editor/`. These were completed against an earlier version of the template (89 items) and are frozen as dated evidence with a version stamp; `feedback/95-mesa-core-plan.md` Part 3 carries the item mapping.
-* `Papers/` — original PDF source library.
-* `dist/hf_mesa_dataset/` — Hugging Face-style dataset export of the reviews (generated artifact, not source of truth).
+The HLE example explains all 25 selections. ARC-AGI-2 and DesignQA are left for participants to answer. Familiarity is self-reported, and comments are optional. See the [survey guide](surveys/colleague-review/agent-guide.md) for maintenance instructions and [packet.json](surveys/colleague-review/packet.json) for the source content.
 
-## Case Studies
-The paper applies MESA to three benchmarks: Humanity's Last Exam (HLE), ARC-AGI-2, and DesignQA. The reconciled reviews and the underlying reviewer drafts are available in `reviews/` — and browsable interactively, alongside a fillable copy of the review template itself, on the project site — and illustrate how MESA separates supported narrow interpretations (e.g., a difficult academic question-answering benchmark; an exact-grid abstraction benchmark under specified conditions; a multimodal engineering-requirements benchmark) from broader claims about general intelligence or agency that are not supported by the benchmark evidence alone.
+## CHASE study and observed results
+
+GPT-6.1 Sol reads the same descriptions of two benchmarks: ARC-AGI-2, involving coloured-grid puzzles, and DesignQA, involving engineering rules and design documents. It produces reviews using MESA, using the original EFPA Test Review Model, or following general instructions to examine benchmark quality. It does not execute either benchmark. Each method is repeated five times with each of four instruction versions: no assigned reviewer identity, newcomer, research assistant, and benchmark reviewer. These are instructions to one model, not different people. Each execution starts a separate conversation without earlier review history. Separate conversations receive eight constructed test cases that check what a description reports, contradicts, or leaves unknown.
+
+The GPT-6.1 Sol series completed all **120 planned model conversations** on 15 October 2026. Five infrastructure failures were each retried once, retaining both attempts. Two completed EFPA responses failed the required output structure, leaving **118 conversations usable for analysis**.
+
+Each review method matched all **340/340 expected answers** to the separate test-case claims. The expected answers were specified before testing and withheld from the model. The same 17 claims were repeated across conversations, so these are not independent test cases or validation of every questionnaire question. The 20 MESA conversations about published benchmarks produced **1,000 answer choices**. Choices varied for **12 of 50 question–benchmark pairs**: 25 questions applied to each benchmark. The first response without an assigned reviewer identity for each method covered both benchmarks, giving six selected reviews for detailed comparison. This comparison examined conclusions justified by the descriptions, relevant checklist points left unaddressed, and conclusions going beyond the available information. Selected EFPA reviews asked how often people checking provided answers agreed. The examples do not establish how often a method leaves points unaddressed or whether MESA covers the same checks as EFPA.
+
+These are repeated outputs of one model, not human participants. The assistant helped prepare the cases, expected answers, analysis, and manuscript; the findings lack independent human validation. The separate Astra series is incomplete and is not pooled with Sol or treated as complete second-model confirmation. Human understanding, effort, and usefulness remain questions for future work.
+
+For the full records and limitations, see the [CHASE study guide](CHASE-study.md), [protocol](surveys/colleague-review/simulation-protocol.md), and [results summary](surveys/colleague-review/simulation-study/series/gpt-6.1-sol/analysis/summary.md). The separate [static reading document](surveys/colleague-review/simulation-materials.html) has no response fields or submission behavior.
+
+## Sources and supporting records
+
+EFPA provides the conceptual source for the adaptation. BetterBench informs questions about benchmark implementation, documentation, and maintenance. Measurement research informs questions about whether tasks and scores support the intended claims. The proposed correspondences and omissions are documented in the [adaptation map](surveys/colleague-review/simulation-study/analyst/adaptation-map.md); they do not imply EFPA endorsement or equivalent coverage.
+
+| Location | Contents |
+| --- | --- |
+| [Papers/](Papers/) | Original PDF source library |
+| [literature/](literature/) | Source transcriptions, including the EFPA model and benchmark literature |
+| [references.bib](references.bib) | Manuscript bibliography |
+| [reviews/](reviews/) | Supporting benchmark-review records |
+| [MESA EFPA template official.md](MESA%20EFPA%20template%20official.md) | Detailed adaptation working document |
+| [MESA scorecard.md](MESA%20scorecard.md) | Supporting scorecard document |
+| [paper_refsq.tex](paper_refsq.tex) | REFSQ submission, planned as the CHASE paper with human evaluation added |
+| [paper.tex](paper.tex) | Preserved original manuscript |
+| [thesis/](thesis/) | Thesis research notes and revision records |
+| [tools/](tools/) | Validation and utility scripts |
+
+The source survey, benchmark reviews, and original manuscripts remain available. Questionnaire choices should not be converted into the numerical ratings used in supporting review documents.
+
+## Reproduce the study analysis
+
+The [study guide](CHASE-study.md#reproduce-the-offline-analysis) gives Python commands for regenerating results from saved responses. Running those commands does not launch model experiments or send survey submissions. Exact inputs, raw outputs, expected test-case answers, and file fingerprints are retained separately.
+
+The manuscript's citations and structure have been checked without compiling LaTeX. Visual layout and page length remain unchecked.
