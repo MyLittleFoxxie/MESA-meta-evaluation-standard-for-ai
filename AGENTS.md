@@ -36,11 +36,11 @@ IEEE is the confirmed CHASE manuscript format. Research methods follow relevant 
 
 ## Model-study records
 
-Start with `CHASE-study.md` and `surveys/colleague-review/simulation-protocol.md`.
+Start with `CHASE-study.md` and `surveys/colleague-review/mesa-study/claude-sonnet-5-5/protocol.md`.
 
-- `surveys/colleague-review/simulation-study/series/gpt-6.1-sol/`: main model series, with exact inputs, frozen materials, raw attempts, and analysis.
-- The study's root `outputs/` and `analysis/`: separate incomplete Astra series; do not pool it with Sol or present it as complete second-model confirmation.
-- `analysis/manuscript-traceability.md` within the study directory: links paper findings to records.
+- `surveys/colleague-review/mesa-study/claude-sonnet-5-5/`: the current model study reported in `paper_chase.tex` (30 conversations, Claude Sonnet 5.5 through `claude -p`, run 17 October 2026), with exact inputs, frozen materials, raw outputs, and analysis. Its `analysis/manuscript-traceability.md` links paper findings to records.
+- Archived GPT-6.1 Sol series, never pooled with the current study: `mesa-study/main/` (same 30-run design, stopped at a Codex usage limit), `mesa-study/2026-10-17/` (stopped 180-run design), `accessibility-study/v1/`, and `simulation-study/` (first 120-run series and an incomplete Astra series). The paper names only the current study's model; these series are described in the repository records.
+- The reviewer model (Claude Sonnet 5.5) and an assistant running Claude Code with Claude Opus 5.5 are from the same model family; disclose this when the assistant analyzes the outputs.
 - Original prompts, expected fictional answers, raw responses, and failure logs are research records. Do not rewrite them after observing results. Changed materials require a new version and manifest.
 - Preserve incomplete and invalid outputs. A completed invalid response cannot be silently repaired or replaced. Keep retries separately and follow the protocol's handling rules.
 - Keep independently generated responses without reconciliation into an answer key. Reviewer sessions must not receive expected answers, other responses, organizer notes, or project history.

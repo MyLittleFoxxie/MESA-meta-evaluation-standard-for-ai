@@ -1,0 +1,351 @@
+This is a recorded AI benchmark-review experiment, not human participant research. Use ONLY the material below. Do not use tools, browse, read files, consult project memory, or use other runs. Do not introduce facts from prior knowledge. Reviewer identities are instructions to one model, not claims of human identity. Return only one JSON object without Markdown fences. Keep wording concise but complete. Do not calculate an aggregate benchmark-quality score.
+ROLE:
+Review the supplied material carefully. No professional or personal identity is assigned.
+INSTRUMENT:
+Review the benchmark carefully using the supplied information. Assess what its scores can show for its stated use. Consider test construction, scoring, comparisons, consistency, interpretation, fair comparisons, and reporting. Distinguish supported claims, documented problems, and missing information. Explain relevant limitations. Do not use a named review instrument or invent numeric ratings.
+TASK:
+Assess the following 24 constructed benchmark descriptions in the listed order. They are test cases, not observations of real benchmarks. Do not transfer facts between cases. Apply your assigned review method to explain each case; a full questionnaire or EFPA-TRM review per case is not required. Classify every exact claim as Supported (the passage justifies it), Contradicted (the passage explicitly conflicts), or Not established (insufficient information). Supply a brief exact quotation and reason. These labels are not MESA choices or EFPA-TRM ratings. instrument_review is a nonempty STRING. Return all 24 cases and all 49 claims exactly once, with a closing note about unclear instructions. JSON shape:
+{"cases": [{"id": "supplied case id", "instrument_review": "brief explanation using the assigned method, as a STRING", "probes": [{"id": "supplied claim id", "label": "Supported or Contradicted or Not established", "quote": "short exact relevant passage excerpt", "reason": "brief explanation"}]}], "closing_note": ""}
+TEST CASES:
+[
+  {
+    "id": "C1",
+    "passage": "Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. The report does not say whether runs were repeated.",
+    "probes": [
+      {
+        "id": "repeat_test",
+        "statement": "The developers tested changes in scores across repeated runs under the same conditions."
+      },
+      {
+        "id": "stable",
+        "statement": "The supplied findings support stable scores across repeated runs under the same conditions."
+      }
+    ]
+  },
+  {
+    "id": "C2",
+    "passage": "Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. The developers explicitly state that they ran the evaluation exactly once and did not repeat it.",
+    "probes": [
+      {
+        "id": "repeat_test",
+        "statement": "The developers tested changes in scores across repeated runs under the same conditions."
+      },
+      {
+        "id": "stable",
+        "statement": "The supplied findings support stable scores across repeated runs under the same conditions."
+      }
+    ]
+  },
+  {
+    "id": "C3",
+    "passage": "Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. They also repeated the evaluation ten times with the same system, inputs, instructions, resources, and settings. Scores ranged from 69% to 71%. The report defines stable for this comparison as a range of at most two percentage points.",
+    "probes": [
+      {
+        "id": "repeat_test",
+        "statement": "The developers tested changes in scores across repeated runs under the same conditions."
+      },
+      {
+        "id": "stable",
+        "statement": "The supplied findings support stable scores across repeated runs under the same conditions."
+      }
+    ]
+  },
+  {
+    "id": "C4",
+    "passage": "Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. They also repeated the evaluation ten times with the same system, inputs, instructions, resources, and settings. Scores ranged from 20% to 90%. The report defines stable for this comparison as a range of at most two percentage points.",
+    "probes": [
+      {
+        "id": "repeat_test",
+        "statement": "The developers tested changes in scores across repeated runs under the same conditions."
+      },
+      {
+        "id": "stable",
+        "statement": "The supplied findings support stable scores across repeated runs under the same conditions."
+      }
+    ]
+  },
+  {
+    "id": "C5",
+    "passage": "Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. The report does not say whether runs were repeated. New installation instructions explain how to download the files and install dependencies. They report no additional evaluation results.",
+    "probes": [
+      {
+        "id": "repeat_test",
+        "statement": "The developers tested changes in scores across repeated runs under the same conditions."
+      },
+      {
+        "id": "stable",
+        "statement": "The supplied findings support stable scores across repeated runs under the same conditions."
+      }
+    ]
+  },
+  {
+    "id": "C6",
+    "passage": "Fictional GridRange v1 contains 100 unfamiliar grid puzzles, exact-grid scoring, and fixed instructions. System A solves 80 puzzles and system B solves 60 in the reported evaluation. Only grid puzzles were tested; no findings about other tasks are supplied. The intended use is comparing performance on the evaluated grid puzzles.",
+    "probes": [
+      {
+        "id": "narrow",
+        "statement": "The results support that A performed better than B on the evaluated grid puzzles under the stated conditions."
+      },
+      {
+        "id": "broad",
+        "statement": "The results establish that A has greater general intelligence across domains than B."
+      }
+    ]
+  },
+  {
+    "id": "C7",
+    "passage": "Fictional GridRange v1 contains 100 unfamiliar grid puzzles, exact-grid scoring, and fixed instructions. System A solves 80 puzzles and system B solves 60 in the reported evaluation. Only grid puzzles were tested; no findings about other tasks are supplied. The intended use is selecting the system with greater general intelligence across domains.",
+    "probes": [
+      {
+        "id": "narrow",
+        "statement": "The results support that A performed better than B on the evaluated grid puzzles under the stated conditions."
+      },
+      {
+        "id": "broad",
+        "statement": "The results establish that A has greater general intelligence across domains than B."
+      }
+    ]
+  },
+  {
+    "id": "C8",
+    "passage": "Fictional RuleAssist v1 tests locating and applying workshop inspection rules. Initially, only test scores were available. A later preregistered trial randomly allocated 120 inspectors to assistance from system A or system B, using new inspection cases in one workshop. Blinded inspectors checked correctness. With A, 90% of decisions were correct; with B, 70%. The reported uncertainty interval for the difference was 12 to 28 percentage points. Time and safety outcomes were not measured. The intended use is choosing assistance for correct inspection decisions in this workshop.",
+    "probes": [
+      {
+        "id": "before",
+        "statement": "The initially available test scores alone establish that A improves real workshop inspection decisions compared with B."
+      },
+      {
+        "id": "after",
+        "statement": "The later trial supports better decision correctness with A than B for the studied workshop and conditions."
+      },
+      {
+        "id": "safety",
+        "statement": "The later trial establishes that A improves workplace safety compared with B."
+      }
+    ]
+  },
+  {
+    "id": "P1A",
+    "passage": "PatternLedger evaluates a fixed AI on 48 grid transformations. A published result card gives one headline score of 75%. The card describes tasks and scoring but gives no execution history.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The developers measured score changes across repeated evaluations of this AI under identical conditions."
+      },
+      {
+        "id": "claim2",
+        "statement": "The available findings demonstrate that this benchmark produces unstable scores across identical evaluations."
+      }
+    ]
+  },
+  {
+    "id": "P1B",
+    "passage": "PatternLedger evaluates a fixed AI on 48 grid transformations. A published result card gives one headline score of 75%. The execution record confirms that this was the only evaluation performed and that no repeat evaluations were conducted.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The developers measured score changes across repeated evaluations of this AI under identical conditions."
+      },
+      {
+        "id": "claim2",
+        "statement": "The available findings demonstrate that this benchmark produces unstable scores across identical evaluations."
+      }
+    ]
+  },
+  {
+    "id": "P2A",
+    "passage": "RepeatLedger evaluates the same AI on the same 48 problems, with identical inputs, settings and resources on six occasions. Its report defines stable for this comparison as a maximum score range of three percentage points. The recorded scores are 73, 74, 74, 75, 74 and 73 percent.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "Repeated evaluations were conducted under the same conditions."
+      },
+      {
+        "id": "claim2",
+        "statement": "The recorded scores fail the report's stated stability rule."
+      }
+    ]
+  },
+  {
+    "id": "P2B",
+    "passage": "RepeatLedger evaluates the same AI on the same 48 problems, with identical inputs, settings and resources on six occasions. Its report defines stable for this comparison as a maximum score range of three percentage points. The recorded scores are 51, 66, 79, 55, 82 and 62 percent.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "Repeated evaluations were conducted under the same conditions."
+      },
+      {
+        "id": "claim2",
+        "statement": "The recorded scores fail the report's stated stability rule."
+      }
+    ]
+  },
+  {
+    "id": "P3A",
+    "passage": "ManualLedger publishes tasks and one headline score for an engineering-rule benchmark. The supplied document describes question topics and how marks are calculated. It gives no execution history and no findings about mistakes in the provided answers. ",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The supplied material establishes that repeated identical-condition evaluations were studied."
+      },
+      {
+        "id": "claim2",
+        "statement": "The supplied material demonstrates mistakes in the provided answers."
+      }
+    ]
+  },
+  {
+    "id": "P3B",
+    "passage": "ManualLedger publishes tasks and one headline score for an engineering-rule benchmark. The supplied document describes question topics and how marks are calculated. It gives no execution history and no findings about mistakes in the provided answers. A new appendix supplies installation commands, operating-system requirements and a download mirror. It reports no further evaluation results or examination of answers.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The supplied material establishes that repeated identical-condition evaluations were studied."
+      },
+      {
+        "id": "claim2",
+        "statement": "The supplied material demonstrates mistakes in the provided answers."
+      }
+    ]
+  },
+  {
+    "id": "P4A",
+    "passage": "AnswerLedger contains 80 rule questions with supplied answers. Two editors independently examined every question and supplied answer before release. They later reconciled their notes, but the report gives no count of agreement before reconciliation. The report does not state whether mistakes were found or how many remained.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "Both questions and supplied answers were examined for mistakes during development."
+      },
+      {
+        "id": "claim2",
+        "statement": "Every supplied answer in the released version is correct."
+      }
+    ]
+  },
+  {
+    "id": "P4B",
+    "passage": "AnswerLedger contains 80 rule questions with supplied answers. Two editors independently examined every question and supplied answer before release. They later reconciled their notes, but the report gives no count of agreement before reconciliation. The report identifies twelve supplied answers as wrong in the released version.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "Both questions and supplied answers were examined for mistakes during development."
+      },
+      {
+        "id": "claim2",
+        "statement": "Every supplied answer in the released version is correct."
+      }
+    ]
+  },
+  {
+    "id": "P5A",
+    "passage": "MarkerLedger awards points using a fixed software rule, so identical text always receives the same mark. No comparison of those marks with independently established correct marks is reported.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The marking process was tested against independently established correct marks."
+      },
+      {
+        "id": "claim2",
+        "statement": "The reported findings establish that the marking process awards correct scores for every possible response."
+      }
+    ]
+  },
+  {
+    "id": "P5B",
+    "passage": "MarkerLedger awards points using a fixed software rule, so identical text always receives the same mark. The developers tested the software against independently established correct marks for 20 chosen responses. Two marks differed and the discrepancies remain unresolved.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The marking process was tested against independently established correct marks."
+      },
+      {
+        "id": "claim2",
+        "statement": "The reported findings establish that the marking process awards correct scores for every possible response."
+      }
+    ]
+  },
+  {
+    "id": "P6A",
+    "passage": "ScopeLedger compares systems A and B on 48 grid problems under fixed conditions. A solves 36 and B solves 24. No results from other tasks or settings are supplied. The stated use is identifying which system solved more of these 48 grid problems in this evaluation.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The findings are sufficient for the report's stated use."
+      },
+      {
+        "id": "claim2",
+        "statement": "A solved more of the evaluated grid problems than B under the reported conditions."
+      }
+    ]
+  },
+  {
+    "id": "P6B",
+    "passage": "ScopeLedger compares systems A and B on 48 grid problems under fixed conditions. A solves 36 and B solves 24. No results from other tasks or settings are supplied. The stated use is identifying which system has greater general intelligence across subjects and real-world settings.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The findings are sufficient for the report's stated use."
+      },
+      {
+        "id": "claim2",
+        "statement": "A solved more of the evaluated grid problems than B under the reported conditions."
+      }
+    ]
+  },
+  {
+    "id": "P7A",
+    "passage": "CreditLedger uses a scoring rule that gives one point for a completely correct grid and zero otherwise. A partially correct grid receives zero. The stated scoring requirement is to count only completely correct output grids; partial correctness is deliberately outside this comparison.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The scoring rule meets the stated scoring requirement."
+      },
+      {
+        "id": "claim2",
+        "statement": "Giving zero to a partially correct grid violates the stated scoring requirement."
+      }
+    ]
+  },
+  {
+    "id": "P7B",
+    "passage": "CreditLedger uses a scoring rule that gives one point for a completely correct grid and zero otherwise. A partially correct grid receives zero. The stated scoring requirement is to give a response credit for every correctly completed cell, including partially correct output grids.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The scoring rule meets the stated scoring requirement."
+      },
+      {
+        "id": "claim2",
+        "statement": "Giving zero to a partially correct grid violates the stated scoring requirement."
+      }
+    ]
+  },
+  {
+    "id": "P8A",
+    "passage": "ConditionLedger studies the same AI on the same problems and reports how its scores change. The software, resources, problem order and settings remain fixed, but each evaluation uses a differently worded instruction. No evaluation repeats an identical instruction.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The study measured changes across evaluations under identical conditions."
+      },
+      {
+        "id": "claim2",
+        "statement": "The study measured the effect of changing instructions."
+      }
+    ]
+  },
+  {
+    "id": "P8B",
+    "passage": "ConditionLedger studies the same AI on the same problems and reports how its scores change. The software, resources, problem order, settings and instruction are identical on every evaluation. No different instruction or presentation is studied.",
+    "probes": [
+      {
+        "id": "claim1",
+        "statement": "The study measured changes across evaluations under identical conditions."
+      },
+      {
+        "id": "claim2",
+        "statement": "The study measured the effect of changing instructions."
+      }
+    ]
+  }
+]

@@ -1,13 +1,14 @@
 # MESA: AI benchmark review questionnaire
 
-MESA draws on established guidance for reviewing psychological and educational tests and adapts it into a **25-question questionnaire** for AI benchmark review. It examines which concerns carry over, which change meaning, and which need additions for AI. The questions address what a benchmark claims to measure, how its scores are produced, what the available information supports, and what remains unknown.
+MESA draws on established guidance for reviewing psychological and educational tests and adapts it into a **25-question questionnaire** for AI benchmark review. It examines which concerns carry over, which change meaning, and which need additions for AI. The questions address what a benchmark claims to measure, how its scores are produced, what the available information supports, and what remains unknown. Accessibility is a design goal: 25 questions with explanations beside them, five plain answer choices and optional comments, instead of the complete 90-page EFPA Test Review Model. Easier human use has not yet been measured.
 
-The accompanying paper is **MESA: Adapting the EFPA Test Review Model for AI Benchmark Review.** Existing research already provides benchmark-quality checklists and guidance on interpreting scores. The CHASE paper examines a specific question: how can the EFPA Test Review Model (EFPA-TRM) be adapted to a test review model for AI benchmarks, and what changes or detail are lost? Its three deliverables are the questionnaire, an explanation of the adaptation decisions and trade-offs, and an initial examination using GPT-6.1 Sol reviews. The adaptation explanation is the central research contribution. The study illustrates practical limits; it does not establish better reviews or the same range of checks. Human evaluation is future work.
+The accompanying paper is **MESA: Adapting the EFPA Test Review Model for AI Benchmark Review.** Existing research already provides benchmark-quality checklists and guidance on interpreting scores. The CHASE paper examines a specific question: how can the EFPA Test Review Model (EFPA-TRM) be adapted to a test review model for AI benchmarks, and what changes or detail are lost? Its three deliverables are the questionnaire, an explanation of the adaptation decisions and trade-offs, and an initial examination using Claude Sonnet 5.5 reviews. The adaptation explanation is the central research contribution. The study illustrates practical limits; it does not establish better reviews or the same range of checks. Human evaluation is future work.
 
 One possible application is for an evaluator to prepare a review, colleagues to inspect its reasons and unresolved questions, and a team to consider whether benchmark results support a claim used to select an AI component. The wider purpose is to examine AI benchmarks using adapted human-test review guidance. Effects on collaboration and decisions have not been evaluated. Comments remain optional; colleagues may need to ask for a missing reason before relying on an important judgment. A recorded DesignQA example in the paper shows two exact questions and their saved model choices, rather than prescribing correct answers.
 
 ## Start here
 
+- [MESA reading document](surveys/colleague-review/mesa-study/claude-sonnet-5-5/questionnaire.html): a separate reading-only document presenting the 25 questions with their explanations; human ease of use has not been evaluated.
 - [Guided questionnaire](surveys/colleague-review/survey.html): the participant survey, including a completed teaching example and two benchmarks to review.
 - [Questionnaire and reading passages in Markdown](surveys/colleague-review/survey.md).
 - [CHASE study guide](CHASE-study.md): experimental methods, results, exact prompts, raw responses, failed runs, and analysis commands.
@@ -49,15 +50,26 @@ The HLE example explains all 25 selections. ARC-AGI-2 and DesignQA are left for 
 
 ## CHASE study and observed results
 
-GPT-6.1 Sol reads the same descriptions of two benchmarks: ARC-AGI-2, involving coloured-grid puzzles, and DesignQA, involving engineering rules and design documents. It produces reviews using MESA, using the original EFPA Test Review Model, or following general instructions to examine benchmark quality. It does not execute either benchmark. Each method is repeated five times with each of four instruction versions: no assigned reviewer identity, newcomer, research assistant, and benchmark reviewer. These are instructions to one model, not different people. Each execution starts a separate conversation without earlier review history. Separate conversations receive eight constructed test cases that check what a description reports, contradicts, or leaves unknown.
+MESA is meant to make benchmark review more accessible than the complete 90-page EFPA Test Review Model: 25 questions, an explanation beside each question, five plain answer choices, optional comments and a completed example. The study does not measure whether people find it easier; it examines how the questions are applied.
 
-The GPT-6.1 Sol series completed all **120 planned model conversations** on 15 October 2026. Five infrastructure failures were each retried once, retaining both attempts. Two completed EFPA responses failed the required output structure, leaving **118 conversations usable for analysis**.
+Claude Sonnet 5.5 (`claude-sonnet-5-5`, medium effort) reads the same descriptions of two benchmarks: ARC-AGI-2, involving coloured-grid puzzles, and DesignQA, involving engineering rules and design documents. It reviews them using MESA, using the original EFPA Test Review Model (EFPA-TRM), or following general instructions to examine benchmark quality. It does not execute either benchmark. For each method, five conversations review both benchmarks and five other conversations classify 49 claims in 24 constructed test cases as Supported, Contradicted or Not established. That gives **30 planned conversations**. Each runs as a separate Claude Code print-mode session with no tools, no project files or memory, and no earlier review history.
 
-Each review method matched all **340/340 expected answers** to the separate test-case claims. The expected answers were specified before testing and withheld from the model. The same 17 claims were repeated across conversations, so these are not independent test cases or validation of every questionnaire question. The 20 MESA conversations about published benchmarks produced **1,000 answer choices**. Choices varied for **12 of 50 question–benchmark pairs**: 25 questions applied to each benchmark. The first response without an assigned reviewer identity for each method covered both benchmarks, giving six selected reviews for detailed comparison. This comparison examined conclusions justified by the descriptions, relevant checklist points left unaddressed, and conclusions going beyond the available information. Selected EFPA reviews asked how often people checking provided answers agreed. The examples do not establish how often a method leaves points unaddressed or whether MESA covers the same checks as EFPA.
+All 30 conversations completed on 17 October 2026 through 30 physical attempts, with no failures or retries; **28** met the predefined format. One EFPA-TRM benchmark review and one general-instruction test-case conversation were excluded for format and kept unrepaired.
 
-These are repeated outputs of one model, not human participants. The assistant helped prepare the cases, expected answers, analysis, and manuscript; the findings lack independent human validation. The separate Astra series is incomplete and is not pooled with Sol or treated as complete second-model confirmation. Human understanding, effort, and usefulness remain questions for future work.
+| Method | Usable benchmark conversations | Usable test-case conversations | Expected claim answers matched |
+| --- | ---: | ---: | ---: |
+| MESA | 5/5 | 5/5 | 243/245 |
+| EFPA-TRM | 4/5 | 5/5 | 237/245 |
+| General instructions | 5/5 | 4/5 | 191/196 |
 
-For the full records and limitations, see the [CHASE study guide](CHASE-study.md), [protocol](surveys/colleague-review/simulation-protocol.md), and [results summary](surveys/colleague-review/simulation-study/series/gpt-6.1-sol/analysis/summary.md). The separate [static reading document](surveys/colleague-review/simulation-materials.html) has no response fields or submission behavior.
+- All 15 mismatches called a claim **Contradicted** where the expected answer was **Not established**. Twelve concern two claims; the expected label of one (P6B) is debatable. The differences between methods are small and come from one model, so they do not show a MESA advantage.
+- All 322 comparisons between related claims changed or stayed the same as expected. No conversation supported any of the six unjustified negative claims (0/84).
+- MESA supplied **250 answer choices**, varying for **9 of 50 question–benchmark pairs**; 456 of 500 repeated-choice pairs matched. Four of the nine varying pairs moved between No and Not sure.
+- In the six selected reviews (the first conversation for each method, both benchmarks), the EFPA-TRM and general-instruction reviews addressed all 12 checklist points and the MESA review 10 fully and 2 partly. Every method included conclusions needing qualification, including a MESA review answering No where the passage reported only that information was not found.
+
+These are repeated outputs of one model, not human participants. The cases, expected answers and questionnaire text were prepared earlier with OpenAI Codex. Claude Code with Claude Opus 5.5, from the same model family as the reviewer model, ran the study and interpreted the selected reviews; the findings lack independent human validation. Human understanding, effort, and usefulness remain questions for future work.
+
+For the full records and limitations, see the [CHASE study guide](CHASE-study.md), [protocol](surveys/colleague-review/mesa-study/claude-sonnet-5-5/protocol.md), and [results summary](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/summary.md).
 
 ## Sources and supporting records
 
@@ -75,6 +87,8 @@ EFPA provides the conceptual source for the adaptation. BetterBench informs ques
 | [paper.tex](paper.tex) | Preserved original manuscript |
 | [thesis/](thesis/) | Thesis research notes and revision records |
 | [tools/](tools/) | Validation and utility scripts |
+| [surveys/colleague-review/mesa-study/claude-sonnet-5-5/](surveys/colleague-review/mesa-study/claude-sonnet-5-5/README.md) | Current model study: protocol, inputs, raw responses and analysis |
+| [Earlier model studies](CHASE-study.md#archived-records) | Archived series, not pooled with the current study |
 
 The source survey, benchmark reviews, and original manuscripts remain available. Questionnaire choices should not be converted into the numerical ratings used in supporting review documents.
 

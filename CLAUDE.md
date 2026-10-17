@@ -12,7 +12,7 @@ MESA is the 25-question AI benchmark review questionnaire adapted from the EFPA 
 
 The current papers share the title “MESA: Adapting the EFPA Test Review Model for AI Benchmark Review.” IEEE is confirmed for CHASE. Empirical method standards are separate from submission formatting. Do not assume REFSQ uses the CHASE format.
 
-The study compares the questionnaire with the original complete EFPA model and ordinary review. Repeated model runs are not people, and role instructions are not validated human simulations. The assistant's current study involvement must be disclosed; earlier development, reconciliation, and agreement are not validation evidence for the questionnaire.
+The current study (`surveys/colleague-review/mesa-study/claude-sonnet-5-5/`, Claude Sonnet 5.5, 30 conversations) compares the questionnaire with the original complete EFPA model and ordinary review. MESA is framed as a more accessible approach to AI benchmark review; easier human use is a design goal, not a measured result. Repeated model runs are not people, and role instructions are not validated human simulations. The assistant's current study involvement must be disclosed; earlier development, reconciliation, and agreement are not validation evidence for the questionnaire.
 
 ## Working rules
 

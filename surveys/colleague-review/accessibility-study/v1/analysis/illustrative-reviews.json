@@ -1,0 +1,576 @@
+{
+  "scope": "Same-assistant interpretation of selected first responses. Not general rates or independently established correctness.",
+  "sources": [
+    {
+      "condition": "mesa_original",
+      "source": "outputs/real-mesa_original-neutral-1/response.txt",
+      "sha256": "61756fdf5cf58d6d7709acc221b1057cbaa1751e67c67925fccced873ac35e37",
+      "schema_errors": [],
+      "selected_invalid_not_replaced": false
+    },
+    {
+      "condition": "mesa_revised",
+      "source": "outputs/real-mesa_revised-neutral-1/response.txt",
+      "sha256": "300e82d53528502ae491b55a8d2bc653d0c4a8c477c7448aa2e079b50732d5b3",
+      "schema_errors": [
+        "reinterpretations must be list of strings"
+      ],
+      "selected_invalid_not_replaced": true
+    },
+    {
+      "condition": "efpa",
+      "source": "outputs/real-efpa-neutral-1/response.txt",
+      "sha256": "d5c99410ef9ecb7fe3771b95c9c84b3294791a84ac67e75a366964b0a2976bee",
+      "schema_errors": [
+        "supported_claims must be list of strings",
+        "documented_problems must be list of strings",
+        "missing_information must be list of strings",
+        "reinterpretations must be list of strings",
+        "instrument_review must be string",
+        "supported_claims must be list of strings",
+        "documented_problems must be list of strings",
+        "missing_information must be list of strings",
+        "reinterpretations must be list of strings",
+        "instrument_review must be string"
+      ],
+      "selected_invalid_not_replaced": true
+    },
+    {
+      "condition": "ordinary",
+      "source": "outputs/real-ordinary-neutral-1/response.txt",
+      "sha256": "7a5984ac430ac78ba9f93583b10259ea9ebfc07d84d4737ce6c391a2043f33f5",
+      "schema_errors": [],
+      "selected_invalid_not_replaced": false
+    }
+  ],
+  "points": [
+    {
+      "condition": "mesa_original",
+      "benchmark": "arc",
+      "point": 1,
+      "status": "addressed",
+      "interpretation": "Broader claims are left unresolved; grid-task performance remains the stated interpretation.",
+      "quotation": {
+        "field": "instrument_review",
+        "text": "Item-by-item MESA review supports interpreting scores as performance on unfamiliar grid problems under specified evaluation conditions. Scoring tests and development checks provide support, while repeatability, uncertainty and broader intelligence claims remain insufficiently established. No additional review method was assigned."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "arc",
+      "point": 2,
+      "status": "addressed",
+      "interpretation": "The review separates input-level success from a completely solved multi-input problem.",
+      "quotation": {
+        "field": "supported_claims[1]",
+        "text": "Official scores average within-problem input accuracy, allowing partial problem credit."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "arc",
+      "point": 3,
+      "status": "addressed",
+      "interpretation": "Human matching is not treated as evidence of AI repeatability.",
+      "quotation": {
+        "field": "reinterpretations[1]",
+        "text": "Human difficulty matching concerns people and does not establish equivalent difficulty or stability for AI systems."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "arc",
+      "point": 4,
+      "status": "partly addressed",
+      "interpretation": "Exposure safeguards and public accessibility are recorded; the review does not explicitly distinguish model-specific observed exposure.",
+      "quotation": {
+        "field": "mesa_answers[17].comment",
+        "text": "Hidden-data agreements and monitoring address exposure, but public problems remain accessible."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "arc",
+      "point": 5,
+      "status": "addressed",
+      "interpretation": "Public access and incomplete effects of corrections on old scores remain visible.",
+      "quotation": {
+        "field": "mesa_answers[23].comment",
+        "text": "Dated corrections and code changes are recorded, but score effects are incomplete."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "arc",
+      "point": 6,
+      "status": "partly addressed",
+      "interpretation": "Different evaluation routes and the human-study pool are considered; no explicit warning about generalizing human-background findings appears.",
+      "quotation": {
+        "field": "mesa_answers[12].comment",
+        "text": "AI and human results offer context, but human findings include a larger pool than the final test."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "designqa",
+      "point": 7,
+      "status": "addressed",
+      "interpretation": "The review limits wider competence claims and notes one-rulebook coverage.",
+      "quotation": {
+        "field": "mesa_answers[6].comment",
+        "text": "Practical sources are justified, but one rulebook and uneven groups limit representativeness."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "designqa",
+      "point": 8,
+      "status": "addressed",
+      "interpretation": "Checks of provided answers and marking are separated; missing reviewer disagreement rates are explicitly named.",
+      "quotation": {
+        "field": "missing_information[0]",
+        "text": "Reviewer disagreement rates and remaining reference-answer errors are not established."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "designqa",
+      "point": 9,
+      "status": "addressed",
+      "interpretation": "Unequal counts and uncertainty about combined-score interpretations are recorded.",
+      "quotation": {
+        "field": "mesa_answers[10].comment",
+        "text": "Equal group weighting is described without evidence validating the overall or separate skill interpretations."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "designqa",
+      "point": 10,
+      "status": "addressed",
+      "interpretation": "Changed passages are separated from identical-condition repetition; close-ranking uncertainty remains, without the numerical 6.25-point example.",
+      "quotation": {
+        "field": "mesa_answers[13].comment",
+        "text": "Five passage sets change the inputs and do not isolate identical-condition repeatability."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "designqa",
+      "point": 11,
+      "status": "addressed",
+      "interpretation": "The always-yes route is described as an opportunity, without asserting that a tested AI used it; exposure remains uncertain.",
+      "quotation": {
+        "field": "documented_problems[3]",
+        "text": "All described scale-bar drawings comply, allowing an always-yes strategy to earn decision credit."
+      }
+    },
+    {
+      "condition": "mesa_original",
+      "benchmark": "designqa",
+      "point": 12,
+      "status": "addressed",
+      "interpretation": "Missing historical reproduction, permissions and change records are recorded.",
+      "quotation": {
+        "field": "missing_information[4]",
+        "text": "Complete historical reproduction records, reuse rules and score effects of revisions are missing."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "arc",
+      "point": 1,
+      "status": "addressed",
+      "interpretation": "Grid success is retained while broader abilities remain unestablished.",
+      "quotation": {
+        "field": "instrument_review",
+        "text": "MESA judgments use only the supplied ARC-AGI-2 passage; no additional review method was assigned. The passage supports comparisons of grid-puzzle performance under specified conditions and documents some development and scoring checks. Broader reasoning claims, repeated-run stability and the effects of revisions remain insufficiently supported."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "arc",
+      "point": 2,
+      "status": "addressed",
+      "interpretation": "Fractional problem scoring is distinguished from fully solved problems.",
+      "quotation": {
+        "field": "supported_claims[1]",
+        "text": "The inspected software averages input-level success within problems, then averages problem scores; partial completion of a multi-input problem can earn credit."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "arc",
+      "point": 3,
+      "status": "addressed",
+      "interpretation": "The closing note distinguishes human matching from AI difficulty; repeated-score findings remain missing.",
+      "quotation": {
+        "field": "closing_note",
+        "text": "No reviewer identity or additional method was assigned. 'Solved' needs clarification because input-level credit and fully solved problems differ; human difficulty matching does not establish equal difficulty for AI systems."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "arc",
+      "point": 4,
+      "status": "addressed",
+      "interpretation": "The review identifies safeguards without treating exposure as excluded.",
+      "quotation": {
+        "field": "missing_information[4]",
+        "text": "Comprehensive evidence that alternative routes to high scores and prior exposure have been excluded."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "arc",
+      "point": 5,
+      "status": "addressed",
+      "interpretation": "Hidden access and missing recalculation of older scores are retained.",
+      "quotation": {
+        "field": "documented_problems[4]",
+        "text": "The change record does not recalculate every affected AI score."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "arc",
+      "point": 6,
+      "status": "partly addressed",
+      "interpretation": "Evaluation routes and human-study scope are retained, without an explicit human-background-to-AI-fairness warning.",
+      "quotation": {
+        "field": "mesa_answers[20].comment",
+        "text": "Verified settings support comparability; different testing routes and human-only difficulty matching leave limitations."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "designqa",
+      "point": 7,
+      "status": "addressed",
+      "interpretation": "The review retains the one-rulebook restriction and limits broader task coverage.",
+      "quotation": {
+        "field": "mesa_answers[8].comment",
+        "text": "Six relevant task types are covered, but one rulebook and uneven groups limit broader engineering coverage."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "designqa",
+      "point": 8,
+      "status": "partly addressed",
+      "interpretation": "The review separates checking supplied answers from testing marking, but does not explicitly request the additional reviewers' agreement rate.",
+      "quotation": {
+        "field": "mesa_answers[7].comment",
+        "text": "Additional reviewers checked manually written material with exceptions and narrower explanation checks."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "designqa",
+      "point": 9,
+      "status": "addressed",
+      "interpretation": "Unequal counts, weights and separate-score interpretations are retained.",
+      "quotation": {
+        "field": "missing_information[2]",
+        "text": "Justification for equal group weights and interpretations of separate group scores."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "designqa",
+      "point": 10,
+      "status": "addressed",
+      "interpretation": "Changed passages are separated from identical-condition repetition; close-comparison uncertainty remains, without the numerical 6.25-point example.",
+      "quotation": {
+        "field": "mesa_answers[13].comment",
+        "text": "Five passage-set trials change the inputs and do not establish identical-condition repetition."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "designqa",
+      "point": 11,
+      "status": "addressed",
+      "interpretation": "The always-yes route remains an opportunity rather than reported observed use; prior exposure remains unresolved.",
+      "quotation": {
+        "field": "documented_problems[3]",
+        "text": "All described scale-bar drawings comply, allowing an always-yes response to earn their decision credit."
+      }
+    },
+    {
+      "condition": "mesa_revised",
+      "benchmark": "designqa",
+      "point": 12,
+      "status": "addressed",
+      "interpretation": "Historical records, revisions and reuse are separated from a prohibition on reuse.",
+      "quotation": {
+        "field": "mesa_answers[22].comment",
+        "text": "A licence file and complete responsible-reuse rules were not found; this does not establish prohibition."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "arc",
+      "point": 1,
+      "status": "addressed",
+      "interpretation": "The review limits its favorable interpretation to observed grid solving.",
+      "quotation": {
+        "field": "instrument_review.part_b.final_evaluation.critical_attributes[1].scope",
+        "text": "Adequate only for narrow observed task-performance interpretation."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "arc",
+      "point": 2,
+      "status": "addressed",
+      "interpretation": "It explicitly separates partial multi-input credit from a partly correct grid.",
+      "quotation": {
+        "field": "instrument_review.part_a.3.3.2",
+        "text": "At most two attempts per new input. Credit is 1 if either exactly matches the answer grid and 0 otherwise. Input credits are averaged within a problem, then problem scores are averaged. A partly correct grid earns no credit; a partially solved multi-input problem can earn fractional credit."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "arc",
+      "point": 3,
+      "status": "addressed",
+      "interpretation": "Human development counts and matching are not treated as an AI repetition sample.",
+      "quotation": {
+        "field": "instrument_review.part_b.9.comments",
+        "text": "The 407 people and 515 sessions belong to development piloting, not an AI reliability sample. EFPA's human sample-size anchors cannot be applied to counts of puzzles, runs or people interchangeably."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "arc",
+      "point": 4,
+      "status": "addressed",
+      "interpretation": "The review retains precautions without treating unintended routes or exposure as eliminated.",
+      "quotation": {
+        "field": "missing_information[4].reason",
+        "text": "Design intentions and monitoring do not establish elimination of unintended solution routes or exposure."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "arc",
+      "point": 5,
+      "status": "addressed",
+      "interpretation": "Public access, changed items and incomplete historical score updates are retained.",
+      "quotation": {
+        "field": "documented_problems[3].claim",
+        "text": "Historical scores may not reflect all corrections."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "arc",
+      "point": 6,
+      "status": "addressed",
+      "interpretation": "The review explicitly rejects using human demographic findings to establish fair AI comparisons.",
+      "quotation": {
+        "field": "instrument_review.part_b.11.comments",
+        "text": "Most defensible comparisons concern systems evaluated under the same verified settings and version. Exposure history, representation and testing route require caution. Human demographic findings cannot establish fairness among AI systems."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "designqa",
+      "point": 7,
+      "status": "addressed",
+      "interpretation": "Practical content is distinguished from broader engineering coverage.",
+      "quotation": {
+        "field": "instrument_review.part_b.10.items[0].reason",
+        "text": "Real materials and practitioner input support task relevance; one rulebook, narrow coverage and unequal group sizes constrain broad interpretation."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "designqa",
+      "point": 8,
+      "status": "addressed",
+      "interpretation": "Checking answers and operational marking are separated, and missing review agreement is explicit.",
+      "quotation": {
+        "field": "instrument_review.part_b.9.items[11].status",
+        "text": "n/a for operational scoring; no development-review agreement coefficient supplied."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "designqa",
+      "point": 9,
+      "status": "addressed",
+      "interpretation": "The review separates equal weighting from evidence that groups measure distinct skills.",
+      "quotation": {
+        "field": "instrument_review.part_b.10.items[2].reason",
+        "text": "Distinct underlying skills and cross-system measurement equivalence are not established."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "designqa",
+      "point": 10,
+      "status": "addressed",
+      "interpretation": "It separates changed inputs from identical-condition repeatability and retains the 6.25-point example.",
+      "quotation": {
+        "field": "instrument_review.part_b.9.comments",
+        "text": "The 16-item performance group changes by 6.25 percentage points per correct answer, establishing coarse resolution rather than a reliability coefficient. Question counts cannot be treated as counts of independent AI examinees."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "designqa",
+      "point": 11,
+      "status": "addressed",
+      "interpretation": "The review distinguishes a possible all-yes route from observed use and identifies exposure gaps.",
+      "quotation": {
+        "field": "documented_problems[3].reason",
+        "text": "All described drawings comply; this does not establish that any tested AI used the strategy."
+      }
+    },
+    {
+      "condition": "efpa",
+      "benchmark": "designqa",
+      "point": 12,
+      "status": "addressed",
+      "interpretation": "Missing historical and permission records are not treated as proof that reuse is prohibited.",
+      "quotation": {
+        "field": "missing_information[6].reason",
+        "text": "The inspected sources lacked a clear score-impact change record, licence file and complete responsible-reuse rules; this does not prove reuse is prohibited."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "arc",
+      "point": 1,
+      "status": "addressed",
+      "interpretation": "The review limits what grid scores say about wider intelligence.",
+      "quotation": {
+        "field": "reinterpretations[1]",
+        "text": "'Reasoning' and 'human-like intelligence' narrow here to performance on two-dimensional grid tasks; broader meanings remain unvalidated."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "arc",
+      "point": 2,
+      "status": "addressed",
+      "interpretation": "It explicitly separates average input success from a fully solved problem.",
+      "quotation": {
+        "field": "reinterpretations[2]",
+        "text": "'Problem score' means average input success within a problem, not necessarily complete problem solution."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "arc",
+      "point": 3,
+      "status": "addressed",
+      "interpretation": "It separates human difficulty matching from AI equivalence and repeated-score evidence.",
+      "quotation": {
+        "field": "reinterpretations[3]",
+        "text": "'Similar difficulty' refers to human performance used in set selection, not demonstrated equivalence for AI."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "arc",
+      "point": 4,
+      "status": "addressed",
+      "interpretation": "Exposure precautions are not treated as proof that prior exposure is absent.",
+      "quotation": {
+        "field": "missing_information[3]",
+        "text": "Evidence excluding all unintended solution routes or measuring each system's prior exposure is not supplied."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "arc",
+      "point": 5,
+      "status": "addressed",
+      "interpretation": "Public access, corrections and unupdated scores are considered.",
+      "quotation": {
+        "field": "documented_problems[3]",
+        "text": "Corrections do not trigger recalculation of every affected AI score, complicating comparisons across revisions."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "arc",
+      "point": 6,
+      "status": "partly addressed",
+      "interpretation": "Routes and human matching are discussed; no explicit human-background fairness warning appears.",
+      "quotation": {
+        "field": "reinterpretations[3]",
+        "text": "'Similar difficulty' refers to human performance used in set selection, not demonstrated equivalence for AI."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "designqa",
+      "point": 7,
+      "status": "addressed",
+      "interpretation": "One-rulebook task relevance is separated from broader competence.",
+      "quotation": {
+        "field": "reinterpretations[0]",
+        "text": "For AI, 'engineering-document understanding' is represented by answers to selected retrieval, terminology, visual and compliance questions; this does not establish general engineering competence."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "designqa",
+      "point": 8,
+      "status": "addressed",
+      "interpretation": "Checking supplied answers and marking are separated, with reviewer disagreement explicitly missing.",
+      "quotation": {
+        "field": "missing_information[0]",
+        "text": "Reviewer disagreement rates, remaining answer errors and comprehensive marking accuracy and consistency studies are not supplied."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "designqa",
+      "point": 9,
+      "status": "addressed",
+      "interpretation": "The review distinguishes equal weighting from an established single ability.",
+      "quotation": {
+        "field": "reinterpretations[3]",
+        "text": "'Overall performance' reflects equal group weighting, not accuracy across all questions or a validated single ability."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "designqa",
+      "point": 10,
+      "status": "addressed",
+      "interpretation": "Repeated conditions and changed passages are separated, and the 6.25-point example is retained.",
+      "quotation": {
+        "field": "documented_problems[6]",
+        "text": "The 16-question performance group is coarse: one additional correct answer changes accuracy by 6.25 percentage points."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "designqa",
+      "point": 11,
+      "status": "addressed",
+      "interpretation": "The review explicitly denies evidence that a tested AI used the possible always-yes route.",
+      "quotation": {
+        "field": "documented_problems[4]",
+        "text": "All described scale-bar drawings comply with the rule, allowing an always-yes strategy to earn decision credit on that portion; no evidence shows a tested AI used it."
+      }
+    },
+    {
+      "condition": "ordinary",
+      "benchmark": "designqa",
+      "point": 12,
+      "status": "addressed",
+      "interpretation": "Historical information, permissions and score changes are identified as gaps.",
+      "quotation": {
+        "field": "missing_information[5]",
+        "text": "Complete historical inputs, settings and software linked to each result, score-impact revision notes, a licence file and complete reuse rules were not found."
+      }
+    }
+  ]
+}
