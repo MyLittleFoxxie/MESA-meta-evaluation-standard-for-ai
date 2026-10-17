@@ -98,3 +98,11 @@ Suggested Part B evidence table:
 | Fairness and comparability |  |  |  |  |
 | Maintenance and drift |  |  |  |  |
 | Interpretation limits |  |  |  |  |
+
+## Survey preparation tasks
+
+Follow `surveys/colleague-review/agent-guide.md` when preparing survey reading passages, examples or comparison notes. Use `packet.json` as the content source, preserve the 25 question IDs and six domains, and separate colleague-facing reading material from agent judgments. Write connected, plain-language passages with defined terms, selective bold emphasis and source links; readers should not need to visit external sources. Keep participant choices and comments blank unless the user explicitly requests a separate completed example. Compare such examples with the underlying review without claiming that matching conclusions validate the questionnaire. Use the guide's build, provenance, privacy and UI checks when maintaining the website.
+
+## Guided survey version 2
+
+Use the current `packet.json`: HLE is the completed example; ARC-AGI-2 and DesignQA are respondent evaluations. The seven-stage flow uses Back/Continue and one combined final submission. Familiarity has three self-report scales with defined 1–5 values. Keep participant answers blank, replace an opening glossary with inline definitions, and do not collect names or respondent emails. Preserve older DesignQA example provenance separately. Follow `surveys/colleague-review/agent-guide.md` for sources, privacy, versioning and mocked email checks.

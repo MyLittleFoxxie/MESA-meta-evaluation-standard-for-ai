@@ -1,16 +1,12 @@
 # MESA Scorecard — Short Form of the Review Template
 
-This scorecard is the short form of the MESA Test Review Model. It carries 40 rated questions —
-the ones whose ratings decided the outcome in MESA's pilot case studies — together with the
-descriptive fields those questions depend on and the full closing evaluation. It is intended for
-routine work: comparing candidate benchmarks, deciding whether a published score can support a
-claim, or recording a benchmark's known limits before its scores are reused.
+This scorecard retains 40 questions from the full 87-item MESA template, with the descriptive
+fields they need and the closing evaluation. The questions were selected using the three pilot
+reviews. Their adequacy on other benchmarks and the time needed to complete them remain untested.
 
-**Use the full template instead when the review supports a procurement decision, a policy
-position, or a safety case.** The full template (`MESA EFPA template official.md`) carries 87
-rated items and is the certification-grade instrument; this scorecard is deliberately narrower and
-does not examine development process, materials usability, internal structure, scorer and judge
-reliability, or leaderboard governance in their own right.
+Consult the full template when an omitted question matters. In particular, this form does not
+separately assess scorer and judge reliability in Section 9.3. Neither form has been validated
+for certification, procurement, policy, or safety decisions.
 
 Item numbers here are the full template's own numbers. Nothing is renumbered, so a scorecard
 review can be extended into a full review at any time simply by answering the items it omits, and
@@ -732,6 +728,10 @@ All rating items use the EFPA-style scale below unless a section states otherwis
 
 Mark an item `n/a` when the attribute does not exist for this benchmark — there is no judge to validate, no subscores whose structure could be examined, no alternate forms to equate. Mark it `0` when the attribute exists but the documentation provides no usable information about it. The distinction matters: `n/a` records that the question does not arise, `0` records that it arises and is unanswered. Where a whole sub-section does not apply, mark its items `n/a` and say so in that section's Reviewer comments.
 
+For a study-based item, no usable study means `0`; a study showing inadequate performance for the stated use can justify `1`. For example, published run settings without repeat-run results do not establish stability. Assigning `1` requires saying what the available evidence shows to be inadequate. A section-level judgment may still limit a proposed use because critical support is missing; this does not prove that the benchmark is unstable or otherwise defective. Keep the item judgment and the use limitation separate.
+
+When reviewers disagree, record their intended uses, sources, original ratings, and reason for the final choice. Missing uncertainty estimates leave a comparison unresolved; they do not by themselves show that the score difference is noise.
+
 Where a `0` or `1` rating is assigned to an attribute that is critical for the benchmark's stated purpose, the review should caution that the benchmark is suitable only for limited exploratory, research, or expert-qualified use unless stronger evidence is supplied. A benchmark with one or more `0`/`1` ratings on attributes critical to its stated use falls below the minimum standard for that use; the Final Evaluation must say so explicitly. Mark critical-attribute ratings in **bold** in the completed review. Critical attributes will vary by benchmark: for example, controls for prior model exposure to benchmark items or answers may be critical for public knowledge benchmarks, scorer consistency may be critical for open-ended generation benchmarks, and reference points used to interpret scores may be critical for leaderboards used in procurement or policy.
 
 Overall ratings must be based on reviewer judgment rather than mechanical averaging. A single severe gap may dominate the overall rating when it undermines the intended score meaning; conversely, a narrow gap may be less consequential when the benchmark's score interpretation is modest and clearly bounded.
@@ -982,6 +982,8 @@ There is no single reliability coefficient that fits all AI benchmarks. Determin
 This sub-section concerns score variation when the same benchmark is run repeatedly under documented run conditions. Reviewers should check whether repeat-run evidence covers the settings that materially affect the benchmark, including temperature, sampling, seeds, tool use, API state, and environment variation.
 
 #### 9.2.1 Run-to-run stability, seeds, and sampling settings
+
+Published temperatures, seeds, and allowed attempts describe settings. They do not by themselves measure variation across repeated evaluations. Judge reported repeat-run results or a justified equivalent analysis; use `0` if neither is available. A deterministic scorer does not establish stable model outputs.
 
 - Excellent: Repeat-run studies or equivalent analyses quantify whether repeated evaluations under documented conditions produce similar scores across relevant seeds, sampling settings, temperatures, tool-use conditions, and execution environments, with settings fully documented.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]

@@ -1,6 +1,6 @@
 ---
 name: benchmark-reviewer
-description: Use for source-grounded MESA reviews of AI benchmarks (Part A factual description, optional Part B EFPA-style ratings). Invoke when the user asks to "review", "MESA-review", "audit", or produce a `reviews/{benchmark}.md` for any benchmark, leaderboard, eval harness, suite component, or evaluator-specific implementation.
+description: Use for source-grounded MESA reviews of AI benchmarks (Part A factual description, optional Part B EFPA-style ratings, or explicitly requested pilot survey examples). Invoke when the user asks to "review", "MESA-review", "audit", or produce a `reviews/{benchmark}.md` for any benchmark, leaderboard, eval harness, suite component, or evaluator-specific implementation.
 ---
 
 # MESA Benchmark Reviewer Agent
@@ -10,6 +10,12 @@ description: Use for source-grounded MESA reviews of AI benchmarks (Part A factu
 Act as a generic benchmark reviewer for the MESA repository. Create source-grounded reviews of AI benchmarks as measurement instruments using the active unified MESA Part A + Part B template.
 
 This agent is benchmark-agnostic. Treat benchmark names in user prompts, such as "ARC-AGI-2", as examples or review targets for that task only, not as default sources or hardcoded behavior.
+
+## Output mode: full review, scorecard or survey
+
+The full template and `reviews/{normalized-benchmark-name}.md` remain the default for an unqualified MESA review. If the user requests the scorecard, use `MESA scorecard.md`. If the user requests a survey, questionnaire, or completed survey example, follow `surveys/colleague-review/agent-guide.md` and the canonical questions in `packet.json` instead of forcing the full-template output convention.
+
+For a colleague survey, prepare source-grounded reading passages and leave participant answers blank. For an explicitly requested agent-completed survey, provide a separate table with question ID, question, selected response and brief comment, grouped by the six domains. State benchmark scope, intended interpretation, inspection date and whether judgments are passage-based or source-based. Keep citations and deeper reasoning in a source/reconciliation note; participants are not required to supply them. Do not average responses, translate them to EFPA ratings, or treat missing documentation as No. Comparison with an existing review tests consistency of conclusions, not survey validity.
 
 ## Primary Objectives
 
@@ -136,3 +142,7 @@ For Part B preparation:
 - Keep prose concise, academic, and audit-friendly.
 - Prefer tables where they improve review scanability.
 - Do not overwrite papers, templates, pilot reviews, existing reviews, or notes without explicit user approval.
+
+## Guided survey version 2
+
+Use the current `packet.json`: HLE is the completed example; ARC-AGI-2 and DesignQA are respondent evaluations. The seven-stage flow uses Back/Continue and one combined final submission. Familiarity has three self-report scales with defined 1–5 values. Keep participant answers blank, replace an opening glossary with inline definitions, and do not collect names or respondent emails. Preserve older DesignQA example provenance separately. Follow `surveys/colleague-review/agent-guide.md` for sources, privacy, versioning and mocked email checks.

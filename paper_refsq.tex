@@ -1,0 +1,236 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{balance}
+
+\newcommand{\pending}[1]{\par\noindent\textbf{[AWAITING HUMAN RESULTS: #1]}\par}
+
+\begin{document}
+
+\title{MESA: Adapting the EFPA Test Review Model for AI Benchmark Review}
+
+\author{
+\IEEEauthorblockN{Vitor Raposo}
+\IEEEauthorblockA{
+Ontario Tech University\\
+Oshawa, Ontario, Canada\\
+vitor.raposo@ontariotechu.net
+}
+\and
+\IEEEauthorblockN{Sanaa Alwidian}
+\IEEEauthorblockA{
+Ontario Tech University\\
+Oshawa, Ontario, Canada\\
+sanaa.alwidian@ontariotechu.ca
+}
+}
+
+\maketitle
+\thispagestyle{plain}
+\pagestyle{plain}
+
+\begin{abstract}
+AI benchmark scores are used as evidence for capability claims and system requirements, but their interpretation depends on the quality of the benchmark. MESA adapts the European Federation of Psychologists' Associations (EFPA) Test Review Model into a human review questionnaire. Its 25 questions cover six domains: description, purpose and development, scoring and comparisons, consistency of results, meaning and fairness, and use and reporting. Reviewers select among five categorical responses; the instrument produces no aggregate benchmark-quality score. A fuller EFPA adaptation provides the conceptual foundation, while the questionnaire is the primary instrument examined here. We explain proposed correspondences with EFPA and describe a preliminary human study using supplied benchmark passages, definitions, and a completed Humanity's Last Exam example. Participants then review ARC-AGI-2 and DesignQA. The study will examine consistency of judgments and difficulties reported during guided use. Human results are pending. Reduced review burden is a design objective, and the present study does not establish completion time, expert correctness, or improvement over other methods.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Requirements Engineering for AI, AI benchmarks, benchmark review, questionnaire, construct validity, EFPA Test Review Model
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Benchmark results help researchers and practitioners compare AI systems and support claims about what they can do. A score, however, depends on the selected tasks, evaluation conditions, scoring rules, and comparison basis. Leaderboard positions can encourage interpretations that exceed this evidence \cite{singh_leaderboard_illusion,alonso_church_sigir}. Reviewing the benchmark is therefore part of assessing whether its scores support an intended use.
+
+This matters for requirements engineering when a benchmark result is offered as evidence that an AI system meets a requirement. A requirement concerning reasoning, for example, needs a justified connection between the relevant ability, the benchmark tasks, the scoring method, and the proposed acceptance decision. Research on requirements engineering for AI identifies continuing difficulties in specification and validation \cite{habiba_re4ai_maturity_2024}. Benchmark review can help make the evidence underlying such decisions explicit, although reviewing a benchmark alone cannot establish that a system meets a deployment requirement.
+
+Human testing provides an established starting point. The EFPA Test Review Model separates factual description of an instrument from evaluation of the evidence supporting its use. The 2025 source document spans 90 pages, including review forms and reviewer guidance \cite{efpa_test_review_model_2025}. It is an extensive resource for conducting a review. For an accessible entry point to AI benchmark review, this breadth motivates a lighter questionnaire. This is our design rationale, not an EFPA finding about AI review: document length does not measure completion time, and reducing questions may also remove useful distinctions. Lower review burden remains an objective awaiting empirical assessment.
+
+MESA, the Meta-Evaluation Standard for AI Benchmarks, adapts these review functions into a 25-question human review instrument. Despite its name, MESA is a research proposal rather than an established certification standard. In this paper, the \emph{questionnaire} is the instrument, and the \emph{survey study} is its preliminary evaluation. The fuller descriptive and evaluative adaptation remains the supporting conceptual foundation. The study evaluates guided use of the questionnaire with supplied passages, definitions, and teaching examples.
+
+The contributions are an explained adaptation into a concise questionnaire, a mapping of its six domains to relevant review functions, and a human study design with a categorical analysis plan. The manuscript is awaiting human results; it does not yet make an empirical contribution about participant performance. Three research questions guide the work:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{RQ1:} How can EFPA review functions be adapted into a concise questionnaire for human review of AI benchmarks?
+    \item \textbf{RQ2:} How consistent are participants' categorical judgments when they use the questionnaire with the supplied materials?
+    \item \textbf{RQ3:} What difficulties and ambiguities are reported during guided use, and which disagreements warrant further investigation?
+\end{enumerate}
+
+\section{Background and Related Work}
+\label{sec:background}
+
+\subsection{Benchmark Interpretation and Requirements Evidence}
+
+Benchmark critiques distinguish performance on a task collection from broader claims about capability. Weak construct definitions, sensitivity to evaluation choices, and limited task coverage complicate those inferences \cite{jo_wilson_what_does_your_benchmark_measure,line_goes_up}. Bean et al. connect the phenomenon of interest to its operationalization through tasks, metrics, and claims \cite{bean_measuring_what_matters}. This chain provides a useful basis for examining whether benchmark evidence is relevant to a requirement. MESA asks reviewers to consider both how scores are produced and what interpretations they support.
+
+BetterBench addresses benchmark design, implementation, documentation, and maintenance \cite{reuel_betterbench}. These concerns complement psychometric review because AI benchmarks include software, prompts, data access conditions, and changing evaluation procedures. Datasheets and Model Cards organize information about datasets and models \cite{gebru_datasheets_2021,mitchell_model_cards_2019}; MESA instead focuses its questions on the benchmark and the proposed use of its scores. These forms of documentation may inform a review but do not substitute for an argument about score interpretation.
+
+\subsection{Psychometric Review and Adaptation}
+
+EFPA provides descriptive sections concerning identity, classification, measurement, reports, and materials, followed by evaluation of rationale, materials, norms, reliability, validity, fair use, and reporting \cite{efpa_test_review_model_2025}. Its separation of description from evaluation helps distinguish knowing how a test operates from knowing whether it supports an inference. This distinction is consistent with evaluating the interpretations and uses of scores \cite{kane_validation,aera_apa_ncme_standards_2014}.
+
+Human-testing assumptions require adaptation. The evaluated subject becomes an AI system under specified execution conditions. Population norms become relevant comparison points, such as other models, chance performance, or appropriately matched human results. Individual test reports become benchmark papers, result files, and leaderboards. Broad-intelligence claims also require attention to capability breadth: work drawing on Cattell--Horn--Carroll theory provides one account of this issue \cite{hendrycks_definition_agi}. MESA does not assume that a narrow benchmark must measure every cognitive domain. It asks whether the evidence covers the breadth of the claim actually made.
+
+\section{The MESA Review Questionnaire}
+\label{sec:instrument}
+
+\subsection{Adaptation Rationale}
+
+The full MESA adaptation records benchmark facts in Part A and evaluates supporting evidence in Part B. It supplies a conceptual reference for the questionnaire, including distinctions between description, reliability, validity, and appropriate use. Completing the full template is not a prerequisite for the guided participant task. The questionnaire brings selected review functions into six domains with simpler wording and fewer response decisions.
+
+Table~\ref{tab:domains} presents proposed correspondences between the current questionnaire and EFPA. These correspondences explain the design as it stands; they do not reconstruct an undocumented historical derivation, establish exhaustive coverage, or imply EFPA endorsement. Earlier AI-assisted drafting, benchmark reviews, and instruction checks informed development. They are development history, not human observations or validation evidence. AI reviewer agreement, reconciliation, and assistant-generated examples are not used to answer the empirical research questions.
+
+\begin{table*}[t]
+\caption{Questionnaire domains and proposed correspondences with EFPA review functions. Ranges identify questionnaire items, not EFPA section numbers.}
+\label{tab:domains}
+\centering
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth}>{\raggedright\arraybackslash}p{0.07\textwidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+Domain & Items & Relevant EFPA functions & Questionnaire adaptation \\
+\midrule
+Description & 1--5 & Part A identity, classification, administration, scoring, and reports; Part B documentation & Ask whether these features are identified or described; the supplied passage provides the factual account. \\
+Purpose and development & 6--9 & Rationale, development, item quality, and content validity & Combine justification of task selection, error checks, and coverage of the claimed ability. \\
+Scoring and comparisons & 10--13 & Measurement and scoring, score structure, scoring reliability, and norms & Examine awarded points, score combinations, marking checks, and justified comparison points. \\
+Consistency of results & 14--16 & Reliability and precision & Ask about repeat runs, changes in the evaluation setup, and estimates of score variation. \\
+Meaning and fairness & 17--21 & Validity and fair use & Include shortcuts, prior exposure, benchmark-specific training, transfer claims, and fair comparisons. \\
+Use and reporting & 22--25 & Materials, supply arrangements, documentation, and reports & Address inspectability, access and reuse, updates, and the limits of published claims. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+Four operations characterize this adaptation. First, it \emph{retains} review functions such as checking the rationale for task selection, marking procedures, comparison points, and evidence for score interpretation. Second, it \emph{combines} related issues: one question covers whether benchmark changes and their effects on comparisons are documented, rather than requesting separate detailed records for each kind of change. Third, it \emph{simplifies} terminology and response requirements. Participants make categorical selections and may comment; they do not complete technical rating rubrics or mandatory evidence notes. Fourth, it \emph{omits} detailed fields and specialist assessments from the questionnaire, including human test-user qualification categories, population-norm tables, and separate technical appraisals of internal consistency and item-response models. These omissions limit coverage; they do not imply that item structure or psychometric methods are irrelevant to AI benchmarks. Score uncertainty is not a replacement for internal consistency.
+
+AI-specific concerns extend the correspondence. BetterBench informs materials, reproducibility, and maintenance questions \cite{reuel_betterbench}. Construct-validity work informs the link between tasks, metrics, and claims \cite{bean_measuring_what_matters}. Prior exposure and repeated benchmark-specific tuning concern how an AI system may earn a score without demonstrating the intended capability. The questionnaire thus adapts review functions rather than translating every EFPA item directly.
+
+\subsection{Questions and Responses}
+
+The questionnaire contains 25 questions: five in Description, four in Purpose and development, four in Scoring and comparisons, three in Consistency of results, five in Meaning and fairness, and four in Use and reporting. Questions 1--5 ask whether the benchmark version, intended ability and use, task format, test conditions, and scoring and reporting procedures are documented. They are judgments about the availability and clarity of descriptions. They do not themselves record those facts as a full Part A review would. In the study, the factual descriptions are supplied in the reading passages. Questions 6--25 ask about justification, checks, evidence, and appropriate interpretation.
+
+Each question has the same five choices. \emph{Yes} means the supplied information supports the whole condition; \emph{Partly} means it supports some parts; \emph{No} means the information shows that the condition is not met; \emph{Not sure} means information is missing, unclear, or insufficient to decide; and \emph{Not applicable} means the issue does not apply to the benchmark or intended use. An unanswered item is distinct from all five choices. For questions asking whether something was tested, Yes indicates that testing occurred, not that its results were favourable.
+
+The choices are categorical judgments, not EFPA's numerical ratings. There is no numerical conversion, sum, mean, domain quality score, or aggregate benchmark-quality score. In particular, Not sure and Not applicable are not positions on a low-to-high quality scale. Missing documentation must not automatically become a negative judgment about benchmark performance. Optional comments allow participants to explain a selection or difficulty without requiring citations or a full review rationale.
+
+\section{Preliminary Human Study}
+\label{sec:study}
+
+\subsection{Study Object and Materials}
+
+The study examines the questionnaire \emph{together with} the supplied passages, inline definitions, and worked examples. It does not isolate the questionnaire wording from these supports. Participants review the benchmarks using the supplied information; they are not asked to solve benchmark problems or conduct independent source searches. The preliminary evaluation concerns agreement and reported difficulties within this guided task, rather than the accuracy of unrestricted benchmark audits.
+
+The current packet is version 2.0, identified as \texttt{mesa-guided-arc-designqa-v2}, prepared on 13 October 2026. It uses original HLE as a completed teaching example and ARC-AGI-2 and DesignQA as participant tasks. HLE concerns difficult academic questions with definite answers \cite{phan_etal_hle_2025}. The packet covers its original 2,500-question release and inspected simple evaluation code, excluding HLE-Rolling and HLE-Diamond. ARC-AGI-2 concerns inferring transformations from coloured-grid examples \cite{chollet_arc_agi_2_2025}; the packet specifies public tasks, official scoring software, and ARC Prize verified-testing rules. DesignQA concerns questions about engineering rules and design materials \cite{doris_designqa_2024}; the packet covers the original 2024 benchmark and inspected public scoring software. These distinct task formats provide limited variation, not representative coverage of AI benchmarks.
+
+The packet records source inspections on 7 October 2026 for HLE and ARC-AGI-2 and 6 October 2026 for DesignQA. Its preparation date is not a new source inspection date. Each passage states the benchmark scope and intended interpretation and bounds missing evidence to inspected materials. For example, the ARC-AGI-2 passage distinguishes exact grid matching from the inspected software's averaging across inputs within a task. The passages are the study's evidence base, not fresh benchmark experiments or benchmark verdicts reported as study findings.
+
+\subsection{Participants and Procedure}
+
+The planned study uses convenience recruitment. Recruitment details and the achieved sample must be reported before interpreting results; the existing form does not collect demographic profiles from which representativeness could be inferred.
+\pending{Insert actual recruitment channels, eligibility criteria, invitation procedure, incentives if any, consent procedure, and applicable ethics review or exemption details. Do not imply approval before it is documented.}
+\pending{Insert collection start and end dates, invitations where known, received submissions, exclusions with reasons, and final participant count. Confirm the packet version actually circulated.}
+
+The implemented interface has seven stages: introduction, familiarity self-reports, completed HLE example, ARC-AGI-2, DesignQA, combined review and submission, and confirmation. Back and Continue preserve responses, and the contents control links only within the current page. The three initial self-reports each use five labelled choices numbered 1--5. They concern familiarity with AI, familiarity with AI benchmarks before reading the survey, and current confidence interpreting AI test scores. The last measures confidence, not demonstrated knowledge. These responses are kept separate rather than combined into an expertise score.
+
+Participants next read the HLE passage and all 25 completed example judgments with short reasons. These judgments illustrate one reviewer's use of the questionnaire; they are not an expert answer key. Participants then read the ARC-AGI-2 passage and answer all 25 questions, followed by the DesignQA passage and the same questions. Both participant forms begin blank. Each question offers a collapsed matching HLE example, and definitions are available beside relevant terms by hover, keyboard focus, or click. This support may influence interpretation and selections.
+
+The final review page submits the three self-reports, all 50 categorical judgments, optional comments, survey version, a device-derived UTC completion time, and a random submission identifier in one combined request. Familiarity responses and all benchmark selections are required before advancing to submission; comments remain optional. The form asks for no names or respondent email addresses, but the external submission service may process technical request information, so technical anonymity is not guaranteed. A service confirmation does not itself prove inbox receipt. The completion timestamp alone cannot establish elapsed review duration, and the study does not collect a comprehension test or a standardized usability measure.
+
+\subsection{Analysis Plan}
+\label{sec:analysis}
+
+Before analysis, submissions will be checked for packet version, completeness, permissible choices, and repeated submission identifiers. Repeated delivery of the same payload will be treated as a delivery duplicate; conflicting payloads sharing an identifier will be investigated and documented. A random identifier does not establish that different identifiers belong to different people. The analysis will report exclusions and denominators explicitly. Any incomplete records retained for descriptive purposes will remain separate from the complete-response analysis; missing responses will not be recoded as Not sure.
+
+For RQ2, the primary outputs will be the counts and proportions of all five categories for each question and benchmark. Item-level agreement will be reported separately for the 50 question--benchmark combinations. For a combination with $n$ usable participant judgments and category counts $n_c$, exact pairwise agreement is
+\begin{equation}
+ A = \frac{\sum_{c=1}^{5} n_c(n_c-1)}{n(n-1)}, \qquad n \geq 2.
+ \label{eq:agreement}
+\end{equation}
+This statistic describes how often two participants give the same category. It does not score benchmark quality or establish correctness. It will be interpreted alongside the full category distribution, because a dominant category can produce high agreement. No ordinal weighting will be assigned to the five choices, and Not sure and Not applicable will remain in the primary analysis. Agreement is undefined with fewer than two usable responses.
+
+Each participant contributes repeated judgments across questions and benchmarks. Those judgments, and the pairs in Equation~\ref{eq:agreement}, will not be treated as independent observations for uncertainty estimation. If the achieved sample supports interval estimation, a participant-level bootstrap will resample complete response vectors, preserving each participant's paired benchmark judgments and all question responses. The final report will state resampling settings and limitations; a small or sparse sample may support only descriptive reporting. Intervals will describe sampling variability within the observed design, not correct convenience-sampling bias.
+
+Comparisons by the three familiarity self-reports will be exploratory and considered separately. Descriptive category distributions will be used where group sizes permit. Any inferential extension must account for repeated judgments within participants, identify its assumptions and multiplicity handling, and be reported as exploratory. Neither a higher self-rating nor agreement with the most common response establishes expertise. The design supplies no independent criterion for expert correctness.
+
+For RQ3, optional comments will be examined for reported difficulty with wording, category boundaries, applicability, or passage interpretation. The report will document who analysed comments, how categories were developed, and how ambiguous coding decisions were handled. Counts will use explicit denominators of commenters or comments, not imply prevalence among silent participants. Disagreements in selections can identify items for investigation, but cannot by themselves show misunderstanding. Where comments provide no explanation, the cause will remain unresolved.
+
+\section{Results Awaiting Human Data}
+\label{sec:results}
+
+\noindent\textbf{Manuscript status: human study results are pending.} The following entries reserve space for observations; no participant findings are asserted.
+
+\subsection{Adaptation into a Concise Questionnaire (RQ1)}
+
+The current design addresses RQ1 through the six-domain mapping in Table~\ref{tab:domains}, the distinction between supplied facts and documentation judgments, and the adaptation operations in Section~\ref{sec:instrument}. This is a design account. Whether the selected questions provide sufficient coverage with acceptable effort remains open.
+
+\subsection{Participant Sample and Response Distributions}
+\pending{Report the final sample and the three self-report distributions separately, with denominators. Include any departures from the planned procedure.}
+\pending{Insert counts and proportions for Yes, Partly, No, Not sure, and Not applicable for each of the 25 questions on each participant benchmark. Report missingness and exclusions separately.}
+
+\subsection{Consistency and Disagreements (RQ2)}
+\pending{Insert item-level exact agreement for both benchmarks, with denominators and uncertainty estimates where defensible. Describe dominant categories and unstable or sparse estimates.}
+\pending{Identify the question--benchmark combinations with substantial disagreement and the categories involved. Report exploratory familiarity comparisons, if feasible, while accounting for repeated judgments within participants. Do not interpret agreement as correctness.}
+
+\subsection{Reported Difficulties and Ambiguities (RQ3)}
+\pending{Report how many participants provided optional comments, the comment-analysis procedure, and findings about wording, evidence gaps, applicability, or use of examples. Include non-identifying excerpts where appropriate. Distinguish reported difficulties from explanations inferred by the researchers.}
+\pending{State which disagreements remain unexplained and which proposed revisions are supported by comments. If comments are absent or insufficient, state that RQ3 could not be adequately answered.}
+
+\section{Discussion}
+\label{sec:discussion}
+
+MESA proposes a structured way to examine the evidence behind a benchmark score before using it to support a requirement. The questionnaire directs attention to documentation, task selection, scoring, comparisons, stability, and interpretation. Its primary output is a set of categorical judgments and optional explanations. A requirements engineer could use these to identify questions needing further evidence, but the questionnaire does not determine an acceptance threshold or authorize a system's use.
+
+The proposed mapping shows how a detailed review model can inform a shorter instrument without retaining every technical assessment. This reduction introduces trade-offs. Combined questions may be harder to answer when one condition is supported and another is not; omitted specialist checks may matter for a particular benchmark. A full review or additional analysis may therefore be needed when decisions depend on issues outside the questionnaire's scope. The number of questions alone cannot establish that the instrument is easy to use or that it preserves all important findings.
+
+Interpretation of the human study will depend on its results. If agreement is high, it would support consistency of judgments under the shared guided conditions, while leaving correctness and independent source gathering unresolved. If disagreements cluster around category boundaries and comments identify unclear wording, they could motivate revisions to the questions or guidance. Agreement dominated by Not sure would indicate shared uncertainty in the supplied task, rather than demonstrate either adequate or poor benchmark quality. These are possible interpretations, not observed outcomes.
+
+Reduced burden is a design objective for making benchmark review more accessible. The existing study can inform it indirectly through reported difficulties, but it cannot establish measured time savings, comprehension, usability, or improvement over another method. Those claims would require additional measures and a suitable comparison design. The distinction between a research artifact and evidence for its effectiveness remains central \cite{venable_feds}.
+\pending{Replace conditional interpretations only where supported by the final human results. Explain implications for requirements evidence without extending the findings to unmeasured outcomes.}
+
+\section{Limitations and Threats to Validity}
+\label{sec:limitations}
+
+\subsection{Shared Materials and Teaching Effects}
+
+All participants receive the same compressed passages. Their wording, emphasis, and descriptions of missing evidence may cue similar answers. Agreement may therefore reflect shared passage cues as well as questionnaire clarity. The completed HLE example and matching examples beside each question may anchor later judgments. The study has no unsupported-questionnaire condition or independent-source condition, so their separate effects cannot be estimated. The supplied passages also limit the conclusions participants can reasonably reach about each benchmark.
+
+\subsection{Order and Repeated Judgments}
+
+ARC-AGI-2 always precedes DesignQA. Learning, fatigue, and carryover may differ across stages; benchmark differences cannot be separated from fixed-order effects. Repeating the same questions may encourage consistency or transfer of earlier response habits. Participant-level analysis accounts for dependence in estimation, but does not remove these design limitations.
+
+\subsection{Sampling and Coverage}
+
+Convenience recruitment limits generalization to other reviewers. Self-reported familiarity is not a knowledge test, and confidence interpreting scores is not observed interpretive skill. The form provides no demographic basis for population comparisons. Only two benchmarks receive participant judgments, with a third serving as a teaching example. This does not establish coverage across benchmark families, task formats, or intended uses. Source materials and software can also change after the packet's inspection dates.
+
+\subsection{Interpretation of Agreement and Comments}
+
+Agreement is not evidence of expert correctness: participants can converge on a shared mistake or a passage-driven response. There is no independently validated answer key. Required selections can mask hesitation, while optional comments provide uneven access to participants' reasoning. Silence is not evidence of clarity or absence of difficulty. Disagreement can reflect legitimate differences in interpretation rather than an instrument defect. The absence of duration, comprehension, and standardized usability measures limits claims about burden and practical use.
+
+\section{Replication Materials and Further Evaluation}
+\label{sec:replication}
+
+The repository is available at \url{https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai}. The survey materials are under \texttt{surveys/colleague-review/}: \texttt{packet.json} contains the questions, choices, passages, examples, and source records; \texttt{template.html} defines the interface; and the generated HTML and Markdown copies present the guided and printable forms. Organizer notes and a source manifest document scope and provenance. The full MESA template and earlier development records remain supporting materials. They are not participant results.
+
+The study report should identify the actual circulated packet and its fingerprint and document any changes during collection. Participant submissions and private delivery records should remain separate from the public replication materials. Future work could use independent expert review to assess coverage, counterbalanced benchmark order to examine order effects, and additional benchmark families to test transfer. Timing, comprehension tasks, and a comparison condition would be needed to assess reduced burden or improvement over another review method.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+MESA adapts EFPA review functions into a 25-question instrument for human review of AI benchmarks. Six domains organize categorical judgments about documentation and the evidence supporting score interpretation, without producing a total benchmark-quality score. The full adaptation provides a conceptual foundation; the questionnaire is the primary instrument considered here.
+
+The preliminary human study examines guided use with shared passages, definitions, and a completed HLE example before participants review ARC-AGI-2 and DesignQA. Human results remain pending. If the resulting judgments and comments identify consistent interpretations and specific ambiguities, they may guide further refinement. The present manuscript does not establish correctness, reduced burden, or effectiveness in requirements decisions; these conclusions must follow the evidence collected.
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

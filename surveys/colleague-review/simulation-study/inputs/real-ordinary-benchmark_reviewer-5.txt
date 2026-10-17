@@ -1,0 +1,96 @@
+This is a recorded AI review simulation, not human participant research. Use ONLY the material below. Do not use tools, browse, read files, consult project memory, or use other runs. Do not introduce facts from prior knowledge. Role descriptions are perspectives, not claims of human identity. Return only one JSON object, without Markdown fences. Keep wording concise but complete. Do not calculate an aggregate quality score.
+ROLE:
+Adopt a benchmark-reviewer perspective. Consider whether the test questions, scoring rules, and available findings support what its scores are claimed to show. Do not claim real human credentials or introduce external facts.
+INSTRUMENT:
+Review the benchmark carefully using the supplied information. Assess what its scores can show for its stated use. Consider test construction, scoring, comparisons, consistency, interpretation, fair comparisons, and reporting. Distinguish supported claims, documented problems, and missing information. Explain relevant limitations. Do not use a named review instrument or invent numeric ratings.
+TASK:
+Review ARC-AGI-2 first, then DesignQA. Return exactly two reviews. Give a substantive unstructured review of each benchmark, with reasons for the conclusions. Common conclusions must use only these benchmark passages. Each list should contain concise statements with passage-based reasons. Closing note: unclear questions/instructions. JSON shape:
+{"reviews": [{"benchmark": "arc or designqa", "instrument_review": "condition-native review", "supported_claims": [], "documented_problems": [], "missing_information": [], "reinterpretations": [], "closing_note": ""}]}
+BENCHMARK PASSAGES:
+ARC-AGI-2
+
+Each puzzle shows several before-and-after grids of coloured squares. The AI must infer the hidden rule and produce outputs for new inputs. Public development tasks are available for practice; separate tasks are used for evaluation. You do not need to solve the puzzles to complete this survey.
+
+Which test: ARC-AGI-2 public test problems, the official scoring software, and ARC Prize’s rules for tests that it runs or verifies. Sources were inspected on 7 October 2026. Other competitions and community results may use different rules.
+
+Intended use: Using scores to compare AI systems’ ability to solve unfamiliar grid problems, and considering the creators’ broader claims about reasoning.
+
+What the AI is asked to do
+
+ARC-AGI-2 is a test developed by ARC Prize Foundation staff and partners to assess whether an AI can **work out a new rule from examples**. Each problem presents pairs of coloured grids, showing a starting grid alongside its correct finished grid. Using those examples, the AI must work out how to complete a new starting grid and return an answer with the right size and colour in every square. The creators designed these problems to require little specialist knowledge while encouraging the AI to combine ideas. Their aim is to study reasoning that goes beyond recalling facts or trying large numbers of possible programs, which they connect to progress toward more general, human-like AI.
+
+How the problems were chosen
+
+ARC-AGI-2’s developers began with a collection of newly written grid puzzles and puzzles prepared for earlier ARC work that had not been used. To help decide which puzzles to include and how difficult they were, the developers **conducted a study in which people tried solving them**. This involved **407 people taking part in 515 paid, 90-minute sessions**. The puzzles used in that study formed a larger pool than the final test, so the results do not all describe the final set. The developers also reviewed puzzles themselves and removed ones they judged could be solved by the same rule. The released benchmark contains **1,000 problems for practice and AI development**, along with **three test sets of 120 problems each**. These sets are called public, semi-private and private because access to their problems differs. Using the human participants’ results, the developers selected the three test sets to have similar difficulty for people. After release, they continued correcting the materials; a public change record lists fixes to some coloured squares and unclear examples.
+
+How answers earn points
+
+The AI is allowed **two attempts for each new input grid**, and it earns credit for that input only if an attempt matches the supplied answer in both size and every square’s colour. A nearly correct grid therefore receives no credit. A problem can contain several new inputs, however, so the official scoring software inspected for this survey calculates the fraction solved within each problem before averaging the problem scores. Solving one of two inputs, for example, earns **0.5 for that problem**. This differs from calling the whole problem “fully solved,” which the instructions published with the problems reserve for cases where every input is correct. The software does not provide separate scores established as measures of distinct skills. Its public tests cover correct answers, wrong sizes, changed squares and missing outputs; the survey preparer inspected those tests without independently testing the whole marking system.
+
+Testing conditions and changes in scores
+
+ARC Prize, the organization running the verified evaluations, specifies AI settings and a spending limit for the tests it verifies, although other testing routes may use different conditions. Its verified-testing policy uses **one run, rather than an average of repeated runs**. A technical report describing ARC-AGI-2’s development gives AI scores, but the materials reviewed here do not provide estimates or ranges showing how much the same AI’s score changes when the same test is repeated. Although the running software allows settings to be changed, those materials also contain no systematic study of the effects of changing instructions, grid presentation or software. Matching the test sets for human difficulty addresses a separate issue and does not measure these changes in AI scores.
+
+Prior exposure and ways to earn points
+
+The creators tried to limit ways of earning points without the intended reasoning by designing problems that resist searches through large numbers of possible programs and by checking for repeated solution rules. These steps do not establish that every such route to a high score has been ruled out. Prior exposure is another concern because anyone can see the public problems. For hidden tests sent to AI providers, ARC Prize describes agreements against retaining the data and monitoring of possible exposure, while acknowledging that information could still escape. To keep development separate from evaluation, **training on development problems is allowed, while changing a system specifically to improve on evaluation problems is discouraged**. ARC Prize also says its verified tests are not a service for repeatedly improving systems through its feedback.
+
+Comparisons, access and updates
+
+In the puzzle-solving study described above, the developers found no clear statistical relationship between performance and recorded background factors such as work and technical experience. For AI comparisons, verified tests record the settings used, though other testing routes may differ. Researchers can inspect **public problems, running software and marking tests**, while access to hidden problems is controlled. ARC Prize says it also releases public testing outputs, costs, times and problem scores, but the survey preparer did not check the complete archive. The public data use an Apache 2.0 licence; hidden-data rules address confidentiality, provider handling and code review for selected submissions. To help track revisions, a dated change record identifies corrected problems and exact code changes. It does not, however, recalculate every affected AI score, and ARC-AGI-1 and ARC-AGI-2 remain separate test versions.
+
+What the findings cover
+
+Although the creators connect ARC-AGI-2 to abstract reasoning and broader intelligence, the studies supplied here concern **two-dimensional grid problems**. This packet contains no study showing how scores predict success in language, social interaction or other real-world work, and it supplies no measure covering every kind of intelligence. These are **limits of the information available for this survey**: they leave those broader relationships unresolved, rather than showing that such relationships are impossible.
+
+Example: a problem with two new input grids
+
+Input 1: solved: At least one permitted attempt matches the entire answer grid: 1.
+
+Input 2: unsolved: Neither permitted attempt matches the entire answer grid: 0.
+
+Problem score: 0.5: The inspected software calculates (1 + 0) ÷ 2. It then averages problem scores.
+
+Illustration of the inspected software, not an observed AI result. A partly correct grid gets no credit. The dataset description calls the whole problem solved only when both inputs are correct.
+
+Image described in words: Official ARC-AGI-2 problem e3721c99: two worked examples show starting grids with grey shapes and their coloured outputs. A new test input appears below beside a question mark for the missing output.
+
+The two pairs at the top show starting grids (“Input”) and completed grids (“Output”). The AI uses these examples to work out the missing output at the bottom. You do not need to solve it.
+
+Official Figure 1, ARC-AGI-2 technical report, François Chollet and colleagues. Problem e3721c99.
+
+DesignQA
+
+The AI receives written engineering rules, vehicle images or drawings and must answer questions about them. It may need to find a rule, explain a technical term, identify a part, or check whether a design meets a requirement. The questions draw on Formula SAE, a competition in which university students design and build racing cars. You do not need engineering knowledge or to solve these problems to review this test.
+
+Which test: The original DesignQA benchmark described in the 2024 paper, together with its public scoring software. Sources were inspected on 6 October 2026. Later changes to the questions or software may affect results.
+
+Intended use: Using scores to compare how well AI systems find and apply engineering rules and understand vehicle drawings, while considering how far these results support claims about understanding other engineering documents.
+
+What the AI is asked to do
+
+DesignQA was created by researchers and engineers working with materials from **Formula SAE, a competition in which university students design and build racing cars**. Their aim was to test whether an AI can find engineering rules, understand technical terms and drawings, and apply rules to a design. The paper describes **1,451 question-and-answer pairs in six groups**. These ask the AI to find an individual rule, gather related rules, explain a technical term, identify whether a component is present, check dimensions, or assess performance against a requirement. Depending on the question, the AI receives written rules, a vehicle image or a drawing and must give a text answer or a yes/no answer, sometimes with an explanation. These tasks follow parts of an engineer’s work, which is the authors’ reason for using them to assess understanding of engineering documents.
+
+How the questions were chosen and checked
+
+The developers used a real competition rulebook, vehicle designs and test data, drawing on contributions from engineering practitioners and researchers. This gives the questions a clear connection to practical work, but the benchmark uses **one rulebook and a limited range of tasks**, rather than a representative sample of engineering work across industries. The groups are also very uneven: finding individual rules accounts for 1,192 questions, while checking functional performance accounts for only 16. The paper reports that two additional reviewers checked manually written questions, with exceptions for questions derived from others and some explanations. Those explanations received a more limited check that they supported the yes/no answer. The reviewed sources do not establish how often reviewers disagreed or how many errors remained.
+
+How answers earn points
+
+DesignQA uses several marking methods because its questions require different kinds of answers. Some methods compare the wording of an AI answer with a supplied answer, while yes/no questions receive credit for the correct decision and may also have their explanations scored for text similarity. These rules are described, but **wording and formatting can affect credit**: the paper gives examples involving missing commas and valid related rules that were absent from the supplied answer. The public software also produces an overall score by giving each of the six question groups equal weight, despite their different sizes and marking methods. The reviewed material does not show that this overall number, or the separate group scores, measures a distinct underlying skill. Small marking-test files and discussion of scoring problems show some checking, but do not establish a complete study of marking accuracy and consistency.
+
+Testing conditions and comparisons
+
+The paper names the AI systems tested and describes instructions and settings, but **not every system receives the same information**. Some receive the whole rulebook, while others receive passages selected by search software. Their results therefore describe the AI together with its information supply, which matters when comparing systems. The authors include results from random guessing and other AI systems, but no reported baseline from human engineers taking the test. They also examine changes in the supplied passages, dimension labels, scale bars and highlighted images. One AI is tested with five different sets of rule passages, providing some information about variation. Because the passages change, this does not isolate variation when an identical test is repeated. For the main model comparisons, the reported information is insufficient to judge small score differences confidently. In the 16-question performance group, for example, one additional correct answer changes accuracy by 6.25 percentage points.
+
+Prior exposure and unintended ways to earn points
+
+The authors discuss influences such as formatting, wording, the quality of retrieved passages and familiarity with components. This shows attention to some factors beyond engineering understanding, but the reviewed material does not fully test ways of gaining points without that understanding. For example, the described drawings with scale bars all comply with the relevant rule. A reviewer can therefore infer that always answering “yes” would earn the yes/no credit on that portion, although this **does not show that any tested AI used that strategy**. The authors also discuss the novelty of their vehicle images and possible exposure to similar images, without directly checking every AI’s training data. The rulebook and released questions are public, and a protected test set or systematic overlap check was not established in the review. Clear enough rules on training on the questions and repeatedly submitting results were also not available in the sources examined.
+
+Available materials and later changes
+
+Public questions, instructions, scoring code and some AI responses allow researchers to inspect parts of the evaluation. However, they do not provide **a complete record for repeating every result in the paper**: the exact historical software, settings and inputs are not fully linked to each result. One released answer file also contains fewer rows than the corresponding question count in the paper. Code history makes revisions identifiable, but the reviewer did not find a clear change record explaining their effects on scores, a licence file, or complete rules for responsible reuse. These findings describe limits of the materials inspected; they do not establish that permission is unavailable elsewhere or that reuse is prohibited.
+
+What the results can support
+
+DesignQA’s paper acknowledges the limits of using one rulebook, a small set of task types and imperfect marking methods. It also says that **performance on a different technical document remains uncertain**. Real vehicle materials make the test relevant to engineering, but they do not demonstrate that its scores predict success on other standards or real engineering projects. The completed review below therefore treats the benchmark as a way to examine performance on these tasks under stated conditions. Broader claims about engineering competence, or fine distinctions between closely ranked systems, require more support.

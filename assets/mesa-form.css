@@ -504,3 +504,23 @@ body[data-view="paper"] .mesa-wrap { grid-template-columns: 1fr; }
   .mesa-table-ref thead th, .mesa-table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   a[href]::after { content: ""; }
 }
+
+/* Survey answers and optional comments share a row on wider screens. */
+.mesa-survey-response {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.mesa-survey-response > * { min-width: 0; }
+.mesa-survey-comments label { display: block; margin-bottom: .5rem; }
+.mesa-survey-comments textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  font: inherit;
+  padding: .5rem;
+  resize: vertical;
+}
+/* Keep source identifiers and commit hashes readable on small screens. */
+body[data-view="survey"] #mesa-doc { overflow-wrap: anywhere; }

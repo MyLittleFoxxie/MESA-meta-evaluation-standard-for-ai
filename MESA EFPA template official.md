@@ -2,27 +2,21 @@
 
 ## Introduction
 
-MESA is a structured description and evaluation model for AI benchmarks treated as measurement instruments. It adapts the EFPA Test Review Model 2025 [4] from human psychological and educational testing to AI benchmark review. It provides a structure for describing and evaluating AI benchmarks and the artifacts around them: task suites, leaderboards, evaluation harnesses, score reports, and the materials needed to inspect, run, score, reproduce, or audit an evaluation. It applies wherever benchmark scores inform research, model development, safety evaluation, deployment governance, procurement, policy analysis, or public communication.
+MESA adapts the EFPA Test Review Model 2025 [4] to review AI benchmarks as measurement instruments. It helps reviewers ask whether available evidence supports a particular use of benchmark scores. A benchmark samples AI behavior through tasks, scoring rules, and reporting procedures, following the test concept in the AERA Standards [6].
 
-In MESA, an AI benchmark is treated as a structured measurement instrument: it samples the behavior of an AI system in a specified domain, then quantifies, scores, interprets, and reports that behavior through a standardized or documented process for evaluative or comparative conclusions, adapting the definition of a test in the AERA Standards [6] as used by the EFPA model. This includes benchmarks for language, reasoning, knowledge, coding, multimodality, tool use, agency, safety, robustness, calibration, domain expertise, or other capabilities or qualities the benchmark claims to measure.
+Part A records what the benchmark is and how it works. Part B judges what its scores support. These judgments are provisional: MESA has not been shown to produce consistent ratings across independent human reviewers or to meet certification requirements.
 
-Review information presented in this structure should support benchmark developers, maintainers, suppliers, platform hosts, evaluators, auditors, trainers, policy makers, model developers, procurement teams, and benchmark users. It should help improve benchmark design and evaluation practice, support standards for benchmark review, and give users a more authoritative, unbiased, and consistent basis for interpreting score-based benchmark claims.
-
-This model is divided into two main review parts plus supporting appendices. Part A describes the benchmark in detail: what it is, what capability or quality it claims to measure, how it is administered and scored, what materials exist, and what inspectable or reproducible benchmark materials are available. Part B evaluates whether the benchmark supports the meaning users are supposed to draw from a score (hereafter *the intended score meaning*), using EFPA-style ratings adapted to AI benchmark concerns; Figure 1 lists the seven evaluation sections. The appendices and checklists support review discipline and template validation.
-
-A MESA review must identify the exact benchmark entity under review before Part A is completed. The reviewed entity may be an original benchmark, derived benchmark, subset, evaluation slice, hosted leaderboard, private form, rolling cohort, suite component, task environment, or evaluator-specific implementation. This is the canonical entity-type list; later sections refer to any reviewed entity listed in the front matter, and an evaluation slice may be called a slice after first use. Parent benchmarks and source instruments should be recorded separately from the reviewed entity.
+Identify the exact entity being reviewed: original benchmark, derived benchmark, subset, evaluation slice, hosted leaderboard, private form, rolling cohort, suite component, task environment, or evaluator-specific implementation. Record its parent separately. A review of one version or implementation does not automatically apply to another.
 
 ## How the MESA Model Should Be Used
 
-Use this template as a review instrument, not as a scoring shortcut. Effective implementation depends on expert judgment, source-grounded interpretation, and careful separation between description and evaluation. Part A should remain descriptive: record facts, uncertainty, access limits, and documentation gaps without assigning quality ratings. Part B should remain evaluative: use Part A as the factual base, then judge adequacy for the benchmark's stated use.
+1. State the benchmark version and the exact claim or decision under review. Use the same intended use when comparing ratings.
+2. Inspect official papers, repositories, datasets, scoring code, leaderboards, and release notes. Record each source once in the Source Inventory. Use independent research to challenge or contextualize claims, with clear attribution.
+3. Complete Part A with facts and missing information. In Part B, cite the relevant source IDs and Part A fields rather than copying the same evidence into every answer. Add a short reason for each judgment and explain what remains uncertain.
+4. Mark questions that do not apply `n/a`, with a reason. A narrow benchmark need not cover general intelligence. Do not infer properties of a derived benchmark from its parent without evidence.
+5. Finish with supported uses, unsupported uses, and the conditions needed for comparison. Do not average ratings. A review is not certification or proof that a model has a capability.
 
-This model is designed to guide reviewers, not to provide a closed set of rules. It should be adapted to the benchmark's domain, modality, evaluation setting, and scope of score interpretation while preserving the core review logic: first describe the benchmark as a measurement instrument, then evaluate whether the available evidence supports the intended score meaning. Treat missing documentation as an evidence gap: record what could not be found, and do not treat the gap itself as proof that the benchmark is poor. Do not mechanically average ratings; the final judgment should explain how the strongest support and most consequential gaps affect the intended score meaning.
-
-When the reviewed entity is any entity listed in the front matter other than the original benchmark, complete the review for that entity. Do not inherit descriptions, ratings, validity claims, or conclusions from a parent benchmark unless the reviewed entity's documentation supports that transfer.
-
-MESA reviews evaluate benchmarks and the technical information supporting them. A completed MESA review does not imply endorsement, approval, or recommendation by MESA or by the reviewer unless this is stated explicitly. Public descriptions of a reviewed benchmark should not imply such endorsement; they should reference the review model and the evidence basis of the review.
-
-Before completing the review, inspect the most authoritative available materials. Prefer official benchmark papers, websites, repositories, data hosts, leaderboards, harnesses, changelogs, and maintainer statements. Independent commentary should be used only for context, external critique, or disputed claims, and should not replace official benchmark facts.
+Detailed definitions and rating guidance follow. The shorter scorecard omits some questions; consult the full template when an omitted question matters, including scorer checks in 9.3. Neither form has established human completion times or agreement rates.
 
 ## Glossary
 
@@ -1175,6 +1169,10 @@ All rating items use the EFPA-style scale below unless a section states otherwis
 
 Mark an item `n/a` when the attribute does not exist for this benchmark — there is no judge to validate, no subscores whose structure could be examined, no alternate forms to equate. Mark it `0` when the attribute exists but the documentation provides no usable information about it. The distinction matters: `n/a` records that the question does not arise, `0` records that it arises and is unanswered. Where a whole sub-section does not apply, mark its items `n/a` and say so in that section's Reviewer comments.
 
+For a study-based item, no usable study means `0`; a study showing inadequate performance for the stated use can justify `1`. For example, published run settings without repeat-run results do not establish stability. Assigning `1` requires saying what the available evidence shows to be inadequate. A section-level judgment may still limit a proposed use because critical support is missing; this does not prove that the benchmark is unstable or otherwise defective. Keep the item judgment and the use limitation separate.
+
+When reviewers disagree, record their intended uses, sources, original ratings, and reason for the final choice. Missing uncertainty estimates leave a comparison unresolved; they do not by themselves show that the score difference is noise.
+
 Where a `0` or `1` rating is assigned to an attribute that is critical for the benchmark's stated purpose, the review should caution that the benchmark is suitable only for limited exploratory, research, or expert-qualified use unless stronger evidence is supplied. A benchmark with one or more `0`/`1` ratings on attributes critical to its stated use falls below the minimum standard for that use; the Final Evaluation must say so explicitly. Mark critical-attribute ratings in **bold** in the completed review. Critical attributes will vary by benchmark: for example, controls for prior model exposure to benchmark items or answers may be critical for public knowledge benchmarks, scorer consistency may be critical for open-ended generation benchmarks, and reference points used to interpret scores may be critical for leaderboards used in procurement or policy.
 
 Overall ratings must be based on reviewer judgment rather than mechanical averaging. A single severe gap may dominate the overall rating when it undermines the intended score meaning; conversely, a narrow gap may be less consequential when the benchmark's score interpretation is modest and clearly bounded.
@@ -1766,6 +1764,8 @@ Section-level rating guidance:
 This sub-section concerns score variation when the same benchmark is run repeatedly under documented run conditions. Reviewers should check whether repeat-run evidence covers the settings that materially affect the benchmark, including temperature, sampling, seeds, tool use, API state, and environment variation.
 
 #### 9.2.1 Run-to-run stability, seeds, and sampling settings
+
+Published temperatures, seeds, and allowed attempts describe settings. They do not by themselves measure variation across repeated evaluations. Judge reported repeat-run results or a justified equivalent analysis; use `0` if neither is available. A deterministic scorer does not establish stable model outputs.
 
 - Excellent: Repeat-run studies or equivalent analyses quantify whether repeated evaluations under documented conditions produce similar scores across relevant seeds, sampling settings, temperatures, tool-use conditions, and execution environments, with settings fully documented.
 - Rating: [n/a | 0 | 1 | 2 | 3 | 4]

@@ -6,6 +6,14 @@ Act as the supervising editor for the MESA multi-LLM review pipeline. Your job i
 
 The two draft reviews were produced by separate reviewer LLMs using the same benchmark information sources, the same MESA template, and the same standardized review prompt. Treat both drafts as candidate analyses, not as authoritative sources.
 
+## Survey reconciliation option
+
+The full-template workflow below applies to full MESA reviews. When the user requests survey editing or reconciliation, first read `surveys/colleague-review/agent-guide.md` and `packet.json`. Reconcile survey outputs using the same evidence discipline, while preserving the survey's 25 questions, six domains and categorical choices.
+
+Confirm that candidate outputs use the same questions, benchmark edition, intended interpretation and source boundary. For passage-based responses, judge support against the supplied passage; do not silently add external facts to settle a response. For independent source-based examples, check the original benchmark sources. Record any passage error separately and revise it only within the authorized task.
+
+Compare question-by-question choices and comments, then compare their substantive conclusions with the corresponding full MESA review when requested. Do not average choices, convert EFPA ratings to survey answers, or force agreement where evidence leaves room for judgment. A separately requested reconciled example may contain selected answers and brief reasons; colleague forms must remain unanswered. Report unresolved differences and compression losses, and do not call agreement validation or an answer key. Existing full-review required inputs apply when full-review reconciliation is requested; survey tasks use the relevant packet and candidate survey outputs instead.
+
 ## Primary Objective
 
 Create a final MESA evaluation by comparing the two reviewer drafts against the original source packet and resolving discrepancies through evidence-based editorial judgment.
@@ -107,3 +115,7 @@ Do not overwrite templates, source materials, pilot reviews, or existing notes u
 The final review should read as a single coherent MESA evaluation, not as a stitched-together compromise. It should be stricter than either first-pass draft where evidence is weak, but it should not convert missing documentation into unsupported criticism.
 
 The editor's responsibility is to improve reliability, source grounding, and interpretive discipline across the two-reviewer pipeline.
+
+### Current guided survey flow
+
+The colleague survey now follows Introduction → three 1–5 familiarity questions → completed HLE example → ARC-AGI-2 → DesignQA → combined review/submission → confirmation. Use Back and Continue rather than benchmark tabs, with contents restricted to the current page. Leave both participant benchmarks blank, use inline hover/focus/click definitions instead of an opening glossary, and collect no names or respondent emails. One final payload contains familiarity and all 50 answers. Treat familiarity as self-report, not a knowledge test; do not load older named drafts or send real test emails during implementation checks. See the shared survey guide for details.
