@@ -1,12 +1,12 @@
 # HLE worked example — source and comparison notes
 
-Prepared 13 October 2026 from the HLE passage and primary-source records inspected on 7 October 2026. No fresh benchmark run or new source inspection is claimed.
+Prepared 18 October 2026 from the HLE passage and primary-source records inspected on 7 October 2026. No fresh benchmark run or new source inspection is claimed.
 
 The 25 answers are reviewer judgments for a teaching example. They are not EFPA ratings, an expert consensus, a correct-answer key or a validated replacement for the long review. The participant form now leaves ARC-AGI-2 and DesignQA unanswered.
 
-## Comparison with existing full MESA reviews
+## Comparison with supporting detailed reviews
 
-The example retains the full reviews’ central limits: unvalidated AI judging, limited evidence of repeated-run stability, deliberately difficult academic sampling, constrained comparisons and unsupported interpretation as general intelligence or independent research. It does not mechanically translate numerical ratings into choices.
+The example retains the detailed reviews’ central limits: unvalidated AI judging, limited evidence of repeated-run stability, deliberately difficult academic sampling, constrained comparisons and unsupported interpretation as general intelligence or independent research. It does not mechanically translate numerical ratings into choices.
 
 Where an existing review refers to answer-key error percentages, this example uses the supplied paper’s expert-disagreement statement rather than calling disagreement confirmed error. Where a full review criticizes missing headline uncertainty reporting, the example also records that the inspected code calculates an approximate confidence range; these concern different reporting contexts. Missing evidence of a study yields Not sure where the question asks whether that study happened. Describing a process can earn Yes without validating that process. These distinctions prevent apparent agreement from overriding the inspected facts.
 
@@ -21,7 +21,7 @@ Where an existing review refers to answer-key error percentages, this example us
 | 5 | Yes | The public code explains how a judging AI marks answers and how accuracy and confidence-related results are calculated. Describing these rules does not establish that they work well. | HJ |
 | 6 | Yes | The paper explains why hard, specialist questions with definite answers are used to assess academic knowledge and reasoning. Whether they cover the full claim is a separate question. | HP |
 | 7 | Partly | Experts contributed questions and the authors explain the difficulty screening. However, selecting questions that AI systems struggle with does not show that the set represents academic work more generally. | HP |
-| 8 | Partly | Expert review and later checks were conducted, but experts still disagreed about some questions or answers. This gives some support for the checks without establishing that every answer is correct. | HP |
+| 8 | Yes | Expert review and later checks examined the questions and supplied answers. Remaining expert disagreement limits confidence in those answers, but does not undo the evidence that checking occurred. | HP |
 | 9 | Partly | The questions cover many subjects, but emphasize mathematics and require definite answers. They therefore cover some academic skills while leaving creative work and open-ended research outside the format. | HP |
 | 10 | Partly | The judging AI accepts answers with the same meaning as the reference. However, a wrong reference or an incorrect judging decision can still affect the mark, so understanding is not the only possible influence. | HJ, HP |
 | 11 | Partly | Each question counts equally, so the subject mix affects the overall score. The inspected material does not establish that the subject scores are separate measures of distinct skills. | HP, HJ |
@@ -40,4 +40,4 @@ Where an existing review refers to answer-key error percentages, this example us
 | 24 | Not sure | Changes to HLE-Rolling are described, but that is a separate test. The supplied material does not establish how changes to original HLE affect comparisons of old and new scores. | HW, HU |
 | 25 | Partly | The paper explicitly limits claims about general intelligence and independent research. However, the broad title can suggest more than the definite-answer academic questions establish. | HP |
 
-Source IDs resolve through `packet.json`. Full reviews remain unchanged in `reviews/`; the original DesignQA example remains unchanged in `proposals/mesa-25/`.
+Source IDs resolve through `packet.json`. Detailed reviews remain unchanged in `reviews/`; the original DesignQA example remains unchanged in `proposals/mesa-25/`.

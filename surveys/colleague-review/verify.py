@@ -49,3 +49,24 @@ for f in manifest['files']:
     if 'path' in f: assert hashlib.sha256((ROOT / f['path']).read_bytes()).hexdigest() == f['sha256']
 Path('/tmp/mesa-colleague-script.js').write_text('\n'.join(re.findall(r'<script>(.*?)</script>', html, re.S)))
 print('PASS: guided packet, 3 familiarity items, HLE example, 50 blank ARC/DesignQA questions, source references, offline images and fingerprints.')
+
+alignment = (P / 'study-alignment.txt').read_text()
+assert hashlib.sha256((P / 'study-alignment.txt').read_bytes()).hexdigest() == manifest['study_alignment']['sha256']
+origin = ROOT / manifest['study_alignment']['origin']
+if origin.exists(): assert origin.read_bytes() == (P / 'study-alignment.txt').read_bytes()
+items = re.findall(r'^([0-9]+)\. \[[^\]]+\] (.*?)\nMeaning: (.*?)\nHLE example: (.*?)\n', alignment, re.M)
+assert len(items) == 25
+for q, (i, text, help_text, example) in zip(d['questions'], items):
+    assert q['id'] == int(i) and q['question'] == text and q['help'] == help_text
+    assert example == q['example']['answer'] + '. ' + q['example']['why']
+assert d['answer_instructions'] == alignment.splitlines()[1]
+assert d['answer_instructions'] in html and d['answer_instructions'] in md
+old = json.loads((P / 'archive/v2.0/packet.json').read_text())
+assert d['benchmarks'] == old['benchmarks'] and d['example'] == old['example']
+assert d['sources'] == old['sources'] and d['choices'] == old['choices']
+assert d['definitions'] == old['definitions']
+assert [q['question'] for q in d['questions']] == [q['question'] for q in old['questions']]
+assert d['version'] == '2.1' and d['survey_id'] == 'mesa-guided-arc-designqa-v2-1'
+assert len(d['feedback']) == 3 and all(len(q['labels']) == 6 and q['labels'][-1] == 'Cannot judge' for q in d['feedback'])
+assert all(q['question'] in md for q in d['feedback'])
+print('PASS: exact study alignment, preserved passages/definitions/questions/source dates, feedback schema and version archive.')

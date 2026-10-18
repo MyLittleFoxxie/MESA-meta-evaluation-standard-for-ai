@@ -8,9 +8,9 @@ This survey introduces MESA, the Meta-Evaluation Standard for AI Benchmarks. MES
 
 You review the tests rather than solve their problems. Read the supplied passages and make your own judgments. Complete 25 questions each for ARC-AGI-2 and DesignQA. Comments are optional; evidence notes and citations are not required. There is no total quality score.
 
-Choose Yes (the whole condition is supported), Partly (some parts are supported), No (the information shows the condition is not met), Not sure (information is insufficient), or Not applicable (the issue does not apply). Missing research does not prove poor performance. For “Was it tested?”, Yes concerns whether testing happened, not whether its result was favourable.
+Yes: information supports the whole condition. Partly: supports some parts but not all. No: information shows the condition is not met. Not sure: information is missing, unclear, or insufficient. Not applicable: the issue does not apply. For a question asking whether checking or testing occurred, Yes means the stated checks occurred for all parts of the question, not that results were favourable or every error was eliminated. Partly means that only some of those checks or parts are supported. Describe limits in coverage in an optional comment; do not lower an answer solely because checking found errors or disagreement. Do not convert missing information into No. No aggregate score.
 
-No name or email is requested. Please avoid identifying details in comments. The online form sends familiarity ratings, both benchmark evaluations and completion time to the organizer through FormSubmit; the external service may process technical request information.
+No name or email is requested. Please avoid identifying details in comments. The online form sends familiarity ratings, both benchmark evaluations, feedback, survey identifier and fingerprint, and completion time to the organizer through FormSubmit; the external service may process technical request information.
 
 The online form supplies definitions beside relevant words. In this printable companion, the same definitions appear in a reference section at the end.
 
@@ -124,7 +124,7 @@ HLE’s title suggests a final exam at the edge of human knowledge, but the pape
 
 **Example Q1. Are the benchmark version, set of test problems and method for calculating scores identified?**
 
-**Meaning:** The benchmark version is the particular edition of the test, like an exam revised in a new year. This item concerns whether the edition, the problems used and the rules for awarding points are identified.
+**Meaning:** Identify the edition of the benchmark, the problems used, and the scoring method. This asks whether all three are stated, not whether they are good choices.
 
 **Answer: Yes**
 
@@ -132,7 +132,7 @@ Why: The passage identifies original HLE, its 2,500 questions and the inspected 
 
 **Example Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
 
-**Meaning:** An ability is a skill the AI is meant to demonstrate, such as finding a rule in a pattern or answering a science question. This item concerns whether that skill, the types of AI being tested and the proposed uses of the results are described.
+**Meaning:** Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
 
 **Answer: Yes**
 
@@ -140,7 +140,7 @@ Why: HLE describes difficult academic knowledge and reasoning, the AI systems it
 
 **Example Q3. Are the test problems, the information provided and the required answers or actions described?**
 
-**Meaning:** A test problem is one question or puzzle given to the AI. This item concerns whether the starting information and the answer or action expected from the AI are described.
+**Meaning:** The description should say what the AI receives and what it must produce or do. You do not need to solve the problems yourself.
 
 **Answer: Yes**
 
@@ -148,7 +148,7 @@ Why: The passage describes short-answer and multiple-choice questions, images wh
 
 **Example Q4. Are the instructions, resources and limits for taking the test described?**
 
-**Meaning:** Testing conditions include the instructions, allowed tools, time, number of attempts and AI settings. These can affect the difficulty of the test.
+**Meaning:** Testing conditions include instructions, tools, supplied documents, time, allowed attempts, and AI settings. This asks whether relevant conditions are described, not whether every possible condition was studied.
 
 **Answer: Partly**
 
@@ -156,7 +156,7 @@ Why: The instructions and software are described, but the advertised setting to 
 
 **Example Q5. Is it described how answers or actions become scores and how results are presented?**
 
-**Meaning:** Scoring means turning the AI’s responses into a result, such as percentage correct. This item concerns whether the marking rules and the way results are shown are described.
+**Meaning:** Look for the rules that turn responses into points, any averaging or weighting, and how results are shown. Describing a scoring rule does not establish that it is accurate or appropriate.
 
 **Answer: Yes**
 
@@ -166,7 +166,7 @@ Why: The public code explains how a judging AI marks answers and how accuracy an
 
 **Example Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
 
-**Meaning:** The test needs an explanation linking its problems to the skill it claims to measure. For example, remembering a fact and working out a new rule are different skills.
+**Meaning:** The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
 
 **Answer: Yes**
 
@@ -174,7 +174,7 @@ Why: The paper explains why hard, specialist questions with definite answers are
 
 **Example Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
 
-**Meaning:** This item concerns the reasons for choosing these problems: where they came from, how many there are, their topics and their difficulty, in relation to the test’s purpose.
+**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.
 
 **Answer: Partly**
 
@@ -182,15 +182,15 @@ Why: Experts contributed questions and the authors explain the difficulty screen
 
 **Example Q8. Were the test problems and the answers used to mark them checked for errors during development?**
 
-**Meaning:** Reference answers are the supplied answers used to mark the AI’s work. This item concerns checks for mistakes in both the problems and those answers while the test was being made.
+**Meaning:** This asks whether both the problems and the supplied answers used to mark them were examined for mistakes during development. It is separate from testing how new AI responses are marked. Evidence that examination occurred does not establish that every answer is correct; note limits in its coverage when relevant.
 
-**Answer: Partly**
+**Answer: Yes**
 
-Why: Expert review and later checks were conducted, but experts still disagreed about some questions or answers. This gives some support for the checks without establishing that every answer is correct. Sources: [HP](#source-HP).
+Why: Expert review and later checks examined the questions and supplied answers. Remaining expert disagreement limits confidence in those answers, but does not undo the evidence that checking occurred. Sources: [HP](#source-HP).
 
 **Example Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
 
-**Meaning:** A claimed skill may have several parts. A test of science knowledge, for example, may need questions from several branches of science rather than just one.
+**Meaning:** A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
 
 **Answer: Partly**
 
@@ -200,7 +200,7 @@ Why: The questions cover many subjects, but emphasize mathematics and require de
 
 **Example Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
 
-**Meaning:** This item concerns whether earning more points reflects doing better at the intended skill. A score can also be affected by details such as the required answer format.
+**Meaning:** Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.
 
 **Answer: Partly**
 
@@ -208,7 +208,7 @@ Why: The judging AI accepts answers with the same meaning as the reference. Howe
 
 **Example Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
 
-**Meaning:** An overall score combines results from different problems. Separate scores may describe particular subjects or skills. This item concerns support for those choices and interpretations.
+**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
 
 **Answer: Partly**
 
@@ -216,7 +216,7 @@ Why: Each question counts equally, so the subject mix affects the overall score.
 
 **Example Q12. Was the marking process tested to see whether it awards the right scores consistently?**
 
-**Meaning:** Marking may be done by people, fixed software rules or another AI. This item concerns whether the marking was tested for correct and consistent decisions.
+**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.
 
 **Answer: Not sure**
 
@@ -224,7 +224,7 @@ Why: The judging code is public, but no full comparison of its marks with expert
 
 **Example Q13. Are the comparison points used to explain the scores justified for the claims being made?**
 
-**Meaning:** A comparison point is a result used to help interpret an AI’s score, such as a human score, another AI’s score or the score expected from guessing. The comparison needs to fit the claim being made.
+**Meaning:** A comparison point is a human score, another AI score, or a guessing result used to interpret a score. Ask whether it fits the stated claim and conditions. Comparing particular systems does not establish a ranking among all systems or a justified score cutoff for a decision.
 
 **Answer: Partly**
 
@@ -234,7 +234,7 @@ Why: Named AI models provide useful comparison points, and text-only results are
 
 **Example Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
 
-**Meaning:** A repeated run means testing the same AI again under the same conditions. This item concerns whether researchers measured how much its score changes across those runs.
+**Meaning:** This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.
 
 **Answer: Not sure**
 
@@ -242,7 +242,7 @@ Why: The paper notes that answers can change between attempts, but the supplied 
 
 **Example Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
-**Meaning:** The same problems can be presented with different wording, layouts or software settings. This item concerns whether the effect of those changes on scores was measured.
+**Meaning:** This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
 
 **Answer: Not sure**
 
@@ -250,7 +250,7 @@ Why: The supplied sources do not establish systematic tests of reworded instruct
 
 **Example Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?**
 
-**Meaning:** A range around a score describes uncertainty under the method used to calculate it. This item concerns whether that information is detailed enough for the conclusions drawn from the scores.
+**Meaning:** Look for a range or other estimate of possible score differences, how it was calculated, and whether it supports the intended comparison. An estimate based on the number of problems need not measure changes across repeated evaluations; small score differences may remain unresolved.
 
 **Answer: Partly**
 
@@ -260,7 +260,7 @@ Why: The code calculates an approximate confidence range, but it does not cover 
 
 **Example Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** An AI might gain points from accidental clues or guessing rather than the intended skill. This item concerns whether such possibilities were investigated.
+**Meaning:** A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 **Answer: Partly**
 
@@ -268,7 +268,7 @@ Why: Contributors were asked to avoid easy lookups and could revise questions an
 
 **Example Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** An AI may remember a problem or answer encountered during training. This item concerns whether that risk was examined and steps were taken to reduce it.
+**Meaning:** Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.
 
 **Answer: Partly**
 
@@ -276,7 +276,7 @@ Why: A private set, a training-data marker and warnings help address prior expos
 
 **Example Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
 
-**Meaning:** Training specifically for a test means changing an AI to improve its results on that test. Repeated submissions can provide feedback for further changes. This item concerns whether the rules for both fit the test’s purpose.
+**Meaning:** Look for rules about training specifically for the test and repeatedly submitting results, with reasons linked to the intended use. A rule being absent from the supplied description is different from evidence that the rule is unsuitable.
 
 **Answer: Not sure**
 
@@ -284,7 +284,7 @@ Why: Training on the test is discouraged, but the supplied material lacks a comp
 
 **Example Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?**
 
-**Meaning:** A claim about performance beyond the test predicts success on other problems or real work. This item concerns evidence for such predictions, when they are made.
+**Meaning:** This concerns claims about new problems or real work beyond the benchmark. Look for evidence covering that broader claim. A stated ambition alone is not such evidence; if no broader claim or use arises, consider Not applicable.
 
 **Answer: Not sure**
 
@@ -292,7 +292,7 @@ Why: The passage supplies no measured link between HLE scores and success on ind
 
 **Example Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?**
 
-**Meaning:** AI systems may receive different information, tools or problem sets. This item concerns whether comparisons remain fair and meaningful across the systems and situations the test is meant to include.
+**Meaning:** Look for evidence that differences in information, tools, tasks, resources, or settings do not make the intended comparison misleading. Findings about differences between people do not by themselves establish fair comparisons between AI systems.
 
 **Answer: Partly**
 
@@ -302,7 +302,7 @@ Why: Text-only results are distinguished from results using images, which helps 
 
 **Example Q22. Are the test materials and methods available in enough detail for someone else to repeat the evaluation or examine how it was done?**
 
-**Meaning:** Test materials include problems, marking rules, instructions and software. This item concerns whether enough is available to repeat the evaluation or inspect how it was carried out.
+**Meaning:** Look for enough problems, scoring details, instructions, and software to repeat or inspect the evaluation. Public access to some files does not necessarily reproduce hidden test results or earlier software versions.
 
 **Answer: Partly**
 
@@ -310,7 +310,7 @@ Why: Instructions and marking code are public, but the dataset is gated and the 
 
 **Example Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?**
 
-**Meaning:** Access and reuse rules explain who can obtain, share or modify the materials. Protections may include keeping hidden answers private or limiting harmful content.
+**Meaning:** Look for access and reuse rules and relevant safeguards, such as protecting hidden answers. A missing permission statement does not establish that reuse is prohibited. This asks whether relevant rules are stated, not whether all materials must be public.
 
 **Answer: Partly**
 
@@ -318,7 +318,7 @@ Why: Licences, access conditions and harmful-content precautions are described. 
 
 **Example Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?**
 
-**Meaning:** A test can change when problems, answers or marking rules are revised. This item concerns whether those changes and their effects on comparisons with earlier scores are documented.
+**Meaning:** Look for a record of changes to problems, answers, or scoring and an explanation of their effects on old and new scores. A new version number alone does not explain whether scores can be compared.
 
 **Answer: Not sure**
 
@@ -326,7 +326,7 @@ Why: Changes to HLE-Rolling are described, but that is a separate test. The supp
 
 **Example Q25. Do the published claims stay within what the evidence supports?**
 
-**Meaning:** Published claims are statements about what a score shows the AI can do. This item concerns whether those statements fit what the available findings establish.
+**Meaning:** Compare what is publicly claimed with the tasks, conditions, and results actually reported. A claim about these tasks may be justified even when a broader claim is not. Missing evidence for a broad claim does not prove that the AI lacks the ability.
 
 **Answer: Partly**
 
@@ -396,7 +396,7 @@ Use the passage to make your own judgments. Choose one response per question. Co
 
 **Q1. Are the benchmark version, set of test problems and method for calculating scores identified?**
 
-**Meaning:** The benchmark version is the particular edition of the test, like an exam revised in a new year. This item concerns whether the edition, the problems used and the rules for awarding points are identified.
+**Meaning:** Identify the edition of the benchmark, the problems used, and the scoring method. This asks whether all three are stated, not whether they are good choices.
 
 <details><summary>HLE example</summary>
 
@@ -412,7 +412,7 @@ Comments (optional): __________________________________________
 
 **Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
 
-**Meaning:** An ability is a skill the AI is meant to demonstrate, such as finding a rule in a pattern or answering a science question. This item concerns whether that skill, the types of AI being tested and the proposed uses of the results are described.
+**Meaning:** Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
 
 <details><summary>HLE example</summary>
 
@@ -428,7 +428,7 @@ Comments (optional): __________________________________________
 
 **Q3. Are the test problems, the information provided and the required answers or actions described?**
 
-**Meaning:** A test problem is one question or puzzle given to the AI. This item concerns whether the starting information and the answer or action expected from the AI are described.
+**Meaning:** The description should say what the AI receives and what it must produce or do. You do not need to solve the problems yourself.
 
 <details><summary>HLE example</summary>
 
@@ -444,7 +444,7 @@ Comments (optional): __________________________________________
 
 **Q4. Are the instructions, resources and limits for taking the test described?**
 
-**Meaning:** Testing conditions include the instructions, allowed tools, time, number of attempts and AI settings. These can affect the difficulty of the test.
+**Meaning:** Testing conditions include instructions, tools, supplied documents, time, allowed attempts, and AI settings. This asks whether relevant conditions are described, not whether every possible condition was studied.
 
 <details><summary>HLE example</summary>
 
@@ -460,7 +460,7 @@ Comments (optional): __________________________________________
 
 **Q5. Is it described how answers or actions become scores and how results are presented?**
 
-**Meaning:** Scoring means turning the AI’s responses into a result, such as percentage correct. This item concerns whether the marking rules and the way results are shown are described.
+**Meaning:** Look for the rules that turn responses into points, any averaging or weighting, and how results are shown. Describing a scoring rule does not establish that it is accurate or appropriate.
 
 <details><summary>HLE example</summary>
 
@@ -478,7 +478,7 @@ Comments (optional): __________________________________________
 
 **Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
 
-**Meaning:** The test needs an explanation linking its problems to the skill it claims to measure. For example, remembering a fact and working out a new rule are different skills.
+**Meaning:** The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
 
 <details><summary>HLE example</summary>
 
@@ -494,7 +494,7 @@ Comments (optional): __________________________________________
 
 **Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
 
-**Meaning:** This item concerns the reasons for choosing these problems: where they came from, how many there are, their topics and their difficulty, in relation to the test’s purpose.
+**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.
 
 <details><summary>HLE example</summary>
 
@@ -510,13 +510,13 @@ Comments (optional): __________________________________________
 
 **Q8. Were the test problems and the answers used to mark them checked for errors during development?**
 
-**Meaning:** Reference answers are the supplied answers used to mark the AI’s work. This item concerns checks for mistakes in both the problems and those answers while the test was being made.
+**Meaning:** This asks whether both the problems and the supplied answers used to mark them were examined for mistakes during development. It is separate from testing how new AI responses are marked. Evidence that examination occurred does not establish that every answer is correct; note limits in its coverage when relevant.
 
 <details><summary>HLE example</summary>
 
-**Answer: Partly**
+**Answer: Yes**
 
-Why: Expert review and later checks were conducted, but experts still disagreed about some questions or answers. This gives some support for the checks without establishing that every answer is correct.
+Why: Expert review and later checks examined the questions and supplied answers. Remaining expert disagreement limits confidence in those answers, but does not undo the evidence that checking occurred.
 
 </details>
 
@@ -526,7 +526,7 @@ Comments (optional): __________________________________________
 
 **Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
 
-**Meaning:** A claimed skill may have several parts. A test of science knowledge, for example, may need questions from several branches of science rather than just one.
+**Meaning:** A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
 
 <details><summary>HLE example</summary>
 
@@ -544,7 +544,7 @@ Comments (optional): __________________________________________
 
 **Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
 
-**Meaning:** This item concerns whether earning more points reflects doing better at the intended skill. A score can also be affected by details such as the required answer format.
+**Meaning:** Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.
 
 <details><summary>HLE example</summary>
 
@@ -560,7 +560,7 @@ Comments (optional): __________________________________________
 
 **Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
 
-**Meaning:** An overall score combines results from different problems. Separate scores may describe particular subjects or skills. This item concerns support for those choices and interpretations.
+**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
 
 <details><summary>HLE example</summary>
 
@@ -576,7 +576,7 @@ Comments (optional): __________________________________________
 
 **Q12. Was the marking process tested to see whether it awards the right scores consistently?**
 
-**Meaning:** Marking may be done by people, fixed software rules or another AI. This item concerns whether the marking was tested for correct and consistent decisions.
+**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.
 
 <details><summary>HLE example</summary>
 
@@ -592,7 +592,7 @@ Comments (optional): __________________________________________
 
 **Q13. Are the comparison points used to explain the scores justified for the claims being made?**
 
-**Meaning:** A comparison point is a result used to help interpret an AI’s score, such as a human score, another AI’s score or the score expected from guessing. The comparison needs to fit the claim being made.
+**Meaning:** A comparison point is a human score, another AI score, or a guessing result used to interpret a score. Ask whether it fits the stated claim and conditions. Comparing particular systems does not establish a ranking among all systems or a justified score cutoff for a decision.
 
 <details><summary>HLE example</summary>
 
@@ -610,7 +610,7 @@ Comments (optional): __________________________________________
 
 **Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
 
-**Meaning:** A repeated run means testing the same AI again under the same conditions. This item concerns whether researchers measured how much its score changes across those runs.
+**Meaning:** This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.
 
 <details><summary>HLE example</summary>
 
@@ -626,7 +626,7 @@ Comments (optional): __________________________________________
 
 **Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
-**Meaning:** The same problems can be presented with different wording, layouts or software settings. This item concerns whether the effect of those changes on scores was measured.
+**Meaning:** This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
 
 <details><summary>HLE example</summary>
 
@@ -642,7 +642,7 @@ Comments (optional): __________________________________________
 
 **Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?**
 
-**Meaning:** A range around a score describes uncertainty under the method used to calculate it. This item concerns whether that information is detailed enough for the conclusions drawn from the scores.
+**Meaning:** Look for a range or other estimate of possible score differences, how it was calculated, and whether it supports the intended comparison. An estimate based on the number of problems need not measure changes across repeated evaluations; small score differences may remain unresolved.
 
 <details><summary>HLE example</summary>
 
@@ -660,7 +660,7 @@ Comments (optional): __________________________________________
 
 **Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** An AI might gain points from accidental clues or guessing rather than the intended skill. This item concerns whether such possibilities were investigated.
+**Meaning:** A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 <details><summary>HLE example</summary>
 
@@ -676,7 +676,7 @@ Comments (optional): __________________________________________
 
 **Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** An AI may remember a problem or answer encountered during training. This item concerns whether that risk was examined and steps were taken to reduce it.
+**Meaning:** Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.
 
 <details><summary>HLE example</summary>
 
@@ -692,7 +692,7 @@ Comments (optional): __________________________________________
 
 **Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
 
-**Meaning:** Training specifically for a test means changing an AI to improve its results on that test. Repeated submissions can provide feedback for further changes. This item concerns whether the rules for both fit the test’s purpose.
+**Meaning:** Look for rules about training specifically for the test and repeatedly submitting results, with reasons linked to the intended use. A rule being absent from the supplied description is different from evidence that the rule is unsuitable.
 
 <details><summary>HLE example</summary>
 
@@ -708,7 +708,7 @@ Comments (optional): __________________________________________
 
 **Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?**
 
-**Meaning:** A claim about performance beyond the test predicts success on other problems or real work. This item concerns evidence for such predictions, when they are made.
+**Meaning:** This concerns claims about new problems or real work beyond the benchmark. Look for evidence covering that broader claim. A stated ambition alone is not such evidence; if no broader claim or use arises, consider Not applicable.
 
 <details><summary>HLE example</summary>
 
@@ -724,7 +724,7 @@ Comments (optional): __________________________________________
 
 **Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?**
 
-**Meaning:** AI systems may receive different information, tools or problem sets. This item concerns whether comparisons remain fair and meaningful across the systems and situations the test is meant to include.
+**Meaning:** Look for evidence that differences in information, tools, tasks, resources, or settings do not make the intended comparison misleading. Findings about differences between people do not by themselves establish fair comparisons between AI systems.
 
 <details><summary>HLE example</summary>
 
@@ -742,7 +742,7 @@ Comments (optional): __________________________________________
 
 **Q22. Are the test materials and methods available in enough detail for someone else to repeat the evaluation or examine how it was done?**
 
-**Meaning:** Test materials include problems, marking rules, instructions and software. This item concerns whether enough is available to repeat the evaluation or inspect how it was carried out.
+**Meaning:** Look for enough problems, scoring details, instructions, and software to repeat or inspect the evaluation. Public access to some files does not necessarily reproduce hidden test results or earlier software versions.
 
 <details><summary>HLE example</summary>
 
@@ -758,7 +758,7 @@ Comments (optional): __________________________________________
 
 **Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?**
 
-**Meaning:** Access and reuse rules explain who can obtain, share or modify the materials. Protections may include keeping hidden answers private or limiting harmful content.
+**Meaning:** Look for access and reuse rules and relevant safeguards, such as protecting hidden answers. A missing permission statement does not establish that reuse is prohibited. This asks whether relevant rules are stated, not whether all materials must be public.
 
 <details><summary>HLE example</summary>
 
@@ -774,7 +774,7 @@ Comments (optional): __________________________________________
 
 **Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?**
 
-**Meaning:** A test can change when problems, answers or marking rules are revised. This item concerns whether those changes and their effects on comparisons with earlier scores are documented.
+**Meaning:** Look for a record of changes to problems, answers, or scoring and an explanation of their effects on old and new scores. A new version number alone does not explain whether scores can be compared.
 
 <details><summary>HLE example</summary>
 
@@ -790,7 +790,7 @@ Comments (optional): __________________________________________
 
 **Q25. Do the published claims stay within what the evidence supports?**
 
-**Meaning:** Published claims are statements about what a score shows the AI can do. This item concerns whether those statements fit what the available findings establish.
+**Meaning:** Compare what is publicly claimed with the tasks, conditions, and results actually reported. A claim about these tasks may be justified even when a broader claim is not. Missing evidence for a broad claim does not prove that the AI lacks the ability.
 
 <details><summary>HLE example</summary>
 
@@ -850,7 +850,7 @@ Use the passage to make your own judgments. Choose one response per question. Co
 
 **Q1. Are the benchmark version, set of test problems and method for calculating scores identified?**
 
-**Meaning:** The benchmark version is the particular edition of the test, like an exam revised in a new year. This item concerns whether the edition, the problems used and the rules for awarding points are identified.
+**Meaning:** Identify the edition of the benchmark, the problems used, and the scoring method. This asks whether all three are stated, not whether they are good choices.
 
 <details><summary>HLE example</summary>
 
@@ -866,7 +866,7 @@ Comments (optional): __________________________________________
 
 **Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
 
-**Meaning:** An ability is a skill the AI is meant to demonstrate, such as finding a rule in a pattern or answering a science question. This item concerns whether that skill, the types of AI being tested and the proposed uses of the results are described.
+**Meaning:** Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
 
 <details><summary>HLE example</summary>
 
@@ -882,7 +882,7 @@ Comments (optional): __________________________________________
 
 **Q3. Are the test problems, the information provided and the required answers or actions described?**
 
-**Meaning:** A test problem is one question or puzzle given to the AI. This item concerns whether the starting information and the answer or action expected from the AI are described.
+**Meaning:** The description should say what the AI receives and what it must produce or do. You do not need to solve the problems yourself.
 
 <details><summary>HLE example</summary>
 
@@ -898,7 +898,7 @@ Comments (optional): __________________________________________
 
 **Q4. Are the instructions, resources and limits for taking the test described?**
 
-**Meaning:** Testing conditions include the instructions, allowed tools, time, number of attempts and AI settings. These can affect the difficulty of the test.
+**Meaning:** Testing conditions include instructions, tools, supplied documents, time, allowed attempts, and AI settings. This asks whether relevant conditions are described, not whether every possible condition was studied.
 
 <details><summary>HLE example</summary>
 
@@ -914,7 +914,7 @@ Comments (optional): __________________________________________
 
 **Q5. Is it described how answers or actions become scores and how results are presented?**
 
-**Meaning:** Scoring means turning the AI’s responses into a result, such as percentage correct. This item concerns whether the marking rules and the way results are shown are described.
+**Meaning:** Look for the rules that turn responses into points, any averaging or weighting, and how results are shown. Describing a scoring rule does not establish that it is accurate or appropriate.
 
 <details><summary>HLE example</summary>
 
@@ -932,7 +932,7 @@ Comments (optional): __________________________________________
 
 **Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
 
-**Meaning:** The test needs an explanation linking its problems to the skill it claims to measure. For example, remembering a fact and working out a new rule are different skills.
+**Meaning:** The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
 
 <details><summary>HLE example</summary>
 
@@ -948,7 +948,7 @@ Comments (optional): __________________________________________
 
 **Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
 
-**Meaning:** This item concerns the reasons for choosing these problems: where they came from, how many there are, their topics and their difficulty, in relation to the test’s purpose.
+**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.
 
 <details><summary>HLE example</summary>
 
@@ -964,13 +964,13 @@ Comments (optional): __________________________________________
 
 **Q8. Were the test problems and the answers used to mark them checked for errors during development?**
 
-**Meaning:** Reference answers are the supplied answers used to mark the AI’s work. This item concerns checks for mistakes in both the problems and those answers while the test was being made.
+**Meaning:** This asks whether both the problems and the supplied answers used to mark them were examined for mistakes during development. It is separate from testing how new AI responses are marked. Evidence that examination occurred does not establish that every answer is correct; note limits in its coverage when relevant.
 
 <details><summary>HLE example</summary>
 
-**Answer: Partly**
+**Answer: Yes**
 
-Why: Expert review and later checks were conducted, but experts still disagreed about some questions or answers. This gives some support for the checks without establishing that every answer is correct.
+Why: Expert review and later checks examined the questions and supplied answers. Remaining expert disagreement limits confidence in those answers, but does not undo the evidence that checking occurred.
 
 </details>
 
@@ -980,7 +980,7 @@ Comments (optional): __________________________________________
 
 **Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
 
-**Meaning:** A claimed skill may have several parts. A test of science knowledge, for example, may need questions from several branches of science rather than just one.
+**Meaning:** A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
 
 <details><summary>HLE example</summary>
 
@@ -998,7 +998,7 @@ Comments (optional): __________________________________________
 
 **Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
 
-**Meaning:** This item concerns whether earning more points reflects doing better at the intended skill. A score can also be affected by details such as the required answer format.
+**Meaning:** Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.
 
 <details><summary>HLE example</summary>
 
@@ -1014,7 +1014,7 @@ Comments (optional): __________________________________________
 
 **Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
 
-**Meaning:** An overall score combines results from different problems. Separate scores may describe particular subjects or skills. This item concerns support for those choices and interpretations.
+**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
 
 <details><summary>HLE example</summary>
 
@@ -1030,7 +1030,7 @@ Comments (optional): __________________________________________
 
 **Q12. Was the marking process tested to see whether it awards the right scores consistently?**
 
-**Meaning:** Marking may be done by people, fixed software rules or another AI. This item concerns whether the marking was tested for correct and consistent decisions.
+**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.
 
 <details><summary>HLE example</summary>
 
@@ -1046,7 +1046,7 @@ Comments (optional): __________________________________________
 
 **Q13. Are the comparison points used to explain the scores justified for the claims being made?**
 
-**Meaning:** A comparison point is a result used to help interpret an AI’s score, such as a human score, another AI’s score or the score expected from guessing. The comparison needs to fit the claim being made.
+**Meaning:** A comparison point is a human score, another AI score, or a guessing result used to interpret a score. Ask whether it fits the stated claim and conditions. Comparing particular systems does not establish a ranking among all systems or a justified score cutoff for a decision.
 
 <details><summary>HLE example</summary>
 
@@ -1064,7 +1064,7 @@ Comments (optional): __________________________________________
 
 **Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
 
-**Meaning:** A repeated run means testing the same AI again under the same conditions. This item concerns whether researchers measured how much its score changes across those runs.
+**Meaning:** This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.
 
 <details><summary>HLE example</summary>
 
@@ -1080,7 +1080,7 @@ Comments (optional): __________________________________________
 
 **Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
-**Meaning:** The same problems can be presented with different wording, layouts or software settings. This item concerns whether the effect of those changes on scores was measured.
+**Meaning:** This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
 
 <details><summary>HLE example</summary>
 
@@ -1096,7 +1096,7 @@ Comments (optional): __________________________________________
 
 **Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?**
 
-**Meaning:** A range around a score describes uncertainty under the method used to calculate it. This item concerns whether that information is detailed enough for the conclusions drawn from the scores.
+**Meaning:** Look for a range or other estimate of possible score differences, how it was calculated, and whether it supports the intended comparison. An estimate based on the number of problems need not measure changes across repeated evaluations; small score differences may remain unresolved.
 
 <details><summary>HLE example</summary>
 
@@ -1114,7 +1114,7 @@ Comments (optional): __________________________________________
 
 **Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** An AI might gain points from accidental clues or guessing rather than the intended skill. This item concerns whether such possibilities were investigated.
+**Meaning:** A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 <details><summary>HLE example</summary>
 
@@ -1130,7 +1130,7 @@ Comments (optional): __________________________________________
 
 **Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** An AI may remember a problem or answer encountered during training. This item concerns whether that risk was examined and steps were taken to reduce it.
+**Meaning:** Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.
 
 <details><summary>HLE example</summary>
 
@@ -1146,7 +1146,7 @@ Comments (optional): __________________________________________
 
 **Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
 
-**Meaning:** Training specifically for a test means changing an AI to improve its results on that test. Repeated submissions can provide feedback for further changes. This item concerns whether the rules for both fit the test’s purpose.
+**Meaning:** Look for rules about training specifically for the test and repeatedly submitting results, with reasons linked to the intended use. A rule being absent from the supplied description is different from evidence that the rule is unsuitable.
 
 <details><summary>HLE example</summary>
 
@@ -1162,7 +1162,7 @@ Comments (optional): __________________________________________
 
 **Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?**
 
-**Meaning:** A claim about performance beyond the test predicts success on other problems or real work. This item concerns evidence for such predictions, when they are made.
+**Meaning:** This concerns claims about new problems or real work beyond the benchmark. Look for evidence covering that broader claim. A stated ambition alone is not such evidence; if no broader claim or use arises, consider Not applicable.
 
 <details><summary>HLE example</summary>
 
@@ -1178,7 +1178,7 @@ Comments (optional): __________________________________________
 
 **Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?**
 
-**Meaning:** AI systems may receive different information, tools or problem sets. This item concerns whether comparisons remain fair and meaningful across the systems and situations the test is meant to include.
+**Meaning:** Look for evidence that differences in information, tools, tasks, resources, or settings do not make the intended comparison misleading. Findings about differences between people do not by themselves establish fair comparisons between AI systems.
 
 <details><summary>HLE example</summary>
 
@@ -1196,7 +1196,7 @@ Comments (optional): __________________________________________
 
 **Q22. Are the test materials and methods available in enough detail for someone else to repeat the evaluation or examine how it was done?**
 
-**Meaning:** Test materials include problems, marking rules, instructions and software. This item concerns whether enough is available to repeat the evaluation or inspect how it was carried out.
+**Meaning:** Look for enough problems, scoring details, instructions, and software to repeat or inspect the evaluation. Public access to some files does not necessarily reproduce hidden test results or earlier software versions.
 
 <details><summary>HLE example</summary>
 
@@ -1212,7 +1212,7 @@ Comments (optional): __________________________________________
 
 **Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?**
 
-**Meaning:** Access and reuse rules explain who can obtain, share or modify the materials. Protections may include keeping hidden answers private or limiting harmful content.
+**Meaning:** Look for access and reuse rules and relevant safeguards, such as protecting hidden answers. A missing permission statement does not establish that reuse is prohibited. This asks whether relevant rules are stated, not whether all materials must be public.
 
 <details><summary>HLE example</summary>
 
@@ -1228,7 +1228,7 @@ Comments (optional): __________________________________________
 
 **Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?**
 
-**Meaning:** A test can change when problems, answers or marking rules are revised. This item concerns whether those changes and their effects on comparisons with earlier scores are documented.
+**Meaning:** Look for a record of changes to problems, answers, or scoring and an explanation of their effects on old and new scores. A new version number alone does not explain whether scores can be compared.
 
 <details><summary>HLE example</summary>
 
@@ -1244,7 +1244,7 @@ Comments (optional): __________________________________________
 
 **Q25. Do the published claims stay within what the evidence supports?**
 
-**Meaning:** Published claims are statements about what a score shows the AI can do. This item concerns whether those statements fit what the available findings establish.
+**Meaning:** Compare what is publicly claimed with the tasks, conditions, and results actually reported. A claim about these tasks may be justified even when a broader claim is not. Missing evidence for a broad claim does not prove that the AI lacks the ability.
 
 <details><summary>HLE example</summary>
 
@@ -1261,6 +1261,43 @@ Comments (optional): __________________________________________
 ## 6. Review and submit
 
 Check that all three familiarity questions and all 50 benchmark questions have a response. The online form submits everything in one response. Email-service acceptance does not prove inbox delivery.
+
+### Feedback (required)
+
+**How easy or difficult was it to understand the questions?**
+
+- ☐ Very difficult
+- ☐ Difficult
+- ☐ Neither easy nor difficult
+- ☐ Easy
+- ☐ Very easy
+- ☐ Cannot judge
+
+**How easy or difficult was it to distinguish the five answer choices?**
+
+- ☐ Very difficult
+- ☐ Difficult
+- ☐ Neither easy nor difficult
+- ☐ Easy
+- ☐ Very easy
+- ☐ Cannot judge
+
+**How manageable was the amount of reading and answering?**
+
+- ☐ Very unmanageable
+- ☐ Unmanageable
+- ☐ Neither manageable nor unmanageable
+- ☐ Manageable
+- ☐ Very manageable
+- ☐ Cannot judge
+
+Which question, explanation, or example was difficult to use, and why? (optional)
+
+__________________________________________________
+
+## 7. Confirmation
+
+The online form confirms service acceptance after submission.
 
 ## Definitions for the printable copy
 

@@ -2,18 +2,18 @@
 
 ## Choose the requested output
 
-The survey is an additional pilot option, not a replacement for the full MESA template or the 40-question scorecard. A request for a full MESA review still uses `MESA EFPA template official.md`. A request for the scorecard uses `MESA scorecard.md`. A request for a survey, questionnaire, or completed survey example uses this guide and the questions in `packet.json`.
+MESA is the 25-question questionnaire. Detailed adaptation templates and scorecards are supporting research records, not a separate full MESA instrument. For survey work use this guide and `packet.json`.
 
 Distinguish two survey tasks:
 
 - **Colleague survey:** prepare clear reading material and leave participant selections and comments blank. The current guided packet concerns ARC-AGI-2 and DesignQA, with a completed original-HLE example.
 - **Agent-completed survey:** when explicitly requested, select responses and give brief reasons in a separate, labelled reviewer output. Specify whether judgments use only the supplied passage or independently inspected benchmark sources. Do not insert agent answers into the participant form.
 
-A request to prepare a survey does not authorize filling it in, sending responses, or replacing a full review. The three existing benchmarks are examples, not restrictions on future review targets.
+A request to prepare a survey does not authorize filling it in, sending responses, or replacing a supporting detailed review. The three existing benchmarks are examples, not restrictions on future review targets.
 
 ## Question and response structure
 
-Use the exact 25 questions, IDs, domain order and choices from `packet.json`. Questions 1–5 describe the benchmark; questions 6–25 evaluate it. The six domains are Description, Purpose and development, Scoring and comparisons, Consistency of results, Meaning and fairness, and Use and reporting.
+Use the exact 25 questions, IDs, domain order and choices from `packet.json`. Questions 1–5 judge whether descriptive information is documented; benchmark passages supply the facts. The six domains are Description, Purpose and development, Scoring and comparisons, Consistency of results, Meaning and fairness, and Use and reporting.
 
 The choices are **Yes**, **Partly**, **No**, **Not sure**, and **Not applicable**:
 
@@ -23,9 +23,9 @@ The choices are **Yes**, **Partly**, **No**, **Not sure**, and **Not applicable*
 - Not sure: information is missing, unclear or insufficient to decide.
 - Not applicable: the issue does not apply to this benchmark or intended use.
 
-For a question asking whether something was tested, Yes means testing occurred, not that the findings were favourable. Do not convert absent documentation into No. Unanswered remains `null`, distinct from every selected response. Comments are optional; participants are not required to provide evidence, citations or reasons.
+For checking/testing questions, Yes means every named check occurred, regardless of unfavorable findings; Partly means only some checks or parts are supported. Record limits in optional comments without lowering an answer solely because checking found errors or disagreement. Do not convert absent documentation into No. Unanswered remains `null`, distinct from every selected response. Comments are optional; participants are not required to provide evidence, citations or reasons.
 
-Do not convert these choices to EFPA `0`–`4` ratings, calculate a total quality score, or claim that the survey is a validated scale. When comparing a completed survey with a full MESA review, compare the underlying conclusions, evidence gaps and interpretation limits. Report differences; agreement alone does not validate the survey or establish a correct answer key.
+Do not convert these choices to EFPA `0`–`4` ratings, calculate a total quality score, or claim that the survey is a validated scale. When comparing a completed survey with a supporting detailed review, compare the underlying conclusions, evidence gaps and interpretation limits. Report differences; agreement alone does not validate the survey or establish a correct answer key.
 
 ## Prepare reading passages and examples
 
@@ -67,4 +67,14 @@ When publishing is requested, inspect the current Git state and Pages configurat
 
 ## Guided draft compatibility
 
-Version 2.0 has its own packet ID and fingerprint. Do not load named ARC/HLE drafts into the new anonymous ARC/DesignQA form. Keep the previous circulated packet in `archive/v1.11-packet.json` and earlier HTML in Git history. Familiarity uses three separately labelled 1–5 scales with explanations for every value; do not average them into a knowledge or benchmark-quality score.
+Version 2.1 uses `mesa-guided-arc-designqa-v2-1` and its own fingerprint. Archive 2.0 is in `archive/v2.0/`, including packet, generated HTML/Markdown, manifest and example notes. It is not compatible with 2.1 drafts. Do not load named ARC/HLE drafts into the new anonymous ARC/DesignQA form. Keep the previous circulated packet in `archive/v1.11-packet.json` and earlier HTML in Git history. Familiarity uses three separately labelled 1–5 scales with explanations for every value; do not average them into a knowledge or benchmark-quality score.
+
+## Feedback and future human evaluation
+
+Read [future-steps.md](future-steps.md) for recruitment and analysis decisions and the REFSQ extension. Current model-study reporting uses `mesa-study/chase-report/`, not a historical batch analysis. Human findings are not part of CHASE.
+
+Version 2.1 aligns all explanations, instructions and HLE answers with the reported study materials, copied without edits to `study-alignment.txt`; its origin and SHA256 are in `source-manifest.json`. Preserve question texts, passages and source-inspection dates. The preparation date is 18 October 2026.
+
+On the final review page require three separate ratings of understanding the questions, distinguishing choices, and manageable workload. No answer is preselected; Cannot judge is a selected category distinct from null. Written feedback is optional. Include feedback in draft saving/restoration, validation, retry signatures and the single payload, with packet ID and fingerprint. A changed rating or comment must get a new submission identifier; unchanged retries retain theirs. Do not add names, respondent emails, tracking or elapsed-time measurements.
+
+Report each rating separately, with explicit denominators for Cannot judge and optional comments. They are not a validated usability measure and must not be combined into a score. Account for repeated judgments within participants; document actual human coding of comments. Do not use model answers as ground truth or disagreement as proof of misunderstanding.
