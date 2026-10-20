@@ -29,3 +29,21 @@ Each number reported in `paper_chase.tex` and where it comes from. Paths are rel
 | Model reported by every session | `claude-sonnet-5-5` | `outputs/*/metadata.json` `reported_model`; checked by `verify.py` |
 | No tools offered or used | `init_tools` = [], `tool_items` = [] | `outputs/*/metadata.json`; checked by `verify.py` |
 | Run date | 17 October 2026 (05:33–05:45 UTC) | `launches/*.json`, `outputs/*/metadata.json` |
+
+## Interpretation revision and post hoc sensitivity
+
+The original table above is retained as historical traceability, including the original checklist codes. The following additions identify the revised manuscript's interpretations, prepared with OpenAI Codex; no original calculation, expected label or checklist code is overwritten. These additions are not independent validation.
+
+| Revised statement | Source and limit |
+| --- | --- |
+| The response labeled repetition 1 is selected for each method, independent of launch order and response validity | `protocol.md`, `analyst/real-comparison-checklist.json`, `launches/20261017T053319.json`; same six responses, no replacements |
+| The testing instruction and HLE question-8 example emphasize different standards | `materials/mesa.txt`, general instruction and question-8 HLE example; occurrence versus thoroughness/outcome; not a causal account of model behavior |
+| The recorded DesignQA Partly answers and comments are unchanged | `outputs/real-mesa-neutral-1/response.txt`; `analysis/paper-observations.json`; internal model reasons are not inferred |
+| Fifteen disagreements are with the frozen key, rather than fifteen established reasoning errors | `analysis/claims.csv`; seven P6B, five P5A, three C6/C7/C8; original totals retained |
+| P6B asks about sufficient evidence for a broad use, rather than whether unreported testing occurred | `materials/test-cases.json`, P6B claim1 and P5A claim1; original labels remain unchanged |
+| Post hoc alternative totals: MESA 240/245, EFPA-TRM 240/245, general instructions 191/196 | `p6b_sensitivity.py`, `analysis/p6b-sensitivity.md`; only the assumed P6B claim1 label changes; same exclusions and denominators; neither a corrected key nor an independently validated correctness standard |
+| The MESA shortcut statement is conditional, not a claim of observed exploitation | `outputs/real-mesa-neutral-1/response.txt`, DesignQA `documented_problems`: “would earn credit on that portion”; `analysis/interpretation-clarifications.md` explains the disputed partial code |
+| Historical checklist coding is preserved without an aggregate coverage/accuracy comparison in the paper | Original `analysis/selected-review-observations.json` and `analysis/selected-reviews.md` unchanged; clarification supplements them |
+| The adaptation separates provided-answer checks and marking tests while shortening requirements for comparison groups and cutoffs | Paper's adaptation map and three adaptation examples; `surveys/colleague-review/simulation-study/analyst/adaptation-map.md` from repository root; conceptual design finding, not superiority evidence |
+
+See [interpretation clarifications](interpretation-clarifications.md) and the [post hoc sensitivity report](p6b-sensitivity.md). Current revision checks are recorded separately in `interpretation-revision-verification.json`; historical verification reports are retained unchanged.

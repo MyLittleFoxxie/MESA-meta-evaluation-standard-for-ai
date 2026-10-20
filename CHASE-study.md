@@ -1,86 +1,85 @@
 # MESA: study materials and results for the CHASE paper
 
-This guide accompanies [paper_chase.tex](paper_chase.tex). MESA is the 25-question questionnaire adapted from the EFPA Test Review Model (EFPA-TRM) for psychological and educational tests. The paper explains which established questions carry over to AI benchmarks, which need different meanings, and what detail shorter questions leave out. Claude Sonnet 5.5 generates reviews using MESA, using the original EFPA-TRM 2025, or following general instructions to examine benchmark quality. These applications provide an initial examination of the adaptation, not proof of better reviews. Human evaluation is future work and is not part of this paper.
+This guide accompanies [paper_chase.tex](paper_chase.tex). MESA is the 25-question questionnaire adapted from the EFPA Test Review Model (EFPA-TRM). The CHASE paper explains the adaptation and examines interpretation problems in model-generated reviews. Human evaluation remains future work.
 
 ## Contribution and intended practice
 
-Existing research provides benchmark-quality checklists and methods for examining what scores justify. This paper investigates a particular adaptation: adapting EFPA-TRM to a test review model for AI benchmarks. Its deliverables are MESA, an explanation of the checks retained, changed, combined, simplified, omitted, or added, and an initial examination using model-generated reviews. The explanation of the adaptation and its trade-offs is the central contribution; the questionnaire makes those choices usable, and the model study examines examples of their consequences. Neither novelty of benchmark review itself nor better reviews is claimed.
+The central contribution is the explanation of checks retained, changed, combined, simplified, omitted, or added. The questionnaire has six domains, five categorical choices, explanations, optional comments, a completed example, and no total quality score. Questions 1–5 judge whether descriptive information is documented. Reduced human effort is a design goal, not an observed result.
 
-MESA is meant to be a more accessible way to review AI benchmarks than the complete 90-page EFPA-TRM with its forms and guidance. It has 25 questions, an explanation beside each question, five plain answer choices (Yes, Partly, No, Not sure, Not applicable), optional comments, a completed example, and no total quality score. Lower human effort is a design goal; the model study does not measure it.
-
-One possible application is for an evaluator to prepare a review, colleagues to examine its reasons and unresolved questions, and a team to consider whether benchmark results support a claim used to select an AI component. Comments remain optional. If a reason is missing, colleagues may need to request it before relying on an important judgment; a blank comment does not change the recorded choice or justify inventing a reason. This is a proposed use, not an observed improvement in collaboration or decisions.
+An engineer checking evaluation software and a colleague checking task relevance could compare their reasons before selecting an AI component. ARC-AGI-2 question 16 and DesignQA questions 14 and 23 illustrate No/Not sure variation in the model outputs. Teams could seek missing information and assess documented problems against their intended use. Neither answer dictates rejection. Questions 8 and 12 separate answer checking from marking tests; their model choices did not vary, but colleagues could still discuss sufficiency. Effects on human discussions were not measured.
 
 ## What was tested
 
-The study requested `claude-sonnet-5-5` (Claude Sonnet 5.5) with medium effort and no assigned reviewer identity. Each conversation is a separate Claude Code print-mode session started in an empty temporary directory. Its settings remove all tools, disable project instruction files, memories, plugins, MCP servers and start-up hooks, and replace the default system prompt with one fixed sentence. Each session's start record lists the offered tools (none) and the model it reports (`claude-sonnet-5-5` in every session).
+The reporting selection comprises ten MESA conversations from the saved `claude-sonnet-5-5-guidance-v2` execution directory and twenty EFPA-TRM/general-instruction conversations from `claude-sonnet-5-5`. Directory names are provenance identifiers, not instrument names. The [selection manifest](surveys/colleague-review/mesa-study/chase-report/selection.json) identifies every input, response, chosen attempt and fingerprint.
 
-- **15 conversations about published benchmarks:** five per method. Each reviews ARC-AGI-2, involving coloured-grid puzzles, followed by DesignQA, involving questions about engineering rules and design documents. All methods receive the same descriptions and intended uses; the model does not execute the benchmarks.
-- **15 test-case conversations:** five per method. Each classifies 49 claims in 24 constructed benchmark descriptions as Supported, Contradicted, or Not established, with a quotation and a reason. Cases C1–C8 cover missing versus explicit single evaluations, stable versus varying repeated scores, unrelated additions, narrow versus broad claims, and measured correctness versus unmeasured safety. Pairs P1–P8 each change one detail: repetition records, repeated-score spread, unrelated additions, checks of provided answers, marking tests, intended use, scoring requirements, and changed instructions versus identical repeats. Expected answers and reasons were specified before testing and withheld from the model.
+MESA guidance was finalized after development testing, and the method batches ran sequentially. The reporting selection was assembled after execution, as authorized by the author, using every conversation from the specified method batches; outputs were not selected for favorable results. Earlier development outputs remain archived. This reporting selection differs from the historical batch reports and must not be described as a jointly randomized or prospectively registered comparison.
 
-MESA conversations receive the questionnaire, answer-choice definitions, explanations, optional comment prompts, closing reminders, and the completed HLE example. EFPA-TRM conversations receive text extracted from all 90 pages of the original model. General-instruction conversations receive instructions about benchmark construction, scoring, comparisons, consistency, interpretation, fairness, and reporting. Each method also produces a common conclusion listing claims justified by the description, problems explicitly reported there, and information needed but not supplied.
+The requested model is Claude Sonnet 5.5 (`claude-sonnet-5-5`), medium effort. Each session starts in an empty temporary directory with a fixed system prompt, no offered tools, no project files, memory, plugins or earlier review history. Event records confirm the model identifier and tool isolation. The underlying model snapshot and generation seed are unavailable.
+
+- **15 benchmark conversations:** five per method, each reviewing ARC-AGI-2 followed by DesignQA from the same supplied passages.
+- **15 constructed-case conversations:** five per method, each classifying 49 claims in 24 descriptions as Supported, Contradicted, or Not established, with quotations and reasons. The key is withheld from reviewers.
+
+MESA receives its 25 questions, explanations, choices and HLE teaching example. Yes records the occurrence of all checks named in a question, not favorable outcomes; the HLE question-8 example illustrates that rule. EFPA-TRM receives text from all 90 pages of the complete 2025 model. General instructions concern construction, scoring, comparisons, consistency, interpretation, fairness and reporting. Only MESA has a completed example. The comparison concerns the complete materials, not an isolated questionnaire effect. The live participant survey remains separate from these model-study inputs.
 
 ## Observed results
 
-All **30 planned conversations** completed on 17 October 2026 through 30 physical attempts, with no failures or retries. **28** met the predefined format. Two completed responses were excluded without repair or replacement: `real-efpa-neutral-4` placed line breaks inside JSON strings, and `cases-ordinary-neutral-2` added a case ID (`R8`) that is not in the set.
+All **30 conversations completed** on 17 October 2026 through **32 physical attempts**. Two authentication failures occurred before model generation; both failure records and their permitted retries are retained. **28 responses** met the format requirements. `real-efpa-neutral-4` has line breaks inside JSON strings; `cases-ordinary-neutral-2` adds an unknown case ID. Both completed invalid outputs remain unrepaired and excluded.
 
-| Method | Usable benchmark conversations | Usable test-case conversations | Expected claim answers matched | Conversations matching all 49 |
-| --- | ---: | ---: | ---: | ---: |
-| MESA | 5/5 | 5/5 | 243/245 | 3/5 |
-| EFPA-TRM | 4/5 | 5/5 | 237/245 | 1/5 |
-| General instructions | 5/5 | 4/5 | 191/196 | 1/4 |
+| Method | Usable benchmark conversations | Usable case conversations | Expected labels matched | All 49 matched | Alternative P6B label |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| MESA | 5/5 | 5/5 | 242/245 | 2/5 | 239/245 |
+| EFPA-TRM | 4/5 | 5/5 | 237/245 | 1/5 | 240/245 |
+| General instructions | 5/5 | 4/5 | 191/196 | 1/4 | 191/196 |
 
 | Result | Observation |
 | --- | --- |
-| Mismatches with the expected answers | 15 of 686; all answered Contradicted where the key says Not established |
-| Claims involved | P6B (7), P5A (5), and C6, C7, C8 in one EFPA-TRM conversation (3) |
-| Related-claim comparisons | 322/322 changed or stayed the same as expected; both labels as expected in MESA 113/115, EFPA-TRM 109/115, general 87/92 |
-| Unjustified negative claims answered Supported | 0/84 |
-| Quotations found in the descriptions | 686/686 |
-| MESA answer choices | 250/250 (Yes 59, Partly 141, No 35, Not sure 15, Not applicable 0) |
-| Question–benchmark pairs with varying MESA choices | 9/50 (four between No and Not sure) |
-| Matching choices between repeated MESA reviews | 456/500 pairs (91.2%) |
-| Six selected reviews against the 12-point checklist | EFPA-TRM 12/12, general instructions 12/12, MESA 10 addressed and 2 partly |
+| Claim answers | 670/686 match the fixed key |
+| Disagreements | 16: P6B (7), P5A (4), C8 (3), C6 (1), C7 (1); all Contradicted versus Not established |
+| Related-claim comparisons | 322/322 expected changes or non-changes; 310/322 with both expected labels |
+| Both expected labels by method | MESA 114/115; EFPA-TRM 109/115; general instructions 87/92 |
+| Unjustified negative claims supported | 0/84 |
+| Quotations located in supplied text | 686/686 |
+| MESA choices | 250: Yes 58, Partly 142, No 21, Not sure 29, Not applicable 0 |
+| Varying question–benchmark pairs | 12/50; five include both No and Not sure |
+| Matching repeated-choice pairs | 435/500 (87.0%) |
 
-The P6B claim says that grid results are sufficient for a stated use about general intelligence. Its expected label (Not established) is debatable, because the description itself says no other results are supplied. The key was fixed before testing and is not changed after the fact. MESA had the fewest mismatches, but the differences are small, come from one model and concentrate on two claims, so they do not show a MESA advantage.
+P6B concerns whether grid findings suffice for a broad intelligence use. Its expected label is debatable. The alternative calculation changes only P6B claim1 to Contradicted; the fixed key and all other labels stay unchanged. Neither calculation establishes correctness or superiority. All counts reuse outputs of one model and are not independent observations.
 
-Each percentage and pair count reuses answers from five conversations of one model; they are not independent observations. Choices are categories, never quality scores. Agreement is not correctness.
+## Selected reviews and human checking
 
-In the six selected reviews, every method included conclusions needing qualification. The MESA review answered No to DesignQA questions 23 and 24, although the passage only reports that a licence file, reuse rules and change record were not found. MESA's own instructions and that review's closing note say missing information should be Not sure. The general-instruction and EFPA-TRM reviews listed missing information or stated policies as documented problems. Seven of eight usable EFPA-TRM closing notes asked whether a human-test item with no AI counterpart should be rated 0 or marked not applicable. Five of ten MESA closing notes named questions 8 or 12 as hard to apply or to separate.
+The six illustrations use repetition 1 for each method, covering both benchmarks. The identifiers were fixed within each execution batch, independent of launch order, and were not substituted. The [current audit](surveys/colleague-review/mesa-study/chase-report/selected-reviews.md) examines all twelve saved checklist points with exact excerpts and qualifications. A point absent from one response is not necessarily absent from the questionnaire.
+
+The selected MESA response answers DesignQA Q23 Not sure and Q24 Partly. It recognizes that permission may exist elsewhere and that code history does not explain score effects. All five DesignQA reviews choose Partly for Q8 and Q12. The selected ARC-AGI-2 response treats the preparer's lack of independent marking tests as if the whole system had not been independently tested; it also scopes Q14 to the single-run verified-testing policy. These claims require qualification. Missing reviewer-disagreement counts appear under both documented problems and missing information.
+
+A human author reported checking an earlier set of six reviews and coding. That includes the four EFPA-TRM/general-instruction reviews used here, but not the two MESA reviews in this reporting selection. The current MESA interpretation is assistant analysis. No independent coding, inter-rater agreement, or validation of expected labels is claimed.
 
 ## Materials and records
 
-All paths are in [`surveys/colleague-review/mesa-study/claude-sonnet-5-5/`](surveys/colleague-review/mesa-study/claude-sonnet-5-5/README.md).
-
 | Record | Purpose |
 | --- | --- |
-| [Protocol](surveys/colleague-review/mesa-study/claude-sonnet-5-5/protocol.md) | Design, amendment, outcomes, exclusions, isolation, retry rules and limitations |
-| [Freeze manifest](surveys/colleague-review/mesa-study/claude-sonnet-5-5/freeze-manifest.json) | Model, settings, system prompt, CLI version and fingerprints recorded before execution |
-| [Jobs](surveys/colleague-review/mesa-study/claude-sonnet-5-5/jobs.json) and [exact inputs](surveys/colleague-review/mesa-study/claude-sonnet-5-5/inputs/) | All 30 planned conversations |
-| [Questionnaire reading document](surveys/colleague-review/mesa-study/claude-sonnet-5-5/questionnaire.html) | The 25 questions with explanations beside them; no response fields or submission |
-| [Expected answers](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analyst/expected.json) | Labels and reasons, withheld from reviewers |
-| [Raw outputs](surveys/colleague-review/mesa-study/claude-sonnet-5-5/outputs/) and [launches](surveys/colleague-review/mesa-study/claude-sonnet-5-5/launches/) | Responses, stream events, stderr, metadata, launch settings, and the two isolation checks run before the freeze |
-| [All-run accounting](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/runs.csv) | Eligibility and validation errors per job |
-| [Claim answers](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/claims.csv) and [related claims](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/paired-cases.csv) | Every eligible label, expected label, quotation and reason |
-| [MESA answers](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/mesa-answers.csv), [distributions](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/mesa-distributions.csv) and [repeated-choice matches](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/mesa-agreement.csv) | Choices, comments and counts |
-| [Closing notes](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/closing-notes.csv) | Reported difficulties, not human comprehension |
-| [Six selected reviews](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/selected-reviews.md) | Exact quotations against the 12 frozen checklist points, and conclusions needing qualification |
-| [Manuscript traceability](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/manuscript-traceability.md) | Where each number in the paper comes from |
-| [Verification](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/verification.json) and [manuscript checks](surveys/colleague-review/mesa-study/claude-sonnet-5-5/analysis/manuscript-verification.json) | Frozen-input, preservation, accounting and manuscript checks |
-| [Adaptation map](surveys/colleague-review/simulation-study/analyst/adaptation-map.md) | Proposed EFPA-TRM correspondences for all 25 questions |
-| [Standards assessment](surveys/colleague-review/simulation-study/analyst/standards-assessment.md) | Method reporting against ACM SIGSOFT empirical standards |
+| [Reporting manifest](surveys/colleague-review/mesa-study/chase-report/selection.json) | Exact 30-conversation selection and hashes |
+| [MESA materials](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/materials/mesa.txt) | Questions, explanations, choices and completed HLE example |
+| [MESA execution protocol](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/protocol.md) and [comparison execution protocol](surveys/colleague-review/mesa-study/claude-sonnet-5-5/protocol.md) | Preserved batch protocols; current selection is documented in this guide |
+| [MESA inputs](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/inputs/) and [comparison inputs](surveys/colleague-review/mesa-study/claude-sonnet-5-5/inputs/) | Exact reviewer inputs |
+| [MESA outputs](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/outputs/) and [comparison outputs](surveys/colleague-review/mesa-study/claude-sonnet-5-5/outputs/) | Raw outputs, metadata and failures |
+| [Expected labels](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/analyst/expected.json) | Fixed analyst-only key |
+| [Results](surveys/colleague-review/mesa-study/chase-report/summary.json), [runs](surveys/colleague-review/mesa-study/chase-report/runs.csv), [physical attempts](surveys/colleague-review/mesa-study/chase-report/attempts.csv) | Accounting and totals |
+| [Claim answers](surveys/colleague-review/mesa-study/chase-report/claims.csv) and [paired cases](surveys/colleague-review/mesa-study/chase-report/paired-cases.csv) | Labels, sensitivity calculations, quotations and reasons |
+| [MESA answers](surveys/colleague-review/mesa-study/chase-report/mesa-answers.csv) and [distributions](surveys/colleague-review/mesa-study/chase-report/mesa-distributions.csv) | Choices, comments and repeated-choice comparisons |
+| [Closing notes](surveys/colleague-review/mesa-study/chase-report/closing-notes.csv) | Reported interpretation difficulties |
+| [Qualitative audit](surveys/colleague-review/mesa-study/chase-report/selected-reviews.md) | Complete selected-review examination |
+| [Manuscript traceability](surveys/colleague-review/mesa-study/chase-report/manuscript-traceability.md) | Claims mapped to records |
+| [Adaptation map](surveys/colleague-review/simulation-study/analyst/adaptation-map.md) | Proposed EFPA correspondences |
+| [Standards assessment](surveys/colleague-review/simulation-study/analyst/standards-assessment.md) | ACM SIGSOFT methods guidance |
 
 ## Reproduce the offline analysis
 
 ```sh
-cd surveys/colleague-review/mesa-study/claude-sonnet-5-5
-python3 test_analysis.py
-python3 analyze.py
-python3 render_audit.py
-python3 verify.py
-python3 verify_manuscript.py
+python3 surveys/colleague-review/mesa-study/chase-report/analyze.py
+python3 surveys/colleague-review/mesa-study/chase-report/verify.py
 ```
 
-These commands read saved files and regenerate derived summaries. They do not launch model conversations or send survey submissions. `run_series.py` and `retry_failed_once.py` launch fresh sessions and are documented in the protocol.
+These commands read saved responses and write only current reporting outputs. They do not launch experiments or modify frozen records. Historical analysis scripts describe their execution batches and are not the current manuscript checker.
 
 ## Archived records
 
@@ -93,6 +92,8 @@ None of the following is pooled with the current study or presented as second-mo
 
 ## Limits
 
-The cases and expectations were prepared earlier with an AI assistant and had already been used; they are not held-out tests. Only two benchmark descriptions, one model and five repetitions per setup are examined. The HLE example, shared passage cues, fixed order, differing instrument requirements and pretrained model knowledge can influence outputs. The DesignQA passage mentions a completed review that is not included, which two general-instruction notes pointed out. Neither matching the key nor filling every question establishes complete or correct review. No human understanding, effort, perceived ease or decision benefit is measured.
+The cases and expectations are assistant-prepared and previously used. The method batches ran sequentially, and only MESA receives the HLE example. The fixed task order, supplied passage cues, differing instruction lengths and pretrained knowledge can affect outputs. There are only two benchmark descriptions and one model. Missing documentation is not evidence of poor underlying quality, and agreement is not correctness.
 
-No LaTeX compilation or PDF preview was performed. Manuscript layout and page length remain unchecked.
+Claude Opus 5.5 assisted with the comparison-method sessions and their initial analysis and belongs to the same family as reviewer Claude Sonnet 5.5. OpenAI Codex assisted with the MESA sessions and current analysis. Human understanding, effort and decision benefits remain unmeasured.
+
+No LaTeX compilation or PDF preview was performed. Layout and page length remain unchecked.
