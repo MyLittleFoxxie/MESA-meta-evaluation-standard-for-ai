@@ -66,7 +66,14 @@ assert d['benchmarks'] == old['benchmarks'] and d['example'] == old['example']
 assert d['sources'] == old['sources'] and d['choices'] == old['choices']
 assert d['definitions'] == old['definitions']
 assert [q['question'] for q in d['questions']] == [q['question'] for q in old['questions']]
-assert d['version'] == '2.1' and d['survey_id'] == 'mesa-guided-arc-designqa-v2-1'
-assert len(d['feedback']) == 3 and all(len(q['labels']) == 6 and q['labels'][-1] == 'Cannot judge' for q in d['feedback'])
+assert d['version'] == '2.2' and d['survey_id'] == 'mesa-guided-arc-designqa-v2-2'
+assert len(d['feedback']) == 5 and all(len(q['labels']) == 6 and q['labels'][-1] == 'Cannot judge' for q in d['feedback'])
 assert all(q['question'] in md for q in d['feedback'])
 print('PASS: exact study alignment, preserved passages/definitions/questions/source dates, feedback schema and version archive.')
+
+previous = json.loads((P / 'archive/v2.1/packet.json').read_text())
+for key in previous:
+    if key not in {'feedback', 'version', 'survey_id', 'prepared'}: assert d[key] == previous[key], key
+assert d['feedback'][:3] == previous['feedback']
+assert [q['id'] for q in d['feedback']] == ['understanding','choices','workload','review_understanding','confidence']
+print('PASS: 2.2 adds only understanding and confidence feedback; original questionnaire preserved.')

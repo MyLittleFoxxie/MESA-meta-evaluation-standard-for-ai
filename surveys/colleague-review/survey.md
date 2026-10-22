@@ -1291,6 +1291,24 @@ Check that all three familiarity questions and all 50 benchmark questions have a
 - ☐ Very manageable
 - ☐ Cannot judge
 
+**How well did MESA help you understand what to look for when reviewing an AI benchmark?**
+
+- ☐ Not at all well
+- ☐ Slightly well
+- ☐ Moderately well
+- ☐ Very well
+- ☐ Extremely well
+- ☐ Cannot judge
+
+**How confident did you feel using MESA to review these two AI benchmarks?**
+
+- ☐ Not at all confident
+- ☐ Slightly confident
+- ☐ Moderately confident
+- ☐ Very confident
+- ☐ Extremely confident
+- ☐ Cannot judge
+
 Which question, explanation, or example was difficult to use, and why? (optional)
 
 __________________________________________________
