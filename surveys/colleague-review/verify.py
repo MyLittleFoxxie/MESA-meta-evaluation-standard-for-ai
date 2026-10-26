@@ -79,44 +79,29 @@ assert d['answer_instructions'] in html  # Preserved in the embedded packet.
 for choice in d['choices']:
     assert '**' + choice + ':**' in md
 assert 'The answers are not added together to produce a total quality score.' in html and 'The answers are not added together to produce a total quality score.' in md
-old = json.loads((P / 'archive/v2.0/packet.json').read_text())
-assert d['benchmarks'] == terminology(old['benchmarks']) and d['example'] == terminology(old['example'])
-assert d['sources'] == old['sources'] and d['choices'] == old['choices']
-for current, before in zip(d['definitions'], old['definitions']):
-    if before['label'] != 'Ability': assert current == before
-assert [q['question'] for q in d['questions']] == [q['question'] for q in old['questions']]
-assert d['version'] == '2.5' and d['survey_id'] == 'mesa-guided-arc-designqa-v2-5'
+previous = json.loads((P / 'archive/v2.5/packet.json').read_text())
+assert d['version'] == '2.6' and d['survey_id'] == 'mesa-guided-arc-designqa-v2-6'
+assert hashlib.sha256((P / 'archive/v2.5/packet.json').read_bytes()).hexdigest() == manifest['presentation_revision']['previous_packet_sha256']
+assert d['questions'] == previous['questions']
+assert d['sources'] == previous['sources']
+assert d['choices'] == previous['choices'] and d['familiarity'] == previous['familiarity']
+assert d['submission'] == previous['submission']
+for now, before in zip([d['example'], *d['benchmarks']], [previous['example'], *previous['benchmarks']]):
+    assert {k:v for k,v in now.items() if k != 'overview'} == {k:v for k,v in before.items() if k != 'overview'}
+assert d['feedback'][:-1] == previous['feedback'][:-1]
+assert d['feedback'][-1]['question'] == 'How confident did you feel using MESA to review this benchmark?'
+assert d['feedback'][-1]['labels'] == previous['feedback'][-1]['labels']
 assert len(d['feedback']) == 5 and all(len(q['labels']) == 6 and q['labels'][-1] == 'Cannot judge' for q in d['feedback'])
-assert all(q['question'] in md for q in d['feedback'])
-print('PASS: study question and answer alignment, preserved passage facts/questions/source dates, feedback schema and version archive.')
-
-assert hashlib.sha256((P / 'archive/v2.4/packet.json').read_bytes()).hexdigest() == manifest['presentation_revision']['previous_packet_sha256']
-previous = json.loads((P / 'archive/v2.3/packet.json').read_text())
-expected = terminology(previous)
-expected.update(version='2.4', survey_id='mesa-guided-arc-designqa-v2-4')
-reason = 'HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers.'
-ability = 'Something an AI is meant to be able to do, such as finding a pattern or answering a science question. Doing well on one ability does not establish others.'
-expected['questions'][17]['example']['why'] = reason
-for term in expected['definitions']:
-    if term['label'] == 'Ability':
-        term['definition'] = ability
-        term['aliases'] = ['ability', 'abilities']
-for term in expected['terms']:
-    if term[0] == 'Ability or ability': term[:] = ['Ability', ability]
-assert json.loads((P / 'archive/v2.4/packet.json').read_text()) == expected, 'Archived 2.4 wording changed'
-expected.update(version='2.5', survey_id='mesa-guided-arc-designqa-v2-5')
-assert d['definitions'][:len(expected['definitions'])] == expected['definitions']
-added = d['definitions'][len(expected['definitions']):]
-assert [t['label'] for t in added] == ['Familiarity ratings','Survey answers','Feedback','Optional comments','Survey identifier','Fingerprint','Completion time','Organizer','FormSubmit']
-assert all(t['definition'] in md for t in added)
-assert {k:v for k,v in d.items() if k != 'definitions'} == {k:v for k,v in expected.items() if k != 'definitions'}
-assert all(t.get('scope') == '.submission-details' for t in added if t['label'] in ['Survey answers','Feedback'])
-for q, before in zip(d['questions'], previous['questions']):
-    assert q['question'] == before['question']
-    assert q['example']['answer'] == before['example']['answer']
-    assert q['example']['sources'] == before['example']['sources']
-    assert md.count('Why: ' + q['example']['why']) == 3
-assert d['questions'][17]['example']['answer'] == 'Partly'
-assert not re.search(r'\b(skills?|capabilit(?:y|ies))\b', json.dumps({k:v for k,v in d.items() if k != 'sources'}), re.I)
+for q in d['feedback']: assert md.count('**'+q['question']+'**') == 2
+for q in d['questions']: assert md.count('Why: '+q['example']['why']) == 3
+assert 'Completing both benchmarks is optional' in html
 assert len({a.lower() for term in d['definitions'] for a in term['aliases']}) == sum(len(term['aliases']) for term in d['definitions'])
-print('PASS: 2.5 submission definitions; preserved terminology, Q18 explanation, archived fingerprint, unchanged questions and selections; all example copies match.')
+for term in d['definitions']:
+    assert len(term['definition'].split()) <= 45, term['label']
+    assert term['definition'] in md
+provenance = json.loads((P / 'definition-sources.json').read_text())
+assert hashlib.sha256((P / 'definition-sources.json').read_bytes()).hexdigest() == manifest['definition_sources']['sha256']
+assert set(provenance['definitions']) <= {t['label'] for t in d['definitions']}
+assert all(source in provenance['sources'] or source in source_ids for source in provenance['definitions'].values())
+assert not re.search(r'\b(skills?|capabilit(?:y|ies))\b', json.dumps({k:v for k,v in d.items() if k != 'sources'}), re.I)
+print('PASS: 2.6 separate feedback, optional DesignQA, definitions and provenance; questions, judgments and source passages preserved.')

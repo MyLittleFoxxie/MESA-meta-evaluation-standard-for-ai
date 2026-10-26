@@ -4,9 +4,9 @@ Guided colleague survey
 
 ## 1. Introduction
 
-This survey introduces MESA, the Meta-Evaluation Standard for AI Benchmarks. MESA helps people review how an AI test is designed and what its scores can tell us. You will first describe your familiarity with a few relevant ideas, then read an answered example about Humanity’s Last Exam. After that, you will make your own judgments about ARC-AGI-2 and DesignQA.
+This survey introduces MESA, the Meta-Evaluation Standard for AI Benchmarks, a questionnaire for reviewing AI tests. It covers three benchmarks: Humanity’s Last Exam (advanced academic knowledge and reasoning questions), ARC-AGI-2 (visual grid reasoning and rule learning), and DesignQA (engineering questions from student racecar design and technical rulebooks). First describe your familiarity with AI and read the completed Humanity’s Last Exam example, then review ARC-AGI-2; you can stop after submitting it or choose to review DesignQA as well.
 
-You review the tests rather than solve their problems. Read the supplied passages and make your own judgments. Complete 25 questions each for ARC-AGI-2 and DesignQA. Comments are optional; evidence notes and citations are not required.
+You review the tests rather than solve their problems. Read the supplied passages and make your own judgments. Complete and submit 25 questions about ARC-AGI-2; you can then stop or choose to review DesignQA. Each benchmark has its own feedback and submission. Comments are optional; evidence notes and citations are not required.
 
 ## How to choose an answer
 
@@ -22,13 +22,13 @@ Choose one option for each question.
 
 - **Not applicable:** The issue does not apply.
 
-When information is missing, choose Not sure rather than No.
+When information is missing, choose **Not sure** rather than **No**.
 
-For a question asking whether checking or testing occurred, Yes means the stated checks occurred for all parts of the question, not that results were favourable or every error was eliminated. Partly means that only some of those checks or parts are supported. Describe limits in coverage in an optional comment; do not lower an answer solely because checking found errors or disagreement.
+For a question asking whether checking or testing occurred, **Yes** means the stated checks occurred for all parts of the question, not that results were favourable or every error was eliminated. **Partly** means that only some of those checks or parts are supported. Describe limits in coverage in an optional comment; do not lower an answer solely because checking found errors or disagreement.
 
 Each answer records your judgment about one part of the benchmark. The answers are not added together to produce a total quality score.
 
-No name or email is requested. Please avoid identifying details in comments. The online form sends familiarity ratings, both benchmark evaluations, feedback, survey identifier and fingerprint, and completion time to the organizer through FormSubmit; the external service may process technical request information.
+No name or email is requested. Please avoid identifying details in comments. Each submission sends familiarity ratings, one benchmark review, feedback, survey identifier and fingerprint, session identifier, and completion time to the organizer through FormSubmit; the external service may process technical request information.
 
 The online form supplies definitions beside relevant words. In this printable companion, the same definitions appear in a reference section at the end.
 
@@ -70,7 +70,7 @@ Interpreting a score means deciding what a result tells us, such as whether two 
 
 This completed example shows one reviewer’s judgments based on the supplied reading and inspected sources. It is a teaching example, not a correct-answer key or a validated assessment of HLE.
 
-Imagine a very difficult exam assembled by specialists from many subjects. The AI must select an answer or give a short answer; some questions also include an image. A separate AI marks the response against a supplied answer. HLE aims to measure advanced academic knowledge and reasoning. You do not need to know the subject answers to evaluate how this test is built, marked and interpreted.
+Humanity’s Last Exam tests academic knowledge and reasoning through questions, sometimes with images. Read the passage and completed MESA answers to see how a benchmark review works; you do not need to answer anything on this page.
 
 **Which test this survey covers:** The original 2,500-question HLE described in the supplied paper, with the simple public evaluation code inspected on 7 October 2026. This survey does not cover HLE-Rolling, HLE-Diamond or their evaluations with extra tools.
 
@@ -352,7 +352,7 @@ Why: The paper says high scores alone do not establish general intelligence or i
 
 ## 4. ARC-AGI-2
 
-Each puzzle shows several before-and-after grids of coloured squares. The AI must infer the hidden rule and produce outputs for new inputs. Public development tasks are available for practice; separate tasks are used for evaluation. You do not need to solve the puzzles to complete this survey.
+ARC-AGI-2 asks AI systems to find patterns in grids and apply them to new grids. Read the passage, then answer 25 questions about the benchmark; you do not need to solve its puzzles.
 
 **Which test this survey covers:** ARC-AGI-2 public test problems, the official scoring software, and ARC Prize’s rules for tests that it runs or verifies. Sources were inspected on 7 October 2026. Other competitions and community results may use different rules.
 
@@ -822,9 +822,64 @@ Why: The paper says high scores alone do not establish general intelligence or i
 
 Comments (optional): __________________________________________
 
+### Review and submit ARC-AGI-2
+
+Check all 25 answers for this benchmark, then answer the five feedback questions about this review. Submit this benchmark separately in the online form; service acceptance does not prove inbox delivery.
+
+**How easy or difficult was it to understand the questions?**
+
+- ☐ Very difficult
+- ☐ Difficult
+- ☐ Neither easy nor difficult
+- ☐ Easy
+- ☐ Very easy
+- ☐ Cannot judge
+
+**How easy or difficult was it to distinguish the five answer choices?**
+
+- ☐ Very difficult
+- ☐ Difficult
+- ☐ Neither easy nor difficult
+- ☐ Easy
+- ☐ Very easy
+- ☐ Cannot judge
+
+**How manageable was the amount of reading and answering?**
+
+- ☐ Very unmanageable
+- ☐ Unmanageable
+- ☐ Neither manageable nor unmanageable
+- ☐ Manageable
+- ☐ Very manageable
+- ☐ Cannot judge
+
+**How well did MESA help you understand what to look for when reviewing an AI benchmark?**
+
+- ☐ Not at all well
+- ☐ Slightly well
+- ☐ Moderately well
+- ☐ Very well
+- ☐ Extremely well
+- ☐ Cannot judge
+
+**How confident did you feel using MESA to review this benchmark?**
+
+- ☐ Not at all confident
+- ☐ Slightly confident
+- ☐ Moderately confident
+- ☐ Very confident
+- ☐ Extremely confident
+- ☐ Cannot judge
+
+Which question, explanation, or example was difficult to use, and why? (optional)
+
+__________________________________________________
+
+After ARC-AGI-2 is accepted, you can finish or continue to the optional DesignQA review.
+
 ## 5. DesignQA
 
-The AI receives written engineering rules, vehicle images or drawings and must answer questions about them. It may need to find a rule, explain a technical term, identify a part, or check whether a design meets a requirement. The questions draw on Formula SAE, a competition in which university students design and build racing cars. You do not need engineering knowledge or to solve these problems to review this test.
+DesignQA asks AI systems questions about engineering rules, images and drawings. This review is optional: read the passage, then answer 25 questions about the benchmark; you do not need to solve its engineering problems.
 
 **Which test this survey covers:** The original DesignQA benchmark described in the 2024 paper, together with its public scoring software. Sources were inspected on 6 October 2026. Later changes to the questions or software may affect results.
 
@@ -1276,11 +1331,9 @@ Why: The paper says high scores alone do not establish general intelligence or i
 
 Comments (optional): __________________________________________
 
-## 6. Review and submit
+### Review and submit DesignQA
 
-Check that all three familiarity questions and all 50 benchmark questions have a response. The online form submits everything in one response. Email-service acceptance does not prove inbox delivery.
-
-### Feedback (required)
+Check all 25 answers for this benchmark, then answer the five feedback questions about this review. Submit this benchmark separately in the online form; service acceptance does not prove inbox delivery.
 
 **How easy or difficult was it to understand the questions?**
 
@@ -1318,7 +1371,7 @@ Check that all three familiarity questions and all 50 benchmark questions have a
 - ☐ Extremely well
 - ☐ Cannot judge
 
-**How confident did you feel using MESA to review these two AI benchmarks?**
+**How confident did you feel using MESA to review this benchmark?**
 
 - ☐ Not at all confident
 - ☐ Slightly confident
@@ -1331,9 +1384,9 @@ Which question, explanation, or example was difficult to use, and why? (optional
 
 __________________________________________________
 
-## 7. Confirmation
+## Confirmation
 
-The online form confirms service acceptance after submission.
+Each benchmark is confirmed separately. A session identifier links the two reviews when both are submitted from the same saved session.
 
 ## Definitions for the printable copy
 
@@ -1366,15 +1419,34 @@ The online form confirms service acceptance after submission.
 - **Methods:** The procedures used to run the benchmark, mark responses and calculate results.
 - **Situation:** The circumstances in which an AI is tested or used, such as the language, subject area, available tools or testing conditions.
 - **Repeatedly submitting results:** Sending results for the same benchmark more than once, for example after changing an AI system. If feedback guides those changes, later scores may reflect adaptation to that test.
-- **Familiarity ratings:** Your three ratings from 1 to 5 about familiarity with AI, familiarity with benchmarks and confidence interpreting AI test scores. They describe your own experience, not a knowledge test.
-- **Survey answers:** The choices you select for the 25 review questions about each benchmark: Yes, Partly, No, Not sure or Not applicable.
-- **Feedback:** Your five ratings about your experience using the questionnaire, plus any written feedback you choose to add. Each rating includes Cannot judge.
+- **Familiarity ratings:** Your three ratings from 1 to 5 about familiarity with AI, familiarity with benchmarks and confidence interpreting AI test scores. They describe your experience rather than test your knowledge, and accompany each benchmark submission.
+- **Survey answers:** The choices you select for the 25 review questions about the benchmark being submitted: Yes, Partly, No, Not sure or Not applicable.
+- **Feedback:** Your five ratings about reviewing this benchmark with MESA, plus any written feedback you choose to add. Each rating includes Cannot judge.
 - **Optional comments:** Notes you may write to explain an answer or describe your experience. You can leave these blank. Please avoid including names or other identifying details.
 - **Survey identifier:** A label identifying which survey version you used. It identifies the survey, not you, and is different from the random identifier attached to a submission.
 - **Fingerprint:** A code calculated from the survey content to identify the exact packet used. It is not a fingerprint of you or your device.
-- **Completion time:** The date and time recorded by your device when you submit this response. It does not measure how long you spent on the survey; an unchanged retry keeps the same recorded time.
+- **Completion time:** The date and time recorded by your device when you submit this benchmark review, rather than how long you spent answering. An unchanged retry keeps the same recorded time.
 - **Organizer:** The person conducting this survey who receives the submitted responses.
 - **FormSubmit:** The external service this form uses to send your response to the organizer by email. The service may process technical information associated with the request.
+- **Original HLE:** The 2,500-question version of Humanity’s Last Exam reviewed in this survey. It tests academic knowledge and reasoning through questions from many subjects.
+- **HLE-Diamond:** A set of 1,000 questions selected and revised from the HLE question collection: 500 labelled reasoning and 500 labelled knowledge. It followed a year of review and correction.
+- **HLE-Rolling:** A version of HLE updated over time using feedback from researchers. Updates include replacing some easier questions with harder ones from a reserve set.
+- **ARC-AGI-1:** An earlier ARC benchmark that asks AI systems to infer rules from examples of coloured grids. It has a different set of problems from ARC-AGI-2.
+- **ARC-AGI-2:** A benchmark in which an AI infers a rule from examples of coloured grids and uses it to complete new grids. The survey asks you to review the test, not solve the puzzles.
+- **ARC Prize:** The organization behind the ARC benchmarks and the testing rules described in this passage. It runs or verifies some AI evaluations; other testing routes may use different rules.
+- **DesignQA:** A benchmark asking AI systems to answer questions about engineering rules, vehicle images and drawings. It uses materials from the Formula SAE student racing competition.
+- **Formula SAE:** A competition in which university students design and build racing cars under a rulebook. DesignQA uses its rules and engineering materials as the basis for questions.
+- **Public test set:** A collection of test problems available for people to inspect. Public access also makes it possible for the problems to appear in AI training data.
+- **Private test set:** Test problems withheld from public access. Keeping them private can help limit exposure during training, but does not prove that no AI has encountered them.
+- **Development problems:** Problems available for building, practising with or improving an AI system before evaluation. They are separate from the test problems used to assess it.
+- **Verified evaluations:** AI tests that ARC Prize runs or checks under its stated rules, including settings and spending limits. Results produced through other routes may follow different rules.
+- **Temperature:** A setting that affects randomness when an AI generates an answer. A value of zero is intended to reduce randomness, but does not by itself prove that repeated runs produce identical results.
+- **Training-data marker:** A distinctive piece of text placed in test data so model builders can find and exclude it from training. Its presence does not show whether a particular AI was trained on the data.
+- **Expert disagreement:** Cases where experts do not agree about a question or its answer. A disagreement rate is not the same as the percentage of answers confirmed to be wrong.
+- **Session identifier:** A random code linking the ARC-AGI-2 and DesignQA submissions from this saved survey session. It does not identify you across devices or separate survey sessions.
+- **Stated checks:** Audits, examinations or error checks described in the benchmark documentation. Evidence that a check was performed is separate from whether its findings were favorable.
+- **Testing:** Running an AI system on problems or evaluating a benchmark's scoring and tasks under specified conditions. It differs from simply inspecting code or documentation.
+- **Humanity’s Last Exam:** A benchmark of 2,500 difficult multidisciplinary academic questions testing knowledge and reasoning across various subjects. It uses questions with definite answers to probe frontier AI systems.
 
 ## Sources and links
 

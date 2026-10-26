@@ -12,17 +12,19 @@ The main focus is accessibility: whether participants feel able to use MESA for 
 
 As supporting analyses, describe answer distributions and agreement for each question and benchmark. Disagreement alone does not establish misunderstanding.
 
-The object of study is the questionnaire together with the supplied passages, definitions, HLE teaching example and fixed sequence. These questions do not isolate the questionnaire wording from those materials.
+The object of study is the questionnaire together with the supplied passages, definitions, HLE teaching example and ARC-first sequence with an optional second benchmark. These questions do not isolate the questionnaire wording from those materials.
 
 ## Settle before recruitment
 
 Record the target population, sampling approach, eligibility criteria, recruitment channels and text, consent process, applicable ethics review or exemption procedures, data access and retention arrangements, and a sample-size rationale tied to the intended descriptive estimates. Settle exclusions, duplicate handling, incomplete responses, withdrawals where feasible without identifiers, and the analysis plan before collecting responses. Freeze the exact packet, generated page, fingerprint and analysis plan. Do not invent recruitment dates or approvals.
 
-Decide in advance whether the available sample can support agreement estimates or uncertainty intervals and how sparse categories will be reported. The 50 judgments from one participant do not provide 50 independent participants. Do not select sample size from the number of question responses alone. Keep collected responses out of this public repository.
+Decide in advance whether the available sample can support agreement estimates or uncertainty intervals and how sparse categories will be reported. The 25 or 50 judgments from one session do not provide 25 or 50 independent participants. Do not select sample size from the number of question responses alone. Keep collected responses out of this public repository.
 
 ## Collection and analysis
 
-Packet 2.2 (`mesa-guided-arc-designqa-v2-2`) collects three separate familiarity self-reports, 50 categorical judgments, optional question comments, five required feedback ratings and one optional feedback comment. Each feedback rating includes Cannot judge. Store labels separately; unanswered is null and is never recoded as Cannot judge. No name, respondent email, elapsed-time measure or additional tracking is collected. Device-derived completion timestamps and random submission identifiers support delivery records and duplicate review, not duration measurement or participant identification.
+Packet 2.6 (`mesa-guided-arc-designqa-v2-6`) collects three familiarity ratings and separate benchmark submissions. ARC-AGI-2 comes first; DesignQA is optional. Each submission has 25 choices, optional question comments, five required feedback ratings with Cannot judge, and one optional feedback comment. Feedback refers to that benchmark review, so two submissions from one session contain two feedback sets. No composite score is calculated.
+
+A random session identifier links reviews from the same saved browser session; it is not verified participant identity. Each benchmark has its own submission identifier and device timestamp. These records support duplicate review, not duration measurement. Repeated delivery of an unchanged response retains its identifier; editing before acceptance creates a new identifier. Test deliveries marked TEST — exclude from research must be excluded before analysis.
 
 Report the participant flow and explicit denominators: received deliveries, distinct eligible responses, exclusions, participants with each response, Cannot judge selections, and participants who supplied comments. Distinguish repeat deliveries of one submission from changed responses with different identifiers; do not infer that different identifiers necessarily mean different people. Freeze the adjudication rule before recruitment.
 
@@ -45,3 +47,10 @@ Discuss shared passage cues, the teaching example, fixed benchmark order, conven
 See [maintenance instructions](agent-guide.md), [organizer notes](organizer-notes.md), and [packet source](packet.json).
 
 The final two feedback items ask about understanding what to look for when reviewing a benchmark, then confidence using MESA. Report both separately as perceptions, not demonstrated ability or correctness. The opening confidence item concerns interpreting AI test scores, while the final item concerns using MESA; do not subtract them or claim a measured improvement. No overall feedback score is calculated.
+
+
+## Version 2.6 analysis amendment
+
+Report received deliveries, distinct submission IDs and linked session IDs separately; do not count the two benchmark submissions as two independent participants. Report ARC completion, optional DesignQA uptake, unfinished second reviews where known, and exclusions with benchmark-specific denominators. Do not infer an unfinished review from an absent delivery. Repeated judgments and feedback within linked sessions must be accounted for.
+
+Describe optional participation in DesignQA as a source of selection differences and retain the fixed ARC-first order as a limitation. Report feedback for each benchmark separately, with Cannot judge and optional-comment denominators. The confidence item concerns using MESA for this benchmark, not both benchmarks. Do not compare opening score-interpretation confidence with this item as a measured improvement. Freeze these amendments with population, recruitment and analysis decisions before collecting research responses. The authorized synthetic TEST deliveries are implementation checks, not human study data.

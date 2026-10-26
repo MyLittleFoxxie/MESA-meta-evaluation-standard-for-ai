@@ -101,3 +101,13 @@ The current survey uses `mesa-guided-arc-designqa-v2-4` and a new packet fingerp
 ## Version 2.5 — 26 October 2026
 
 The current survey uses `mesa-guided-arc-designqa-v2-5`, with a new fingerprint. Version 2.4 is archived and its drafts cannot load into 2.5. Nine definitions explain familiarity ratings, answers, feedback, optional comments, survey identifier, fingerprint, completion time, organizer and FormSubmit. The survey answers and feedback definitions apply only inside submission explanations, so benchmark answers and feedback keep their meaning. Other participant content and submission fields are unchanged.
+
+## Version 2.6 — 26 October 2026
+
+The current survey uses `mesa-guided-arc-designqa-v2-6`; version 2.5 is archived and earlier drafts are rejected. Current flow: introduction, familiarity, HLE example, ARC-AGI-2, ARC feedback/review, ARC confirmation, optional DesignQA, DesignQA feedback/review, DesignQA confirmation. A reader can finish after ARC. This supersedes earlier instructions requiring both benchmarks and one combined payload.
+
+Each submission contains one benchmark’s 25 answers, comments, five separately stored feedback ratings, feedback comment, shared familiarity ratings, packet metadata, random session ID, submission ID and device timestamp. Feedback concerns that benchmark review. Accepted responses and familiarity are locked; other work remains editable. Drafts retain separate submission states, signatures and retry IDs; unchanged retries retain their ID and time. Neither saving nor loading sends responses. A session ID links the two reviews without claiming a verified person identity.
+
+Definitions and introductions describe the task and benchmark versions; new definition provenance is in `definition-sources.json`. Original passage inspection dates are unchanged. Popup colors differ from the page in both themes. Questionnaire texts, HLE judgments and frozen study materials remain unchanged. These changes do not establish easier use.
+
+Run `verify.py`, `check-browser.cjs` and `check-navigation.cjs`. Automated deliveries must be mocked. The author authorized two live TEST submissions for this release; label their subjects and payloads TEST — exclude from research and keep fabricated responses out of research analysis. That authorization is not permission for future live tests.
