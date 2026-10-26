@@ -1,16 +1,18 @@
 # MESA: Adapting and Testing an EFPA-Based Framework for AI Benchmark Review
 
-Guided colleague survey
+Guided Masters thesis survey
 
 ## 1. Introduction
+
+This is a survey created by OTU MAsc student Vitor B. Raposo of Arise lab.
 
 This survey introduces MESA, the Meta-Evaluation Standard for AI Benchmarks, a questionnaire for reviewing AI tests. It covers three benchmarks: Humanity’s Last Exam (advanced academic knowledge and reasoning questions), ARC-AGI-2 (visual grid reasoning and rule learning), and DesignQA (engineering questions from student racecar design and technical rulebooks). First describe your familiarity with AI and read the completed Humanity’s Last Exam example, then review ARC-AGI-2; you can stop after submitting it or choose to review DesignQA as well.
 
 You review the tests rather than solve their problems. Read the supplied passages and make your own judgments. Complete and submit 25 questions about ARC-AGI-2; you can then stop or choose to review DesignQA. Each benchmark has its own feedback and submission. Comments are optional; evidence notes and citations are not required.
 
-## How to choose an answer
+## How it works
 
-Choose one option for each question.
+Each question will have the same 5 options. Choose one option for each question.
 
 - **Yes:** Information supports the whole condition.
 
