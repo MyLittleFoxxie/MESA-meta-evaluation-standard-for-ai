@@ -1483,12 +1483,12 @@ Each benchmark is confirmed separately. A session identifier links the two revie
 - **Score:** The result of marking answers, such as the percentage correct. A score has meaning only in relation to the test and the conditions used.
 - **Scoring:** The rules or software that turn an AI’s answers into points or a result.
 - **Reference answer:** The supplied answer against which the AI’s response is marked. It can be wrong, so agreement with it is not proof that it is correct.
-- **Prompt:** The directions and information given to the AI before it answers.
+- **Prompt:** The text, instructions, and context provided to an AI system to specify the task it must solve. Differences in prompts can significantly alter model performance and scores.
 - **Score uncertainty:** How much a score estimate could vary under the assumptions of a calculation. It differs from the AI saying it is confident about an answer.
 - **Intended use:** The comparison, claim or decision that a score is meant to support.
 - **AI judge:** Another AI that marks a response by following instructions, often by comparing it with a supplied answer. Its marking can also make mistakes.
 - **Comparison point:** A result used to help interpret a score, such as random guessing, a person’s score or another AI’s score.
-- **Repeated testing:** Running the same test more than once to see whether the scores change.
+- **Repeated testing:** Running an evaluation more than once under the exact same setup and settings to measure how much an AI system’s scores vary across runs due to randomness or generation settings.
 - **Data contamination:** When test questions, answers or closely related material enter an AI’s training or development before evaluation. This can make scores reflect that material rather than performance on new problems.
 - **Development:** The process of creating, selecting and checking the test problems and scoring rules.
 - **Training:** The process in which an AI learns from data before it is used. If test answers are included, later test scores may reflect data contamination.
@@ -1543,6 +1543,13 @@ Each benchmark is confirmed separately. A session identifier links the two revie
 - **Testing setup:** The software environment, harness, tool access, prompts, API parameters and runner configurations used to administer a benchmark. Differences in setup can produce different scores for the same AI model.
 - **Setting:** A configurable option or parameter in the AI model, software harness or evaluation script, such as temperature, maximum generation tokens, retry limits, or prompt templates. Changing settings can alter model behavior and affect benchmark scores.
 - **Testing route:** A particular pathway, organization or procedure used to run and evaluate an AI on a benchmark. For example, official verified testing may enforce strict compute limits and fixed settings, while independent self-reported evaluations might use different procedures.
+- **Access:** The ability of researchers or users to obtain, inspect, download, or run benchmark problems, reference answers, scoring software, or documentation. Access may be public, gated behind a request form, or fully private.
+- **Fair comparisons:** Evaluating AI systems under matched conditions, shared guidelines, and equal access to information so that score differences reflect true differences in performance rather than unequal setups, different tools, or language advantages.
+- **Updated:** Changes made to test questions, reference answers, or scoring software after initial release. Documentation should explain what changed, why it changed, and whether new scores remain comparable to earlier results.
+- **Points:** Numerical credits awarded for fully or partially correct answers on test problems. Scoring rules define how points are earned, combined, or weighted across different questions.
+- **Reasoning:** The process of drawing conclusions, following logical rules, combining facts, or solving novel problems step by step. Benchmark questions may test specific reasoning steps or overall problem solving.
+- **Condition:** The specific evaluation environment, inputs, or tools provided to an AI during testing, such as text only, text with images, or CAD files. Comparing scores across different conditions requires matching setups.
+- **License:** The legal terms governing how benchmark data, questions, code, and documentation may be accessed, shared, used, modified, or redistributed by researchers and the public.
 
 ## Sources and links
 
