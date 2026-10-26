@@ -82,3 +82,22 @@ Report each rating separately, with explicit denominators for Cannot judge and o
 The final two feedback items ask about understanding what to look for when reviewing a benchmark, then confidence using MESA. Report both separately as perceptions, not demonstrated ability or correctness. The opening confidence item concerns interpreting AI test scores, while the final item concerns using MESA; do not subtract them or claim a measured improvement. No overall feedback score is calculated.
 
 Packet 2.1 and its generated survey are preserved in `archive/v2.1/`. Version 2.2 drafts have a new identifier and fingerprint; do not migrate or silently reinterpret older drafts. The author confirmed on 22 October 2026 that the survey has not been shared. Source-inspection dates remain unchanged.
+
+
+## Version 2.3 — 26 October 2026
+
+The current participant survey uses `mesa-guided-arc-designqa-v2-3`. Version 2.2 is preserved in `archive/v2.2/`. Earlier drafts cannot load into 2.3. HLE explanations now name supporting facts from the existing passages; the 25 answer selections, question texts, passages and source inspection dates are unchanged. Nine definitions were added for published, claims, evidence, comparisons, protections, test materials, methods, situations and repeatedly submitting results. Frozen study materials and `study-alignment.txt` retain the original wording; the participant explanations no longer match them word for word.
+
+Back remains visible, and each question links to its passage with a return control. Contents includes questions under domains and marks the current reading position. Images open the viewer when clicked. Selected answers use category colors without producing scores. After service acceptance, readers can revisit their responses but cannot edit or submit again. These presentation changes do not establish easier use.
+
+Run `verify.py`, `check-browser.cjs` and `check-navigation.cjs` after changes. Browser checks intercept requests; they do not send responses or establish inbox delivery.
+
+
+## Version 2.4 — 26 October 2026
+
+The current survey uses `mesa-guided-arc-designqa-v2-4` and a new packet fingerprint. Version 2.3 is preserved in `archive/v2.3/`; its drafts cannot load into 2.4. HLE Q18 explains that precautions do not reveal whether public questions or answers were used in an AI’s training. Participant text now uses ability and abilities, matching `paper_chase.tex`, including the Ability definition. The passage edits only replace interchangeable terminology; sources, inspection dates, question texts and answer selections are unchanged. Frozen study instructions and manuscript text remain unchanged.
+
+
+## Version 2.5 — 26 October 2026
+
+The current survey uses `mesa-guided-arc-designqa-v2-5`, with a new fingerprint. Version 2.4 is archived and its drafts cannot load into 2.5. Nine definitions explain familiarity ratings, answers, feedback, optional comments, survey identifier, fingerprint, completion time, organizer and FormSubmit. The survey answers and feedback definitions apply only inside submission explanations, so benchmark answers and feedback keep their meaning. Other participant content and submission fields are unchanged.

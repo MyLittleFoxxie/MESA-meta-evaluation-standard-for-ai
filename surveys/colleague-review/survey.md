@@ -6,9 +6,27 @@ Guided colleague survey
 
 This survey introduces MESA, the Meta-Evaluation Standard for AI Benchmarks. MESA helps people review how an AI test is designed and what its scores can tell us. You will first describe your familiarity with a few relevant ideas, then read an answered example about Humanity’s Last Exam. After that, you will make your own judgments about ARC-AGI-2 and DesignQA.
 
-You review the tests rather than solve their problems. Read the supplied passages and make your own judgments. Complete 25 questions each for ARC-AGI-2 and DesignQA. Comments are optional; evidence notes and citations are not required. There is no total quality score.
+You review the tests rather than solve their problems. Read the supplied passages and make your own judgments. Complete 25 questions each for ARC-AGI-2 and DesignQA. Comments are optional; evidence notes and citations are not required.
 
-Yes: information supports the whole condition. Partly: supports some parts but not all. No: information shows the condition is not met. Not sure: information is missing, unclear, or insufficient. Not applicable: the issue does not apply. For a question asking whether checking or testing occurred, Yes means the stated checks occurred for all parts of the question, not that results were favourable or every error was eliminated. Partly means that only some of those checks or parts are supported. Describe limits in coverage in an optional comment; do not lower an answer solely because checking found errors or disagreement. Do not convert missing information into No. No aggregate score.
+## How to choose an answer
+
+Choose one option for each question.
+
+- **Yes:** Information supports the whole condition.
+
+- **Partly:** Supports some parts but not all.
+
+- **No:** Information shows the condition is not met.
+
+- **Not sure:** Information is missing, unclear, or insufficient.
+
+- **Not applicable:** The issue does not apply.
+
+When information is missing, choose Not sure rather than No.
+
+For a question asking whether checking or testing occurred, Yes means the stated checks occurred for all parts of the question, not that results were favourable or every error was eliminated. Partly means that only some of those checks or parts are supported. Describe limits in coverage in an optional comment; do not lower an answer solely because checking found errors or disagreement.
+
+Each answer records your judgment about one part of the benchmark. The answers are not added together to produce a total quality score.
 
 No name or email is requested. Please avoid identifying details in comments. The online form sends familiarity ratings, both benchmark evaluations, feedback, survey identifier and fingerprint, and completion time to the organizer through FormSubmit; the external service may process technical request information.
 
@@ -92,7 +110,7 @@ Process diagram based on the simple evaluation code. The judge is not asked to s
 
 #### What the reported numbers mean
 
-HLE reports **accuracy as the percentage of answers marked correct**, with each question counting equally. As a result, the mix of subjects affects the total score. The paper also reports results by subject, although the inspected material does not establish that these are separate measures of distinct skills. Alongside accuracy, the public scoring software calculates an **approximate 95% confidence range** using the number of questions and the fraction marked correct. This range describes score uncertainty under the calculation’s assumptions; it does not measure the effects of repeating the AI run or changing the judge. A separate calculation compares the AI’s stated confidence with how often its answers are correct, so **confidence in an answer and uncertainty in a test score refer to different things**. Sources: [HP](#source-HP) [HJ](#source-HJ).
+HLE reports **accuracy as the percentage of answers marked correct**, with each question counting equally. As a result, the mix of subjects affects the total score. The paper also reports results by subject, although the inspected material does not establish that these are separate measures of distinct abilities. Alongside accuracy, the public scoring software calculates an **approximate 95% confidence range** using the number of questions and the fraction marked correct. This range describes score uncertainty under the calculation’s assumptions; it does not measure the effects of repeating the AI run or changing the judge. A separate calculation compares the AI’s stated confidence with how often its answers are correct, so **confidence in an answer and uncertainty in a test score refer to different things**. Sources: [HP](#source-HP) [HJ](#source-HJ).
 
 **Three different numbers in the results**
 
@@ -128,15 +146,15 @@ HLE’s title suggests a final exam at the edge of human knowledge, but the pape
 
 **Answer: Yes**
 
-Why: The passage identifies original HLE, its 2,500 questions and the inspected scoring software. This tells readers which test and scoring method the example concerns. Sources: [HP](#source-HP) [HW](#source-HW).
+Why: The passage identifies original HLE and its 2,500 questions. A judging AI compares responses with reference answers, and accuracy is the percentage marked correct, so both the test and its scoring method are described. Sources: [HP](#source-HP) [HW](#source-HW).
 
 **Example Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
 
-**Meaning:** Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
+**Meaning:** Look for the ability being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
 
 **Answer: Yes**
 
-Why: HLE describes difficult academic knowledge and reasoning, the AI systems it targets and the comparisons it is intended to support. Sources: [HP](#source-HP).
+Why: HLE tests academic knowledge and reasoning in AI systems that handle text or text and images. Its scores are intended to compare these systems on academic questions; they do not by themselves establish research ability or general intelligence. Sources: [HP](#source-HP).
 
 **Example Q3. Are the test problems, the information provided and the required answers or actions described?**
 
@@ -144,7 +162,7 @@ Why: HLE describes difficult academic knowledge and reasoning, the AI systems it
 
 **Answer: Yes**
 
-Why: The passage describes short-answer and multiple-choice questions, images when needed, and the answers the AI must return. Sources: [HP](#source-HP).
+Why: The AI receives a question, sometimes with an image, and selects an option or gives a short answer. The evaluation software asks for an explanation, a final answer and a percentage stating confidence. Sources: [HP](#source-HP).
 
 **Example Q4. Are the instructions, resources and limits for taking the test described?**
 
@@ -152,7 +170,7 @@ Why: The passage describes short-answer and multiple-choice questions, images wh
 
 **Answer: Partly**
 
-Why: The instructions and software are described, but the advertised setting to reduce randomness is disabled in the inspected code. A reader cannot assume that setting was used. Sources: [HM](#source-HM) [HR](#source-HR).
+Why: The software describes the instructions and a temperature setting of zero to reduce randomness. However, the line that sends that setting is disabled in the inspected code, so the description does not establish that it was used. Sources: [HM](#source-HM) [HR](#source-HR).
 
 **Example Q5. Is it described how answers or actions become scores and how results are presented?**
 
@@ -160,25 +178,25 @@ Why: The instructions and software are described, but the advertised setting to 
 
 **Answer: Yes**
 
-Why: The public code explains how a judging AI marks answers and how accuracy and confidence-related results are calculated. Describing these rules does not establish that they work well. Sources: [HJ](#source-HJ).
+Why: An AI judge compares each final answer with a reference, accepting equivalent meanings. The code reports the percentage marked correct, a confidence range and how stated confidence compares with accuracy; describing these calculations does not establish that they work well. Sources: [HJ](#source-HJ).
 
 ### Purpose and development
 
 **Example Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
 
-**Meaning:** The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
+**Meaning:** The explanation should link the problems to the claimed ability. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
 
 **Answer: Yes**
 
-Why: The paper explains why hard, specialist questions with definite answers are used to assess academic knowledge and reasoning. Whether they cover the full claim is a separate question. Sources: [HP](#source-HP).
+Why: The paper uses specialist academic questions with definite answers to test knowledge and reasoning that existing AI models struggle with. This explains the choice of tasks, but does not establish coverage of every academic ability. Sources: [HP](#source-HP).
 
 **Example Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
 
-**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.
+**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the ability.
 
 **Answer: Partly**
 
-Why: Experts contributed questions and the authors explain the difficulty screening. However, selecting questions that AI systems struggle with does not show that the set represents academic work more generally. Sources: [HP](#source-HP).
+Why: Experts contributed questions, and questions that selected AI models could already answer were screened out. This explains how difficulty was chosen, but does not show that the resulting set represents academic work more generally. Sources: [HP](#source-HP).
 
 **Example Q8. Were the test problems and the answers used to mark them checked for errors during development?**
 
@@ -186,33 +204,33 @@ Why: Experts contributed questions and the authors explain the difficulty screen
 
 **Answer: Yes**
 
-Why: Expert review and later checks examined the questions and supplied answers. Remaining expert disagreement limits confidence in those answers, but does not undo the evidence that checking occurred. Sources: [HP](#source-HP).
+Why: Expert review and organizer approval were followed by two checks of 200 questions each, examining questions and reference answers. The reported 15.4% expert disagreement limits confidence in the answers, but does not negate that checking occurred. Sources: [HP](#source-HP).
 
 **Example Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
 
-**Meaning:** A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
+**Meaning:** An ability may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
 
 **Answer: Partly**
 
-Why: The questions cover many subjects, but emphasize mathematics and require definite answers. They therefore cover some academic skills while leaving creative work and open-ended research outside the format. Sources: [HP](#source-HP).
+Why: The questions span many subjects but emphasize mathematics and require definite answers. This covers some academic knowledge and reasoning, while creative work and research without a fixed answer fall outside the format. Sources: [HP](#source-HP).
 
 ### Scoring and comparisons
 
 **Example Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
 
-**Meaning:** Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.
+**Meaning:** Look for evidence that earning more points means doing better at the intended ability. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that ability.
 
 **Answer: Partly**
 
-Why: The judging AI accepts answers with the same meaning as the reference. However, a wrong reference or an incorrect judging decision can still affect the mark, so understanding is not the only possible influence. Sources: [HJ](#source-HJ) [HP](#source-HP).
+Why: The judge accepts responses that mean the same thing as the reference answer, allowing differences in wording. However, it compares answers without independently solving the problem, so a mistaken reference or judging decision can affect the score. Sources: [HJ](#source-HJ) [HP](#source-HP).
 
 **Example Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
 
-**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
+**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate abilities. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
 
 **Answer: Partly**
 
-Why: Each question counts equally, so the subject mix affects the overall score. The inspected material does not establish that the subject scores are separate measures of distinct skills. Sources: [HP](#source-HP) [HJ](#source-HJ).
+Why: Every question counts equally toward accuracy, so subjects with more questions contribute more to the total. Results are also reported by subject, but the supplied material does not establish that these subject scores measure separate abilities. Sources: [HP](#source-HP) [HJ](#source-HJ).
 
 **Example Q12. Was the marking process tested to see whether it awards the right scores consistently?**
 
@@ -220,7 +238,7 @@ Why: Each question counts equally, so the subject mix affects the overall score.
 
 **Answer: Not sure**
 
-Why: The judging code is public, but no full comparison of its marks with expert marks is supplied. Checking the questions is different from checking whether the judging AI marks responses correctly. Sources: [HJ](#source-HJ) [HP](#source-HP).
+Why: The code shows how the AI judge compares responses with reference answers, but no full comparison with expert marking is supplied. Expert checks of the questions do not establish whether this judge marks AI responses correctly and consistently. Sources: [HJ](#source-HJ) [HP](#source-HP).
 
 **Example Q13. Are the comparison points used to explain the scores justified for the claims being made?**
 
@@ -228,7 +246,7 @@ Why: The judging code is public, but no full comparison of its marks with expert
 
 **Answer: Partly**
 
-Why: Named AI models provide useful comparison points, and text-only results are labelled. However, there is no matched group of people taking the whole test under the AI conditions. Sources: [HP](#source-HP).
+Why: The paper compares AI models on the full question set and separately on questions using only text. These provide context, but no matched group of people takes the whole exam under the same conditions, limiting comparisons with human performance. Sources: [HP](#source-HP).
 
 ### Consistency of results
 
@@ -238,7 +256,7 @@ Why: Named AI models provide useful comparison points, and text-only results are
 
 **Answer: Not sure**
 
-Why: The paper notes that answers can change between attempts, but the supplied sources do not establish a repeated-run study for the main comparisons. That leaves the amount of variation unclear. Sources: [HP](#source-HP) [HM](#source-HM).
+Why: The paper acknowledges that an AI can answer differently on separate attempts. The supplied sources do not establish repeated testing of the same systems for the main comparisons, so the size of score changes remains unknown. Sources: [HP](#source-HP) [HM](#source-HM).
 
 **Example Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
@@ -246,7 +264,7 @@ Why: The paper notes that answers can change between attempts, but the supplied 
 
 **Answer: Not sure**
 
-Why: The supplied sources do not establish systematic tests of reworded instructions or changes to the judging AI. A standard instruction alone does not show what happens when the setup changes. Sources: [HP](#source-HP) [HJ](#source-HJ) [HM](#source-HM).
+Why: The supplied sources do not establish systematic tests of reworded instructions or changes to the judging AI. Describing one instruction and testing setup does not show how much scores change when those conditions change. Sources: [HP](#source-HP) [HJ](#source-HJ) [HM](#source-HM).
 
 **Example Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?**
 
@@ -254,17 +272,17 @@ Why: The supplied sources do not establish systematic tests of reworded instruct
 
 **Answer: Partly**
 
-Why: The code calculates an approximate confidence range, but it does not cover changes from repeating the run or changing the judge. It therefore describes only some of the uncertainty relevant to comparisons. Sources: [HJ](#source-HJ).
+Why: The code estimates a 95% confidence range from the number of questions and the fraction marked correct. It does not measure changes from rerunning the AI or replacing the judge, so it covers only some uncertainty in comparisons. Sources: [HJ](#source-HJ).
 
 ### Meaning and fairness
 
 **Example Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
+**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 **Answer: Partly**
 
-Why: Contributors were asked to avoid easy lookups and could revise questions answered through faulty reasoning. These checks address some ways to gain points, but do not measure every possible route. Sources: [HP](#source-HP).
+Why: Contributors were asked to avoid questions answered by a simple lookup and could revise questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points. Sources: [HP](#source-HP).
 
 **Example Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
@@ -272,7 +290,7 @@ Why: Contributors were asked to avoid easy lookups and could revise questions an
 
 **Answer: Partly**
 
-Why: A private set, a training-data marker and warnings help address prior exposure. They do not establish which questions a particular AI has already seen. Sources: [HP](#source-HP) [HR](#source-HR).
+Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers. Sources: [HP](#source-HP) [HR](#source-HR).
 
 **Example Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
 
@@ -280,7 +298,7 @@ Why: A private set, a training-data marker and warnings help address prior expos
 
 **Answer: Not sure**
 
-Why: Training on the test is discouraged, but the supplied material lacks a complete policy on repeated submissions and feedback. There is not enough information to judge whether those rules are suitable. Sources: [HR](#source-HR).
+Why: The instructions discourage training on test questions. However, the supplied material lacks a complete policy covering repeated submissions, access to feedback and reporting systems trained for HLE, leaving insufficient information to judge whether the rules support the intended comparisons. Sources: [HR](#source-HR).
 
 **Example Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?**
 
@@ -288,7 +306,7 @@ Why: Training on the test is discouraged, but the supplied material lacks a comp
 
 **Answer: Not sure**
 
-Why: The passage supplies no measured link between HLE scores and success on independent scientific projects. This leaves wider performance claims unresolved rather than proving they are false. Sources: [HP](#source-HP).
+Why: The supplied passage reports no measured relationship between HLE scores and success on independent scientific projects. Academic question scores therefore leave that broader claim unresolved; missing evidence does not prove that an AI cannot conduct research. Sources: [HP](#source-HP).
 
 **Example Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?**
 
@@ -296,7 +314,7 @@ Why: The passage supplies no measured link between HLE scores and success on ind
 
 **Answer: Partly**
 
-Why: Text-only results are distinguished from results using images, which helps readers compare like with like. Unequal subject coverage and limited checks across languages leave other comparisons less well supported. Sources: [HP](#source-HP).
+Why: Results using only text are labelled separately from results that include images. This helps compare systems receiving similar information, but English questions, unequal subject coverage and missing studies across languages leave other fairness claims unresolved. Sources: [HP](#source-HP).
 
 ### Use and reporting
 
@@ -306,7 +324,7 @@ Why: Text-only results are distinguished from results using images, which helps 
 
 **Answer: Partly**
 
-Why: Instructions and marking code are public, but the dataset is gated and the private set is unavailable. These materials support inspection without providing everything needed to examine all results. Sources: [HR](#source-HR) [HC](#source-HC) [HJ](#source-HJ).
+Why: The instructions and marking code are public, allowing readers to inspect the procedure. Downloading questions requires accepting access conditions, and a separate private question set is withheld, so not all materials are available to examine or repeat every result. Sources: [HR](#source-HR) [HC](#source-HC) [HJ](#source-HJ).
 
 **Example Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?**
 
@@ -314,7 +332,7 @@ Why: Instructions and marking code are public, but the dataset is gated and the 
 
 **Answer: Partly**
 
-Why: Licences, access conditions and harmful-content precautions are described. The combination of a licence and a request not to redistribute the data leaves some reuse expectations less clear to readers. Sources: [HC](#source-HC) [HL](#source-HL) [HP](#source-HP).
+Why: The dataset and code list MIT licences, access requires accepting conditions, and the paper describes excluding dangerous content. However, the dataset also asks users not to redistribute questions, leaving some reuse expectations unclear alongside the licence. Sources: [HC](#source-HC) [HL](#source-HL) [HP](#source-HP).
 
 **Example Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?**
 
@@ -322,7 +340,7 @@ Why: Licences, access conditions and harmful-content precautions are described. 
 
 **Answer: Not sure**
 
-Why: Changes to HLE-Rolling are described, but that is a separate test. The supplied material does not establish how changes to original HLE affect comparisons of old and new scores. Sources: [HW](#source-HW) [HU](#source-HU).
+Why: HLE-Rolling records removed and restored questions, but it is separate from original HLE. The supplied material does not establish how changes to original HLE affect comparisons between earlier and later scores. Sources: [HW](#source-HW) [HU](#source-HU).
 
 **Example Q25. Do the published claims stay within what the evidence supports?**
 
@@ -330,7 +348,7 @@ Why: Changes to HLE-Rolling are described, but that is a separate test. The supp
 
 **Answer: Partly**
 
-Why: The paper explicitly limits claims about general intelligence and independent research. However, the broad title can suggest more than the definite-answer academic questions establish. Sources: [HP](#source-HP).
+Why: The paper says high scores alone do not establish general intelligence or independent research ability. However, the title “Humanity’s Last Exam” can suggest broader coverage than a set of academic questions with definite answers supports. Sources: [HP](#source-HP).
 
 ## 4. ARC-AGI-2
 
@@ -362,7 +380,7 @@ ARC-AGI-2’s developers began with a collection of newly written grid puzzles a
 
 #### How answers earn points
 
-The AI is allowed **two attempts for each new input grid**, and it earns credit for that input only if an attempt matches the supplied answer in both size and every square’s colour. A nearly correct grid therefore receives no credit. A problem can contain several new inputs, however, so the official scoring software inspected for this survey calculates the fraction solved within each problem before averaging the problem scores. Solving one of two inputs, for example, earns **0.5 for that problem**. This differs from calling the whole problem “fully solved,” which the instructions published with the problems reserve for cases where every input is correct. The software does not provide separate scores established as measures of distinct skills. Its public tests cover correct answers, wrong sizes, changed squares and missing outputs; the survey preparer inspected those tests without independently testing the whole marking system. Sources: [AR](#source-AR) [AS](#source-AS) [AT](#source-AT).
+The AI is allowed **two attempts for each new input grid**, and it earns credit for that input only if an attempt matches the supplied answer in both size and every square’s colour. A nearly correct grid therefore receives no credit. A problem can contain several new inputs, however, so the official scoring software inspected for this survey calculates the fraction solved within each problem before averaging the problem scores. Solving one of two inputs, for example, earns **0.5 for that problem**. This differs from calling the whole problem “fully solved,” which the instructions published with the problems reserve for cases where every input is correct. The software does not provide separate scores established as measures of distinct abilities. Its public tests cover correct answers, wrong sizes, changed squares and missing outputs; the survey preparer inspected those tests without independently testing the whole marking system. Sources: [AR](#source-AR) [AS](#source-AS) [AT](#source-AT).
 
 **Example: a problem with two new input grids**
 
@@ -402,7 +420,7 @@ Use the passage to make your own judgments. Choose one response per question. Co
 
 **Answer: Yes**
 
-Why: The passage identifies original HLE, its 2,500 questions and the inspected scoring software. This tells readers which test and scoring method the example concerns.
+Why: The passage identifies original HLE and its 2,500 questions. A judging AI compares responses with reference answers, and accuracy is the percentage marked correct, so both the test and its scoring method are described.
 
 </details>
 
@@ -412,13 +430,13 @@ Comments (optional): __________________________________________
 
 **Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
 
-**Meaning:** Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
+**Meaning:** Look for the ability being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
 
 <details><summary>HLE example</summary>
 
 **Answer: Yes**
 
-Why: HLE describes difficult academic knowledge and reasoning, the AI systems it targets and the comparisons it is intended to support.
+Why: HLE tests academic knowledge and reasoning in AI systems that handle text or text and images. Its scores are intended to compare these systems on academic questions; they do not by themselves establish research ability or general intelligence.
 
 </details>
 
@@ -434,7 +452,7 @@ Comments (optional): __________________________________________
 
 **Answer: Yes**
 
-Why: The passage describes short-answer and multiple-choice questions, images when needed, and the answers the AI must return.
+Why: The AI receives a question, sometimes with an image, and selects an option or gives a short answer. The evaluation software asks for an explanation, a final answer and a percentage stating confidence.
 
 </details>
 
@@ -450,7 +468,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: The instructions and software are described, but the advertised setting to reduce randomness is disabled in the inspected code. A reader cannot assume that setting was used.
+Why: The software describes the instructions and a temperature setting of zero to reduce randomness. However, the line that sends that setting is disabled in the inspected code, so the description does not establish that it was used.
 
 </details>
 
@@ -466,7 +484,7 @@ Comments (optional): __________________________________________
 
 **Answer: Yes**
 
-Why: The public code explains how a judging AI marks answers and how accuracy and confidence-related results are calculated. Describing these rules does not establish that they work well.
+Why: An AI judge compares each final answer with a reference, accepting equivalent meanings. The code reports the percentage marked correct, a confidence range and how stated confidence compares with accuracy; describing these calculations does not establish that they work well.
 
 </details>
 
@@ -478,13 +496,13 @@ Comments (optional): __________________________________________
 
 **Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
 
-**Meaning:** The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
+**Meaning:** The explanation should link the problems to the claimed ability. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
 
 <details><summary>HLE example</summary>
 
 **Answer: Yes**
 
-Why: The paper explains why hard, specialist questions with definite answers are used to assess academic knowledge and reasoning. Whether they cover the full claim is a separate question.
+Why: The paper uses specialist academic questions with definite answers to test knowledge and reasoning that existing AI models struggle with. This explains the choice of tasks, but does not establish coverage of every academic ability.
 
 </details>
 
@@ -494,13 +512,13 @@ Comments (optional): __________________________________________
 
 **Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
 
-**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.
+**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the ability.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Experts contributed questions and the authors explain the difficulty screening. However, selecting questions that AI systems struggle with does not show that the set represents academic work more generally.
+Why: Experts contributed questions, and questions that selected AI models could already answer were screened out. This explains how difficulty was chosen, but does not show that the resulting set represents academic work more generally.
 
 </details>
 
@@ -516,7 +534,7 @@ Comments (optional): __________________________________________
 
 **Answer: Yes**
 
-Why: Expert review and later checks examined the questions and supplied answers. Remaining expert disagreement limits confidence in those answers, but does not undo the evidence that checking occurred.
+Why: Expert review and organizer approval were followed by two checks of 200 questions each, examining questions and reference answers. The reported 15.4% expert disagreement limits confidence in the answers, but does not negate that checking occurred.
 
 </details>
 
@@ -526,13 +544,13 @@ Comments (optional): __________________________________________
 
 **Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
 
-**Meaning:** A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
+**Meaning:** An ability may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: The questions cover many subjects, but emphasize mathematics and require definite answers. They therefore cover some academic skills while leaving creative work and open-ended research outside the format.
+Why: The questions span many subjects but emphasize mathematics and require definite answers. This covers some academic knowledge and reasoning, while creative work and research without a fixed answer fall outside the format.
 
 </details>
 
@@ -544,13 +562,13 @@ Comments (optional): __________________________________________
 
 **Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
 
-**Meaning:** Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.
+**Meaning:** Look for evidence that earning more points means doing better at the intended ability. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that ability.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: The judging AI accepts answers with the same meaning as the reference. However, a wrong reference or an incorrect judging decision can still affect the mark, so understanding is not the only possible influence.
+Why: The judge accepts responses that mean the same thing as the reference answer, allowing differences in wording. However, it compares answers without independently solving the problem, so a mistaken reference or judging decision can affect the score.
 
 </details>
 
@@ -560,13 +578,13 @@ Comments (optional): __________________________________________
 
 **Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
 
-**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
+**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate abilities. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Each question counts equally, so the subject mix affects the overall score. The inspected material does not establish that the subject scores are separate measures of distinct skills.
+Why: Every question counts equally toward accuracy, so subjects with more questions contribute more to the total. Results are also reported by subject, but the supplied material does not establish that these subject scores measure separate abilities.
 
 </details>
 
@@ -582,7 +600,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The judging code is public, but no full comparison of its marks with expert marks is supplied. Checking the questions is different from checking whether the judging AI marks responses correctly.
+Why: The code shows how the AI judge compares responses with reference answers, but no full comparison with expert marking is supplied. Expert checks of the questions do not establish whether this judge marks AI responses correctly and consistently.
 
 </details>
 
@@ -598,7 +616,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Named AI models provide useful comparison points, and text-only results are labelled. However, there is no matched group of people taking the whole test under the AI conditions.
+Why: The paper compares AI models on the full question set and separately on questions using only text. These provide context, but no matched group of people takes the whole exam under the same conditions, limiting comparisons with human performance.
 
 </details>
 
@@ -616,7 +634,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The paper notes that answers can change between attempts, but the supplied sources do not establish a repeated-run study for the main comparisons. That leaves the amount of variation unclear.
+Why: The paper acknowledges that an AI can answer differently on separate attempts. The supplied sources do not establish repeated testing of the same systems for the main comparisons, so the size of score changes remains unknown.
 
 </details>
 
@@ -632,7 +650,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The supplied sources do not establish systematic tests of reworded instructions or changes to the judging AI. A standard instruction alone does not show what happens when the setup changes.
+Why: The supplied sources do not establish systematic tests of reworded instructions or changes to the judging AI. Describing one instruction and testing setup does not show how much scores change when those conditions change.
 
 </details>
 
@@ -648,7 +666,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: The code calculates an approximate confidence range, but it does not cover changes from repeating the run or changing the judge. It therefore describes only some of the uncertainty relevant to comparisons.
+Why: The code estimates a 95% confidence range from the number of questions and the fraction marked correct. It does not measure changes from rerunning the AI or replacing the judge, so it covers only some uncertainty in comparisons.
 
 </details>
 
@@ -660,13 +678,13 @@ Comments (optional): __________________________________________
 
 **Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
+**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Contributors were asked to avoid easy lookups and could revise questions answered through faulty reasoning. These checks address some ways to gain points, but do not measure every possible route.
+Why: Contributors were asked to avoid questions answered by a simple lookup and could revise questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points.
 
 </details>
 
@@ -682,7 +700,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: A private set, a training-data marker and warnings help address prior exposure. They do not establish which questions a particular AI has already seen.
+Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers.
 
 </details>
 
@@ -698,7 +716,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: Training on the test is discouraged, but the supplied material lacks a complete policy on repeated submissions and feedback. There is not enough information to judge whether those rules are suitable.
+Why: The instructions discourage training on test questions. However, the supplied material lacks a complete policy covering repeated submissions, access to feedback and reporting systems trained for HLE, leaving insufficient information to judge whether the rules support the intended comparisons.
 
 </details>
 
@@ -714,7 +732,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The passage supplies no measured link between HLE scores and success on independent scientific projects. This leaves wider performance claims unresolved rather than proving they are false.
+Why: The supplied passage reports no measured relationship between HLE scores and success on independent scientific projects. Academic question scores therefore leave that broader claim unresolved; missing evidence does not prove that an AI cannot conduct research.
 
 </details>
 
@@ -730,7 +748,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Text-only results are distinguished from results using images, which helps readers compare like with like. Unequal subject coverage and limited checks across languages leave other comparisons less well supported.
+Why: Results using only text are labelled separately from results that include images. This helps compare systems receiving similar information, but English questions, unequal subject coverage and missing studies across languages leave other fairness claims unresolved.
 
 </details>
 
@@ -748,7 +766,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Instructions and marking code are public, but the dataset is gated and the private set is unavailable. These materials support inspection without providing everything needed to examine all results.
+Why: The instructions and marking code are public, allowing readers to inspect the procedure. Downloading questions requires accepting access conditions, and a separate private question set is withheld, so not all materials are available to examine or repeat every result.
 
 </details>
 
@@ -764,7 +782,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Licences, access conditions and harmful-content precautions are described. The combination of a licence and a request not to redistribute the data leaves some reuse expectations less clear to readers.
+Why: The dataset and code list MIT licences, access requires accepting conditions, and the paper describes excluding dangerous content. However, the dataset also asks users not to redistribute questions, leaving some reuse expectations unclear alongside the licence.
 
 </details>
 
@@ -780,7 +798,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: Changes to HLE-Rolling are described, but that is a separate test. The supplied material does not establish how changes to original HLE affect comparisons of old and new scores.
+Why: HLE-Rolling records removed and restored questions, but it is separate from original HLE. The supplied material does not establish how changes to original HLE affect comparisons between earlier and later scores.
 
 </details>
 
@@ -796,7 +814,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: The paper explicitly limits claims about general intelligence and independent research. However, the broad title can suggest more than the definite-answer academic questions establish.
+Why: The paper says high scores alone do not establish general intelligence or independent research ability. However, the title “Humanity’s Last Exam” can suggest broader coverage than a set of academic questions with definite answers supports.
 
 </details>
 
@@ -824,7 +842,7 @@ The developers used a real competition rulebook, vehicle designs and test data, 
 
 #### How answers earn points
 
-DesignQA uses several marking methods because its questions require different kinds of answers. Some methods compare the wording of an AI answer with a supplied answer, while yes/no questions receive credit for the correct decision and may also have their explanations scored for text similarity. These rules are described, but **wording and formatting can affect credit**: the paper gives examples involving missing commas and valid related rules that were absent from the supplied answer. The public software also produces an overall score by giving each of the six question groups equal weight, despite their different sizes and marking methods. The reviewed material does not show that this overall number, or the separate group scores, measures a distinct underlying skill. Small marking-test files and discussion of scoring problems show some checking, but do not establish a complete study of marking accuracy and consistency. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-FIX](#source-DQ-FIX).
+DesignQA uses several marking methods because its questions require different kinds of answers. Some methods compare the wording of an AI answer with a supplied answer, while yes/no questions receive credit for the correct decision and may also have their explanations scored for text similarity. These rules are described, but **wording and formatting can affect credit**: the paper gives examples involving missing commas and valid related rules that were absent from the supplied answer. The public software also produces an overall score by giving each of the six question groups equal weight, despite their different sizes and marking methods. The reviewed material does not show that this overall number, or the separate group scores, measures a distinct underlying ability. Small marking-test files and discussion of scoring problems show some checking, but do not establish a complete study of marking accuracy and consistency. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-FIX](#source-DQ-FIX).
 
 #### Testing conditions and comparisons
 
@@ -856,7 +874,7 @@ Use the passage to make your own judgments. Choose one response per question. Co
 
 **Answer: Yes**
 
-Why: The passage identifies original HLE, its 2,500 questions and the inspected scoring software. This tells readers which test and scoring method the example concerns.
+Why: The passage identifies original HLE and its 2,500 questions. A judging AI compares responses with reference answers, and accuracy is the percentage marked correct, so both the test and its scoring method are described.
 
 </details>
 
@@ -866,13 +884,13 @@ Comments (optional): __________________________________________
 
 **Q2. Are the ability being tested, the intended AI systems and the intended uses described?**
 
-**Meaning:** Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
+**Meaning:** Look for the ability being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.
 
 <details><summary>HLE example</summary>
 
 **Answer: Yes**
 
-Why: HLE describes difficult academic knowledge and reasoning, the AI systems it targets and the comparisons it is intended to support.
+Why: HLE tests academic knowledge and reasoning in AI systems that handle text or text and images. Its scores are intended to compare these systems on academic questions; they do not by themselves establish research ability or general intelligence.
 
 </details>
 
@@ -888,7 +906,7 @@ Comments (optional): __________________________________________
 
 **Answer: Yes**
 
-Why: The passage describes short-answer and multiple-choice questions, images when needed, and the answers the AI must return.
+Why: The AI receives a question, sometimes with an image, and selects an option or gives a short answer. The evaluation software asks for an explanation, a final answer and a percentage stating confidence.
 
 </details>
 
@@ -904,7 +922,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: The instructions and software are described, but the advertised setting to reduce randomness is disabled in the inspected code. A reader cannot assume that setting was used.
+Why: The software describes the instructions and a temperature setting of zero to reduce randomness. However, the line that sends that setting is disabled in the inspected code, so the description does not establish that it was used.
 
 </details>
 
@@ -920,7 +938,7 @@ Comments (optional): __________________________________________
 
 **Answer: Yes**
 
-Why: The public code explains how a judging AI marks answers and how accuracy and confidence-related results are calculated. Describing these rules does not establish that they work well.
+Why: An AI judge compares each final answer with a reference, accepting equivalent meanings. The code reports the percentage marked correct, a confidence range and how stated confidence compares with accuracy; describing these calculations does not establish that they work well.
 
 </details>
 
@@ -932,13 +950,13 @@ Comments (optional): __________________________________________
 
 **Q6. Is it explained why the test problems measure the ability the benchmark claims to test?**
 
-**Meaning:** The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
+**Meaning:** The explanation should link the problems to the claimed ability. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.
 
 <details><summary>HLE example</summary>
 
 **Answer: Yes**
 
-Why: The paper explains why hard, specialist questions with definite answers are used to assess academic knowledge and reasoning. Whether they cover the full claim is a separate question.
+Why: The paper uses specialist academic questions with definite answers to test knowledge and reasoning that existing AI models struggle with. This explains the choice of tasks, but does not establish coverage of every academic ability.
 
 </details>
 
@@ -948,13 +966,13 @@ Comments (optional): __________________________________________
 
 **Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
 
-**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.
+**Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the ability.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Experts contributed questions and the authors explain the difficulty screening. However, selecting questions that AI systems struggle with does not show that the set represents academic work more generally.
+Why: Experts contributed questions, and questions that selected AI models could already answer were screened out. This explains how difficulty was chosen, but does not show that the resulting set represents academic work more generally.
 
 </details>
 
@@ -970,7 +988,7 @@ Comments (optional): __________________________________________
 
 **Answer: Yes**
 
-Why: Expert review and later checks examined the questions and supplied answers. Remaining expert disagreement limits confidence in those answers, but does not undo the evidence that checking occurred.
+Why: Expert review and organizer approval were followed by two checks of 200 questions each, examining questions and reference answers. The reported 15.4% expert disagreement limits confidence in the answers, but does not negate that checking occurred.
 
 </details>
 
@@ -980,13 +998,13 @@ Comments (optional): __________________________________________
 
 **Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?**
 
-**Meaning:** A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
+**Meaning:** An ability may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: The questions cover many subjects, but emphasize mathematics and require definite answers. They therefore cover some academic skills while leaving creative work and open-ended research outside the format.
+Why: The questions span many subjects but emphasize mathematics and require definite answers. This covers some academic knowledge and reasoning, while creative work and research without a fixed answer fall outside the format.
 
 </details>
 
@@ -998,13 +1016,13 @@ Comments (optional): __________________________________________
 
 **Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?**
 
-**Meaning:** Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.
+**Meaning:** Look for evidence that earning more points means doing better at the intended ability. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that ability.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: The judging AI accepts answers with the same meaning as the reference. However, a wrong reference or an incorrect judging decision can still affect the mark, so understanding is not the only possible influence.
+Why: The judge accepts responses that mean the same thing as the reference answer, allowing differences in wording. However, it compares answers without independently solving the problem, so a mistaken reference or judging decision can affect the score.
 
 </details>
 
@@ -1014,13 +1032,13 @@ Comments (optional): __________________________________________
 
 **Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
 
-**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
+**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate abilities. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Each question counts equally, so the subject mix affects the overall score. The inspected material does not establish that the subject scores are separate measures of distinct skills.
+Why: Every question counts equally toward accuracy, so subjects with more questions contribute more to the total. Results are also reported by subject, but the supplied material does not establish that these subject scores measure separate abilities.
 
 </details>
 
@@ -1036,7 +1054,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The judging code is public, but no full comparison of its marks with expert marks is supplied. Checking the questions is different from checking whether the judging AI marks responses correctly.
+Why: The code shows how the AI judge compares responses with reference answers, but no full comparison with expert marking is supplied. Expert checks of the questions do not establish whether this judge marks AI responses correctly and consistently.
 
 </details>
 
@@ -1052,7 +1070,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Named AI models provide useful comparison points, and text-only results are labelled. However, there is no matched group of people taking the whole test under the AI conditions.
+Why: The paper compares AI models on the full question set and separately on questions using only text. These provide context, but no matched group of people takes the whole exam under the same conditions, limiting comparisons with human performance.
 
 </details>
 
@@ -1070,7 +1088,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The paper notes that answers can change between attempts, but the supplied sources do not establish a repeated-run study for the main comparisons. That leaves the amount of variation unclear.
+Why: The paper acknowledges that an AI can answer differently on separate attempts. The supplied sources do not establish repeated testing of the same systems for the main comparisons, so the size of score changes remains unknown.
 
 </details>
 
@@ -1086,7 +1104,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The supplied sources do not establish systematic tests of reworded instructions or changes to the judging AI. A standard instruction alone does not show what happens when the setup changes.
+Why: The supplied sources do not establish systematic tests of reworded instructions or changes to the judging AI. Describing one instruction and testing setup does not show how much scores change when those conditions change.
 
 </details>
 
@@ -1102,7 +1120,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: The code calculates an approximate confidence range, but it does not cover changes from repeating the run or changing the judge. It therefore describes only some of the uncertainty relevant to comparisons.
+Why: The code estimates a 95% confidence range from the number of questions and the fraction marked correct. It does not measure changes from rerunning the AI or replacing the judge, so it covers only some uncertainty in comparisons.
 
 </details>
 
@@ -1114,13 +1132,13 @@ Comments (optional): __________________________________________
 
 **Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
+**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Contributors were asked to avoid easy lookups and could revise questions answered through faulty reasoning. These checks address some ways to gain points, but do not measure every possible route.
+Why: Contributors were asked to avoid questions answered by a simple lookup and could revise questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points.
 
 </details>
 
@@ -1136,7 +1154,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: A private set, a training-data marker and warnings help address prior exposure. They do not establish which questions a particular AI has already seen.
+Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers.
 
 </details>
 
@@ -1152,7 +1170,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: Training on the test is discouraged, but the supplied material lacks a complete policy on repeated submissions and feedback. There is not enough information to judge whether those rules are suitable.
+Why: The instructions discourage training on test questions. However, the supplied material lacks a complete policy covering repeated submissions, access to feedback and reporting systems trained for HLE, leaving insufficient information to judge whether the rules support the intended comparisons.
 
 </details>
 
@@ -1168,7 +1186,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: The passage supplies no measured link between HLE scores and success on independent scientific projects. This leaves wider performance claims unresolved rather than proving they are false.
+Why: The supplied passage reports no measured relationship between HLE scores and success on independent scientific projects. Academic question scores therefore leave that broader claim unresolved; missing evidence does not prove that an AI cannot conduct research.
 
 </details>
 
@@ -1184,7 +1202,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Text-only results are distinguished from results using images, which helps readers compare like with like. Unequal subject coverage and limited checks across languages leave other comparisons less well supported.
+Why: Results using only text are labelled separately from results that include images. This helps compare systems receiving similar information, but English questions, unequal subject coverage and missing studies across languages leave other fairness claims unresolved.
 
 </details>
 
@@ -1202,7 +1220,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Instructions and marking code are public, but the dataset is gated and the private set is unavailable. These materials support inspection without providing everything needed to examine all results.
+Why: The instructions and marking code are public, allowing readers to inspect the procedure. Downloading questions requires accepting access conditions, and a separate private question set is withheld, so not all materials are available to examine or repeat every result.
 
 </details>
 
@@ -1218,7 +1236,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: Licences, access conditions and harmful-content precautions are described. The combination of a licence and a request not to redistribute the data leaves some reuse expectations less clear to readers.
+Why: The dataset and code list MIT licences, access requires accepting conditions, and the paper describes excluding dangerous content. However, the dataset also asks users not to redistribute questions, leaving some reuse expectations unclear alongside the licence.
 
 </details>
 
@@ -1234,7 +1252,7 @@ Comments (optional): __________________________________________
 
 **Answer: Not sure**
 
-Why: Changes to HLE-Rolling are described, but that is a separate test. The supplied material does not establish how changes to original HLE affect comparisons of old and new scores.
+Why: HLE-Rolling records removed and restored questions, but it is separate from original HLE. The supplied material does not establish how changes to original HLE affect comparisons between earlier and later scores.
 
 </details>
 
@@ -1250,7 +1268,7 @@ Comments (optional): __________________________________________
 
 **Answer: Partly**
 
-Why: The paper explicitly limits claims about general intelligence and independent research. However, the broad title can suggest more than the definite-answer academic questions establish.
+Why: The paper says high scores alone do not establish general intelligence or independent research ability. However, the title “Humanity’s Last Exam” can suggest broader coverage than a set of academic questions with definite answers supports.
 
 </details>
 
@@ -1323,7 +1341,7 @@ The online form confirms service acceptance after submission.
 - **AI benchmark:** A test used to assess an AI system. It contains problems, a way to mark answers and rules for interpreting results.
 - **Benchmark version:** A particular edition of a test. Its problems, answers or marking rules may differ from another edition, so the edition matters when comparing scores.
 - **Test problem:** One question or puzzle that the AI must answer or solve.
-- **Ability:** Something the AI is meant to be able to do, such as finding a pattern or answering a science question. Doing well on one skill does not automatically show every skill.
+- **Ability:** Something an AI is meant to be able to do, such as finding a pattern or answering a science question. Doing well on one ability does not establish others.
 - **Score:** The result of marking answers, such as the percentage correct. A score has meaning only in relation to the test and the conditions used.
 - **Scoring:** The rules or software that turn an AI’s answers into points or a result.
 - **Reference answer:** The supplied answer against which the AI’s response is marked. It can be wrong, so agreement with it is not proof that it is correct.
@@ -1339,6 +1357,24 @@ The online form confirms service acceptance after submission.
 - **Evaluation set:** The collection of problems used to assess an AI. It may be separate from problems available for practice.
 - **Open-ended research:** Work where the answer or next step is not fixed in advance, such as investigating a new scientific question.
 - **General intelligence:** A broad ability to handle many different kinds of problems. A high score on one test does not establish this by itself.
+- **Published:** Made available for others to read, for example in a paper, website or report. Publication alone does not mean the information has been checked.
+- **Claim:** Something stated about what a benchmark measures or what its results show. For example, that a score shows an AI can reason.
+- **Evidence:** Information used to judge whether a claim is supported, such as results from tests, comparisons or checks. Evidence can have limits and does not always settle the question.
+- **Comparison:** Looking at results side by side, such as scores from two AI systems, to see how they differ. Differences in test questions or testing conditions can affect what the comparison tells us.
+- **Protection:** Measures intended to prevent harm when accessing or using a benchmark, such as protecting private information or restricting access to content that could cause harm.
+- **Test materials:** The questions, images, files and reference answers used in the benchmark.
+- **Methods:** The procedures used to run the benchmark, mark responses and calculate results.
+- **Situation:** The circumstances in which an AI is tested or used, such as the language, subject area, available tools or testing conditions.
+- **Repeatedly submitting results:** Sending results for the same benchmark more than once, for example after changing an AI system. If feedback guides those changes, later scores may reflect adaptation to that test.
+- **Familiarity ratings:** Your three ratings from 1 to 5 about familiarity with AI, familiarity with benchmarks and confidence interpreting AI test scores. They describe your own experience, not a knowledge test.
+- **Survey answers:** The choices you select for the 25 review questions about each benchmark: Yes, Partly, No, Not sure or Not applicable.
+- **Feedback:** Your five ratings about your experience using the questionnaire, plus any written feedback you choose to add. Each rating includes Cannot judge.
+- **Optional comments:** Notes you may write to explain an answer or describe your experience. You can leave these blank. Please avoid including names or other identifying details.
+- **Survey identifier:** A label identifying which survey version you used. It identifies the survey, not you, and is different from the random identifier attached to a submission.
+- **Fingerprint:** A code calculated from the survey content to identify the exact packet used. It is not a fingerprint of you or your device.
+- **Completion time:** The date and time recorded by your device when you submit this response. It does not measure how long you spent on the survey; an unchanged retry keeps the same recorded time.
+- **Organizer:** The person conducting this survey who receives the submitted responses.
+- **FormSubmit:** The external service this form uses to send your response to the organizer by email. The service may process technical information associated with the request.
 
 ## Sources and links
 
