@@ -31,7 +31,7 @@ Where an existing review refers to answer-key error percentages, this example us
 | 15 | Not sure | The supplied sources do not establish systematic tests of reworded instructions or changes to the judging AI. Describing one instruction and testing setup does not show how much scores change when those conditions change. | HP, HJ, HM |
 | 16 | Partly | The code estimates a 95% confidence range from the number of questions and the fraction marked correct. It does not measure changes from rerunning the AI or replacing the judge, so it covers only some uncertainty in comparisons. | HJ |
 | 17 | Partly | Contributors were asked to avoid questions answered by a simple lookup and could revise questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points. | HP |
-| 18 | Partly | HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers. | HP, HR |
+| 18 | Partly | HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit data contamination, but the supplied information does not show whether an AI was trained on any of the public questions or answers. | HP, HR |
 | 19 | Not sure | The instructions discourage training on test questions. However, the supplied material lacks a complete policy covering repeated submissions, access to feedback and reporting systems trained for HLE, leaving insufficient information to judge whether the rules support the intended comparisons. | HR |
 | 20 | Not sure | The supplied passage reports no measured relationship between HLE scores and success on independent scientific projects. Academic question scores therefore leave that broader claim unresolved; missing evidence does not prove that an AI cannot conduct research. | HP |
 | 21 | Partly | Results using only text are labelled separately from results that include images. This helps compare systems receiving similar information, but English questions, unequal subject coverage and missing studies across languages leave other fairness claims unresolved. | HP |
@@ -47,3 +47,5 @@ Version 2.3, 26 October 2026: explanations expanded using the supplied passages.
 
 
 Version 2.4, 26 October 2026: Q18 now separates measures limiting exposure from knowledge of an AI’s training. Participant wording uses ability and abilities, matching `paper_chase.tex`. Source titles, original records, question texts and answer selections are unchanged. Version 2.3 is archived.
+
+Version 2.8, 26 October 2026: Current survey text uses data contamination in place of exposure. HLE judgments and source inspection dates are unchanged; historical notes retain their wording.

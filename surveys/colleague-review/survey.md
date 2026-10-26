@@ -124,7 +124,7 @@ These are separate summaries of the answers. None substitutes for measuring chan
 
 To put results in context, the paper compares named AI models and reports scores for both the full question set and text-only questions. Although experts helped create the questions, this packet contains **no matched group of people taking the whole exam under the AI testing conditions**. The paper also notes that an AI can answer differently on different attempts, but the inspected sources do not provide a repeated-run study covering the main comparisons. Nor do they provide a systematic study of reworded instructions or changes to the judging AI. Using a fixed setting or a standard instruction therefore does not, on its own, establish how stable the reported scores are. Sources: [HP](#source-HP) [HM](#source-HM) [HJ](#source-HJ).
 
-#### Prior exposure and ways to earn points
+#### Data contamination and ways to earn points
 
 To reduce easy ways of gaining points, contributors were asked to avoid questions answerable by a simple lookup and could revise questions when an AI guessed correctly through faulty reasoning. Multiple-choice questions still allow guessing, however, and the supplied material does not measure every possible way of earning points without the intended knowledge or reasoning. The authors also retain a **private test set** to help assess whether improvements are specific to the public questions. For the public data, a distinctive text marker helps people identify material to exclude from future AI training, while the instructions warn against training on the test. These precautions do not establish what a particular AI has already seen. The packet also lacks a complete original-HLE policy covering repeated submissions, access to feedback and the reporting of systems trained specifically on the test. Sources: [HP](#source-HP) [HR](#source-HR).
 
@@ -286,11 +286,11 @@ Why: Contributors were asked to avoid questions answered by a simple lookup and 
 
 **Example Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.
+**Meaning:** Look for both an assessment of the risk of data contamination and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
 
 **Answer: Partly**
 
-Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers. Sources: [HP](#source-HP) [HR](#source-HR).
+Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit data contamination, but the supplied information does not show whether an AI was trained on any of the public questions or answers. Sources: [HP](#source-HP) [HR](#source-HR).
 
 **Example Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?**
 
@@ -394,9 +394,9 @@ Illustration of the inspected software, not an observed AI result. A partly corr
 
 ARC Prize, the organization running the verified evaluations, specifies AI settings and a spending limit for the tests it verifies, although other testing routes may use different conditions. Its verified-testing policy uses **one run, rather than an average of repeated runs**. A technical report describing ARC-AGI-2’s development gives AI scores, but the materials reviewed here do not provide estimates or ranges showing how much the same AI’s score changes when the same test is repeated. Although the running software allows settings to be changed, those materials also contain no systematic study of the effects of changing instructions, grid presentation or software. Matching the test sets for human difficulty addresses a separate issue and does not measure these changes in AI scores. Sources: [AR](#source-AR) [POL](#source-POL) [AP](#source-AP) [AM](#source-AM).
 
-#### Prior exposure and ways to earn points
+#### Data contamination and ways to earn points
 
-The creators tried to limit ways of earning points without the intended reasoning by designing problems that resist searches through large numbers of possible programs and by checking for repeated solution rules. These steps do not establish that every such route to a high score has been ruled out. Prior exposure is another concern because anyone can see the public problems. For hidden tests sent to AI providers, ARC Prize describes agreements against retaining the data and monitoring of possible exposure, while acknowledging that information could still escape. To keep development separate from evaluation, **training on development problems is allowed, while changing a system specifically to improve on evaluation problems is discouraged**. ARC Prize also says its verified tests are not a service for repeatedly improving systems through its feedback. Sources: [AB](#source-AB) [AP](#source-AP) [POL](#source-POL) [AR](#source-AR).
+The creators tried to limit ways of earning points without the intended reasoning by designing problems that resist searches through large numbers of possible programs and by checking for repeated solution rules. These steps do not establish that every such route to a high score has been ruled out. Data contamination is another concern because anyone can see the public problems. For hidden tests sent to AI providers, ARC Prize describes agreements against retaining the data and monitoring for possible data contamination, while acknowledging that information could still escape. To keep development separate from evaluation, **training on development problems is allowed, while changing a system specifically to improve on evaluation problems is discouraged**. ARC Prize also says its verified tests are not a service for repeatedly improving systems through its feedback. Sources: [AB](#source-AB) [AP](#source-AP) [POL](#source-POL) [AR](#source-AR).
 
 #### Comparisons, access and updates
 
@@ -694,13 +694,13 @@ Comments (optional): __________________________________________
 
 **Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.
+**Meaning:** Look for both an assessment of the risk of data contamination and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers.
+Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit data contamination, but the supplied information does not show whether an AI was trained on any of the public questions or answers.
 
 </details>
 
@@ -903,9 +903,9 @@ DesignQA uses several marking methods because its questions require different ki
 
 The paper names the AI systems tested and describes instructions and settings, but **not every system receives the same information**. Some receive the whole rulebook, while others receive passages selected by search software. Their results therefore describe the AI together with its information supply, which matters when comparing systems. The authors include results from random guessing and other AI systems, but no reported baseline from human engineers taking the test. They also examine changes in the supplied passages, dimension labels, scale bars and highlighted images. One AI is tested with five different sets of rule passages, providing some information about variation. Because the passages change, this does not isolate variation when an identical test is repeated. For the main model comparisons, the reported information is insufficient to judge small score differences confidently. In the 16-question performance group, for example, one additional correct answer changes accuracy by 6.25 percentage points. Sources: [DQ-P](#source-DQ-P).
 
-#### Prior exposure and unintended ways to earn points
+#### Data contamination and unintended ways to earn points
 
-The authors discuss influences such as formatting, wording, the quality of retrieved passages and familiarity with components. This shows attention to some factors beyond engineering understanding, but the reviewed material does not fully test ways of gaining points without that understanding. For example, the described drawings with scale bars all comply with the relevant rule. A reviewer can therefore infer that always answering “yes” would earn the yes/no credit on that portion, although this **does not show that any tested AI used that strategy**. The authors also discuss the novelty of their vehicle images and possible exposure to similar images, without directly checking every AI’s training data. The rulebook and released questions are public, and a protected test set or systematic overlap check was not established in the review. Clear enough rules on training on the questions and repeatedly submitting results were also not available in the sources examined. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-WEB](#source-DQ-WEB).
+The authors discuss influences such as formatting, wording, the quality of retrieved passages and familiarity with components. This shows attention to some factors beyond engineering understanding, but the reviewed material does not fully test ways of gaining points without that understanding. For example, the described drawings with scale bars all comply with the relevant rule. A reviewer can therefore infer that always answering “yes” would earn the yes/no credit on that portion, although this **does not show that any tested AI used that strategy**. The authors also discuss the novelty of their vehicle images and possible data contamination from similar images, without directly checking every AI’s training data. The rulebook and released questions are public, and a protected test set or systematic overlap check was not established in the review. Clear enough rules on training on the questions and repeatedly submitting results were also not available in the sources examined. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-WEB](#source-DQ-WEB).
 
 #### Available materials and later changes
 
@@ -1203,13 +1203,13 @@ Comments (optional): __________________________________________
 
 **Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.
+**Meaning:** Look for both an assessment of the risk of data contamination and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit exposure, but the supplied information does not show whether an AI was trained on any of the public questions or answers.
+Why: HLE keeps some questions private, marks public test data and warns against using it for training. These measures help limit data contamination, but the supplied information does not show whether an AI was trained on any of the public questions or answers.
 
 </details>
 
@@ -1404,9 +1404,9 @@ Each benchmark is confirmed separately. A session identifier links the two revie
 - **AI judge:** Another AI that marks a response by following instructions, often by comparing it with a supplied answer. Its marking can also make mistakes.
 - **Comparison point:** A result used to help interpret a score, such as random guessing, a person’s score or another AI’s score.
 - **Repeated testing:** Running the same test more than once to see whether the scores change.
-- **Prior exposure:** The possibility that an AI encountered a test question or answer before taking the test, for example during its training.
+- **Data contamination:** When test questions, answers or closely related material enter an AI’s training or development before evaluation. This can make scores reflect that material rather than performance on new problems.
 - **Development:** The process of creating, selecting and checking the test problems and scoring rules.
-- **Training:** The process in which an AI learns from data before it is used. If test answers are included, later test scores may reflect earlier exposure.
+- **Training:** The process in which an AI learns from data before it is used. If test answers are included, later test scores may reflect data contamination.
 - **Evaluation set:** The collection of problems used to assess an AI. It may be separate from problems available for practice.
 - **Open-ended research:** Work where the answer or next step is not fixed in advance, such as investigating a new scientific question.
 - **General intelligence:** A broad ability to handle many different kinds of problems. A high score on one test does not establish this by itself.
@@ -1437,7 +1437,7 @@ Each benchmark is confirmed separately. A session identifier links the two revie
 - **DesignQA:** A benchmark asking AI systems to answer questions about engineering rules, vehicle images and drawings. It uses materials from the Formula SAE student racing competition.
 - **Formula SAE:** A competition in which university students design and build racing cars under a rulebook. DesignQA uses its rules and engineering materials as the basis for questions.
 - **Public test set:** A collection of test problems available for people to inspect. Public access also makes it possible for the problems to appear in AI training data.
-- **Private test set:** Test problems withheld from public access. Keeping them private can help limit exposure during training, but does not prove that no AI has encountered them.
+- **Private test set:** Test problems withheld from public access. Keeping them private can help limit data contamination during training, but does not prove that no AI has encountered them.
 - **Development problems:** Problems available for building, practising with or improving an AI system before evaluation. They are separate from the test problems used to assess it.
 - **Verified evaluations:** AI tests that ARC Prize runs or checks under its stated rules, including settings and spending limits. Results produced through other routes may follow different rules.
 - **Temperature:** A setting that affects randomness when an AI generates an answer. A value of zero is intended to reduce randomness, but does not by itself prove that repeated runs produce identical results.
