@@ -79,9 +79,9 @@ assert d['answer_instructions'] in html  # Preserved in the embedded packet.
 for choice in d['choices']:
     assert '**' + choice + ':**' in md
 assert 'The answers are not added together to produce a total quality score.' in html and 'The answers are not added together to produce a total quality score.' in md
-previous = json.loads((P / 'archive/v2.5/packet.json').read_text())
-assert d['version'] == '2.6' and d['survey_id'] == 'mesa-guided-arc-designqa-v2-6'
-assert hashlib.sha256((P / 'archive/v2.5/packet.json').read_bytes()).hexdigest() == manifest['presentation_revision']['previous_packet_sha256']
+previous = json.loads((P / 'archive/v2.6/packet.json').read_text())
+assert d['version'] == '2.7' and d['survey_id'] == 'mesa-guided-arc-designqa-v2-7'
+assert hashlib.sha256((P / 'archive/v2.6/packet.json').read_bytes()).hexdigest() == manifest['presentation_revision']['previous_packet_sha256']
 assert d['questions'] == previous['questions']
 assert d['sources'] == previous['sources']
 assert d['choices'] == previous['choices'] and d['familiarity'] == previous['familiarity']
@@ -104,4 +104,4 @@ assert hashlib.sha256((P / 'definition-sources.json').read_bytes()).hexdigest() 
 assert set(provenance['definitions']) <= {t['label'] for t in d['definitions']}
 assert all(source in provenance['sources'] or source in source_ids for source in provenance['definitions'].values())
 assert not re.search(r'\b(skills?|capabilit(?:y|ies))\b', json.dumps({k:v for k,v in d.items() if k != 'sources'}), re.I)
-print('PASS: 2.6 separate feedback, optional DesignQA, definitions and provenance; questions, judgments and source passages preserved.')
+print('PASS: 2.7 separate feedback, optional DesignQA, definitions and provenance; questions, judgments and source passages preserved.')

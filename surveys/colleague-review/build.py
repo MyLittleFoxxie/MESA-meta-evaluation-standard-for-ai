@@ -31,7 +31,7 @@ checking_text = checking_text.removesuffix(' Do not convert missing information 
 score_text = 'Each answer records your judgment about one part of the benchmark. The answers are not added together to produce a total quality score.'
 guidance_html = '<p>Choose one option for each question. The options appear in the form as shown below.</p><dl class="answer-guide">'
 for choice in d['choices']:
-    guidance_html += '<div><dt class="answers"><span class="option-example">' + answer_icons[choice] + escape(choice) + '</span></dt><dd>' + escape(explanations[choice][0].upper() + explanations[choice][1:]) + '</dd></div>'
+    guidance_html += '<div><dt class="answers"><span class="option-example" data-choice="' + escape(choice) + '">' + answer_icons[choice] + escape(choice) + '</span></dt><dd>' + escape(explanations[choice][0].upper() + explanations[choice][1:]) + '</dd></div>'
 checking_html = escape(checking_text).replace('Yes means the stated checks', '<strong>Yes</strong> means the stated checks').replace('Partly means that only', '<strong>Partly</strong> means that only')
 guidance_html += '</dl><p>When information is missing, choose <strong>Not sure</strong> rather than <strong>No</strong>.</p><p>' + checking_html + '</p><p>' + score_text + '</p>'
 checking_md = checking_text.replace('Yes means the stated checks', '**Yes** means the stated checks').replace('Partly means that only', '**Partly** means that only')

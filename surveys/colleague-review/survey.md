@@ -1447,6 +1447,8 @@ Each benchmark is confirmed separately. A session identifier links the two revie
 - **Stated checks:** Audits, examinations or error checks described in the benchmark documentation. Evidence that a check was performed is separate from whether its findings were favorable.
 - **Testing:** Running an AI system on problems or evaluating a benchmark's scoring and tasks under specified conditions. It differs from simply inspecting code or documentation.
 - **Humanity’s Last Exam:** A benchmark of 2,500 difficult multidisciplinary academic questions testing knowledge and reasoning across various subjects. It uses questions with definite answers to probe frontier AI systems.
+- **Checking:** Examining questions, answers, scoring or other parts of a benchmark to find errors or assess whether requirements are met. A check can find problems; its occurrence does not mean everything passed.
+- **Limit:** A boundary on what a test, result or claim covers. For example, results from one subject may not show how an AI performs in other subjects.
 
 ## Sources and links
 

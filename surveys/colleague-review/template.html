@@ -28,6 +28,13 @@ body{padding-bottom:calc(var(--nav-height) + 24px)}.navigation{position:fixed;bo
 @keyframes pulse-attention{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(7,95,119,.7)}50%{transform:scale(1.04);box-shadow:0 0 0 8px rgba(7,95,119,0)}}
 .start-pulse{animation:pulse-attention 1.6s infinite ease-in-out}
 @media (prefers-reduced-motion:reduce){.start-pulse{animation:none}}
+
+.option-example[data-choice="Yes"]{background:var(--yes-bg);border-color:var(--yes-line)}
+.option-example[data-choice="Partly"]{background:var(--selected);border-color:var(--link)}
+.option-example[data-choice="No"]{background:var(--no-bg);border-color:var(--no-line)}
+.option-example[data-choice="Not sure"]{background:var(--unsure-bg);border-color:var(--unsure-line)}
+.option-example[data-choice="Not applicable"]{background:var(--na-bg);border-color:var(--na-line)}
+.notice-dialog{width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:24px;background:var(--surface);color:var(--text);border:2px solid var(--no-line);border-radius:12px;box-shadow:0 8px 32px #0005}.notice-dialog::backdrop{background:#0007}.notice-dialog h2{margin-top:0}
 </style></head><body>
 <header><div class="header-tools"><span class="eyebrow">Colleague survey</span><button id="theme-toggle" type="button" class="no-print">Dark mode</button></div><div class="title-row"><button id="contents-open" type="button" class="contents-trigger no-print" aria-haspopup="dialog" aria-controls="contents"><span aria-hidden="true">☰</span> Contents</button><h1>__PAPER_TITLE__</h1></div><p>Review ARC-AGI-2, with DesignQA optional and an answered HLE example</p><p id="step-label" class="step-label" aria-live="polite"></p><div class="step-track" aria-hidden="true"><span id="step-bar"></span></div></header>
 <div id="scroll-tools" class="toolbar no-print" hidden><div class="toolbar-inner"><button id="scroll-contents" type="button" aria-haspopup="dialog" aria-controls="contents">☰ Contents</button><span id="scroll-context" class="toolbar-context"></span><button id="scroll-save" type="button">Save draft</button><button type="button" class="theme-toggle" data-theme-toggle>Dark mode</button><span class="save-notice" data-save-notice></span></div></div>
@@ -43,6 +50,7 @@ body{padding-bottom:calc(var(--nav-height) + 24px)}.navigation{position:fixed;bo
 <noscript><p>This form requires JavaScript. Ask the organizer for the printable survey if JavaScript is unavailable.</p></noscript></main></div>
 <footer>__PAPER_TITLE__. This is a pilot questionnaire, not a validated certification instrument.</footer>
 <dialog id="sources-dialog" class="sources-dialog no-print" aria-labelledby="sources-title"><button id="sources-close" type="button" class="dialog-close">Close sources</button><h2 id="sources-title">Sources and links</h2><p>The supplied passages contain the reading needed for this survey; you do not need to visit these sources. ARC-AGI-2 and HLE materials were inspected on 7 October 2026, and the DesignQA source review was checked on 6 October 2026. The new HLE example uses those inspected materials. The guided survey was prepared on __PREPARED__; this does not mean the sources were newly inspected.</p><ul id="sources" class="source-list"></ul></dialog>
+<dialog id="notice-dialog" class="notice-dialog" role="alertdialog" aria-labelledby="notice-title" aria-describedby="notice-message"><h2 id="notice-title">Please check</h2><p id="notice-message"></p><button id="notice-close" type="button" autofocus>OK</button></dialog>
 <dialog id="image-viewer" class="image-viewer no-print" aria-labelledby="viewer-title"><button id="image-close" type="button" class="dialog-close">Close image</button><h2 id="viewer-title"></h2><img id="viewer-image" alt=""></dialog>
 <div id="term-tip" class="term-tip" popover="manual" role="tooltip"></div>
 <script id="packet" type="application/json">__PACKET_JSON__</script>
@@ -59,7 +67,7 @@ function node(tag,text,cls){const e=document.createElement(tag);if(text!==undefi
 function rich(tag,text,cls){const e=node(tag,undefined,cls);for(const [i,part] of text.split('**').entries())e.append(i%2?node('strong',part):document.createTextNode(part));return e;}
 function citations(ids){const span=node('span',undefined,'citations');for(const id of ids){const a=node('a','['+id+']');a.href='#source-'+id;a.dataset.source=id;span.append(a);}return span;}
 function saveQuiet(){try{localStorage.setItem(storageKey,JSON.stringify(draft));return true;}catch(e){return false;}}
-function saveDraft(){const text=saveQuiet()?'Draft saved in this browser.':'Browser storage is unavailable. Keep this tab open until you can submit.';$('draft-status').textContent=text;document.querySelectorAll('[data-save-notice]').forEach(e=>e.textContent=text);}
+function saveDraft(){const saved=saveQuiet(),text=saved?'Draft saved in this browser.':'';$('draft-status').textContent=text;document.querySelectorAll('[data-save-notice]').forEach(e=>e.textContent=text);if(!saved)showNotice('Browser storage is unavailable. Keep this tab open until you can submit.');}
 const themeKey='mesa-survey-theme';function setTheme(mode){document.documentElement.dataset.theme=mode;document.querySelectorAll('#theme-toggle,[data-theme-toggle]').forEach(b=>{b.textContent=mode==='dark'?'Light mode':'Dark mode';b.setAttribute('aria-label','Switch to '+(mode==='dark'?'light':'dark')+' mode');});}
 function toggleTheme(){const mode=document.documentElement.dataset.theme==='dark'?'light':'dark';setTheme(mode);try{localStorage.setItem(themeKey,mode);}catch(e){}}
 let theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';try{const t=localStorage.getItem(themeKey);if(['light','dark'].includes(t))theme=t;}catch(e){}setTheme(theme);document.addEventListener('click',e=>{if(e.target.closest('#theme-toggle,[data-theme-toggle]'))toggleTheme();});
@@ -72,7 +80,7 @@ for(const b of packet.benchmarks){const section=node('section',undefined,'page')
 for(const s of packet.sources){const li=node('li');li.id='source-'+s.id;const link=node('a',s.title);link.href=s.article_url||s.url;link.target='_blank';link.rel='noopener noreferrer';li.append(node('strong',s.id+' — '),link,document.createTextNode('. '+s.note));$('sources').append(li);}
 let contentsHeadings=[],currentHeading=null,sidebarManualUntil=0,returnTarget=null;
 function jumpTo(heading){hideTip();history.replaceState(null,'','#'+heading.id);heading.tabIndex=-1;$('scroll-tools').hidden=false;window.scrollTo(0,window.scrollY+heading.getBoundingClientRect().top-($('scroll-tools').offsetHeight||70)-18);heading.focus({preventScroll:true});requestAnimationFrame(updateCurrent);}
-function passageButton(id,q){const button=node('button','Read passage','read-passage');button.type='button';button.onclick=()=>{returnTarget=$(id+'-'+q+'-heading');$('return-question').textContent='Return to Q'+q;$('return-question').hidden=false;jumpTo($(id+'-reading').querySelector('h2'));};return button;}
+function passageButton(id,q){const button=node('button','Return to Passage','read-passage');button.type='button';button.onclick=()=>{returnTarget=$(id+'-'+q+'-heading');$('return-question').textContent='Return to Q'+q;$('return-question').hidden=false;jumpTo($(id+'-reading').querySelector('h2'));};return button;}
 $('return-question').onclick=()=>{if(returnTarget)jumpTo(returnTarget);};
 function buildContents(){
  const nav=$('contents-links'),root=node('ul');nav.replaceChildren(root);let n=0,sectionList=root,domainList=null;contentsHeadings=[];currentHeading=null;
@@ -116,9 +124,9 @@ function updateTocChecks(){
 }
 function updateCurrent(){
  if(!contentsHeadings.length)return;
- const toolbar=$('scroll-tools'),line=(toolbar.hidden?0:toolbar.getBoundingClientRect().bottom)+20;
+ const toolbar=$('scroll-tools'),top=toolbar.hidden?0:toolbar.getBoundingClientRect().bottom,bottom=document.querySelector('.navigation').getBoundingClientRect().top,line=(top+Math.min(innerHeight,bottom))/2;
  let active=contentsHeadings[0];for(const h of contentsHeadings){if(h.getBoundingClientRect().top<=line)active=h;else break;}
- if(window.scrollY+innerHeight>=document.documentElement.scrollHeight-2)active=contentsHeadings.at(-1);
+
  currentHeading=active.id;
  for(const nav of [$('contents-links'),$('sidebar-links')])for(const a of nav.querySelectorAll('a')){if(a.hash==='#'+active.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');}
  if(Date.now()>sidebarManualUntil){const a=$('sidebar-links').querySelector('[aria-current]'),box=$('contents-sidebar'),r=a?.getBoundingClientRect(),b=box.getBoundingClientRect();if(r&&(r.top<b.top||r.bottom>b.bottom))box.scrollTop+=r.top-b.top-box.clientHeight/2;}
@@ -128,7 +136,12 @@ for(const type of ['wheel','touchstart','pointerdown','keydown'])$('contents-sid
 function openContents(){ $('contents').showModal();updateCurrent();$('contents-links').querySelector('[aria-current]')?.scrollIntoView({block:'nearest'}); }
 function clearQuestionError(card){if(!card)return;card.querySelectorAll('.validation-error').forEach(e=>e.remove());card.classList.remove('has-validation-error');card.querySelectorAll('[aria-invalid]').forEach(e=>e.removeAttribute('aria-invalid'));card.querySelectorAll('input[data-validation-description]').forEach(e=>{e.removeAttribute('aria-describedby');e.removeAttribute('data-validation-description');});}
 function clearValidation(){document.querySelectorAll('.has-validation-error').forEach(clearQuestionError);$('navigation-status').textContent='';$('navigation-status').classList.remove('validation-error');}
-function block(message,target){clearValidation();const summary=$('navigation-status');summary.textContent=message;summary.classList.add('validation-error');let focus=summary;const card=target?.closest('.question,.familiarity-item,.feedback-item');if(card){const field=target.closest('fieldset'),error=node('p',message,'validation-error');error.id=card.id+'-error';error.setAttribute('role','alert');error.tabIndex=-1;field.querySelector('legend').after(error);field.setAttribute('aria-invalid','true');field.querySelectorAll('input[type=radio]').forEach(e=>{e.setAttribute('aria-describedby',error.id);e.dataset.validationDescription='true';});card.classList.add('has-validation-error');focus=error;}focus.tabIndex=-1;focus.scrollIntoView({block:'center'});focus.focus({preventScroll:true});return false;}
+let noticeTarget=null;
+function showNotice(message,target=null){hideTip();noticeTarget=target||document.activeElement;$('notice-message').textContent=message;if(!$('notice-dialog').open)$('notice-dialog').showModal();$('notice-close').focus();}
+$('notice-close').onclick=()=>$('notice-dialog').close();
+$('notice-dialog').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();$('notice-close').focus();}});
+$('notice-dialog').addEventListener('close',()=>{if(noticeTarget?.isConnected){noticeTarget.scrollIntoView({block:'center'});noticeTarget.focus({preventScroll:true});}noticeTarget=null;});
+function block(message,target){clearValidation();const card=target?.closest('.question,.familiarity-item,.feedback-item');if(card){card.classList.add('has-validation-error');target.closest('fieldset').setAttribute('aria-invalid','true');}showNotice(message,target);return false;}
 function activeBenchmark(index=draft.step){return index>=6&&index<=8?'designqa':'arc';}
 function pageId(index=draft.step){return ['intro','familiarity','example','arc','review','confirmation','designqa','review','confirmation','finished'][index];}
 function signature(id,data=draft){return JSON.stringify({session_id:data.session_id,familiarity:data.familiarity,answers:data.answers[id],feedback:data.feedback[id]});}
@@ -160,7 +173,7 @@ function reviewSummary(){
  $('review-feedback-intro').textContent='These five ratings concern your review of '+b.name+'. Choose one response to each, including Cannot judge if needed; written feedback is optional.';
  $('submission-description').textContent='Submit sends only your '+b.name+' review and feedback, with your familiarity ratings, survey identifier, fingerprint, session identifier and completion time to the organizer through FormSubmit. No name or respondent email is included.';
  const dl=node('dl',undefined,'scope-list');for(const q of packet.familiarity)dl.append(node('dt',q.question),node('dd',draft.familiarity[q.id]?q.labels[draft.familiarity[q.id]-1]:'Unanswered'));box.append(dl,node('p',b.name+': '+count(id)+' of 25 answered'));
- for(const e of [box,$('review-instructions'),$('review-feedback-intro'),$('submission-description')])annotate(e);
+ annotate($('review'));
 }
 function allowedStep(index,data=draft){
  if(!Number.isInteger(index)||index<0||index>9)return false;
@@ -180,7 +193,7 @@ function showStep(index){
  $('next').textContent=index===0?'Start survey':index===4||index===7?(isSubmitted(id)?'Return to confirmation':'Submit '+b.name):index===5?'Continue to DesignQA':'Continue';
  $('finish-here').hidden=index!==5;$('draft-tools').hidden=false;
  $('step-label').textContent=stepNames[index];$('step-bar').style.width=(index===9?100:Math.min(100,(index+1)/9*100))+'%';clearValidation();syncFields();
- if(page==='review'){reviewSummary();$('submit-status').textContent=draft.completion[id]?.status==='unconfirmed'?'A previous delivery was not confirmed. Check with the organizer before retrying.':'';}
+ if(page==='review'){reviewSummary();$('submit-status').textContent='';if(draft.completion[id]?.status==='unconfirmed')requestAnimationFrame(()=>showNotice('A previous delivery was not confirmed. Check with the organizer before retrying.'));}
  if(page==='confirmation'){
   $('confirmation-title').textContent=b.name+' response accepted';
   $('confirmation-message').textContent='The email service accepted your '+b.name+' response at '+new Date(draft.completion[id].completed_at).toLocaleString()+'. '+(id==='arc'?'You can finish here or choose to review DesignQA; ARC-AGI-2 has already been sent.':'Both benchmark reviews have now been sent separately.');
@@ -224,20 +237,20 @@ function validDraft(data){
 function loadDraft(){
  if(sending)return;
  try{
-  const raw=localStorage.getItem(storageKey);if(!raw){$('draft-status').textContent='No draft was found for this survey version.';return;}
+  const raw=localStorage.getItem(storageKey);if(!raw){showNotice('No draft was found for this survey version.');return;}
   const data=JSON.parse(raw);validDraft(data);
   for(const b of packet.benchmarks)if(isSubmitted(b.id)&&(!isSubmitted(b.id,data)||data.completion[b.id].submission_id!==draft.completion[b.id].submission_id||data.session_id!==draft.session_id))throw Error('This draft would replace a submitted response. Reload the page to open a different session.');
   if(!confirm('Replace the current answers with your saved draft?'))return;
   for(const key of ['step','furthest','session_id','familiarity','answers','feedback','completion'])draft[key]=data[key];
   showStep(data.step);$('draft-status').textContent='Saved draft loaded.';
- }catch(e){$('draft-status').textContent='Could not load draft: '+e.message;}
+ }catch(e){showNotice('Could not load draft: '+e.message);}
 }
 async function submit(){
  if(sending||![4,7].includes(draft.step))return;
  const id=activeBenchmark(),confirmStep=id==='arc'?5:8,b=packet.benchmarks.find(b=>b.id===id);
  if(isSubmitted(id)){showStep(confirmStep);return;}
  if(!validateStep()||!complete(id))return;
- if(!/^https?:$/.test(location.protocol)){$('submit-status').textContent='Submission requires the published website and an internet connection. Your answers can still be saved.';return;}
+ if(!/^https?:$/.test(location.protocol)){showNotice('Submission requires the published website and an internet connection. Your answers can still be saved.');return;}
  const sig=signature(id),c=draft.completion[id]?.signature===sig?draft.completion[id]:{completed_at:new Date().toISOString(),submission_id:crypto.randomUUID(),signature:sig,status:'unconfirmed'};
  draft.completion[id]=c;sending=true;update();saveQuiet();$('submit-status').textContent='Sending your '+b.name+' review…';
  const payload={_subject:'MESA survey — '+b.name,_template:'table','Survey version':packet.version,'Survey ID':packet.survey_id,'Packet fingerprint':draft.packet_sha256,'Session ID':draft.session_id,'Benchmark ID':id,'Benchmark':b.name,'Submission ID':c.submission_id,'Completed at (UTC)':c.completed_at,
@@ -246,7 +259,7 @@ async function submit(){
   ...Object.fromEntries(packet.feedback.map(q=>['Feedback: '+q.id,draft.feedback[id].ratings[q.id]])),'Feedback comment':draft.feedback[id].comment};
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
  try{const response=await fetch(packet.submission.endpoint,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload),signal:controller.signal}),result=await response.json();if(!response.ok||![true,'true'].includes(result.success))throw Error('Service acceptance not confirmed.');c.status='accepted';sending=false;showStep(confirmStep);saveQuiet();}
- catch(e){$('submit-status').textContent='Delivery could not be confirmed. Your answers are preserved. Save your draft and check with the organizer before retrying, because this request may have reached the service.';}
+ catch(e){$('submit-status').textContent='';showNotice('Delivery could not be confirmed. Your answers are preserved. Save your draft and check with the organizer before retrying, because this request may have reached the service.');}
  finally{clearTimeout(timer);sending=false;saveQuiet();update();}
 }
 
@@ -256,10 +269,10 @@ for(const nav of [$('contents-links'),$('sidebar-links')])nav.addEventListener('
 function openSources(id){$('sources-dialog').showModal();if(id)requestAnimationFrame(()=>document.getElementById('source-'+id).scrollIntoView({block:'center'}));}
 $('sources-open').onclick=()=>openSources();$('sources-close').onclick=()=>$('sources-dialog').close();$('image-close').onclick=()=>$('image-viewer').close();document.addEventListener('click',e=>{const a=e.target.closest('[data-source]');if(a){e.preventDefault();hideTip();openSources(a.dataset.source);}});
 // Inline definitions are made from plain text nodes, never from fields or links.
-const aliases=new Map();for(const d of packet.definitions.filter(d=>d.label!=='Score'))for(const a of d.aliases)aliases.set(a.toLowerCase(),d);const escapeRx=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const termRx=new RegExp('\\b('+Array.from(aliases.keys()).sort((a,b)=>b.length-a.length).map(escapeRx).join('|')+')\\b','gi');
-function annotate(root){const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('button,a,textarea,input,script,style,summary,.citations,.term-tip,.source-list,.sr')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});const texts=[];while(walker.nextNode())texts.push(walker.currentNode);for(const text of texts){termRx.lastIndex=0;const matches=[...text.textContent.matchAll(termRx)].filter(m=>{const d=aliases.get(m[0].toLowerCase());return !d.scope||text.parentElement.closest(d.scope);});if(!matches.length)continue;const frag=document.createDocumentFragment();let offset=0;for(const m of matches){frag.append(document.createTextNode(text.textContent.slice(offset,m.index)));const b=node('button',m[0],'term');b.type='button';b.dataset.term=aliases.get(m[0].toLowerCase()).label;b.setAttribute('aria-label',m[0]+': show definition');b.setAttribute('aria-describedby','term-tip');const icon=node('span','?','term-icon');icon.setAttribute('aria-hidden','true');b.append(icon);frag.append(b);offset=m.index+m[0].length;}frag.append(document.createTextNode(text.textContent.slice(offset)));text.replaceWith(frag);}}
+const aliases=new Map();for(const d of packet.definitions)for(const a of d.aliases)aliases.set(a.toLowerCase(),d);const escapeRx=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const termRx=new RegExp('\\b('+Array.from(aliases.keys()).sort((a,b)=>b.length-a.length).map(escapeRx).join('|')+')\\b','gi');
+function annotate(root){for(const term of root.querySelectorAll('.term')){term.querySelector('.term-icon')?.remove();term.replaceWith(document.createTextNode(term.textContent));}root.normalize();const counts=new Map();const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('button,a,textarea,input,script,style,summary,.citations,.term-tip,.source-list,.sr')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});const texts=[];while(walker.nextNode())texts.push(walker.currentNode);for(const text of texts){termRx.lastIndex=0;const matches=[...text.textContent.matchAll(termRx)].filter(m=>{const d=aliases.get(m[0].toLowerCase());if(d.scope&&!text.parentElement.closest(d.scope))return false;const n=counts.get(d.label)||0;counts.set(d.label,n+1);return n%3===0;});if(!matches.length)continue;const frag=document.createDocumentFragment();let offset=0;for(const m of matches){frag.append(document.createTextNode(text.textContent.slice(offset,m.index)));const b=node('button',m[0],'term');b.type='button';b.dataset.term=aliases.get(m[0].toLowerCase()).label;b.setAttribute('aria-label',m[0]+': show definition');b.setAttribute('aria-describedby','term-tip');const icon=node('span','?','term-icon');icon.setAttribute('aria-hidden','true');b.append(icon);frag.append(b);offset=m.index+m[0].length;}frag.append(document.createTextNode(text.textContent.slice(offset)));text.replaceWith(frag);}}
 const tip=$('term-tip');let tipButton=null,tipPinned=false,tipTimer;function hideTip(){clearTimeout(tipTimer);if(tip.matches(':popover-open'))tip.hidePopover();tipButton=null;tipPinned=false;}function showTip(button,pinned=false){clearTimeout(tipTimer);tipButton=button;tipPinned=pinned;const d=packet.definitions.find(d=>d.label===button.dataset.term);tip.replaceChildren(node('strong',d.label),node('p',d.definition));if(!tip.matches(':popover-open'))tip.showPopover();const r=button.getBoundingClientRect(),t=tip.getBoundingClientRect();tip.style.left=Math.max(12,Math.min(r.left,innerWidth-t.width-12))+'px';tip.style.top=Math.max(12,Math.min(r.bottom+8,innerHeight-t.height-12))+'px';}function laterHide(){clearTimeout(tipTimer);tipTimer=setTimeout(()=>{if(!tipPinned&&!tip.matches(':hover')&&document.activeElement!==tipButton)hideTip();},180);}
 document.addEventListener('pointerover',e=>{const b=e.target.closest('.term');if(b&&(!tipPinned||b===tipButton))showTip(b,tipPinned);});document.addEventListener('pointerout',e=>{if(e.target.closest('.term'))laterHide();});tip.addEventListener('pointerenter',()=>clearTimeout(tipTimer));tip.addEventListener('pointerleave',laterHide);document.addEventListener('focusin',e=>{if(e.target.matches('.term'))showTip(e.target);else if(!tipPinned)hideTip();});document.addEventListener('focusout',e=>{if(e.target.matches('.term'))laterHide();});document.addEventListener('click',e=>{const b=e.target.closest('.term');if(b)showTip(b,true);else if(!e.target.closest('#term-tip'))hideTip();});document.addEventListener('keydown',e=>{if(e.key==='Escape')hideTip();});window.addEventListener('resize',hideTip);window.addEventListener('scroll',()=>{const focused=document.activeElement;if(focused?.matches('.term')){const r=focused.getBoundingClientRect();if(r.top>=0&&r.bottom<=innerHeight){showTip(focused);return;}}if(tipButton)hideTip();},{passive:true});
 new ResizeObserver(entries=>document.documentElement.style.setProperty('--nav-height',entries[0].target.offsetHeight+'px')).observe(document.querySelector('.navigation'));
-annotate($('survey-main'));showStep(0);
+document.querySelectorAll('.page').forEach(annotate);showStep(0);
 </script></body></html>
