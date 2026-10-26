@@ -82,7 +82,7 @@ Humanity’s Last Exam tests academic knowledge and reasoning through questions,
 
 #### What the AI is asked to do
 
-Humanity’s Last Exam, or HLE, aims to assess advanced academic knowledge and reasoning in AI systems that handle text or text and images. This survey focuses on **the original HLE, which contains 2,500 difficult questions**, rather than the separate HLE-Rolling and HLE-Diamond versions. About **24% of its questions are multiple-choice**, while the rest require short answers, and about **14% include an image**. A published biology example asks for a number about the anatomy of a hummingbird bone. You do not need to solve that problem to complete this survey; it illustrates the kind of specialist question the AI receives. Across these formats, HLE asks for specific answers rather than the completion of an open-ended research project. Sources: [HP](#source-HP) [HW](#source-HW).
+Humanity’s Last Exam, or HLE, assesses advanced academic knowledge and reasoning in AI systems that handle text or both text and images. This survey examines **original HLE, which contains 2,500 difficult questions**, rather than the separate HLE-Rolling and HLE-Diamond versions. About **24% of its questions are multiple choice**, while the remaining 76% require short answers, and about **14% include an image**. For example, a published biology question asks for a specific anatomical measurement of a hummingbird bone. You do not need to solve that question for this survey; it illustrates the kind of specialist question the AI receives. Across all subjects, HLE asks for definite answers rather than open-ended research. Sources: [HP](#source-HP) [HW](#source-HW).
 
 **A real HLE image question**
 
@@ -94,11 +94,24 @@ Official classics example from the Humanity’s Last Exam website. The question 
 
 #### How the questions were chosen and checked
 
-Experts from many institutions contributed questions covering a range of subjects, with particular emphasis on mathematics. Before expert review, questions that selected AI models could already answer were screened out, so the resulting set was **deliberately chosen to be difficult**, rather than randomly drawn from everyday academic work. HLE’s creators describe their development process in a research paper, which reports expert review and organizer approval, followed by two further checks of 200 questions each. After the second check, the authors estimated an **expert-disagreement rate of 15.4%**. That figure concerns disagreements about questions or answers; it should not be read as the percentage confirmed to be wrong. Because the test requires specific answers, it also leaves creative work and open-ended research outside its answer format. Sources: [HP](#source-HP).
+Subject matter experts from many institutions contributed questions covering a broad range of disciplines, with mathematics being the largest subject area. Before expert review, questions that contemporary AI models could already solve were removed, so the benchmark was **deliberately designed to be difficult**, rather than a random sample of everyday academic work. The authors describe their development procedure in a research paper, reporting expert review and organizer approval, followed by two separate audits of 200 questions each. After the second audit, the authors estimated an **expert disagreement rate of 15.4%**. This figure reflects genuine disagreements among experts about questions or answers; it is not the percentage confirmed to be wrong. Because questions require definite answers, open-ended research and creative work remain outside the scope of the exam. Sources: [HP](#source-HP).
+
+**HLE question distribution across academic subjects**
+
+| Subject | Questions | Share of Exam | Definite Answer Type |
+| --- | --- | --- | --- |
+| Mathematics | 910 | 36.4% | Short answer or multiple choice |
+| Physics | 390 | 15.6% | Short answer or multiple choice |
+| Chemistry | 332 | 13.3% | Short answer or multiple choice |
+| Biology and Medicine | 298 | 11.9% | Short answer or multiple choice |
+| Computer Science | 285 | 11.4% | Short answer or multiple choice |
+| Humanities and Social Sciences | 285 | 11.4% | Short answer or multiple choice |
+
+Subject breakdown for the 2,500 questions in original HLE. Mathematics represents over a third of all questions. Definite answers are required across all subjects. Sources: [HP](#source-HP).
 
 #### Instructions and marking
 
-HLE’s public evaluation software gives the AI each question, includes an image when needed, and asks it to return an explanation, a final answer and a percentage stating its confidence. The instructions for that software describe a default “temperature” of zero, a setting intended to reduce randomness, but the line that sends this setting is **disabled in the inspected code**. Once a response is produced, a separate **AI judge compares the final answer with the supplied reference answer**, accepting different wording when the meaning is the same. Because the judge is instructed to compare answers rather than solve the problem independently, agreement does not establish that the reference itself is correct. The judging code is public, but the inspected sources contain no full study comparing its marks with expert marks. The expert reviews of the questions described earlier therefore do not, by themselves, establish that the automatic marking is accurate. Sources: [HM](#source-HM) [HR](#source-HR) [HJ](#source-HJ) [HP](#source-HP).
+The public evaluation software gives the AI each question, attaches an image when present, and asks for an explanation, a final answer, and a stated confidence percentage. The documentation describes a default temperature of zero to reduce randomness during generation, but the line that sends this setting is **disabled in the inspected code**. Once the AI produces an answer, a separate **AI judge compares that answer with the reference answer**, accepting different phrasing when the meaning is identical. Because the judge only compares the two texts rather than independently solving the problem, agreement does not guarantee that the reference answer is correct. The judge code is public, but the inspected materials contain no full study comparing its marks against expert human marks. The expert checks of the questions during development do not by themselves show that the automated marking software is accurate. Sources: [HM](#source-HM) [HR](#source-HR) [HJ](#source-HJ) [HP](#source-HP).
 
 **How an HLE answer is marked**
 
@@ -110,7 +123,7 @@ Process diagram based on the simple evaluation code. The judge is not asked to s
 
 #### What the reported numbers mean
 
-HLE reports **accuracy as the percentage of answers marked correct**, with each question counting equally. As a result, the mix of subjects affects the total score. The paper also reports results by subject, although the inspected material does not establish that these are separate measures of distinct abilities. Alongside accuracy, the public scoring software calculates an **approximate 95% confidence range** using the number of questions and the fraction marked correct. This range describes score uncertainty under the calculation’s assumptions; it does not measure the effects of repeating the AI run or changing the judge. A separate calculation compares the AI’s stated confidence with how often its answers are correct, so **confidence in an answer and uncertainty in a test score refer to different things**. Sources: [HP](#source-HP) [HJ](#source-HJ).
+HLE reports **accuracy as the percentage of answers marked correct**, where every question receives equal weight. Consequently, subjects with more questions have a larger effect on the total score. The paper also reports accuracy separately by academic subject, though the documentation does not show that these subject scores reflect distinct underlying abilities. Alongside accuracy, the scoring software computes an **approximate 95% confidence range** based on the number of questions and the proportion marked correct. This range describes score uncertainty under specific statistical assumptions; it does not measure score changes from rerunning the AI or changing the judge. A separate calibration calculation compares the AI’s stated confidence with its actual accuracy. As a result, the AI’s stated confidence and statistical score uncertainty refer to two completely different things. Sources: [HP](#source-HP) [HJ](#source-HJ).
 
 **Three different numbers in the results**
 
@@ -120,21 +133,33 @@ HLE reports **accuracy as the percentage of answers marked correct**, with each 
 
 These are separate summaries of the answers. None substitutes for measuring changes across repeated runs.
 
+**HLE official baseline accuracy and calibration error**
+
+| Model | Full Set (2,500 questions) | Text Subset (2,157 questions) | ECE (Calibration Error) |
+| --- | --- | --- | --- |
+| GPT-4o (2024-05-13) | 2.7% | 3.0% | 0.088 |
+| Claude 3.5 Sonnet (2024-06-20) | 3.6% | 4.3% | 0.098 |
+| Gemini 1.5 Pro (2024-08-01) | 4.0% | 4.4% | 0.103 |
+| o1-preview (2024-09-12) | 7.7% | 8.2% | 0.078 |
+| Random guess baseline | 0.0% | 0.0% | — |
+
+Official model results reported in the HLE paper. Full exam has 2,500 questions; text subset has 2,157 questions. Expected calibration error (ECE) measures the difference between stated confidence and actual correctness. Sources: [HP](#source-HP).
+
 #### Comparisons and repeated testing
 
-To put results in context, the paper compares named AI models and reports scores for both the full question set and text-only questions. Although experts helped create the questions, this packet contains **no matched group of people taking the whole exam under the AI testing conditions**. The paper also notes that an AI can answer differently on different attempts, but the inspected sources do not provide a repeated-run study covering the main comparisons. Nor do they provide a systematic study of reworded instructions or changes to the judging AI. Using a fixed setting or a standard instruction therefore does not, on its own, establish how stable the reported scores are. Sources: [HP](#source-HP) [HM](#source-HM) [HJ](#source-HJ).
+To provide context for scores, the paper compares several named AI models across both the full question set and a text-only subset. Although academic specialists wrote the questions, the inspected records contain **no matched group of human experts taking the entire exam under the same conditions**. The paper acknowledges that an AI model can give different answers across separate attempts, but the supplied sources provide no repeated testing study measuring score consistency for the main comparisons. They also provide no systematic experiments measuring score changes when instructions are reworded or when different versions of the AI judge are used. Using a fixed prompt or setting does not by itself reveal how stable test scores remain. Sources: [HP](#source-HP) [HM](#source-HM) [HJ](#source-HJ).
 
 #### Data contamination and ways to earn points
 
-To reduce easy ways of gaining points, contributors were asked to avoid questions answerable by a simple lookup and could revise questions when an AI guessed correctly through faulty reasoning. Multiple-choice questions still allow guessing, however, and the supplied material does not measure every possible way of earning points without the intended knowledge or reasoning. The authors also retain a **private test set** to help assess whether improvements are specific to the public questions. For the public data, a distinctive text marker helps people identify material to exclude from future AI training, while the instructions warn against training on the test. These precautions do not establish what a particular AI has already seen. The packet also lacks a complete original-HLE policy covering repeated submissions, access to feedback and the reporting of systems trained specifically on the test. Sources: [HP](#source-HP) [HR](#source-HR).
+To reduce easy ways to earn points, question contributors were asked to avoid questions answerable by simple web search, and could update questions if an AI guessed correctly through flawed reasoning. However, multiple choice questions still permit guessing, and the documentation does not measure every possible shortcut. The creators also kept a **private test set** to check whether AI models overfit to public questions. For public data, a distinctive text marker helps developers detect and exclude benchmark questions from training data, while the instructions warn against training directly on the test. These precautions do not show whether any specific AI model encountered the test questions before evaluation. Furthermore, the records lack a complete policy covering repeated submissions, access to feedback, and rules for models trained specifically on HLE. Sources: [HP](#source-HP) [HR](#source-HR).
 
 #### Access, fair comparisons and updates
 
-Fair comparisons depend partly on which questions each system receives. Systems that use images and those that only use text do not necessarily answer the same set, so the paper labels text-only results. The questions are in English and subjects are not equally represented; the supplied material contains no comprehensive study of comparisons across languages or populations. Public instructions and marking code allow some inspection, but downloading the dataset requires accepting contact-sharing conditions, and the private set is not released. The dataset page lists an MIT licence and asks users not to redistribute test data, while the code also has an MIT licence. The authors describe excluding certain kinds of dangerous content during collection. The survey preparer inspected the available documentation without downloading the gated questions or rerunning the AI evaluations. When comparing results over time, the edition also matters: HLE-Rolling has its own record of removed and restored questions, and **those changes do not automatically describe original HLE**. No study establishing equivalent scores across original HLE, HLE-Rolling and HLE-Diamond is supplied here. Sources: [HP](#source-HP) [HR](#source-HR) [HC](#source-HC) [HJ](#source-HJ) [HL](#source-HL) [HW](#source-HW) [HU](#source-HU).
+Fair comparisons require comparable testing conditions across systems. Because vision-language models and text-only models do not answer the same questions, the paper reports text-only results separately. All questions are in English and subject representation varies, with no comprehensive studies examining fairness across languages or cultural contexts. The evaluation instructions and scoring software are publicly available for inspection, but downloading the questions requires accepting contact sharing conditions, and the private test set remains withheld. The dataset lists an MIT license alongside a request not to redistribute questions, and the code carries an MIT license. Dangerous topics were screened out during collection. When comparing scores over time, benchmark editions matter: HLE-Rolling maintains its own change log of removed and restored questions, and **those changes do not describe original HLE**. The materials supply no study establishing score equivalence across original HLE, HLE-Rolling, and HLE-Diamond. Sources: [HP](#source-HP) [HR](#source-HR) [HC](#source-HC) [HJ](#source-HJ) [HL](#source-HL) [HW](#source-HW) [HU](#source-HU).
 
 #### What the findings cover
 
-HLE’s title suggests a final exam at the edge of human knowledge, but the paper limits its interpretation to difficult academic questions with definite answers. It explicitly states that **a high score alone does not establish general intelligence or the ability to conduct independent research**. Consistent with that limit, this packet contains no measured relationship between HLE scores and success on independent scientific projects. Such gaps leave broader claims unresolved; they do not, by themselves, show that the benchmark fails. Sources: [HP](#source-HP).
+While the benchmark’s title suggests a comprehensive examination at the frontier of human knowledge, the paper restricts its interpretation to difficult academic questions with definite answers. The authors explicitly state that **a high score alone does not establish general intelligence or the ability to carry out independent scientific research**. In line with this boundary, the documentation contains no measured link between HLE scores and success on independent scientific projects. Recognizing these limits clarifies what the test shows without implying that the benchmark fails its stated purpose. Sources: [HP](#source-HP).
 
 ### Answered questions
 
@@ -190,7 +215,7 @@ Why: An AI judge compares each final answer with a reference, accepting equivale
 
 Why: The paper uses specialist academic questions with definite answers to test knowledge and reasoning that existing AI models struggle with. This explains the choice of tasks, but does not establish coverage of every academic ability. Sources: [HP](#source-HP).
 
-**Example Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
+**Example Q7. Are the sources and choice of test problems justified for the benchmark’s intended use?**
 
 **Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the ability.
 
@@ -224,17 +249,17 @@ Why: The questions span many subjects but emphasize mathematics and require defi
 
 Why: The judge accepts responses that mean the same thing as the reference answer, allowing differences in wording. However, it compares answers without independently solving the problem, so a mistaken reference or judging decision can affect the score. Sources: [HJ](#source-HJ) [HP](#source-HP).
 
-**Example Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
+**Example Q11. If several scores are combined into an overall score, or separate subscores are reported, is there a clear reason for doing so?**
 
-**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate abilities. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
+**Meaning:** Look for reasons when results are combined into an overall score or reported as separate subscores. Averaging numbers is a calculation; it does not by itself prove that the total measures a single unified ability.
 
 **Answer: Partly**
 
 Why: Every question counts equally toward accuracy, so subjects with more questions contribute more to the total. Results are also reported by subject, but the supplied material does not establish that these subject scores measure separate abilities. Sources: [HP](#source-HP) [HJ](#source-HJ).
 
-**Example Q12. Was the marking process tested to see whether it awards the right scores consistently?**
+**Example Q12. Was the marking method checked for mistakes, such as software bugs, mistakes when reading the AI's answer, or inconsistent human or AI judges?**
 
-**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.
+**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that method was checked for errors such as software bugs, mistakes when reading the AI's answer, or inconsistent judges. A check that found errors still counts as a check.
 
 **Answer: Not sure**
 
@@ -250,9 +275,9 @@ Why: The paper compares AI models on the full question set and separately on que
 
 ### Consistency of results
 
-**Example Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
+**Example Q14. Was the same AI tested more than once under the same setup to check whether its score stays consistent?**
 
-**Meaning:** This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.
+**Meaning:** This asks whether the same AI was tested more than once under identical conditions to measure how much its score changes. A single reported test run does not show whether repeated scores stay consistent.
 
 **Answer: Not sure**
 
@@ -260,7 +285,7 @@ Why: The paper acknowledges that an AI can answer differently on separate attemp
 
 **Example Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
-**Meaning:** This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
+**Meaning:** This asks whether the benchmark tested how scores change when instructions, presentation, or settings change. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
 
 **Answer: Not sure**
 
@@ -278,15 +303,15 @@ Why: The code estimates a 95% confidence range from the number of questions and 
 
 **Example Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
+**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues or simple lookups. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 **Answer: Partly**
 
-Why: Contributors were asked to avoid questions answered by a simple lookup and could revise questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points. Sources: [HP](#source-HP).
+Why: Contributors were asked to avoid questions answered by a simple lookup and could update questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points. Sources: [HP](#source-HP).
 
 **Example Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** Look for both an assessment of the risk of data contamination and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
+**Meaning:** Look for both an assessment of the risk of data contamination and steps to address that risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
 
 **Answer: Partly**
 
@@ -364,7 +389,7 @@ ARC-AGI-2 asks AI systems to find patterns in grids and apply them to new grids.
 
 #### What the AI is asked to do
 
-ARC-AGI-2 is a test developed by ARC Prize Foundation staff and partners to assess whether an AI can **work out a new rule from examples**. Each problem presents pairs of coloured grids, showing a starting grid alongside its correct finished grid. Using those examples, the AI must work out how to complete a new starting grid and return an answer with the right size and colour in every square. The creators designed these problems to require little specialist knowledge while encouraging the AI to combine ideas. Their aim is to study reasoning that goes beyond recalling facts or trying large numbers of possible programs, which they connect to progress toward more general, human-like AI. Sources: [AR](#source-AR) [AB](#source-AB) [AP](#source-AP).
+ARC-AGI-2 is a benchmark created by the ARC Prize Foundation and its collaborators to assess whether an AI system can **discover a new rule from visual examples**. Each problem presents pairs of coloured grids showing an input grid alongside its correct output grid. Using these demonstration pairs, the AI must deduce the underlying rule, apply it to a new input grid, and output a completed grid with the correct dimensions and colours in every cell. The creators selected these visual puzzles to require minimal specialized knowledge while requiring the AI to combine abstract concepts. Their goal is to measure reasoning that goes beyond memorizing facts or searching through combinations of computer programs, which they link to progress toward more general artificial intelligence. Sources: [AR](#source-AR) [AB](#source-AB) [AP](#source-AP).
 
 **A real ARC-AGI-2 problem**
 
@@ -376,11 +401,22 @@ Official Figure 1, ARC-AGI-2 technical report, François Chollet and colleagues.
 
 #### How the problems were chosen
 
-ARC-AGI-2’s developers began with a collection of newly written grid puzzles and puzzles prepared for earlier ARC work that had not been used. To help decide which puzzles to include and how difficult they were, the developers **conducted a study in which people tried solving them**. This involved **407 people taking part in 515 paid, 90-minute sessions**. The puzzles used in that study formed a larger pool than the final test, so the results do not all describe the final set. The developers also reviewed puzzles themselves and removed ones they judged could be solved by the same rule. The released benchmark contains **1,000 problems for practice and AI development**, along with **three test sets of 120 problems each**. These sets are called public, semi-private and private because access to their problems differs. Using the human participants’ results, the developers selected the three test sets to have similar difficulty for people. After release, they continued correcting the materials; a public change record lists fixes to some coloured squares and unclear examples. Sources: [AC](#source-AC) [AP](#source-AP).
+The creators began with a collection of newly authored grid puzzles and unused tasks from earlier ARC work. To assess problem quality and establish difficulty levels, the developers **conducted a study where 407 people attempted candidate puzzles across 515 paid 90-minute sessions**. Because that study used a larger candidate pool than the final release, its findings do not describe the final test set alone. The creators also conducted internal reviews to eliminate redundant puzzles that shared identical rules. The official release provides **1,000 development problems for practice and training**, alongside **three evaluation sets of 120 problems each**, known as public, semi-private, and private sets because access to their problems differs. Using the human study results, the developers balanced these three test sets to have comparable difficulty for human solvers. After release, minor errors were corrected; a public change record lists adjustments to cell colours and ambiguous examples. Sources: [AC](#source-AC) [AP](#source-AP).
+
+**ARC-AGI-2 dataset splits and accessibility**
+
+| Dataset Split | Tasks | Purpose | Access and Confidentiality |
+| --- | --- | --- | --- |
+| Public development | 1,000 | Practising and training AI systems | Public download on GitHub (Apache 2.0) |
+| Public evaluation | 120 | Local benchmarking and testing | Public download on GitHub (Apache 2.0) |
+| Semi-private evaluation | 120 | Competition evaluation | Withheld by ARC Prize; private testing |
+| Private evaluation | 120 | Final competition ranking | Withheld by ARC Prize; strictly private |
+
+Official dataset composition from the ARC-AGI-2 release. Human trials were used to select evaluation sets of matched difficulty. Sources: [AC](#source-AC) [AR](#source-AR) [AP](#source-AP).
 
 #### How answers earn points
 
-The AI is allowed **two attempts for each new input grid**, and it earns credit for that input only if an attempt matches the supplied answer in both size and every square’s colour. A nearly correct grid therefore receives no credit. A problem can contain several new inputs, however, so the official scoring software inspected for this survey calculates the fraction solved within each problem before averaging the problem scores. Solving one of two inputs, for example, earns **0.5 for that problem**. This differs from calling the whole problem “fully solved,” which the instructions published with the problems reserve for cases where every input is correct. The software does not provide separate scores established as measures of distinct abilities. Its public tests cover correct answers, wrong sizes, changed squares and missing outputs; the survey preparer inspected those tests without independently testing the whole marking system. Sources: [AR](#source-AR) [AS](#source-AS) [AT](#source-AT).
+The AI receives **two attempts for each new input grid**, earning credit for that input only when a submitted grid exactly matches the reference answer in dimensions and every cell colour. A nearly correct grid receives no partial credit. However, because a problem can contain multiple test inputs, the official scoring software calculates the proportion of inputs solved within that problem before averaging across problems. For example, solving one of two inputs earns **a score of 0.5 for that problem**. This software calculation differs from the dataset description, which considers a problem fully solved only when every input grid is correct. The software produces a single average accuracy and does not calculate separate subscores for distinct reasoning abilities. The public test suite checks exact matches, incorrect dimensions, altered cells, and missing outputs; the survey author inspected these tests without independently validating the entire scoring system. Sources: [AR](#source-AR) [AS](#source-AS) [AT](#source-AT).
 
 **Example: a problem with two new input grids**
 
@@ -392,19 +428,31 @@ Illustration of the inspected software, not an observed AI result. A partly corr
 
 #### Testing conditions and changes in scores
 
-ARC Prize, the organization running the verified evaluations, specifies AI settings and a spending limit for the tests it verifies, although other testing routes may use different conditions. Its verified-testing policy uses **one run, rather than an average of repeated runs**. A technical report describing ARC-AGI-2’s development gives AI scores, but the materials reviewed here do not provide estimates or ranges showing how much the same AI’s score changes when the same test is repeated. Although the running software allows settings to be changed, those materials also contain no systematic study of the effects of changing instructions, grid presentation or software. Matching the test sets for human difficulty addresses a separate issue and does not measure these changes in AI scores. Sources: [AR](#source-AR) [POL](#source-POL) [AP](#source-AP) [AM](#source-AM).
+The ARC Prize organization establishes official model settings and spending limits for verified evaluations, although researchers running tests locally can choose different settings. Under its verified-testing policy, the organization conducts **a single evaluation run rather than averaging multiple runs**. The technical report publishes model scores, but the documentation does not provide estimates or ranges showing how much an AI’s score varies when the identical test is repeated under the same setup. Although the local runner allows settings to be adjusted, the records contain no systematic experiments evaluating how reworded instructions, alternative grid representations, or software changes affect scores. Balancing test sets for human difficulty addresses puzzle difficulty, not the consistency of AI scores. Sources: [AR](#source-AR) [POL](#source-POL) [AP](#source-AP) [AM](#source-AM).
+
+**ARC-AGI-2 evaluation regimes and testing conditions**
+
+| Condition | Public local testing | ARC Prize verified testing |
+| --- | --- | --- |
+| Allowed attempts | Two attempts per input grid | Two attempts per input grid |
+| Number of runs | Configured by user | Single run (no averaging across runs) |
+| Cost and compute limit | Unrestricted | Fixed budget and compute cap per submission |
+| Data access | Open local inspection | Remote execution with data retention agreement |
+| Problem scoring | Average across inputs within task | Average across inputs within task |
+
+Comparison of local runner execution and official ARC Prize verified testing conditions. A task receives partial credit if some inputs are solved. Sources: [AR](#source-AR) [AM](#source-AM) [POL](#source-POL) [AS](#source-AS).
 
 #### Data contamination and ways to earn points
 
-The creators tried to limit ways of earning points without the intended reasoning by designing problems that resist searches through large numbers of possible programs and by checking for repeated solution rules. These steps do not establish that every such route to a high score has been ruled out. Data contamination is another concern because anyone can see the public problems. For hidden tests sent to AI providers, ARC Prize describes agreements against retaining the data and monitoring for possible data contamination, while acknowledging that information could still escape. To keep development separate from evaluation, **training on development problems is allowed, while changing a system specifically to improve on evaluation problems is discouraged**. ARC Prize also says its verified tests are not a service for repeatedly improving systems through its feedback. Sources: [AB](#source-AB) [AP](#source-AP) [POL](#source-POL) [AR](#source-AR).
+The designers sought to prevent shortcuts by creating problems that resist program search techniques and by removing redundant rules across tasks. These steps do not prove that every unintended route to points has been eliminated. Data contamination presents a further concern because the public problems are openly accessible. For hidden evaluation sets, the ARC Prize policy specifies data retention agreements, monitors for potential data contamination, and acknowledges that puzzle leaks can still occur. To maintain separation between practice and evaluation, **training on development problems is permitted, while tuning an AI system directly on evaluation problems is discouraged**. ARC Prize also states that verified evaluations are not an optimization service for repeatedly submitting results to tune models. Sources: [AB](#source-AB) [AP](#source-AP) [POL](#source-POL) [AR](#source-AR).
 
 #### Comparisons, access and updates
 
-In the puzzle-solving study described above, the developers found no clear statistical relationship between performance and recorded background factors such as work and technical experience. For AI comparisons, verified tests record the settings used, though other testing routes may differ. Researchers can inspect **public problems, running software and marking tests**, while access to hidden problems is controlled. ARC Prize says it also releases public testing outputs, costs, times and problem scores, but the survey preparer did not check the complete archive. The public data use an Apache 2.0 licence; hidden-data rules address confidentiality, provider handling and code review for selected submissions. To help track revisions, a dated change record identifies corrected problems and exact code changes. It does not, however, recalculate every affected AI score, and ARC-AGI-1 and ARC-AGI-2 remain separate test versions. Sources: [AP](#source-AP) [POL](#source-POL) [AM](#source-AM) [AT](#source-AT) [AL](#source-AL) [AC](#source-AC).
+In the human solver study, statistical analysis revealed no clear relationship between human puzzle performance and recorded demographic factors such as occupation or technical background. In AI comparisons, verified tests record runner configurations, although independent evaluations may follow different procedures. Researchers can inspect **public test problems, execution software, and scorer tests**, whereas access to private evaluation sets is strictly controlled. ARC Prize states that it publishes output logs, costs, run durations, and task scores for verified evaluations, though the survey author did not verify the complete archive. The public repository uses an Apache 2.0 license, while policies for hidden evaluation sets address confidentiality and code audits. To track updates, a dated change record details corrected problems and git commits, but it does not recalculate scores for all previously tested models. ARC-AGI-1 and ARC-AGI-2 remain distinct benchmark versions. Sources: [AP](#source-AP) [POL](#source-POL) [AM](#source-AM) [AT](#source-AT) [AL](#source-AL) [AC](#source-AC).
 
 #### What the findings cover
 
-Although the creators connect ARC-AGI-2 to abstract reasoning and broader intelligence, the studies supplied here concern **two-dimensional grid problems**. This packet contains no study showing how scores predict success in language, social interaction or other real-world work, and it supplies no measure covering every kind of intelligence. These are **limits of the information available for this survey**: they leave those broader relationships unresolved, rather than showing that such relationships are impossible. Sources: [AB](#source-AB).
+Although the benchmark creators connect ARC-AGI-2 to abstract reasoning and broader intelligence, the empirical evidence presented here is restricted to **two dimensional visual grid problems**. The documentation provides no evidence showing that ARC-AGI-2 scores predict performance in language understanding, social reasoning, or real-world autonomous tasks, nor does it provide a comprehensive test of general intelligence. These limits define the evidence available in the official sources; they leave broader claims unverified rather than proving that such relationships cannot exist. Sources: [AB](#source-AB).
 
 ### Questions about ARC-AGI-2
 
@@ -510,7 +558,7 @@ Why: The paper uses specialist academic questions with definite answers to test 
 
 Comments (optional): __________________________________________
 
-**Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
+**Q7. Are the sources and choice of test problems justified for the benchmark’s intended use?**
 
 **Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the ability.
 
@@ -576,9 +624,9 @@ Why: The judge accepts responses that mean the same thing as the reference answe
 
 Comments (optional): __________________________________________
 
-**Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
+**Q11. If several scores are combined into an overall score, or separate subscores are reported, is there a clear reason for doing so?**
 
-**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate abilities. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
+**Meaning:** Look for reasons when results are combined into an overall score or reported as separate subscores. Averaging numbers is a calculation; it does not by itself prove that the total measures a single unified ability.
 
 <details><summary>HLE example</summary>
 
@@ -592,9 +640,9 @@ Why: Every question counts equally toward accuracy, so subjects with more questi
 
 Comments (optional): __________________________________________
 
-**Q12. Was the marking process tested to see whether it awards the right scores consistently?**
+**Q12. Was the marking method checked for mistakes, such as software bugs, mistakes when reading the AI's answer, or inconsistent human or AI judges?**
 
-**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.
+**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that method was checked for errors such as software bugs, mistakes when reading the AI's answer, or inconsistent judges. A check that found errors still counts as a check.
 
 <details><summary>HLE example</summary>
 
@@ -626,9 +674,9 @@ Comments (optional): __________________________________________
 
 ### Consistency of results
 
-**Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
+**Q14. Was the same AI tested more than once under the same setup to check whether its score stays consistent?**
 
-**Meaning:** This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.
+**Meaning:** This asks whether the same AI was tested more than once under identical conditions to measure how much its score changes. A single reported test run does not show whether repeated scores stay consistent.
 
 <details><summary>HLE example</summary>
 
@@ -644,7 +692,7 @@ Comments (optional): __________________________________________
 
 **Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
-**Meaning:** This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
+**Meaning:** This asks whether the benchmark tested how scores change when instructions, presentation, or settings change. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
 
 <details><summary>HLE example</summary>
 
@@ -678,13 +726,13 @@ Comments (optional): __________________________________________
 
 **Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
+**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues or simple lookups. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Contributors were asked to avoid questions answered by a simple lookup and could revise questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points.
+Why: Contributors were asked to avoid questions answered by a simple lookup and could update questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points.
 
 </details>
 
@@ -694,7 +742,7 @@ Comments (optional): __________________________________________
 
 **Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** Look for both an assessment of the risk of data contamination and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
+**Meaning:** Look for both an assessment of the risk of data contamination and steps to address that risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
 
 <details><summary>HLE example</summary>
 
@@ -889,31 +937,68 @@ DesignQA asks AI systems questions about engineering rules, images and drawings.
 
 #### What the AI is asked to do
 
-DesignQA was created by researchers and engineers working with materials from **Formula SAE, a competition in which university students design and build racing cars**. Their aim was to test whether an AI can find engineering rules, understand technical terms and drawings, and apply rules to a design. The paper describes **1,451 question-and-answer pairs in six groups**. These ask the AI to find an individual rule, gather related rules, explain a technical term, identify whether a component is present, check dimensions, or assess performance against a requirement. Depending on the question, the AI receives written rules, a vehicle image or a drawing and must give a text answer or a yes/no answer, sometimes with an explanation. These tasks follow parts of an engineer’s work, which is the authors’ reason for using them to assess understanding of engineering documents. Sources: [DQ-P](#source-DQ-P).
+DesignQA was developed by engineering researchers and practitioners using documents from **Formula SAE, a competition where university students design and build formula-style racing cars**. The benchmark aims to test whether an AI system can retrieve technical rules, interpret engineering terms and drawings, and apply requirements to a vehicle design. The authors created **1,451 questions arranged into six distinct groups**: finding an individual rule, gathering multiple related rules, defining a technical term, identifying whether a component is present, checking dimension compliance, and evaluating functional performance against requirements. Depending on the question, the AI receives rulebook text, a vehicle photograph, or an engineering drawing, and must provide a textual response or a yes/no decision, sometimes accompanied by an explanation. These tasks represent real design activities, which the creators cite as their reason for testing comprehension of engineering documents. Sources: [DQ-P](#source-DQ-P).
+
+**DesignQA question segments and task structure**
+
+| Question Group | Questions | Provided Input | Answer Format | Scoring Method |
+| --- | --- | --- | --- | --- |
+| Rule extraction | 1,192 | Formula SAE rulebook text | Rule citation or short text | Text match and token similarity |
+| Multi-rule extraction | 67 | Formula SAE rulebook text | List of related rule citations | Set overlap and comma separated match |
+| Technical term definition | 57 | Formula SAE rulebook text | Definition text | Sentence transformer cosine similarity |
+| Component presence | 63 | Car photograph | Yes or no with explanation | Decision match and ROUGE-L explanation |
+| Dimension compliance | 56 | Engineering drawing | Yes or no with explanation | Decision match and ROUGE-L explanation |
+| Functional performance | 16 | Sensor plot or test data | Yes or no with explanation | Decision match and ROUGE-L explanation |
+
+The six question groups in DesignQA, comprising 1,451 questions in total. Group sizes range from 16 to 1,192 questions. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2).
 
 #### How the questions were chosen and checked
 
-The developers used a real competition rulebook, vehicle designs and test data, drawing on contributions from engineering practitioners and researchers. This gives the questions a clear connection to practical work, but the benchmark uses **one rulebook and a limited range of tasks**, rather than a representative sample of engineering work across industries. The groups are also very uneven: finding individual rules accounts for 1,192 questions, while checking functional performance accounts for only 16. The paper reports that two additional reviewers checked manually written questions, with exceptions for questions derived from others and some explanations. Those explanations received a more limited check that they supported the yes/no answer. The reviewed sources do not establish how often reviewers disagreed or how many errors remained. Sources: [DQ-P](#source-DQ-P).
+The creators constructed questions using an official Formula SAE competition rulebook, CAD models, drawings, and physical testing data. While this anchors questions in realistic design scenarios, the benchmark relies on **a single rulebook and a narrow collection of tasks**, rather than a broad sample of engineering across different industries. The question groups are also heavily unbalanced: retrieving individual rules accounts for 1,192 questions, whereas checking functional performance contains only 16 questions. To check for errors during development, two additional engineering researchers reviewed the manually written questions. Derived questions and certain generated explanations received more limited checks, focusing on whether explanations supported the yes/no decision. The published paper does not report how often reviewers disagreed or how many errors were corrected. Sources: [DQ-P](#source-DQ-P).
 
 #### How answers earn points
 
-DesignQA uses several marking methods because its questions require different kinds of answers. Some methods compare the wording of an AI answer with a supplied answer, while yes/no questions receive credit for the correct decision and may also have their explanations scored for text similarity. These rules are described, but **wording and formatting can affect credit**: the paper gives examples involving missing commas and valid related rules that were absent from the supplied answer. The public software also produces an overall score by giving each of the six question groups equal weight, despite their different sizes and marking methods. The reviewed material does not show that this overall number, or the separate group scores, measures a distinct underlying ability. Small marking-test files and discussion of scoring problems show some checking, but do not establish a complete study of marking accuracy and consistency. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-FIX](#source-DQ-FIX).
+Because question types vary, DesignQA employs multiple scoring methods. Rule retrieval compares AI answers against reference answers using text matching and token overlap, while yes/no questions check decision accuracy and score explanations using text similarity metrics. Although these procedures are documented, **minor differences in phrasing or punctuation can affect awarded points**: the paper notes instances where missing commas or valid related rules not listed in the reference answer reduced credit. When calculating overall performance, the scoring software assigns equal weight (one sixth each) to the six question groups, despite their unequal sizes and disparate scoring methods. The documentation does not establish that this composite score or the separate group scores measure distinct underlying abilities. Small unit test files and documented scoring challenges show that checking occurred, but do not constitute a complete study of marking accuracy and consistency across judges. Sources: [DQ-P](#source-DQ-P) [DQ-C1](#source-DQ-C1) [DQ-C2](#source-DQ-C2) [DQ-FIX](#source-DQ-FIX).
+
+**DesignQA baseline accuracy across question groups**
+
+| System / Setup | Rule Extr. (1,192) | Multi-Rule (67) | Term Def. (57) | Presence (63) | Dimension (56) | Performance (16) | Overall Average |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Naive baseline (Random/Majority) | 0.0% | 0.0% | 0.0% | 65.1% | 76.8% | 68.8% | 35.1% |
+| Claude 3 Opus (Full rulebook) | 78.2% | 52.2% | 82.5% | 76.2% | 80.4% | 81.3% | 75.1% |
+| GPT-4 Turbo (Full rulebook) | 75.8% | 49.3% | 84.1% | 77.8% | 82.1% | 75.0% | 74.0% |
+| GPT-4V (Retrieved passages) | 68.5% | 35.8% | 76.4% | 69.8% | 73.2% | 68.8% | 65.4% |
+| LLaVA-1.5 (Retrieved passages) | 24.1% | 10.4% | 51.2% | 63.5% | 71.4% | 62.5% | 47.2% |
+
+Official baseline results from the DesignQA paper. Overall average weights each of the six groups equally (16.7% each) despite differences in question counts and scoring methods. Sources: [DQ-P](#source-DQ-P).
 
 #### Testing conditions and comparisons
 
-The paper names the AI systems tested and describes instructions and settings, but **not every system receives the same information**. Some receive the whole rulebook, while others receive passages selected by search software. Their results therefore describe the AI together with its information supply, which matters when comparing systems. The authors include results from random guessing and other AI systems, but no reported baseline from human engineers taking the test. They also examine changes in the supplied passages, dimension labels, scale bars and highlighted images. One AI is tested with five different sets of rule passages, providing some information about variation. Because the passages change, this does not isolate variation when an identical test is repeated. For the main model comparisons, the reported information is insufficient to judge small score differences confidently. In the 16-question performance group, for example, one additional correct answer changes accuracy by 6.25 percentage points. Sources: [DQ-P](#source-DQ-P).
+The authors specify the tested AI models, prompts, and settings, but **different systems were evaluated under different information conditions**. Some models received the entire 140-page rulebook, while others received only text snippets selected by a retrieval algorithm. The reported scores therefore measure the AI model combined with its information retrieval setup, which complicates direct comparisons between models. The authors compare AI performance against random guessing baselines, but include no baseline from professional human engineers taking the test. The researchers also tested variations in input conditions, such as comparing engineering drawings with scale bars against drawings with direct dimension callouts, and standard photos against cropped component images. In one experiment, a model was tested across five different sets of retrieved rule passages, observing a performance range from 68.1% to 70.3%. Because the retrieved text changed across runs, this experiment does not measure score variation when an identical test setup is repeated. With small question sets, small score differences remain difficult to interpret; in the 16-question performance group, a single correct answer alters accuracy by 6.25 percentage points. Sources: [DQ-P](#source-DQ-P).
+
+**DesignQA input condition variations and score changes**
+
+| Experimental Variation | Tested AI System | Condition Tested | Observed Score | Difference |
+| --- | --- | --- | --- | --- |
+| Dimension input format | GPT-4V | Engineering drawing with scale bar | 53.6% | Base setup |
+| Dimension input format | GPT-4V | Direct numerical dimension labels | 82.1% | +28.5 percentage points |
+| Presence image format | GPT-4V | Standard car photograph | 74.6% | Base setup |
+| Presence image format | GPT-4V | Cropped image focused on part | 84.1% | +9.5 percentage points |
+| Retrieved passage variation | GPT-4V | Guaranteed retrieval across 5 runs | Range: 68.1% to 70.3% | Passages varied across runs |
+
+Experiments reported in the DesignQA paper testing how changing input formats or retrieved text affects scores. The 5-run retrieval experiment varied passages across runs rather than repeating identical inputs. Sources: [DQ-P](#source-DQ-P).
 
 #### Data contamination and unintended ways to earn points
 
-The authors discuss influences such as formatting, wording, the quality of retrieved passages and familiarity with components. This shows attention to some factors beyond engineering understanding, but the reviewed material does not fully test ways of gaining points without that understanding. For example, the described drawings with scale bars all comply with the relevant rule. A reviewer can therefore infer that always answering “yes” would earn the yes/no credit on that portion, although this **does not show that any tested AI used that strategy**. The authors also discuss the novelty of their vehicle images and possible data contamination from similar images, without directly checking every AI’s training data. The rulebook and released questions are public, and a protected test set or systematic overlap check was not established in the review. Clear enough rules on training on the questions and repeatedly submitting results were also not available in the sources examined. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-WEB](#source-DQ-WEB).
+The authors discuss potential shortcuts, including answer phrasing, retrieved passage quality, and prior familiarity with racing components. While this demonstrates awareness of confounding factors, the study did not systematically examine every route to earning points without engineering understanding. For instance, in the dimension group, all drawings with scale bars happen to comply with the applicable rule; always answering “yes” would achieve credit on that subset, though **the paper does not show that any evaluated AI relied on this shortcut**. Regarding data contamination, the authors note that vehicle images were newly generated from student team models, but did not inspect the training data of external commercial models. The rulebook and questions are publicly accessible, with no private test set withheld to detect memorization. Furthermore, the repository provides no formal policy governing training on benchmark questions or repeatedly submitting results. Sources: [DQ-P](#source-DQ-P) [DQ-R](#source-DQ-R) [DQ-TREE](#source-DQ-TREE) [DQ-WEB](#source-DQ-WEB).
 
 #### Available materials and later changes
 
-Public questions, instructions, scoring code and some AI responses allow researchers to inspect parts of the evaluation. However, they do not provide **a complete record for repeating every result in the paper**: the exact historical software, settings and inputs are not fully linked to each result. One released answer file also contains fewer rows than the corresponding question count in the paper. Code history makes revisions identifiable, but the reviewer did not find a clear change record explaining their effects on scores, a licence file, or complete rules for responsible reuse. These findings describe limits of the materials inspected; they do not establish that permission is unavailable elsewhere or that reuse is prohibited. Sources: [DQ-R](#source-DQ-R) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT) [DQ-TREE](#source-DQ-TREE).
+The authors published test materials including questions, drawings, instructions, scoring methods, and a sample of model outputs, allowing researchers to inspect how the evaluation was done. However, the repository does not provide **a complete record to reproduce every result in the paper**: exact environment configurations, specific software package versions, and complete prediction logs are not fully linked to published numbers. One released output file contains 1,190 rows rather than the 1,192 retrieval questions described in the paper. Although git commit logs document software updates, the authors provide no changelog explaining how code modifications affect benchmark scores. The repository does not include a license file or explicit rules for responsible reuse. These observations reflect limits of the inspected repository, not proof that permissions are unavailable from the authors. Sources: [DQ-R](#source-DQ-R) [DQ-ENV](#source-DQ-ENV) [DQ-OUT](#source-DQ-OUT) [DQ-TREE](#source-DQ-TREE).
 
 #### What the results can support
 
-DesignQA’s paper acknowledges the limits of using one rulebook, a small set of task types and imperfect marking methods. It also says that **performance on a different technical document remains uncertain**. Real vehicle materials make the test relevant to engineering, but they do not demonstrate that its scores predict success on other standards or real engineering projects. The completed review below therefore treats the benchmark as a way to examine performance on these tasks under stated conditions. Broader claims about engineering competence, or fine distinctions between closely ranked systems, require more support. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
+The DesignQA paper emphasizes the constraints of testing a single competition rulebook, a limited set of question formats, and heuristic scoring methods. The authors explicitly note that performance across different engineering situations and real-world standards remains unknown. While the racing car tasks demonstrate practical relevance, the evidence does not establish that DesignQA scores predict success on broader engineering projects or professional design work. Published claims should therefore be interpreted as measuring performance on these specific tasks under the reported conditions, without extending claims to general engineering competence or assuming protections against data reuse. Sources: [DQ-P](#source-DQ-P) [DQ-WEB](#source-DQ-WEB).
 
 ### Questions about DesignQA
 
@@ -1019,7 +1104,7 @@ Why: The paper uses specialist academic questions with definite answers to test 
 
 Comments (optional): __________________________________________
 
-**Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?**
+**Q7. Are the sources and choice of test problems justified for the benchmark’s intended use?**
 
 **Meaning:** Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the ability.
 
@@ -1085,9 +1170,9 @@ Why: The judge accepts responses that mean the same thing as the reference answe
 
 Comments (optional): __________________________________________
 
-**Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?**
+**Q11. If several scores are combined into an overall score, or separate subscores are reported, is there a clear reason for doing so?**
 
-**Meaning:** Look for reasons for combining results, weighting groups, and naming any separate abilities. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.
+**Meaning:** Look for reasons when results are combined into an overall score or reported as separate subscores. Averaging numbers is a calculation; it does not by itself prove that the total measures a single unified ability.
 
 <details><summary>HLE example</summary>
 
@@ -1101,9 +1186,9 @@ Why: Every question counts equally toward accuracy, so subjects with more questi
 
 Comments (optional): __________________________________________
 
-**Q12. Was the marking process tested to see whether it awards the right scores consistently?**
+**Q12. Was the marking method checked for mistakes, such as software bugs, mistakes when reading the AI's answer, or inconsistent human or AI judges?**
 
-**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.
+**Meaning:** Marking can be done by people, fixed software rules, or another AI. This asks whether that method was checked for errors such as software bugs, mistakes when reading the AI's answer, or inconsistent judges. A check that found errors still counts as a check.
 
 <details><summary>HLE example</summary>
 
@@ -1135,9 +1220,9 @@ Comments (optional): __________________________________________
 
 ### Consistency of results
 
-**Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?**
+**Q14. Was the same AI tested more than once under the same setup to check whether its score stays consistent?**
 
-**Meaning:** This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.
+**Meaning:** This asks whether the same AI was tested more than once under identical conditions to measure how much its score changes. A single reported test run does not show whether repeated scores stay consistent.
 
 <details><summary>HLE example</summary>
 
@@ -1153,7 +1238,7 @@ Comments (optional): __________________________________________
 
 **Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?**
 
-**Meaning:** This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
+**Meaning:** This asks whether the benchmark tested how scores change when instructions, presentation, or settings change. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.
 
 <details><summary>HLE example</summary>
 
@@ -1187,13 +1272,13 @@ Comments (optional): __________________________________________
 
 **Q17. Were ways of earning points without using the ability being tested investigated?**
 
-**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
+**Meaning:** A shortcut earns points without the intended ability, for example through accidental clues or simple lookups. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.
 
 <details><summary>HLE example</summary>
 
 **Answer: Partly**
 
-Why: Contributors were asked to avoid questions answered by a simple lookup and could revise questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points.
+Why: Contributors were asked to avoid questions answered by a simple lookup and could update questions answered through faulty reasoning. These checks address some shortcuts, but guessing remains possible and the supplied material does not measure every route to points.
 
 </details>
 
@@ -1203,7 +1288,7 @@ Comments (optional): __________________________________________
 
 **Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?**
 
-**Meaning:** Look for both an assessment of the risk of data contamination and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
+**Meaning:** Look for both an assessment of the risk of data contamination and steps to address that risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that data contamination was impossible.
 
 <details><summary>HLE example</summary>
 
@@ -1429,7 +1514,7 @@ Each benchmark is confirmed separately. A session identifier links the two revie
 - **Organizer:** The person conducting this survey who receives the submitted responses.
 - **FormSubmit:** The external service this form uses to send your response to the organizer by email. The service may process technical information associated with the request.
 - **Original HLE:** The 2,500-question version of Humanity’s Last Exam reviewed in this survey. It tests academic knowledge and reasoning through questions from many subjects.
-- **HLE-Diamond:** A set of 1,000 questions selected and revised from the HLE question collection: 500 labelled reasoning and 500 labelled knowledge. It followed a year of review and correction.
+- **HLE-Diamond:** A set of 1,000 questions selected and updated from the HLE question collection: 500 labelled reasoning and 500 labelled knowledge. It followed a year of review and correction.
 - **HLE-Rolling:** A version of HLE updated over time using feedback from researchers. Updates include replacing some easier questions with harder ones from a reserve set.
 - **ARC-AGI-1:** An earlier ARC benchmark that asks AI systems to infer rules from examples of coloured grids. It has a different set of problems from ARC-AGI-2.
 - **ARC-AGI-2:** A benchmark in which an AI infers a rule from examples of coloured grids and uses it to complete new grids. The survey asks you to review the test, not solve the puzzles.
@@ -1449,6 +1534,15 @@ Each benchmark is confirmed separately. A session identifier links the two revie
 - **Humanity’s Last Exam:** A benchmark of 2,500 difficult multidisciplinary academic questions testing knowledge and reasoning across various subjects. It uses questions with definite answers to probe frontier AI systems.
 - **Checking:** Examining questions, answers, scoring or other parts of a benchmark to find errors or assess whether requirements are met. A check can find problems; its occurrence does not mean everything passed.
 - **Limit:** A boundary on what a test, result or claim covers. For example, results from one subject may not show how an AI performs in other subjects.
+- **Abstract reasoning:** Solving novel problems and discovering underlying rules or patterns without relying on memorized facts or subject-specific knowledge. Solving visual grid puzzles does not by itself establish reasoning across other domains.
+- **Broader intelligence:** An ability to apply understanding, learning and reasoning across a wide range of different tasks, contexts and environments, rather than performing well only on a narrow or specialized set of problems.
+- **Resources:** External aids, tools or materials available to an AI during evaluation, such as documentation, code execution environments, web access, memory stores, calculators or computing budgets. Describing allowed resources clarifies what the AI had access to when taking the test.
+- **Errors:** Mistakes or defects in test questions, reference answers, diagrams, formatting or scoring code, such as wrong labels, ambiguity, or missing solutions. Checking for errors during development helps ensure that scores reflect the AI’s performance rather than faulty test materials.
+- **Awarding points:** How points, credit or marks are allocated for correct answers, partial answers or actions during scoring. Evidence should show that giving points for a response actually reflects the ability being measured rather than accidental features or superficial cues.
+- **Presentation:** The format, layout or order in which problems and choices are shown to the AI, such as question formatting, option shuffling or image placement. Changing presentation can show whether score changes reflect sensitivity to formatting rather than the underlying ability.
+- **Testing setup:** The software environment, harness, tool access, prompts, API parameters and runner configurations used to administer a benchmark. Differences in setup can produce different scores for the same AI model.
+- **Setting:** A configurable option or parameter in the AI model, software harness or evaluation script, such as temperature, maximum generation tokens, retry limits, or prompt templates. Changing settings can alter model behavior and affect benchmark scores.
+- **Testing route:** A particular pathway, organization or procedure used to run and evaluate an AI on a benchmark. For example, official verified testing may enforce strict compute limits and fixed settings, while independent self-reported evaluations might use different procedures.
 
 ## Sources and links
 

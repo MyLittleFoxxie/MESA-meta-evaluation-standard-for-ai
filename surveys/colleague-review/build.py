@@ -58,6 +58,13 @@ def passage(b):
             result += ['**' + diagram['title'] + '**', '']
             result += [str(n) + '. **' + step['title'] + '** — ' + step['text'] for n, step in enumerate(diagram['steps'], 1)]
             result += ['', diagram['caption'], '']
+        for table in [x for x in b.get('tables', []) if x['after'] == i]:
+            result += ['**' + table['title'] + '**', '']
+            result += ['| ' + ' | '.join(table['headers']) + ' |']
+            result += ['| ' + ' | '.join(['---'] * len(table['headers'])) + ' |']
+            for row in table['rows']:
+                result += ['| ' + ' | '.join(row) + ' |']
+            result += ['', table['caption'] + ' Sources: ' + ' '.join('[' + sid + '](#source-' + sid + ')' for sid in table['sources']) + '.', '']
     return result
 lines += ['## 3. HLE — answered example', '', d['example']['example_note'], '', *passage(d['example']), '### Answered questions', '']
 domain = ''

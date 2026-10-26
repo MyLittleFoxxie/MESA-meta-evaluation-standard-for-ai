@@ -73,6 +73,7 @@ The current survey uses `mesa-guided-arc-designqa-v2-5`, with a new fingerprint.
 
 The version 2.5 guide and answer controls use matching icons beside the labels: check mark, half filled circle, cross, ellipsis and circle with a slash. Icons do not change the response categories or packet fingerprint.
 
+
 ## Version 2.6 — 26 October 2026
 
 The current survey uses `mesa-guided-arc-designqa-v2-6`; version 2.5 is archived and earlier drafts are rejected. Current flow: introduction, familiarity, HLE example, ARC-AGI-2, ARC feedback/review, ARC confirmation, optional DesignQA, DesignQA feedback/review, DesignQA confirmation. A reader can finish after ARC. This supersedes earlier instructions requiring both benchmarks and one combined payload.
@@ -83,10 +84,19 @@ Definitions and introductions describe the task and benchmark versions; new defi
 
 Run `verify.py`, `check-browser.cjs` and `check-navigation.cjs`. Automated deliveries must be mocked. The author authorized two live TEST submissions for this release; label their subjects and payloads TEST — exclude from research and keep fabricated responses out of research analysis. That authorization is not permission for future live tests.
 
+
 ## Version 2.7 — 26 October 2026
 
 Version 2.6 is archived; its drafts do not load into 2.7. Guide choices use the answer colors. Definitions appear on the first and every third subsequent occurrence of each concept on a page, with counts reset when the review is rebuilt. Checking and limit definitions are added; score definitions are enabled again. Contents follows the center of the reading area between the fixed controls. Passage buttons say Return to Passage. Validation, storage and delivery errors use a dialog; closing it focuses the relevant control. Question texts, HLE judgments and submission payloads are unchanged. No further live test submissions are authorized by this revision.
 
+
 ## Version 2.8 — 26 October 2026
 
 Current survey text uses data contamination in place of exposure, matching the CHASE manuscript. The definition explains that test questions, answers or related material can enter training or development before evaluation. Risk is not treated as proof of contamination. Version 2.7 is archived and its drafts cannot load into 2.8. Question texts, choices, HLE judgments and source records remain unchanged. Historical notes and frozen study materials retain their wording.
+
+
+## Version 2.9 — 26 October 2026
+
+Current survey uses `mesa-guided-arc-designqa-v2-9` and a new packet fingerprint. Version 2.8 is archived in `archive/v2.8/`; older drafts cannot load into 2.9. Reading passages for HLE, ARC-AGI-2, and DesignQA are re-read and refined for natural, easy-to-understand reading, strict impartiality, and complete adherence to official primary sources with sufficient facts for all 25 questions. Each benchmark incorporates official primary-source data tables. Awkward hyphenated compound terms are replaced with common everyday terminology. Questions 11, 12, and 14 are refined for natural clarity and synchronized with `paper_chase.tex` Table II. The interface removes the standalone Sources and links button while keeping in-text citations functional to open references. Save draft and Load saved draft controls are kept grouped together side by side, and the theme toggle is displayed as an accessible sun/moon icon toggle button positioned on the opposite side of the toolbar controls. Categorical choices, blank participant reviews, and separate feedback remain preserved.
+
+
