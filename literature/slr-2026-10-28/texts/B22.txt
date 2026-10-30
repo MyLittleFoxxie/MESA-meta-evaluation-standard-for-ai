@@ -1,0 +1,1588 @@
+
+=== PDF PAGE 1 ===
+From Protoscience to Epistemic Monoculture: How
+Benchmarking Set the Stage for the Deep Learning Revolution
+Bernard J. Koch ∗1 and David Peterson 2
+1Center for Science of Science and Innovation, Northwestern Kellogg School of
+Management
+4Purdue University Department of Sociology
+April 2024
+Abstract
+Over the past decade, AI research has focused heavily on building ever-larger deep learning
+models. This approach has simultaneously unlocked incredible achievements in science and tech-
+nology, and hindered AI from overcoming long-standing limitations with respect to explainability,
+ethical harms, and environmental efficiency. Drawing on qualitative interviews and computational
+analyses, our three-part history of AI research traces the creation of this “epistemic monoculture”
+back to a radical reconceptualization of scientific progress that began in the 1980s. In the first
+era of AI research (1950s-late 1980s), researchers and patrons approached AI as a “basic” science
+that would advance through autonomous exploration and organic assessments of progress (e.g.,
+peer-review, theoretical consensus). The failure of this approach led to a retrenchment of funding
+in the 1980s. Amid this “AI Winter,” an intervention by the U.S. government reoriented the
+field towards measurable progress on tasks of military and commercial interest. A new evaluation
+system called “benchmarking” provided an objective way to quantify progress on tasks by focus-
+ing exclusively on increasing predictive accuracy on example datasets. Distilling science down
+to verifiable metrics clarified the roles of scientists, allowed the field to rapidly integrate talent,
+and provided clear signals of significance and progress. But history has also revealed a tradeoff
+to this streamlined approach to science: the consolidation around external interests and inherent
+conservatism of benchmarking has disincentivized exploration beyond scaling monoculture. In
+the discussion, we explain how AI’s monoculture offers a compelling challenge to the belief that
+basic, exploration-driven research is needed for scientific progress. Implications for the spread of
+AI monoculture to other sciences in the era of generative AI are also discussed.
+∗bernard.koch@kellogg.northwestern.edu
+1
+arXiv:2404.06647v2  [cs.CY]  11 Apr 2024
+
+=== PDF PAGE 2 ===
+1 Introduction
+Deep learning-based artificial intelligence (AI) has emerged as a defining technology of the 21st-century.
+This technology underpins many of today’s most impressive advances in consumer, medical, scientific
+and even cultural technologies. It drives the internet’s search and recommendation systems, tumor
+detectors that outperform pathologists, and algorithms that pass prestige AI challenges like Go or the
+Turing test with ease. As we write this, generative deep learning models are reshaping the creation of
+the art and poetry, writing emails, solving mathematical theorems, and calling the future of computer
+programming into question.
+As remarkable as these successes are, the speed at which the field of AI research (AIR) has produced
+them over the past decade is equally impressive. AIR’s productivity is sociologically provocative
+because the field’s approach to research differs radically from other scientific fields. Where other
+fields maintain loose divisions between autonomous, “basic” research and “applied” or “task-driven”
+research (e.g., immunology v. vaccine development), the interests of academia and industry have long
+been deeply entangled within AIR. And where other fields assess scientific progress and significance
+“organically” through mechanisms like peer review, mathematical theory-building, and citation, AIR
+relies mostly on the formal demonstrations of empirical performance that are common in task-driven
+sciences (e.g., clinical trials).
+The separation of basic science from applied research in the United States emerged after World
+War II as an implicit contract between funders and scientists. In this agreement, scientists would be
+granted the autonomy to set their own agenda and evaluation mechanisms in exchange for techno-
+logical products and/or policy recommendations viewed as vital for economic prosperity and military
+dominance (Bush, 2021). This division of rights and responsibilities allowed modern sciences to de-
+velop into largely independent fields with unique “epistemic cultures” that could conduct research,
+organize, and conceptualize progress as they see fit (Cetina, 1999). Although scholars in the social
+studies of science have complicated this neat division between “science” and various non-scientific
+political, governmental, cultural, and economic forces (Gieryn, 1999; Jasanoff and Kim, 2009; Latour,
+1987), scientific autonomy remains a powerful rhetorical ideal. To meet scientists’ side of the contract,
+task-driven, applied domains emerged within many fields with the aim of translating basic theoretical
+insights into practical technologies.
+Organizational autonomy is thought to be necessary because breakthroughs in basic research are
+unpredictable and their ramifications impossible to forecast. Scientists thus need the ability to pur-
+sue intellectual interests even when possible applications are unclear. This intellectual freedom is
+protected by market-like, self-organizing evaluation systems such as peer review and citation. These
+qualitative, decentralized systems allow peer scientists to consider a matrix of different epistemic val-
+ues (e.g., accuracy, parsimony, theoretical significance, explainability) when assessing the significance
+2
+
+=== PDF PAGE 3 ===
+of contributions. Peer review is a deliberative process, and the elevation of high-impact works through
+citation is an evolving, coalescent one. The plodding speed of these evaluation mechanisms allows
+understandings of progress and significance to emerge organically over time (Hull, 2001; Polanyi et al.,
+1962).
+In contrast, applied research suggests different organizational structures and evaluation mecha-
+nisms. Instead of freedom for exploration, applied science requires centralized decision-making (within
+or beyond the field) that can bound scientists’ solution space by signaling which outcomes and epis-
+temic values they should seek to optimize. In place of organic evaluation mechanisms like peer review
+and citation, task-driven science militates formal, typically quantitative evaluative mechanisms that
+prioritize one or a few key epistemic values (e.g., accuracy, safety). Although these metrics capture a
+much narrower vision of scientific progress, they have the advantage of providing immediate, explicit,
+and easily-interpretable feedback of progress along these dimensions.
+In this article, we trace the emergence of AIR as an important and intriguing challenge to the
+narrative that autonomous research is necessary for progress in modern science. Through a mixed
+methods historical account of the development of the field through 2021, we show that AIR’s most
+dramatic progress came after, and largely because, it ceded autonomy to external actors who set the
+field’s agenda and established the sorts of narrow evaluation systems typical of translational science.
+While AIR’s productivity speaks to the strengths of this strategy, our analysis also highlights how
+ceding autonomy and emphasizing formal evaluation created an epistemic “monoculture” focused only
+on single approach to AI: building ever-larger deep learning models. We use the term monoculture
+because, as we show quantitatively, the development of deep learning has come at the expense of
+other research trajectories in the field. In agriculture, cultivating a single crop can be incredibly
+productive at the expense of biodiversity. Similarly, while deep learning excels in certain dimensions,
+it also has significant epistemic, ethical, and environmental tradeoffs compared to other approaches
+that were being explored in the 2000s. 1 Nevertheless, its impressive accomplishments provide a strong
+counterpoint to the idea that undirected, autonomous research is necessary for progress in science.
+Drawing on interviews with researchers across academia, industry, and government; policy makers;
+and tech executives; as well as archival research and computational analysis, we chronicle the emergence
+of deep learning monoculture from AI’s formal inception as a field in 1956 to the beginning of the
+Generative AI era in 2021. The empirical part of the paper is divided into three sections corresponding
+roughly to historical periods. Each of these periods is further divided into sections discussing the
+epistemic, organizational, and technological aspects of the era to illustrate how these dimensions of
+science became increasingly aligned to set the stage for deep learning to take over the field in the
+1As we discuss later in the paper, the strategy of building ever-larger deep learning models is called “scaling”. Larger
+models are increasingly uninterpretable and require more and more electricity to train. Larger models also require more
+data. Cleaning internet-scale datasets of social biases can be intractable. Moreover, curating internet-scale datasets
+often requires privacy and intellectual property violations.
+3
+
+=== PDF PAGE 4 ===
+2010s.
+In the first section, The Era of Symbolic AI (1955-1987), we highlight the epistemic fecundity at the
+origins of the field. During this period, AI researchers had a multitude of theories and research agendas
+for creating machines that could think. Government funders, concerned with not falling behind in the
+global race for technological superiority, lavished the field with huge grants and little oversight. Yet,
+the philosophical complexity at the heart of AI as a project led to an unproductive tribalism between
+competing camps. As the individual projects failed to live up to their early hype, excitement gave
+way to disappointment leading to the retrenchment of the second ”AI Winter,” in which interest and
+funding waned (Mitchell, 2019).
+In the second section, The Benchmarking Era (1987-2011), we highlight how frustrations from
+funders led efforts to explicitly organize the field through the introduction of benchmarking, a novel
+formal evaluation system that presented a true alternative to the model of basic science. Benchmarking
+allowed AI research to elide theoretical, organization, and material issues that stymied the field in the
+previous decades by narrowing the epistemic vision of the field to focus only on predictive accuracy on
+applied tasks, and not other epistemic values prized in basic science (e.g., explainability, theoretical
+consistency, parsimony, efficiency). Reorienting the field toward more measurable tasks led to an influx
+of non-symbolic machine learning approaches grounded in probability and statistics.
+In the third section, The Deep Learning Era (2012-2021), we focus on how significant developments
+in both computational technology and the tech sector of the economy produced the groundwork for
+deep learning to become the dominant approach in AI. We argue that deep learning took over the
+field not because of any major intellectual advancement, but because it uniquely benefited from access
+to large datasets and advances in computing technology. By heavily investing in the scaling of both
+compute and data, large tech firms began to supplant government as the most significant external
+actors directing the field. Differing strategic orientations of industry compared to academia have
+entrenched deep learning monoculture.
+In the discussion, we suggest that deep learning monoculture is contagious: when scientific fields
+adopt deep learning for epistemic purposes, it becomes hard not to adopt some of the organizational and
+technological orientations of AIR’s monoculture. Deep learning increasingly serves as the foundation
+for methodological advancement in science. However, the opacity and unexplainability of deep learning
+models will increase the importance of empirical benchmarking in science. By design, benchmarking
+canalizes science to focus on a small set of epistemic values that can be easily quantified. Moreover,
+because deep learning requires scale, academia will become increasingly reliant on the capacities and
+interests of industry to build foundation models for scientific research. The spread of monoculture via
+deep learning may thus alter the 20th-century model of science. Although our account is fundamentally
+historical, we the organizational and epistemic implications of generative AI are discussed in the
+conclusion.
+4
+
+=== PDF PAGE 5 ===
+2 BACKGROUND: PROGRESS AND AUTONOMY IN SCI-
+ENCE
+What is scientific progress? Although there is unanimity in the belief that science makes progress,
+what constitutes scientific progress remains hotly debated across philosophy, science studies, and the
+sciences themselves. Cole (1992), one of the most systematic efforts in sociology to define progress,
+argued that sciences can be divided into research ”frontiers,” in which many claims compete for
+attention, and the research ”core,” which is composed of the settled and widely agreed upon ”facts”
+constituting progress.
+Of course, this simply begs a second question; How does a claim move from the frontier to the
+core? Cole is noncommittal and philosophers of science and science studies scholars have been divided
+on this point. Early work focused on the conceptual component of theories. That is, the success of
+theories were taken as evidence of, in the weak version, their usefulness, and, in the strong version,
+their fundamental correctness. Some philosophers of science are still essentially concerned with the
+conceptual content of theories (Kitcher, 1995). Early STS was concerned with breaking the link
+between theory adoption and “correctness,” choosing to view scientific success through the same lens
+as other forms of cultural change (Bloor, 1991). Scholars in this tradition have focused on the roles of
+technological change and social networks in achieving consensus (Latour and Woolgar, 2013).
+More recently, scholars have argued that scientific consensus is a byproduct of advances in tech-
+nology (Collins, 1998; Peterson, 2015; Rheinberger, 1997). Under this view, advances in the material
+cultures of scientific labs extend the horizon of possibility for researchers. Novel and robust technolo-
+gies that offer researchers new abilities spread through fields as other labs attempt to maintain pace.
+In this way, the evolution of technologies establishes a form of practical consensus. This account is
+largely harmonious with actor-network theorists who have grounded accounts of scientific progress in
+extensions across diverse social, technological, and cultural networks (e.g., Latour (1987)). Although
+it is easy to caricature this tradition as supporting a “Machiavellian” sociology of science in which
+scientific success is indistinguishable from power (Fujimura, 1992), an essential insight from this tradi-
+tion is that the conceptual, the technological, and the organizational dimensions of scientific progress
+are not isolated. The categories bleed into, sometime reinforcing, sometimes undercutting, each other.
+Bringing this back to Cole’s initial argument that claims move from the frontier to the core through an
+evaluation process, we suggest that understanding scientific evaluation requires an examination across
+all three of these categories.
+5
+
+=== PDF PAGE 6 ===
+2.1 THE ORGANIZATIONS, EPISTEMOLOGIES, AND TECHNOLO-
+GIES OF SCIENTIFIC EV ALUATION
+Cole’s argument that claims move from the frontier to the core through an evaluation process may
+seem a bit odd considering claims at the frontier have already surmounted what is typically thought of
+as the central, gate-keeping evaluation mechanism of science: peer review. If consensus is the product
+of simply being correct, and correctness could be immediately ascertained through peer review, we
+might expect there to be no gap. Yet, in fact, the peer-review process can often take months or years.
+Claims may be more fragile or less significant than initially thought. Over time, it can become clear
+that a new innovation is less novel or useful than originally claimed.
+Because of this, evaluation in science is a longer and more complex process than proponents of
+peer review suggest. We label this ideal-typical form of evaluation organic.2 Organizationally, organic
+evaluation implies an autonomous, self-organizing field (Hull, 2001; Polanyi, 1962). Epistemologically,
+it evaluates claims within a matrix of multiple theories and epistemic values. Technologically, organic
+evaluation is characterized by the slow, uneven. spread of technological innovations across the field’s
+social networks.
+Three things should be clear from the above description. First, the process is decentralized. After
+the bottleneck of peer review in which a small group of 3-5 core set members evaluate whether a paper
+deserves to be published, the field as a whole decides the worth of a claim by choosing to integrate into
+their own practice or ignore it. Second, there is no single or even small number of values that is used.
+Claims are evaluated on the basis of novelty, significance, robustness, cost, efficiency, and many other
+values./footnoteAlthough Lamont (2009) on grant review panels focuses mainly on social sciences
+and humanities, it is a useful touchstone for the many competing values that go into disciplinary
+evaluations. No quantitative measure of “best” is appropriate in judgment domains where competing
+values need to be weighed. Third, because it involves changes in scientific practice, organic evaluation,
+as a process, involves temporal extension of an unpredictable duration as researchers attempt to
+import new technologies and techniques and try to follow the pathways suggested by a claim. Initial
+excitement can founder as members of a field come to understand a claim is weaker, more limited, or
+less useful than thought. And even successful adoption may take years depending upon the technical
+challenges involved.
+However, there are many situations where people want evaluation to provide unambiguous, immedi-
+ately actionable information based upon specific uses. While a microbiologist may pursue theoretically-
+driven research about the behavior of a class of bacterium which may be evaluated in a qualitative
+2The language of “organic” and “formal” in the domain of scientific evaluation first occurs in Peterson and Panofsky
+(2021) to describe mechanisms of self-correction. We expand the usage here to apply to consensus-building more
+broadly and we argue that these forms of evaluation different in important ways across epistemic, organizational, and
+technological dimensions.
+6
+
+=== PDF PAGE 7 ===
+process extending over months and years, when that research becomes the basis for clinical intervention
+we demand evaluation to be clear and timely.
+Under these conditions, formal evaluation methods are often adopted. Formal evaluation differs
+from organic along each dimension. Organizationally, formal evaluation requires centralization. Epis-
+temologically, the matrix of values collapses upon a single or small set of values to provide clear
+feedback along a dimension of interest. Technologically, a high level of standardization is required to
+reduce the ambiguity in evaluation that Collins (1992a) has famously referred as the “experimenters’
+regress.”
+The division between organic and formal evaluation regimes is related to long-standing discussions
+about basic v. applied or understanding- v. task-oriented science. Scientific projects that pursue
+basic research for purposes of understanding are generally evaluated organically, while those focused
+on specific applications benefit from more formal approaches. Significantly, however, these divisions do
+not characterize entire sciences. It is not like ecology favors organic evaluation while economics favors
+formal. Rather, most fields are engaged in both projects and, thus, utilize evaluation techniques across
+the spectrum depending upon whether the project is pursuing autonomously chosen basic research or
+projects that are directed with reference to specific outcomes or goals.
+Yet, there is an inherent tension between these evaluation regimes. On one hand, because of the
+lack of clear metrics in organic evaluation, it can be unclear whether progress is actually being made
+or if such progress is actually useful. And the extended time frame needed to resolve those questions
+can be frustrating for outsiders who rely on that information, and funders who want to evaluate their
+return on investment. On the other hand, formal evaluations can provide clear metrics of progress.
+But by embedding specific values into the evaluation mechanism, it strips fields of the autonomy
+that allows them to qualitatively evaluate their own products. Thus, debates over evaluation become
+proxies for debates about the autonomy of fields.
+2.2 EV ALUATION AND AUTONOMY
+Although their sociologies of science offer stark contrasts with each other, Merton and Bourdieu shared
+the belief that an essential and distinguishing feature of scientific communities is the fact that scientists
+primarily produce research for an audience of fellow scientists. As Bourdieu (2004) expresses most
+emphatically, “The first and probably most fundamental of the distinctive properties of the scientific
+field is, as we have seen, its (more or less total) closure, which means that each researcher tends to
+have no other audience than the researchers most capable of listening to him” (69).
+Although one might reasonably argue that science operates best when allowed to set its own agenda
+and evaluate its own products, external “guiding” and “shaping” are an important feature of science
+funding and policy. Although much evaluation occurs within one’s field (e.g., peer review and hiring),
+7
+
+=== PDF PAGE 8 ===
+many forms of evaluation are conducted by external audiences who must decide for themselves the
+value of a particular field, or scholar, or claim.
+Moreover, the post-WWII commitment to science involved the expectation that the funding and
+autonomy useful for the development of systematic theory would eventually produce tangible techno-
+logical, military, economic, and social benefits. Thus, the practical application of science was always
+part of the deal and this translation of basic science to real world settings always involved some ceding
+of authority.
+That said, the space where evaluation meets external audiences is an inherently fraught zone.
+Rather than speaking to colleagues and other members of the “core-set” of a field (Collins, 1981),
+interactions with funders, industry, the government, or the public sets up a risky interaction for the
+scientist as the “pure” motives of the scientist get undermined and swayed by the idols of the market,
+theater, and tribe. This is a reason why (Abbott, 1981) argues that the highest status members of
+professions are those best able to insulate themselves from those who utilize the expert’s expertise.
+Rather than be tainted by association with values and motives orthogonal or anathema to their field’s,
+they are able to withdraw into a space of “professional purity.”
+Because they tend to span basic and applied projects and, thus, engage both organic and formal
+evaluation mechanisms, most sciences have domains where they are largely autonomous and self-
+directing, as well as places with diminished autonomy. In early accounts, these basic research projects
+produced the knowledge that would be adapted by applied scientists and engineers as exportable tech-
+nologies. Subsequent work in the social studies of technology have complicated the picture, suggesting
+the causal arrow works in both directions. Yet, throughout this literature, fundamental, basic, theory-
+driven research is always considered to be an essential part of scientific progress (if not the essential
+part).
+Yet, this need not be the case. As we will show, modern machine largely emerged out of a regime
+of task-driven, formal evaluation. In the following sections, we detail the historical emergence and
+structuring of the field of AIR through three periods. In the first period, the largely autonomous
+field pursued basic research, but ultimately succumbed to an “AI Winter” because the mechanisms of
+unstructured evaluation proved ineffective at achieving consensus. In the second, DARPA, the major
+funder in the field, reoriented their funding from large, no-strings-attached, “blue sky” grants, toward
+funding narrowly defined, well-specified tasks with clear metrics of progress. These highly structured,
+quantitative evaluations, called benchmarks, allowed the field to meaningfully chart progress and
+compare competing approaches. Yet, advances in data access and compute power eventually led to
+the domination of deep learning, a machine learning approach uniquely positioned to take advantage
+of those improvements. The success of deep learning on quantitative benchmarks soon led to the
+crowding out of nearly all competing approaches. The third section details how machine learning has
+become an epistemic monoculture, a knowledge-producing community organized around a handful of
+8
+
+=== PDF PAGE 9 ===
+organizations, a constrained research trajectory, and a single epistemic value.
+Ultimately, we argue that AIR represents the vanguard of a new scientific movement that views
+task-driven science not as a derivative of basic research, but as a unique mode of pursuing progress
+with both dazzling advantages and significant risks.
+3 METHODS
+3.1 INTER VIEWS
+Our analyses draw primarily on 45 in-depth, open-ended interviews with individuals spanning the
+history and breadth of AIR. Many of the most influential figures in the first era of our study (1956-
+1986) are now deceased, so we spoke with academics who attained PhDs in their symbolic AI groups
+and departments before the transition to statistical learning in the late 1980s. We supplement these
+interviews with archival sources (see below).
+Our portrayal of the second period (1986-2010) is built on conversations with individuals in gov-
+ernment, academia, and industry who were pivotal to the transition from symbolic AI to machine
+learning. These include program managers and scientists at the Defense Advanced Research Projects
+Agency (DARPA) and the National Institute of Standards and Technology (NIST) who were person-
+ally responsible for introducing formal evaluation mechanisms to the field, as well as leading industry
+researchers who either invented or introduced key statistical learning algorithms (e.g., hidden markov
+models, convolutional neural networks, random forests) at Bell Labs and BBN Technologies. We also
+spoke to a range of academics, including the first organizers and editors of the Conference on Machine
+Learning (now ICML) and Journal of Machine Learning in the 1980s.
+For the third era (2011-2021), we had broad access to individuals across government, industry and
+academia with a wide range of perspectives on deep learning. Highlights include PhD researchers
+and research managers at Google Deepmind, Microsoft Research, Apple Research, and Spotify Tech
+Research. We also spoke to experts on benchmarking in the deep learning and generative AI eras at
+NYU, Google, Stanford, the Santa Fe Institute, and the Allen Institute for AI. With respect to policy,
+we spoke with a white-house level advisor on AI at NIST and a VP in charge of research at Microsoft
+Nuance. Finally, we spoke to prominent AI ethicists and deep learning critics at Google Deepmind
+and the University of Washington.
+3.2 ARCHIV AL RESEARCH
+To get a better sense of the key issues during the early decades of AI, we relied heavily on inter-
+views and original documents in the Edward Feigenbaum Archives at Stanford University, editorials
+9
+
+=== PDF PAGE 10 ===
+in AI Magazine from the 1970s-1990s (the general interest professional publication of the Associa-
+tion for the Advancement of Artificial Intelligence), and recordings/transcripts of talks by scientists
+and critics from that era. We also draw examples from publications in AI and ML at major work-
+shops/conferences from 1960s-2020s anthologized in print, online conference proceedings, and more
+recently, arXiv. Lastly, we sometimes reproduce quotes from leaders in the field drawn from secondary
+sources.
+3.3 COMPUTATIONAL ANALYSIS
+We corroborated some of the themes that emerge from our qualitative research using 90,000 papers
+published between 1993 and 2018 from Microsoft Academic Graph in 14 top AI research venues: AAAI,
+ACL, AISTATS, COLING, CVPR, ECCV, EMNLP, ICCV, ICML, KDD, NAACL, NeurIPS, SIGIR,
+and WWW. We searched for keywords related to five different AI approaches in paper titles, abstracts,
+or topics from a labeled topic model. We used LiteRate, a method for time series analysis, to estimate
+the underlying rates at which new papers were published on each of these topics over time (Koch
+et al. (2020), under review). LiteRate provides credible intervals for these estimated rates, as well as
+statistically significant rate shifts which are indicative of major historical events.
+4 1956 TO THE MID-80s: THE ERA OF SYMBOLIC AI
+Propelled forward by the post-war futurism of Alan Turing and John Von Neumann, AI emerged as a
+nascent field in the 1950s with the promise of becoming, in Herbert Simon’s (1970) phrase, “a science
+of the artificial.” But as Herbert Simon later recalled, “AI has had problems from the beginning. It
+is a new field in which people came from many different directions” (Simon, 1995). In the following
+decades, the field was unable to realize itself as either basic or task-driven science. Instead, it stagnated
+as a “proto-science” like philosophy, where opposing intellectual projects represented by charismatic
+leaders evolve in parallel, unable to build progress towards common theoretical language or empirical
+methods that can adjudicate debates (Collins, 1992b). Epistemically, the field sprouted a variety of
+quasi-realist tendrils inspired by the workings of the human brain or mind. However, these programs
+were stymied by our poor understanding of either.Technologically, the limits of 20th-century computers
+confined researchers to working on “toy” examples that were unsatisfactory to test their theories. And
+organizationally, the field was unable to unify the fractured, personality-driven social networks that
+emerged at its inception. This divided social structure was encouraged by the exceptional autonomy
+AI researchers enjoyed from funders. Although it was fueled by hype around potential, the field never
+developed rigorous mechanisms of evaluation nor a shared agenda. The arrangement led to a series
+“AI Winters” in which funding dried up.
+10
+
+=== PDF PAGE 11 ===
+4.1 THE EPISTEMIC TRIBALISM OF EARLY AI
+The origins of AI as an academic field are commonly traced back to The Dartmouth Summer Research
+Project on Artificial Intelligence that took place in 1956. The workshop’s goal, according to John
+McCarthy and his fellow organizers, was to convene a group of researchers who would “proceed on the
+basis of the conjecture that every aspect of learning or any other feature of intelligence can in principle
+be so precisely described that a machine can be made to simulate it” (McCarthy, John et al., 1955).
+The conference was attended by several influential 20th century computer scientists, including those
+who would dominate AI for the next four decades: Allen Newell, Herbert Simon, John McCarthy, and
+Marvin Minsky. In the years following the workshop, these figures established a wide array of research
+programs consistent with different visions of the workshop’s mission. 3
+The unruly diversity of these projects underscored what ultimately proved to be the essential, fatal
+problem of the field: From Dartmouth onward, nobody could agree on what the term “artificial intel-
+ligence” actually meant. Most of the Dartmouth attendees at least agreed that the “artificial” part
+should be pursued through serial manipulation of symbols and concepts (Minsky, McCarthy, Simon,
+and Newell). But mathematical psychologists like Frank Rosenblatt argued that sub-symbolic, parallel
+processing by brain-like “neurons” (first suggested by McCulloch and Pitts) was a compelling alter-
+native (McCulloch and Pitts, 1943; Rosenblatt, 1958). “Intelligence” was an even deeper quagmire.
+For example, McCarthy and Minsky were initially inseparable as assistant professors at MIT, but
+grew apart because McCarthy’s faith in logical reasoning was incongruent with Minsky’s belief that
+intelligence emerged from complex interactions. The rift ultimately led McCarthy to found his own
+logicist school at Stanford. When asked about the division between the tribes, McCarthy lamented,
+I think we don’t talk to each other as much as we should. We tend to have these separate empires
+[. . . ] none of us has an excessive talent in understanding other people’s points of view. There’s
+a tendency after starting a discussion to say, ah yes, this suggests something that I want to work
+on, and the real desire is to get off alone and work on it (McCorduck, 2004, pg. 133).
+Minsky, ever the provocateur, had sharper words:
+3At Carnegie Mellon, Simon and Newell cultivated a cognitivist approach to AI that focused on emulating how
+humans think. For example at Dartmouth, they showcased their “Logic Theorist” algorithm that proved theorems not
+by brute force exploration of solutions, but by using heuristics to efficiently explore possible approaches (Frants, 2003).
+Initially at MIT and later at Stanford, McCarthy believed that the highest form of intelligence, reasoning, proceeded
+through internally-consistent rules of logic. His commitment to formal logic led him to develop the LISP programming
+language as a way for computers to manipulate math. At MIT, Minsky was inspired by the modularity of the human
+brain. He argued that intelligence would emerge through the complex interactions of limited modules focused on specific
+problems.
+While they lacked the longevity of the above programs, other peripheral projects in the 1950s and 1960s were inspired
+by still other aspects of intelligence. At IBM, Arthur Samuel developed a checkers playing algorithm that served as the
+basis for reinforcement learning. At IBM and Stanford, researchers Raj Reddy and Yehoshua Bar-Hillel were respectively
+inspired by the new field of linguistics to create algorithms for machine translation and automated speech recognition.
+At Cornell, psychologist Frank Rosenblatt picked up on early work by McCullough and Pitts to advance a learning
+approach inspired by the human brain called “artificial neural networks.” Rosenblatt demonstrated some early successes
+in computer vision using the famous perceptron algorithm.
+11
+
+=== PDF PAGE 12 ===
+McCarthy has tried to isolate individual fragments of knowledge and see if he could avoid the
+somewhat ad hoc packaging of them into larger chunks. If he wins it will be nice, but he can’t.
+I’m pretty sure of that (McCorduck, 2004, pg. 308).
+In many sciences, shared epistemic values and experimental cultures provide a productive avenue
+to resolve disagreements (Kuhn, 2012). But in AIR, there simply was no consensus on which values
+(e.g., brain-like realism, mind-like realism, parsimony, or mathematical formalism) were the most
+important ingredients of a good theory. Appealing to realism as evidence for the superiority of one’s
+approach was particularly difficult because the mind and brain remain poorly understood (cognitive
+science and neuroscience were even more immature than AI). When complex problems are amenable
+to multiple empirical strategies, scientists sometimes prefer to distance themselves from competing
+research programs (Peterson, 2015). In AI, the early creative and intellectual differences evident at
+Dartmouth thus ossified into distinct schools more akin to pre-paradigmatic philosophical tribes led
+by charismatic personalities, rather than unifying into a coherent paradigm (Collins, 1992b).
+4.2 THE TECHNOLOGICAL LIMITATIONS OF EARLY AI
+A second reason that AI was unable to coalesce around any one approach is that technological con-
+straints prevented them from empirically testing or realizing their theories. Collins describes the
+advancement of machinery as the key ingredient for rapid discovery (Collins, 1994). Yet, despite
+significant gains over fifty years, 20 th century computers were consistently too anemic to actualize
+the field’s grand ambitions. This led to a focus on limited and self-contained ”toy problems” which,
+although they held little intrinsic value, were supposed to showcase the potential for different ap-
+proaches. Examples included puzzles like Simon’s Tower of Hanoi, chess scenarios with a limited
+number of starting moves, or Minsky’s artificial “block worlds” where virtual robots manipulated
+virtual objects (Simon, 1975; Winograd, 1971; Winston, 1970).
+In an op-ed in AI Magazine in 1991, Roger Schank, a central figure in natural language processing
+at the time, retrospectively delineated “real” AI from mere software engineering by emphasizing that
+AI “program[s] [are] based on a theory [or algorithm] that is likely to scale up” (Schank, 1991). But
+the tacit assumption that success on toy problems would generalize (i.e., “scale up” in Schank’s words)
+to more complex problems was rarely supported. Rule-based, symbolic approaches in AI have proved
+especially susceptible to the combinatorial explosion. That is, as research moves from the Tower
+of Hanoi to checkers to chess, the complexity of the task does not increase linearly. It mushrooms
+exponentially.
+In AI, the theoretical and material constraints were so intractable that researchers struggled to
+appeal to epistemic values to justify their work. Instead, hyping the success of toy problems was one
+of the few ways that researchers could continue to justify interest and investment in the field. Leaders
+12
+
+=== PDF PAGE 13 ===
+were thus some of the worst perpetrators of this practice. For example, Simon mused in 1957 that an
+AI algorithm would be a world chess champion within ten years (Simon and Newell, 1958).
+Schank called hype around the capabilities of toy examples the “gee-whiz” definition of AI (Schank,
+1991). Bar-Hillel, an early innovator in automated speech recognition, pessimistically labeled the
+irrational belief that toy problems would lead to artificial general intelligence, “the fallacy of the
+first step” (Dreyfus, 2012). In other words, simply because AI researchers build a machine that can
+perform some human-like action does not mean a sure path forward has been discovered. To put it
+more bluntly, fiery AI critic Hubert Dreyfus quoted his brother, computer scientist Stuart Dreyfus:
+“It’s like claiming that the first primate to climb a tree was taking a first step towards flight to the
+moon” (CITRIS, 2014).
+Panofsky has documented how dysfunctional protosciences can court outside attention to maintain
+legitimacy (Panofsky, 2014). Without empirical evidence, hype around first-step fallacies became a
+potent form of social currency within the field. Frank Rosenblatt, the chief advocate for artificial
+neural networks (ANNs) in the 1950s-1960s, courted Science and the New Yorker with toy examples
+of the perceptron learning “representations” of cats from images. Under the title “Human Brains
+Replaced?,” Science hyped the invention as “no ordinary mechanical mind which stores up information
+and regurgitates it [, the] Perceptron may eventually be able to learn, make decisions, and translate
+languages” (Crevier, 1993).
+Because hype was such potent currency in the field, Minsky felt threatened by Rosenblatt’s lime-
+light, and disliked him personally because of the lack of mathematical rigor in his work (McCorduck,
+2004, p. 106). In 1969, he and Seymour Papert published a book, called Perceptrons, condemn-
+ing “most writing” on Perceptrons for being ”without scientific value” and providing a famous proof
+showing that perceptrons were incapable of solving a class of simple problems with nonlinear solutions
+(Minsky and Papert, 1969). The book was so caustic that it significantly wounded Rosenblatt both
+personally and professionally (McCorduck, 2004). 4
+4.3 ORGANIZATIONAL AUTONOMY AND DIVISION
+Without theoretical consensus or empirical progress, fields can fail to maintain the interest of funders.
+Yet the Defense Advanced Research Projects Agency (DARPA), the field’s key 20th century benefactor,
+granted exceptional autonomy to elite AI researchers from the 1950s through 1980s.
+DARPA (then called ARPA) was founded in the aftershock of the Soviet Sputnik Launch (1958).
+AI was seen as a key dimension of the US’s competitiveness in the science race. Licklider, the visionary
+director of ARPA’s early computing initiatives from 1962-1964, held the philosophy to “Fund people,
+4The book apparently deeply affected Rosenblatt, and he died just two years later in a boating accident on his 43 rd
+birthday.
+13
+
+=== PDF PAGE 14 ===
+not projects!” (Crevier, 1993; Salisbury, 2020). He put his money where his mouth was starting with a
+gigantic, 2.2 million dollar grant to MIT in 1963 ( $20+ million in 2023), much of it flowing to Minsky
+(Crevier, 1993, pg. 65). For the next three decades, grants of two to three million dollars came
+annually to elites at CMU, Stanford, and MIT with limited strings attached. Edward Feigenbaum was
+a student of Simon and the father of expert systems, the most significant commercial application that
+emerged from symbolic AI. He noted,
+ARPA was focused on excellence. Now, people outside the ARPA community of investigators
+would say that that’s an insider’s view, that in fact it was highly political; it was just that there
+was an ”in” group and an ”out” group. If you were a student of Newell, or Simon, or Minsky, or
+Fano, you were in. That was very political (Feigenbaum, 1989) .
+According to Feigenbaum, it wasn’t merely that ARPA funded specific people. In the heady days
+of the early 1970s, those same people were in fact, setting ARPA’s agenda. Feigenbaum reflected
+wistfully on the days when a small group of AI researchers organized the entire field,
+The ARPA PI’s got together in a room for a few days and talked science, and helped the ARPA
+people plan their next year or two of projects [. . . ] We had Allen Newell, and Alan Perlis, and
+John McCarthy, Marvin Minsky, myself. . . . those were terrific – 20 or 30 people; absolutely stellar,
+wonderful meetings (Feigenbaum, 1989).
+The field evaded accountability partly because there was always a geopolitical reason to fund
+AI. In the 1980s, Japan’s ten-year “Fifth Generation” initiative to build supercomputers for future
+AI motivated DARPA to invest $1 billion on the “National Strategic Computing Initiative” (NSCI)
+(Stefik, 1985). And, by this time, DARPA had concluded that AI’s rare accomplishments (e.g., a
+missile targeting system) justified their “blue-sky” granting philosophy (Forsythe, 2001).
+According to a DARPA-commissioned history of NSCI, program managers during this period did
+not even have the technical expertise to assess the work they were funding (Roland and Shiman, 2002).
+And, because there was a “code of silence” among the grantees “not to embarrass each other” in front
+of the program manager, the information they used to assess progress,
+came from atmosphere, body language, perspiration, and nervousness. One could watch the
+speaker or watch the other PIs. It wasn’t hard to distinguish between the confident, enthusiastic
+presentation that held the audience and the halting and wordy meandering that lost or confused
+the audience. In a way, the other [grantees] were the [program manager’s] best guide to what was
+good and what was not (Roland and Shiman, 2002, pg. 204).
+In 1971-1974 (the first “AI winter”), AI researchers across the US and UK did come under fire for
+failing to deliver on their large promises. But DARPA insulated the elites. Researchers were forced
+to frame their projects in terms of military relevance even though, to quote Feigenbaum, “what we
+all knew about the military could be put in a thimble” (Feigenbaum, 1989). When the DARPA
+program officers read these awkward attempts to appeal to their military patrons, they simply wrote
+14
+
+=== PDF PAGE 15 ===
+the justifications themselves:
+. . . the DARPA people looked at it and said, ”That’s silly. We can’t write that stuff. This is
+ridiculous. We’ll have to take over that job for you.” So they started to craft all the language,
+which they would then slap on to our proposals. We would never see that language. They would
+write all that stuff. The only people who ever saw it were the students who would later dig it up
+under Freedom of Information Act. It wasn’t in the Stanford version of the proposals. It was only
+in the stuff that went up to the DARPA front office (Feigenbaum, 1989).
+The lack of accountability in AI is important because with external accountability comes evaluation,
+and evaluation systems drive consensus formation. Organized evaluation is a defining social structure
+of science that gives it both epistemic and social legitimacy. Yet for the first forty years of AI’s history,
+researchers were able to trade in hype rather than measured progress. In 1984, McCarthy made an
+impassioned plea for more rigorous evaluation in a AAAI presidential address (McCarthy, 1984). But
+by the time Cohen and Howe wrote a manifesto on how to do rigorous evaluation in AI in 1988, it was
+too late. A bitter cold had descended on the field (Cohen and Howe, 1988).
+4.4 THE AI WINTER OF THE LATE 1980s
+Without evaluation, AI researchers lost control of the hype train when “expert systems” caught fire
+in the late 1970s. Pioneered by Feigenbaum, expert systems were logical induction and deduction
+systems that could draw conclusions through if-then-reasoning from facts encoded in a knowledge
+database. The technology proved successful at sophisticated but constrained tasks, such as reading
+mass spectrometry reports or determining different types of loans a bank customer is eligible for.
+Investment into companies marketing expert systems for complex, ambitious problems like medical
+diagnosis exploded.
+But according to Schank, the technology was fatally flawed because it could not naturally generalize;
+each knowledge relationship had to be laboriously hand-encoded by human experts and knowledge
+engineers (Schank, 1987, 1991). This created brittleness that resulted in spectacular failures, such
+as a humorous vignette by Forsythe about a medical system that diagnosed a cis-gender man with
+a disease of the female reproductive system because the relationship between sex and those diseases
+had not been explicitly encoded (Forsythe, 2001). By 1984, Schank and Minsky were both warning
+the public that expert systems were 15 year old technology and the “intelligence” in these systems
+was limited, but it was too late (Crevier, 1993, pg. 204). Ultimately, the field collapsed beneath the
+limitations of expert systems, shifting market forces, and the crushing weight of expected advances
+that never materialized. Economically, expert systems were also increasingly outcompeted by cheaper
+personal computers.
+The confluence of these factors led to a cataclysmic “AI winter” in both academia and industry. AI
+start-ups shuttered and the money dried up. As it became clearer that the weaknesses of symbolic AI
+15
+
+=== PDF PAGE 16 ===
+represented significant technological challenges with no clear path to resolution, the no-strings attached
+grants and plentiful academic positions also disappeared. Researchers fled to industry. According to
+John Makhoul, a scientist working in automated speech recognition at the time, ”’AI’ became a dirty
+word, because of overhyping.”
+5 1980s TO 2012: THE BENCHMARKING ERA
+The vacuum created by GOFAI did not set the stage for the natural emergence of a new basic science
+approach to general AI. Instead, the hard reset allowed DARPA to experiment with a radical new
+formal evaluation system called “benchmarking” for applied problems of obvious commercial and
+military utility; problems like machine translation, information retrieval, and visual object recognition.
+Task-driven scientific communities generally draw from a foundation of knowledge built by a basic
+science wing of their field. What made this experiment revolutionary is that benchmarking presented
+an alternative vision of scientific progress. Rather than a slow evaluation process occurring within
+a matrix of competing values, benchmarking valorized a single epistemic value, predictive accuracy.
+This allowed AI communities to elide the intractable theoretical and material quagmires that had
+plagued GOFAI, and make progress through a suite of statistical learning approaches now collectively
+called “machine learning.” Because benchmarking required ceding autonomy to external actors and
+the displacement of organic evaluation, we view the spread of this mono-value optimization system as
+one of the primary seeds of monoculture within the field.
+5.1 THE ORGANIZATION OF THE FIELD THROUGH BENCHMARK-
+ING
+As GOFAI imploded, one of the applied problems that re-piqued DARPA’s interest was automatic
+speech recognition (ASR). ASR was perceived to be a risky investment at DARPA. In what should
+now be a familiar story, ASR research had been weakly funded since a high-profile report lambasted
+the field, comparing it’s ambitions to “schemes for turning water into gasoline, extracting gold from
+the sea, curing cancer, or going to the moon” during the first AI winter (Pierce, 1969). 5
+5Mark Liberman shared a detailed history of automated speech recognition with us that illustrated this point. In the
+1950s, there was exuberant optimism about how theories of phonology and grammar from the new science of linguistics
+would crack machine translation and speech recognition. But as evidenced by the Schank quote above, the actual
+performance of rule-based linguistic methods was anemic, and optimism began to sour in the 1960s.
+In 1966, John Pierce, a respected executive at Bell Labs who supervised the invention of the transistor, wrote a polite
+but pessimistic report about the future of machine translation for the National Academies of Sciences (Liberman, 2015).
+In 1969, he wrote a significantly more caustic letter to the Journal of the Acoustical Society of America slamming ASR:
+We are safe in asserting that speech recognition is attractive to money. The attraction is perhaps
+similar to the attraction of schemes for turning water into gasoline, extracting gold from the sea,
+16
+
+=== PDF PAGE 17 ===
+With only a small budget in 1985, program manager Allen Sears proposed a new evaluation sys-
+tem that would allow DARPA to immediately quantify return-on-investment. DARPA would hold a
+competition in which researchers competed to build an algorithm that could achieve the highest ac-
+curacy score on a previously unseen dataset (Fig. 1). In ASR, this meant building an algorithm that
+could transcribe the highest number of words from an independent recording correctly. The winner
+of the competition would get the grant, but all researchers were required to share their methods so
+that “simple, clear, sure knowledge is gained” (Pierce, 1969). The system would be formally named
+the “The Common Task Framework.” Colloquially, it would become known as “benchmarking” (and,
+derogatorily, as “bake-offs”).
+Benchmarking differed from organic evaluation systems used in basic science because it forced the
+adoption of a single, narrow definition of AI: AI was about creating algorithms that would advance
+the state of the art on commercial and military problems. In this context, progress was not about
+resolving theoretical disputes or demonstrating creativity on toy examples. Progress was showing your
+algorithms could generalize to new datasets and scenarios, as measured by a single, interpretable,
+quantitative metric: predictive accuracy. This perspective clarified the role of AI scientists, not as
+philosophers, neuroscientists, or cognitive scientists building holistic general AI, but as engineers work-
+ing on specific tasks and measuring progress through explicit metrics.
+Benchmarking also pushed the field away from basic science because it required scientists to cede
+much of the field’s autonomy to external actors. In Bourdieu’s view, the independence of scientists to
+define their own norms/rules, culture, and systems of recruitment is critical to their ability to generate
+ideas and build bodies of knowledge (Bourdieu, 1996, 2004). But in benchmarking, DARPA chose
+the problems that were important. DARPA decided how those problems should be broken down into
+smaller “tasks” that were realistically attainable and measurable. DARPA invited industry labs to
+compete alongside academics. And DARPA redefined the “game” of science, replacing non-monetary
+rewards (e.g. publications, awards, and citation) with cold, hard cash. NIST director and white
+house policy advisor Elham Tabassi explained to us the logic behind this approach: “What causes
+advancements in technology is when the money start pouring in. . . that is one way progress happens-
+when there is one clear application, a clear market, and the challenge has been formulated in a way
+that it’s clear to the community what needs to be done.”
+Mark Liberman, a professor at UPenn and former head of linguistics at Bell Labs, joked that one
+colleague in ASR complained at the time that formal evaluation was “like being in first grade again.”
+But at a time when money was scarce, this approach facilitated buy-in.
+curing cancer, or going to the moon. One doesn’t attract thoughtlessly given dollars by means of
+schemes for cutting the cost of soap by 10%. To sell suckers, one uses deceit and offers glamor
+(Pierce, 1969).
+Aside from one last play at ASR using GOFAI from 1972-1975, Pierce’s criticism largely killed interest in funding
+computational linguistics from 1970-1986.
+17
+
+=== PDF PAGE 18 ===
+5.2 TECHNOLOGICAL ADV ANCES IN COMPUTE AND DATA AC-
+CESS
+Freshly transferred from the NSA, enterprising DARPA program manager Charles Wayne saw the
+potential of Sears’ approach, and organized the first benchmarking competition in 1987 with two
+algorithms: a symbolic, rule-based AI system from Raj Reddy’s team at Carnegie Mellon, and a
+statistical learning model called a Hidden Markov Model (HMM) from BBN Technologies. In a surprise
+to all involved, the HMM edged out the rule-based approach with a slightly higher word translation
+accuracy. Perhaps it was a fluke. The following year, five more teams were invited and again, the
+HMM trounced the rule-based system, this time, decisively.
+These results were revelatory because they showed that benchmarking could be more than a cudgel
+used by funders, but a legitimate scientific tool for revealing epistemic insights. Word translation
+accuracy was acknowledged to be a crude measure that excluded important considerations like a
+word’s frequency of use, semantics, idioms, or syntactic importance in the sentence. Yet it was able to
+arbitrate between competing approaches in a way that qualitative debates had failed. Benchmarking
+showed decisively that statistical algorithms, which could probabilistically handle the ambiguities of
+real data, were more effective than rule-based ones.
+More generally, it showed the potential of machine learning methods to overcome what Schank
+saw as a fatal flaw of GOFAI: with more data and computer power, statistical learning algorithms
+could “scale” in ways that proved impossible for symbolic approaches. HMM’s had been around since
+the 1960s, but according to John Makhoul (a lead scientist at BBN who helped build HMMs for the
+1987-88 competitions), were previously derided by theory-driven linguists as “dumb engineering.” This
+assessment largely came because computers had not been powerful enough, nor digital data plentiful
+enough, to train statistical models with so many parameters.
+Over time, benchmarking continued to transform the field. In addition to arbitrating between
+individual approaches, researchers found the method also effective for charting collective progress in the
+field over time. “Leaderboards” were established that plotted advances in the state-of-the-art accuracy
+scores over time. These leaderboards made it simple to distinguish between significant innovations
+and steady progress. Small gains on accuracy are, in Kuhnian terms, “normal science”—the steady
+march of progress in constructing collective knowledge. Large leaps in benchmark scores signaled
+major innovations (Kuhn, 2012; Sim et al., 2003).
+Benchmarks first gained traction in the automated speech recognition and natural language pro-
+cessing communities, but the culture was contagious. Competitions quickly spread to other AI com-
+munities like information retrieval and computer vision. In 1993 researchers at Bell Labs introduced
+MNIST, an improved version of a NIST dataset, as a public community benchmark for anyone work-
+ing on vision problems (Bottou et al., 1994). MNIST would go on to become one of the most famous
+18
+
+=== PDF PAGE 19 ===
+dataset in machine learning. Formal benchmarking competitions started to be hosted at computer
+science conferences without the involvement of NIST or DARPA, sometimes with monetary incentives.
+Eventually, corporate sponsors began to rival or supplant DARPA/NIST in sponsoring academic con-
+ference competitions (e.g., the famous KDD Cup). Over time, state-of-the-art benchmarking results
+supplanted theoretical novelty as the necessary (albeit, not sufficient) criterion for acceptance at major
+ML publication venues.
+5.3 CONSTRAINED EPISTEMIC PLURALISM
+It has long been uncontentious in the philosophy of science that contributions are value-laden (Mc-
+Mullin, 1982, 2013). According to Dotan (2021), “epistemic virtues are theoretical characteristics
+that are valued because they promote epistemic goals, such as the attainment of truth, knowledge,
+understanding, or explanation.” From this perspective, the goal of organic evaluation in science is
+to holistically evaluate contributions across these various epistemic goals. Weighing these different
+values, researchers provide feedback to improve contributions, and/or bring visibility to those that are
+deemed most significant. In the GOFAI era, theoretical and material quagmires prevented the field
+from applying this type of evaluation effectively and developing the types of ”doable problems” that
+enable fractious fields to be productive (Fujimura, 1992).
+In the 1990s and 2000s, crowning a single epistemic value (predictive accuracy) over others allowed
+the new field of machine learning to blossom without forming consensus on the best approach to AI.
+If an algorithm could achieve state-of-the-art empirical performance, it was worthy of consideration.
+But the presence of evaluative institutions beyond benchmarking, like peer review and theoretical
+frameworks, ensured that accuracy was not the only epistemic value that mattered.
+Consider peer review. In his capacity as the first editor of the field’s first journal The Journal of
+Machine Learning, Pat Langley explicitly solicited papers with empirical, theoretical, and psychological
+evaluation components. He would later write passionately about how different types of figures could
+be used to assess a machine learning algorithm’s success on different epistemic values. (Langley,
+1987; Langley and Kibler, 1997). For example, one type of plot popular early in machine learning’s
+history was the “learning curve” (Fig. 2). In comparison to a benchmarking table, the learning curve
+plotted two epistemic values against each other: number of training examples (i.e., data efficiency)
+and accuracy (i.e., generalization). Expectations of these plots in papers thus incentivized the creation
+of data-efficient algorithms.
+19
+
+=== PDF PAGE 20 ===
+Figure 1: The process of benchmarking . T op Left: A “benchmark” consists of a task that is
+part of a larger a problem, a dataset that is representative for that task, and a metric (usually some
+version of accuracy) that scientists must build an algorithm to maximize. T op Right: Scientists
+then set their algorithms to compete on the benchmark. The algorithm with lowest error (highest
+accuracy) wins the grant. Bottom Left: A typical benchmarking table that appears in a machine
+learning paper. Authors bold their algorithm’s scores to highlight that they achieved state of the art
+accuracy/error scores. Bottom Right: Hypothetical benchmarking curve for a task community over
+time. Gradual lowering of the state-of-the-art error score is “normal science” in Kuhnian terms. A
+large jump in the state-of-the-art suggests a significant innovation.
+20
+
+=== PDF PAGE 21 ===
+Figure 2: Learning Curve (left) and Benchmarking T able (right). Learning curves, which
+depict the tradeoff between learning efficiency and accuracy, have been largely replaced by accuracy-
+only benchmarking tables in MLR.
+In the second era, unifying theory finally emerged in AI. Instead of building theories of mind,
+researchers borrowed ideas from statistics to characterize the asymptotic (and idea) behavior of learning
+algorithms. Interestingly, these frameworks often traded prediction accuracy against other epistemic
+values. For example, Leslie Valiant, a computational complexity theorist who developed an interest in
+AI, introduced “Probably Approximately Correct Learning” theory (PAC learning) to the field in 1984
+(Valiant, 1984). PAC learning allowed scientists to design algorithms that, with high probability, could
+learn functions with an approximate amount of error. But because of his complexity background, his
+theory emphasized that learning algorithms should not only be accurate, but also computationally
+efficient (e.g., run in polynomial time) and data efficient (e.g. require a limited number of training
+examples).
+Another popular theoretical framework, aptly called “statistical learning theory,” (SLT) blossomed
+after the migration of Soviet mathematician Vladimir Vapnik to Bell Labs’ New Jersey campus in 1990
+(Vapnik, 2000). Like PAC learning, SLT also described theoretical accuracy bounds of algorithms to
+solve certain problems. 6 But it differed from PAC by wedding generalization to a different epistemic
+value: parsimony. In Vapnik’s view, the generalization ability of an algorithm was a tradeoff with its
+simplicity (i.e., as measured concretely through the number of parameters or more abstractly through
+the concept of regularization) (Corfield et al., 2009; Bargagli Stoffi et al., 2022). 7
+Although predictive accuracy reigned supreme, the diverse values of the field at the time led
+to the emergence of a variety of machine learning model families with distinct epistemic strengths
+(e.g., Bayesian networks, Bayesian non-parametrics, decision trees, support vector machines, ensemble
+models, neural networks). Moreover given the still constrained data and computational resources at
+6called the Vapnik-Chervonenkis dimension in SLT
+7Interestingly Vapnik viewed statistical learning theory as addressing the problems of natural science. He frequently
+compared his emphasis on model regularization to Popper’s emphasis on falsificaton. See Corfield et al. (2009).
+21
+
+=== PDF PAGE 22 ===
+the time, each of these approaches was reasonably competitive in terms of accuracy. According to
+Langley, this made machine learning susceptible to fashions where each family had its moments in the
+limelight based on some blend of theoretical attractiveness, performance, and hype. Our quantitative
+analysis corroborates his assessment (Fig 3). In the 1980s and early 1990s, explainable “white box”
+algorithms like decision trees and Bayesian networks were in vogue. In the mid 1990s, support vector
+machines (SVMs) took the field by storm because they combined empirical performance with attractive
+statistical properties and guarantees. And in the 2000s, non-parametric Bayesian graphical models
+emerged as worthy competitors to SVMS by blending all of the above.
+A constant competitor throughout this period was a resurgent “connectionist” neural networks
+movement led by a core set of collaborators including David Rumelhart, Geoff Hinton, Jay McClel-
+land, Terry Sejnowsky, Yann Lecun, and Yoshua Bengio. Dead for decades after the publication of
+Perceptrons, Rumelhart and McClelland resucitated interest in ANNs with an 1100 page manifesto
+titled Parallel Distributed Systems published in 1987. The key to their retort was a new wrinkle:
+hidden layers allowed neural networks to overcome the linear separability problem. Multi-layer net-
+works were attractive on multiple epistemic dimensions. Not only were they human brain-inspired,
+but connectionists also showed that hidden layers encoded simple “representations” of their training
+data (Rumelhart et al., 1986). And with enough neurons, a single hidden layer could theoretically
+approximate any non-linear function (the fatal flaw of perceptrons) (Cybenko, 1989). The key to
+these breakthroughs was the (re-)discovery of a new algorithm for training multi-layer networks by
+Rumelhart called “backpropagation” (Rumelhart et al., 1986).
+In summary, the diverse theories and methods that emerged during this period laid the groundwork
+for a new science of machine learning that, even before deep learning, was incredibly productive. These
+tools are used by millions of data scientists and academicians around the world, even today, in scenarios
+where training deep neural networks is impractical or other epistemic values are important.
+6 2012 TO 2021: THE ERA OF DEEP LEARNING MONO-
+CULTURE
+In the Era of Symbolic AI, the field puttered as a tribalist protoscience that was unable to overcome
+epistemic and material constraints to achieve consensus. In the Benchmarking Era, the introduction
+of formal evaluation through benchmarking organized the field around a narrower vision of science
+that allowed for real progress in statistical learning algorithms and theory. Nevertheless, the presence
+of other evaluative institutions and the material constraints of the time encouraged the creation of a
+variety of modeling families, each competitive on accuracy but with different epistemic strengths.
+Everything changed in 2013 (Fig. 3). Research on neural networks exploded. Histories of AI have
+22
+
+=== PDF PAGE 23 ===
+largely dramatized this pivot around a single event: the 2012 ImageNet benchmarking competition
+(Gershgorn, Dave, 2017). In competition with statistical methods, a neural network named AlexNet
+crushed other types of algorithms with over 10% lower error than any of the competitors. From a
+design perspective, AlexNet was not theoretically novel; in fact, it was nearly identical in architecture
+to Yann LeCun’s 1989 network LeNet. Instead, the model’s key innovation was its ability to be trained
+on graphics cards. This allowed the authors to make LeNet deeper and wider than ever before: scaling
+from three hidden layers and 10,000 parameters to eight hidden layers and 60 million parameters. The
+approach showed convincing evidence that simply scaling up neural networks and using large datasets
+like Imagenet was a viable method of increasing accuracy on benchmarks.
+Figure 3: Estimated rates of publication in AI on various different machine learning techniques from
+1993 to 2018. Shaded areas represent credible intervals and dots represent statistically significant rate
+shifts. Deep learning explodes in 2013, while research on other methods remains stagnant.
+23
+
+=== PDF PAGE 24 ===
+Despite parallel trends occurring with other vision datasets and in NLP, the story of the 2012
+Imagenet competition is widely viewed as a validation for deep neural networks as a methodology, and
+the beginning of the “deep learning” era of AI (Graves and Schmidhuber, 2008; Krizhevsky, 2009)
+. Over the next ten years, AIR would enjoy frenzied progress and explosive growth on the back of
+deep learning. The driving force behind this growth was a simple reality: the larger the network and
+dataset, the better a model performed on benchmarks.
+In fact, we argue that a distinctive feature of the last decade of AI is not just its explosive progress,
+but its epistemic narrowness. What we find striking about Figure 3 is not the well-documented
+explosive growth of machine learning, but instead the fact that the other methodological paradigms
+introduced at the end of Section 2 effectively faded away after 2013. 8 This phenomenon can partly be
+attributed to the conservatisim incentived by benchmarking itself: when a contribution’s significance
+becomes equated with state-of-the-art (SOTA) accuracy, the safest career choice is to demonstrate
+SOTA results with the least resource investment. In practice, this means starting with the current
+SOTA (deep learning) and marginally iterating from there.
+However, the story is more complicated than that. In this section, we describe how material,
+organizational, and epistemic factors dovetailed to create adeep learning monoculture. From a material
+perspective, the discovery that reliable performance gains could be achieved by building larger and
+larger networks created a demand for larger and larger datasets and compute. From an organizational
+perspective, these greater material needs transferred the locus of power in AI away from government
+and towards large IT firms (i.e., Facebook and Google) who had the resources, but also less incentive
+to explore other research strategies. And from an epistemic perspective, scaling traded off accuracy
+gains against other epistemic values like explainability, parsimony, and theoretical consistency. The
+flipside is that this tradeoff relieved reliance on slower evaluative institutions beyond benchmarking
+(i.e., peer review, formal theory), allowing the field to grow/advance faster than ever before.
+6.1 THE TECHNICAL RAMIFICATIONS OF (REALLY) BIG DATA
+AND COMPUTE
+The ImageNet 2012 competition was so influential because it revealed two crucial material affordances
+required to unlock the potential of deep neural networks: parallel processors and big datasets. By the
+early 2000s, neural networks had fallen out of favor compared to other approaches (particularly SVMs
+and Bayesian models), largely due to how difficult they were to train (Fig. 3). Unlike optimizing other
+models, training an ANN through backpropagation did not guarantee that the model would learn the
+best solution from its training data. ANNs thus required art-like fiddling and multiple attempts before
+8Because scientific production ( especially in AI) grows exponentially, constant levels of research on other model
+families is an effective decrease in relevance in the field.
+24
+
+=== PDF PAGE 25 ===
+acceptable accuracy results could be achieved. Backpropagation on serial computer processors was
+also slow, yet building custom parallel chips to accelerate the process was impractically expensive.
+According to Makhoul, these limitations led to reduced interest in connectionism in the late 1990s and
+early 2000s as SVMs and Bayesian non-parametrics became popular (Fig. 3).
+The first breakthrough to these problems came in 2007 when Andrew Ng and students demonstrated
+that the training of neural networks could be vastly accelerated by using NVIDIA’s graphical processing
+units (GPUs), originally designed for video games and movie effects (Raina et al., 2009). The second
+secret ingredient was the rise of large datasets in computer vision like CIFAR-10, and of course,
+Imagenet Deng et al. (2009); Krizhevsky (2009). At the time, ImageNet consisted of 1.3 million images,
+each labeled with the objects inside of them. A dataset of this scope was completely unprecedented
+in the history of academic machine learning research because it had been prohibitively expensive and
+time consuming to label that many images. 9
+AlexNet was not the first neural network to leverage these advantages to build deeper neural
+networks, but it was the first to show that doing so could yield a network capable of annihilating
+other machine learning approaches on a high-profile benchmark competition. Other model families
+were simply not able to exploit graphical processing units or larger datasets to the same extent.
+This discovery that wider and deeper networks performed better on benchmarks, colloquially called
+“scaling,” has been a major driving factor behind the incredible progress of deep learning over the
+past ten years. In 2022, Andrej Karpathy (cofounder of OpenAI, Director of AI at Tesla) revisited
+LeNet and AlexNet to celebrate the 33rd birthday of the former algorithm (Andrej Karpathy, 2022).
+Despite some tweaks, his overall conclusion was,
+not much has changed in 33 years on the macro level. We’re still setting up differentiable neural
+net architectures made of layers of neurons and optimizing them end-to-end with backpropagation
+and stochastic gradient descent. Everything reads remarkably familiar, except it is smaller.
+Between 2012 and 2017, researchers did engage in some architectural exploration (e.g., Cho et al.
+(2014); He et al. (2015); Sabour et al. (2017)). But two other transformative innovations propelled
+scaling forward and put the search for new models to bed. The first was the discovery by Mikolov
+et al. (2013) at Google that deep learning models could learn meaningful correlations in data by using
+mindless objectives like predicting the next word in all of Google Books. Because this process did not
+require laborious and expensive data labeling, it unlocked the usage of far larger datasets than even
+Imagenet. These “pretrained” models could be “finetuned” for specific tasks or “aligned” to human
+language/values later.
+9In 2008, Imagenet became one of the first major projects to crowd-source data annotation, by leveraging the new
+Mechanical Turk platform. Mechanical Turk allowed researchers to pay below minimum wage for data annotation.
+Researchers have expressed regret over this point, but the reality is that project otherwise could not have been done in
+academia (Gershgorn, Dave, 2017) .
+25
+
+=== PDF PAGE 26 ===
+The second breakthrough was the “Transformer” architecture by Vaswani et al. (2017) (also at
+Google) that leveraged the structure of text, image, and graph data to greatly improve ANN perfor-
+mance. Where previous designs (i.e., recurrent neural networks) had treated text only as sequences
+of words, Transformers could attend to relationships between each word in a passage heterogeneously
+and in any order. However these advantages again came at the cost of other epistemic values. Where
+the memory and computational complexity of recurrent networks scaled linearly with the length of
+input text, the material needs of transformers scaled quadratically due to a higher density of param-
+eters (Gu and Dao, 2023). The higher density of parameters in Transformers also made it harder to
+explain what, or understand how, these learned from data. After 2017 and before 2021, there were
+essentially no major innovations in the design of neural networks. To understand why, we turn to the
+organizational forces that drove the field toward scaling.
+6.2 ORGANIZATIONAL POWER SHIFTS FROM ACADEMIA AND
+GOVERNMENT TO INDUSTRY
+The new emphasis on data and compute created by scaling shifted the locus of power within the
+field. Over the 1990s and 2000s, the growing utility of machine learning methods had started to make
+technology companies increasingly important actors within the field. While government funders were
+still key players, companies like Yelp and Netflix began to fund benchmarking competitions (Yelp,
+????; Netflix, 2009). For young academics, both industry and academia were seen as viable career
+paths.
+As data and compute became increasingly important, two companies were uniquely positioned to
+capitalize on machine learning and dominate the field: Google and Facebook (now Meta). Data is
+the foundation of Google and Meta’s business. Innovated by tech executive Sheryl Sandberg first at
+Google and later at Facebook, both companies share the same “surveillance capitalism” revenue model:
+they provide free services (e.g., Google Search, Gmail, Android, Facebook, Instagram) in exchange for
+customers’ personal data (Zuboff, 2015). This data is used to develop targeted advertising platforms
+to sell to other companies. Because both companies have billions of customers, their troves of data
+were/are enormous and their computing infrastructure peerless. Moreover, they had a vested interest
+in machine learning to create both compelling services and effective advertising.
+Seeing the potential of deep learning, Google, Facebook, and others invested heavily in industrial
+AI research labs. Google founded Google Brain in 2011, and poached Andrew Ng and Geoff Hinton
+from academia to run it. It later bought Deepmind in 2014. Facebook hired Yann LeCun to start
+Facebook AI Research in 2013. Realizing Microsoft Research was behind the curve, the company
+invested billions of dollars in startups OpenAI and Cohere between 2019 and 2023. In China, large IT
+firms such as Alibaba and Baidu have also started major machine learning labs.
+26
+
+=== PDF PAGE 27 ===
+The large investments of these IT firms significantly reduced the influence of government in driving
+the research agenda of the field. As Ken Church, former director of NLP research at Baidu said,
+“NIST no longer matters.” In 2022, the US government spent more than 6 billion dollars on AI
+research. Meanwhile, the tech giants Google, Microsoft, and Meta spent at least 20 billion alone.
+It is not the case, however, that industry made academia irrelevant. It became the norm for
+industry to publish academic papers and open-source their benchmark datasets and algorithms. This
+practice kept academics involved in researching questions that were of direct interest to companies, and
+maintains academia’s relevance as a PhD training pipeline. Ken Harper, a Vice President at Nuance (a
+Microsoft subsidiary), explained, ”Everyone’s using the same technology from a modeling perspective.
+What’s different is the data and how you teach these machines with the data.” Yoshua Bengio has
+expounded that industry benefits from this arrangement because the value during the scaling years
+was not in the models, which rarely changed. It was in the large, proprietary datasets used to train
+them (Yoshua Bengio, 2017).
+Nevertheless, the concentration of data, computing, talent, and money at large IT companies
+has firmly shifted the power to set the agenda of the field into the hands of industry, not academia
+or government. In other work, we have shown how industry and elite academic affiliates produce
+the majority of benchmarks that are used across the field (Koch et al., 2021). To the extent that
+benchmarks define the tasks and data that the field should seek to solve, this is a reflection of industry’s
+disproportionate influence on the field. Others have shown that industry researchers consistently
+produce the top benchmarks Ahmed et al. (2023).
+Multiple interviewees at Apple, Google and Microsoft have emphasized how the disproportionate
+influence of large industry players has ossified the field around a scaling monoculture. It is no secret
+that large organizations, government or corporate, are conservative in their agendas. In the context
+of science, Naomi Oreskes has illustrated how large organizations are naturally inclined to support
+research trajectories that align with their interests (Oreskes, 2021). For corporations, exploring high-
+risk and/or basic research is not good business. On the other hand, scaling was, and remains, the
+intellectually cheapest way for companies to create more accurate algorithms. As a Principal Scientist
+at Apple who asked to remain anonymous put it,
+The path of least resistance in terms of a human cognitive breakthrough is to keep using the indus-
+try approach of adding more data and computation. . . Maybe the improvement [on benchmark
+scores] will diminish, but at least you are guaranteed. Whereas compared to really having the
+intellectual breakthrough, that’s really unpredictable.”
+Francois Chollet, one of the primary inventors of Google’s Tensorflow (the most widely-used deep
+learning programming language in the world) agreed:
+I think we’re going to develop new directions again when we’ve run out of steam with the current
+approach. The only issue is that of course you can always squeeze some extra juice out of scale.
+27
+
+=== PDF PAGE 28 ===
+Like with a few extra billion dollars you can probably get something extra. And so far there’s
+been this insane appetite to just scale more, throw more money at the problem, and of course it is
+a diminishing return. I mean, we’ve been in diminishing returns territory for years now. So we’ve
+had to move from $1 million training runs to $100 million training runs. And the models aren’t
+100x better. They’re maybe 2X better. But yeah, what about 1 billion dollar training runs? What
+about 10 billion training runs? Maybe they can be 20% better and apparently we are still going
+because there’s still appetite for that. But at some point we will have to explore new things.
+6.3 THEORY AND PEER REVIEW IN A BENCHMARKING WORLD
+While only evident in retrospect, the commitment to scaling represented a unique epistemic bargain:
+the field exchanged singular accuracy gains on relevant tasks for other epistemic values. Consider the
+values previously wedded to accuracy in the field’s PAC learning and SLT theoretical frameworks.
+Both theories emphasized identifying theoretical bounds on accuracy in the limit, but ANN optimiza-
+tion through backpropagation makes no convergence guarantees, rendering such discussions somewhat
+irrelevant. In practice, training large ANNs requires tacit knowledge, intuition, trial-and-error, and
+potentially thousands of false starts to get a network to converge on an acceptable solution. PAC
+learning emphasized efficiency in terms of both data and compute. In contrast, scaling relies on thou-
+sands of GPUs gobbling up electricity and internet-scale datasets. A key value in SLT is parsimony.
+But as ML theorist Rishi Sonthali told us, “in classical [low dimension] statistics... we want the correct
+sort of complexity level and that’s the only thing that will work. But modern machine learning is like
+nah, just make it bigger. And somehow nothing bad happened.” In other words, enormous networks
+are actually better at prediction than smaller ones. 10 Lastly, simpler models are preferred in science
+when explanatory power is similar (i.e., Occam’s razor), in part because they are more interpretable.
+In practice, networks with billions of neurons have limited explanatory power, and they are completely
+opaque to mechanical interpretation. 11
+At the awards ceremony for NeurIPS (one of most prestigious AIR publication venues) in 2017,
+Ali Rahimi and Ben Recht were honored with a “test-of-time award” for their work on efficiently
+training SVMs (Rahimi and Recht, 2017, 2007). In their speech, they lamented how the “NeurIPS
+rigor police” had kept them honest about the asymptotic bounds of their algorithm in 2007. In
+contrast, they compared the current focus on deep learning to “alchemy,” with a special emphasis
+on how training deep networks has become more art than science because our understanding of their
+learning and decision-making is so limited.
+The critique of deep learning as alchemy, while inflammatory at the time, is now widely acknowl-
+10This phenomenon is called “double descent” in the machine learning literature. For interested readers, see Belkin
+et al. (2019).
+11The field of “explainable AI” has made little progress on mechanical interpretation of parameters. Some of the
+most commonly used methods in the field like SHAP and integrated gradients have been criticized as misleading. See
+Bilodeau et al. (2024).
+28
+
+=== PDF PAGE 29 ===
+edged by elites within the field. In the conclusion of an influential 2021 paper, Noam Shazeer, an
+inventor of the Transformer, cheekily concludes, “we offer no explanation as to why these architec-
+tures seem to work; we attribute their success, as all else, to divine benevolence” (Shazeer, 2020).
+Prominent AI critic Melanie Mitchell asked us, “Modern deep learning, does that have a theory? I
+don’t think it does [. . . ] It seems like trial and error.” And to quote Chollet,
+We build systems, we don’t do anything else. We don’t really have theory. We build systems, and
+then these systems are defined by what they can do, and they’re better than other systems if they
+can do more. And you have to use benchmark data sets to test that. So that’s really the first
+thing to understand is that we are not, we’re not doing science here. We’re doing engineering.
+Yann LeCun was livid with Rahimi and Recht’s speech, but not at the claim that AI has become
+alchemy. Instead, he questioned the utility of theory altogether,
+Sticking to a set of methods just because you can do theory about it, while ignoring a set of
+methods that empirically work better just because you don’t (yet) understand them theoretically
+is akin to looking for your lost car keys under the street light knowing you lost them someplace
+else.
+There is, of course, still theory driving design in AI, but it is intuitive theory. While moving away
+from mathematical formalization may be a shift for AIR, it is not exceptional in science by itself. But
+LeCun’s critique hits on a key strength of epistemic monoculture: when there is only one epistemic
+value consistent with progress, organic evaluation institutions that bridge multiple values (e.g., formal
+theory, peer review) are optional. All you need is benchmarking. Beyond theory, the relevance of peer
+review has been diminishing in machine learning. As of 2021, NeurIPS expects papers to cite relevant
+pre-prints released within three months of the submission deadline. And prestige corporate AI labs
+like OpenAI submit their white papers for publication only occasionally. Organizationally, formal
+theory-building and peer review are on the decline because they are slow, laborious processes. On the
+other hand, the speed, immediate verifiability, and easy intelligibility of benchmarking have been key
+factors in the field’s unprecedented acceleration over the past decade.
+7 DISCUSSION
+In the preceding pages, we chart the historical development of the field of AIR through three eras
+and across their epistemic, organizational, and technological dimensions. In the Era of Symbolic AI,
+theories of machine intelligence flourished, but technological limitations and misaligned organizational
+incentives produced a fractured field with little way for organic evaluation to take hold. During
+the Benchmarking Era, enterprising DARPA program managers redesigned the field around formal
+evaluations based on narrowly defined tasks with commercial or military application. Benchmarks
+highlighted the effectiveness of statistical machine learning approaches over the symbolic ones that
+29
+
+=== PDF PAGE 30 ===
+dominated the field at the time. For the next 25 years, several competitive machine learning model
+families emerged, each manifesting different epistemic strengths and weaknesses. However, advances in
+computer technology and increased access to data through the internet produced the ideal conditions
+for one approach- deep learning- to dominate benchmarks. The Deep Learning Era was characterized
+by three significant developments. First, a narrowing of the field to deep learning led to a deep
+commitment to the scaling of compute and data that allowed it to make progress. Second, there was
+a significant shift of gravity away from government and academia to the tech industry, who had the
+data and compute to pursue scaling as a research program. Third, the reliance on benchmarking
+diminished emphasis on organic evaluation institutions such as formal/mathematical theory-building
+and peer-review.
+Put even more simply, intellectual fecundity and chaos of the first era motivated the creation
+of benchmarks, a muscular organizational intervention to structure the field. Benchmarks, in turn,
+provided the perfect soil for deep learning to out-compete and dominate a landscape shaped by formal
+evaluation.
+This historical narrative illustrates how the organizational structure, epistemic orientation, and
+material resources of science can dovetail to ossify an epistemic culture that is simultaneously extremely
+efficient and extremely narrow in its research interests (i.e., a monoculture). In AIR, the ceding of
+autonomy and the adoption of benchmarking were the critical connective tissues in this alignment.
+Ceding autonomy allowed external actors to streamline research agendas, and benchmarking was the
+technological intervention that allowed them to do so.
+A monoculture like AIR is efficient because benchmarking directs researchers to optimize a single
+epistemic value on specific tasks, and provides simple, verifiable, and interpretable quantifications of
+significance/progress towards those goals. The slow process of self-directed exploration in basic science
+can be accelerated because the externally-dictated problem space for scientists to explore is smaller. 12
+Plodding organic evaluation institutions like peer review, mathematical theory-building, and citation
+can be shed because there is no emphasis on innovating across multiple epistemic values.
+But tying its identity to a single epistemic value and external interests is also how AIR became so
+narrow in its research agenda. When scientists can only gain high-status publications by demonstrating
+SOTA accuracy, the safest research choice becomes incrementally advancing proven methods, not
+innovating new ones (Foster et al., 2015). In basic science, organic evaluative institutions allow fields
+to evolve across different epistemic dimensions. Furthermore, external actors like government and
+industry are also beholden to their own stakeholders. Industry in particular must pursue research
+programs that will yield immediate applications at the lowest financial risk, regardless of their long-
+term potential. To this point, recent research has suggested industry R&D is less innovative than work
+by academics in AIR (Liang et al., 2024a).
+12Yann LeCun has made a similar point.
+30
+
+=== PDF PAGE 31 ===
+The final ingredient that ossified this arrangement as a monoculture and not a transitive state
+of the field is the distribution of material resources. Resources are power. The emergence of scaling
+as the field’s favored research program wrested power away from government and academia because
+they lacked the data, compute, or money to participate autonomously. Academia has subsequently
+become a training pipeline for industry, and academic research is dependent on industry for grants,
+data, pre-trained models, and access to compute (Ahmed et al., 2023; Koch et al., 2021).
+7.1 THE SOCIAL IMPLICATIONS OF AIR MONOCULTURE
+AIR’s monoculture is sociologically provocative because it poses a challenge to the 20th-century belief
+that basic research is necessary for scientific progress. Whether monocultures are normatively better
+or worse than basic science at knowledge construction is unanswerable. Nevertheless the empirical
+outcome of AIR’s monoculture, large-scale deep learning, has significant social impacts, both positive
+and negative.
+Given the emphasis on accuracy above all else, it is unsurprising that large-scale deep learning rates
+weaker on many of the epistemic values that are traditionally prized in science (McMullin, 1982, 2013;
+Dotan, 2021). Because scaling progresses by fueling ever-more parameters through ever-more compute
+and data, the approach is inherently less parsimonious, explainable, or data/compute efficient than
+others popular ten years ago. From a realism perspective, text pre-training is decidedly alien from
+human learning, requiring millions of repeated exposures to millions of data points, instead of a handful
+of exposures to a handful of data points. To elide these limitations, the field has moved away from
+mathematically formal (a la physics or statistics) and/or realist (a la neuroscience) theory-building
+and relied more on empirically-testable, intuitive theory to drive innovation.
+Real negative social consequences result from these epistemic weaknesses. First, the carbon foot-
+print of AI is enormous. A recent estimate suggested AI will soon consume as much electricity as
+Argentina or Sweden (Vries, 2023). It is not just training that contributes to this cost, but infer-
+ence: generating a single image from a text prompt consumes about as much electricity as charging a
+cellphone to 100% (Luccioni et al., 2023). Second, the curation of large datasets often requires tacit
+privacy violations when IT companies use surveillance capitalism to harvest data from social media,
+apps, search tools, and devices (Zuboff, 2015). Another important source of data, webscraping, has
+similarly spurred lawsuits by content creators seeking royalties for their intellectual property (Small,
+2023). Finally, the inability to understand how these models learn or make decisions has perpetuated
+social inequalities. Six years after AI ethicists first called attention to how language models gender
+women as nurses rather than doctors, generative AI models prompted to create images of ”terror-
+ists” and ”criminals” still almost exclusively synthesize pictures of Brown men (Caliskan et al., 2017;
+Nicoletti and Equality, 2023). If AI required smaller, more-tractable datasets or made explainable
+31
+
+=== PDF PAGE 32 ===
+decisions, we could better mitigate some of these deleterious consequences.
+However, AI ethics concerns have (regrettably) begun to fade into the limelight as the accom-
+plishments of large-scale deep learning pile up. The deep learning era already saw the creation of
+classifiers that outperform experts at limited tasks (e.g., detecting tumors in medical imaging) and
+social media/search algorithms that crucially shape how we consume cultural content and knowledge.
+Now we are entering a new era of generative AI. In the past two years AI has moved beyond creat-
+ing human-level cultural content to independently solving open-ended, high-skill tasks (e.g., taking
+doctors’ notes, designing websites). Perhaps the greatest argument for monoculture then is that this
+approach is moving us closer to the field’s original theoretical dream of general AI. This is happening
+not because scientists were allowed to explore autonomously, but because of their focus on commercial
+tasks. It turned out that passing the Turing test required a market for artificial customer service
+agents, not a theory of a mind.
+7.2 THE DIFFUSION OF THE DEEP LEARNING MONOCULTURE
+ACROSS THE SCIENCES
+So what does the success of monoculture mean for the future of basic research in science? Basic
+research is obviously not going away. But our contention is that AI’s monoculture is contagious. Over
+the past twenty years, sciences have already begun to change their workflows to account for the size and
+“black-box” nature of machine learning algorithms. But compared to older models, deep learning and
+generative AI require even greater compromises along these dimensions. We believe these compromises
+will further spread some of the epistemological and organizational features of AIR’s monoculture to
+other fields.
+Epistemologically, black-box models have already spurred debates across the sciences about the
+values of prediction vis ` a visexplanation. In statistics, Leo Breiman’s piece about “the two [evidential]
+cultures” has over 5,700 citations (Breiman, 2001). In sociology and computational social science,
+Duncan Watts and collaborators have similarly pushed for greater emphasis on generalizability over
+“unscientific stories” (2014:313) (Hoffman, 2017; Watts, 2014). Machine learning models have typically
+been applied for intermediate problems that are deemed taskifiable, and/or where the benefits of
+prediction outweigh the utility of explanation. But as deep learning and generative AI progress to
+increasingly sophisticated tasks, decisions about which problems can be taskified and which ones
+demand theoretical explanation will become harder.
+The story of AlphaFold, deep learning’s crowning scientific success in science to date, illustrates
+this dilemma. AlphaFold is a Google Deepmind algorithm for predicting the 3D structure of proteins.
+Folding proteins was considered a famously difficult problem in Biology. Capturing the crystal struc-
+ture of a protein in vivo is a slow and laborious process, and biophysical models had not achieved the
+32
+
+=== PDF PAGE 33 ===
+maturity to reliably simulate structures across a wide variety of contexts.
+As structural biologist Mohammed Al Quirishi writes, protein folding was perfect for DeepMind
+because it was already taskified ”with clear objectives and metrics. Science is almost never this way
+but protein structure prediction actually fit the bill perfectly.” Every other year, structural biologists
+would hold a benchmarking competition to compare their simulations against crystalized structures
+for proteins (AlQuraishi, 2020). Google entered the competition twice, and in 2021, effectively solved
+the protein-folding task.
+The success of AlphaFold has transformative potential in fields as varied as neuroscience, evolu-
+tionary biology, and drug discovery. But the reality is that while the “task” of protein folding has been
+solved, we are no closer to understanding how folding occurs than before AlphaFold’s success (Chen
+et al., 2023). Structural biology thus faces a crossroads that other sciences will increasingly have to
+confront: do they build on AlphaFold’s opaque solution and move onto other problems, or continue to
+work on protein folding as a pressing theoretical issue? As black-box deep learning is applied to in-
+creasingly sophisticated problems in science, the debate between predictive and explanatory evidential
+cultures will become ever-more urgent (Collins, 1998).
+Because unexplainable AI can only be evaluated through benchmarking, this epistemic dilemma
+also has implications for autonomy and the organization of science as well. Can benchmarking com-
+petitions bring progress to other problems where explanation-based, basic science has failed to build
+consensus? In 2017, Salganik et al. (2020) organized “the Fragile Families Competition” as a radical
+test of this approach in the social sciences. It turned out that machine learning models of the time were
+not able to overcome the sparsity of that dataset. But outcomes of such experiments may change as
+models evolve in the era of Generative AI. For a field like sociology that has achieved limited consensus
+on how to explain social phenomena, more benchmarking might be a good thing. Sociologists might
+chafe at the loss of autonomy if publication in American Sociological Review required achieving the
+highest R2 on an inequality task. But it might help the field elide the intractability of its project.
+The data and compute requirements of scaling are also driving organizational changes in science.
+Data has traditionally been viewed as private, high value, and the source of competitive advantage in
+science. But the rise of large datasets (and large models that require them) has pushed traditionally
+low-data fields towards centralized repositories similar to those that emerged in genomics thirty years
+ago. At the same time, scientific reform movements have pressured publishers and scientists to publicly
+contribute their data to these repositories to address the replication crisis (Peterson and Panofsky,
+2023).
+As in AI, steep data and compute requirements are also increasing the dependence of all fields
+on the IT industry. 13 In the deep learning era, scientists started to become dependent on models
+that were pre-trained by Facebook and Google on proprietary datasets (e.g., Word2Vec, BERT).
+13Not to mention social scientists’ increasing reliance on social media data as our social interactions have moved online.
+33
+
+=== PDF PAGE 34 ===
+When these models need further fine-tuning, scientists often turn to Amazon and Microsoft for cloud
+compute resources. And in the era of generative AI, the sheer scale of models has led IT companies
+to transition from public releases to subscriptions and a la carte fees for use. 14 We are reaching the
+point where universities must cede autonomy with respect to compute or be left behind. This has led
+to recent initiatives at the national and international levels for public-funded supercomputers for LLM
+training and inference that are in their early stages (Lohr, 2020; Workshop et al., 2023).
+We note that the processes of contagion described here go far beyond science. Technology-heavy
+fields like finance and medicine are struggling with the same epistemic and organizational dilemmas
+stemming from their increased reliance on black boxes and the tech industry. As Generative AI evolves,
+similar challenges will be presented to each of us in our daily lives as well.
+7.3 CONCLUSION: THE TRADEWINDS OF GENERATIVE AI
+Our history ends in 2021 because AI is presently being transformed by generative models. As we
+reflect above, the success of generative AI challenges basic science by showing that monoculture can
+spawn algorithms that are not only narrowly task-driven, but move us closer to the field’s original
+goals of general AI. It is too early to tell, but several of the evaluative and organizational features of
+AIR’s monoculture may be in flux due to this disruption.
+First, carefully constructed, mono-value benchmarks may not be able to keep pace with the ex-
+panding capabilities of large models. One popular alternative right now are dynamic, crowd-sourced
+“chess match” benchmarks where users enter any prompt they like and pick the better response from
+two large language models (Chiang et al., 2024). A chess ranking algorithm then sorts models on these
+wins and losses to create leaderboards. Like citation or peer review, this new form of benchmarking is
+organic in that users are likely considering multiple epistemic values. But the values they are consider-
+ing, or their expertise in making those judgements, is unclear, turning benchmarking into a black-box
+itself. At the same time, large models have created a crisis for laborious organic evaluation in science.
+Recent estimates indicate that up to 15% of peer reviews in top AI conferences contain some LLM
+generated content, suggesting that the practice may need to be radically reconsidered (Liang et al.,
+2024b).
+In 2022, the loss of autonomy by academic AI hit a nadir. After 2020’s GPT-3, OpenAI (the
+leader in the field at the time) stopped releasing full papers and code for it’s models to academics
+as it started to commercialize its models. Academia’s role in SOTA research was increasingly murky.
+But the punishing expense of scaling has also spurred real innovations in model design, training,
+and inference that can squeeze more performance from the same compute and data. 15 In February
+14Open models are discussed in the conclusion.
+15Examples include quantization
+34
+
+=== PDF PAGE 35 ===
+2023, Meta broke with OpenAI (and followed past tradition) to release Llama to the public. Llama
+leveraged these efficiency developments to become the first near-SOTA model that could be run on
+regular computers for years. Meta has positioned Llama and similar models as “open” in the sense
+that they use non-proprietary data and the weights and architecture are free to use. The rise of open
+models has given academic research much-needed oxygen to help industry move generative AI forward.
+But it has not increased academic autonomy in any fundamental sense. It is estimated that training
+Llama 2’s 70 billion parameters from scratch costs between 1-2 million dollars, putting training far
+beyond the reach of academics (Touvron et al., 2023). And as long as scaling remains important, open
+models will always lag behind the true, enterprise-scale SOTA algorithms (e.g., GPT-4, Gemini Pro
+as we write this).
+It is too early to tell how the rise of generative AI will reshape AIR, and science more generally.
+We, like all others, are eager to see what the future holds.
+References
+Abbott, Andrew. 1981. “Status and Status Strain in the Professions.” American Journal of Sociology
+86:819–835. Publisher: University of Chicago Press.
+Ahmed, Nur, Muntasir Wahed, and Neil C. Thompson. 2023. “The growing influence of industry in AI
+research.” Science 379:884–886. Publisher: American Association for the Advancement of Science.
+AlQuraishi, Mohammed. 2020. “AlphaFold2 @ CASP14: “It feels like one’s child has left home.”.”
+Andrej Karpathy. 2022. “Deep Neural Nets: 33 years ago and 33 years from now.”
+Bargagli Stoffi, Falco J., Gustavo Cevolani, and Giorgio Gnecco. 2022. “Simple Models in Complex
+Worlds: Occam’s Razor and Statistical Learning Theory.” Minds and Machines 32:13–42.
+Belkin, Mikhail, Daniel Hsu, Siyuan Ma, and Soumik Mandal. 2019. “Reconciling modern machine-
+learning practice and the classical bias–variance trade-off.” Proceedings of the National Academy of
+Sciences of the United States of America 116:15849–15854.
+Bilodeau, Blair, Natasha Jaques, Pang Wei Koh, and Been Kim. 2024. “Impossibility theorems for
+feature attribution.” Proceedings of the National Academy of Sciences 121:e2304406120. Publisher:
+Proceedings of the National Academy of Sciences.
+Bloor, David. 1991. Knowledge and Social Imagery . Chicago, IL: University of Chicago Press.
+Bottou, L´ eon, Corinna Cortes, John S. Denker, Harris Drucker, Isabelle Guyon, Larry D. Jackel, Yann
+LeCun, Urs A. Muller, Edward Sackinger, and Patrice Simard. 1994. “Comparison of classifier meth-
+ods: a case study in handwritten digit recognition.” In Proceedings of the 12th IAPR International
+35
+
+=== PDF PAGE 36 ===
+Conference on Pattern Recognition, Vol. 3-Conference C: Signal Processing (Cat. No. 94CH3440-5),
+volume 2, pp. 77–82. IEEE.
+Bourdieu, Pierre. 1996. The Rules of Art: Genesis and Structure of the Literary Field . Stanford
+University Press. Google-Books-ID: 5cgxLnbZjhcC.
+Bourdieu, Pierre. 2004. Science of Science and Reflexivity . Polity. Google-Books-ID: ZvsN0SyhiDAC.
+Breiman, Leo. 2001. “Statistical Modeling: The Two Cultures (with comments and a rejoinder by the
+author).” Statistical Science 16:199–231. Publisher: Institute of Mathematical Statistics.
+Bush, Vannevar. 2021. “Science, the Endless Frontier.” In Science, the Endless Frontier . Princeton
+University Press.
+Caliskan, Aylin, Joanna J. Bryson, and Arvind Narayanan. 2017. “Semantics derived automatically
+from language corpora contain human-like biases.” Science 356:183–186. Publisher: American
+Association for the Advancement of Science.
+Cetina, Karin Knorr. 1999. Epistemic Cultures: How the Sciences Make Knowledge . Harvard Univer-
+sity Press.
+Chen, Shi-Jie, Mubashir Hassan, Robert L. Jernigan, Kejue Jia, Daisuke Kihara, Andrzej Kloczkowski,
+Sergei Kotelnikov, Dima Kozakov, Jie Liang, Adam Liwo, Silvina Matysiak, Jarek Meller, Cristian
+Micheletti, Julie C. Mitchell, Sayantan Mondal, Ruth Nussinov, Kei-Ichi Okazaki, Dzmitry Pad-
+horny, Jeffrey Skolnick, Tobin S. Sosnick, George Stan, Ilya Vakser, Xiaoqin Zou, and George D.
+Rose. 2023. “Opinion: Protein folds vs. protein folding: Differing questions, different challenges.”
+Proceedings of the National Academy of Sciences of the United States of America 120:e2214423119.
+Chiang, Wei-Lin, Lianmin Zheng, Ying Sheng, Anastasios Nikolas Angelopoulos, Tianle Li, Dacheng
+Li, Hao Zhang, Banghua Zhu, Michael Jordan, Joseph E. Gonzalez, and Ion Stoica. 2024. “Chatbot
+Arena: An Open Platform for Evaluating LLMs by Human Preference.” arXiv:2403.04132 [cs].
+Cho, Kyunghyun, Bart van Merrienboer, Caglar Gulcehre, Dzmitry Bahdanau, Fethi Bougares, Holger
+Schwenk, and Yoshua Bengio. 2014. “Learning Phrase Representations using RNN Encoder-Decoder
+for Statistical Machine Translation.” arXiv:1406.1078 [cs, stat].
+CITRIS. 2014. “Keynote Hubert Dreyfus.”
+Cohen, Paul R. and Adele E. Howe. 1988. “How Evaluation Guides AI Research: The Message Still
+Counts More than the Medium.” AI Magazine 9:35–35. Number: 4.
+Cole, Stephen. 1992. Making Science: Between Nature and Society . Harvard University Press. Google-
+Books-ID: AusBqjmZM9AC.
+36
+
+=== PDF PAGE 37 ===
+Collins, Harry. 1992a. Changing Order: Replication and Induction in Scientific Practice . Chicago, IL:
+University of Chicago Press.
+Collins, H. M. 1981. “The Place of the ‘Core-Set’ in Modern Science: Social Contingency with
+Methodological Propriety in Science.” History of Science 19:6–19. Publisher: SAGE Publications
+Ltd.
+Collins, H. M. 1998. “The Meaning of Data: Open and Closed Evidential Cultures in the Search for
+Gravitational Waves.” American Journal of Sociology 104:293–338. Publisher: The University of
+Chicago Press.
+Collins, Randall. 1992b. The Sociology of Philosophies: A Global Theory of Intellectual Change .
+Harvard University Press. Google-Books-ID: 2HS1DOZ35EgC.
+Collins, Randall. 1994. “Why the Social Sciences Won’t Become High-Consensus, Rapid-Discovery
+Science.” Sociological Forum 9:155–177. Publisher: [Wiley, Springer].
+Corfield, David, Bernhard Sch¨ olkopf, and Vladimir Vapnik. 2009. “Falsificationism and Statistical
+Learning Theory: Comparing the Popper and Vapnik-Chervonenkis Dimensions.” Journal for Gen-
+eral Philosophy of Science 40:51–58.
+Crevier, Daniel. 1993. AI: The Tumultuous History of the Search for Artificial Intelligence . Pages:
+386.
+Cybenko, G. 1989. “Approximation by superpositions of a sigmoidal function.” Mathematics of
+Control, Signals and Systems 2:303–314.
+Deng, Jia, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei. 2009. “ImageNet: A large-
+scale hierarchical image database.” In 2009 IEEE Conference on Computer Vision and Pattern
+Recognition, pp. 248–255. ISSN: 1063-6919.
+Dotan, Ravit. 2021. “Theory choice, non-epistemic values, and machine learning.”Synthese 198:11081–
+11101.
+Dreyfus, Hubert L. 2012. “A History of First Step Fallacies.” Minds and Machines 22:87–99.
+Feigenbaum, Edward. 1989. “Interview Conducted by William Aspray.” .
+Forsythe, Diana. 2001. Studying Those Who Study Us: An Anthropologist in the World of Artificial
+Intelligence. Stanford University Press. Google-Books-ID: orNUzuFQeLgC.
+Foster, Jacob G., Andrey Rzhetsky, and James A. Evans. 2015. “Tradition and Innovation in Scientists’
+Research Strategies.” American Sociological Review 80:875–908. Publisher: SAGE Publications Inc.
+37
+
+=== PDF PAGE 38 ===
+Fujimura, Joan H. 1992. “Crafting science: Standardized packages, boundary objects, and “trans-
+lation.”.” In Science as Practice and Culture , edited by A. Pickering, pp. 168–211. Chicago, IL:
+University of Chicago Press.
+Gershgorn, Dave. 2017. “The data that transformed AI research—and possibly the world.” Quartz .
+Gieryn, Thomas F. 1999. Cultural Boundaries of Science: Credibility on the Line . University of
+Chicago Press.
+Graves, Alex and J¨ urgen Schmidhuber. 2008. “Offline handwriting recognition with multidimensional
+recurrent neural networks.” Advances in neural information processing systems 21.
+Gu, Albert and Tri Dao. 2023. “Mamba: Linear-Time Sequence Modeling with Selective State Spaces.”
+He, Kaiming, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. 2015. “Deep Residual Learning for Image
+Recognition.” arXiv:1512.03385 [cs].
+Hoffman, Steve G. 2017. “Managing Ambiguities at the Edge of Knowledge: Research Strategy and
+Artificial Intelligence Labs in an Era of Academic Capitalism.” Science, Technology, & Human
+Values 42:703–740. Publisher: SAGE Publications Inc.
+Hull, David L. 2001. Science and Selection: Essays on Biological Evolution and the Philosophy of
+Science. Cambridge University Press.
+Jasanoff, Sheila and Sang-Hyun Kim. 2009. “Containing the Atom: Sociotechnical Imaginaries and
+Nuclear Power in the United States and South Korea.” Minerva 47:119–146. Publisher: Springer.
+Kitcher, Philip. 1995. The Advancement of Science: Science without Legend, Objectivity without
+Illusions. Oxford, New York: Oxford University Press.
+Koch, Bernard, Emily Denton, Alex Hanna, and Jacob G. Foster. 2021. “Reduced, Reused and
+Recycled: The Life of a Dataset in Machine Learning Research.”
+Koch, Bernard, Daniele Silvestro, and Jacob G. Foster. 2020. “The Evolutionary Dynamics of Cultural
+Change (As Told Through the Birth and Brutal, Blackened Death of Metal Music).”
+Krizhevsky, Alex. 2009. Learning Multiple Layers of Features from Tiny Images . Ph.D. thesis, Uni-
+versity of Toronto.
+Kuhn, Thomas S. 2012. The Structure of Scientific Revolutions . University of Chicago Press. Google-
+Books-ID: 3eP5Y OOuzwC.
+Lamont, Michele. 2009. How Professor Think: Inside the Curious World of Academic Judgment .
+Cambridge, MA: Harvard University Press.
+38
+
+=== PDF PAGE 39 ===
+Langley, Pat. 1987. “Research Papers in Machine Learning.” Machine Learning 2:195–198.
+Langley, Pat and Dennis Kibler. 1997. “The Experimental Study of Machine Learning.” .
+Latour, Bruno. 1987. Science in Action: How to Follow Scientists and Engineers Through Society .
+Harvard University Press. Google-Books-ID: sC4bk4DZXTQC.
+Latour, Bruno and Steve Woolgar. 2013. Laboratory Life: The Construction of Scientific Facts .
+Princeton University Press.
+Liang, Lizhen, Han Zhuang, James Zou, and Daniel E. Acuna. 2024a. “The complementary contribu-
+tions of academia and industry to AI research.” arXiv:2401.10268 [cs].
+Liang, Weixin, Zachary Izzo, Yaohui Zhang, Haley Lepp, Hancheng Cao, Xuandong Zhao, Lingjiao
+Chen, Haotian Ye, Sheng Liu, Zhi Huang, Daniel A. McFarland, and James Y. Zou. 2024b. “Moni-
+toring AI-Modified Content at Scale: A Case Study on the Impact of ChatGPT on AI Conference
+Peer Reviews.” arXiv:2403.07183 [cs].
+Lohr, Steve. 2020. “Universities and Tech Giants Back National Cloud Computing Project.” The New
+York Times .
+Luccioni, Alexandra Sasha, Yacine Jernite, and Emma Strubell. 2023. “Power Hungry Processing:
+Watts Driving the Cost of AI Deployment?” arXiv:2311.16863 [cs].
+McCarthy, John. 1984. “We Need Better Standards for Artificial Intelligence Research: President’s
+Message.” AI Magazine 5:7–7. Number: 3.
+McCarthy, John, Minsky, Marvin, Rochester, Nathaniel, and Shannon, Claude E. 1955. “A Proposal
+For The Darmouth Summer Research Program on Artificial Intelligence.” .
+McCorduck, Pamela. 2004. Machines who think: a personal inquiry into the history and prospects of
+artificial intelligence. Natick, Mass: A.K. Peters, 25th anniversary update edition.
+McCulloch, Warren S. and Walter Pitts. 1943. “A logical calculus of the ideas immanent in nervous
+activity.” The bulletin of mathematical biophysics 5:115–133.
+McMullin, Ernan. 1982. “Values in Science.” PSA: Proceedings of the Biennial Meeting of the Philos-
+ophy of Science Association 1982:2–28. Publisher: Cambridge University Press.
+McMullin, Ernan. 2013. “The Virtues of a Good Theory.” In The Routledge Companion to Philosophy
+of Science. Routledge, 2 edition. Num Pages: 11.
+39
+
+=== PDF PAGE 40 ===
+Mikolov, Tomas, Ilya Sutskever, Kai Chen, Greg S. Corrado, and Jeff Dean. 2013. “Distributed
+representations of words and phrases and their compositionality.” Advances in neural information
+processing systems 26.
+Minsky, Marvin and Seymour A. Papert. 1969. Perceptrons: An Introduction to Computational Ge-
+ometry. The MIT Press.
+Mitchell, Melanie. 2019. Artificial Intelligence: A Guide for Thinking Humans . New York: Farrar,
+Straus and Giroux, first edition edition.
+Netflix. 2009. “Netflix Prize: Forum / Grand Prize awarded to team BellKor’s Pragmatic Chaos.”
+Nicoletti, Leonardo and Dina Bass Technology + Equality. 2023. “Humans Are Biased. Generative AI
+Is Even Worse.” Bloomberg.com .
+Oreskes, Naomi. 2021. Science on a Mission: How Military Funding Shaped What We Do and Don’t
+Know about the Ocean . University of Chicago Press.
+Panofsky, Aaron. 2014. Misbehaving Science: Controversy and the Development of Behavior Genetics .
+Chicago, IL: University of Chicago Press.
+Peterson, David. 2015. “All That Is Solid: Bench-Building at the Frontiers of Two Experimental
+Sciences.” American Sociological Review 80:1201–1225.
+Peterson, David and Aaron Panofsky. 2021. “Self-correction in science: The diagnostic and integrative
+motives for replication.” Social Studies of Science 51:583–605. Publisher: SAGE Publications Ltd.
+Peterson, David and Aaron Panofsky. 2023. “Metascience as a Scientific Social Movement.” Minerva
+61:147–174.
+Pierce, J. R. 1969. “Whither Speech Recognition?” The Journal of the Acoustical Society of America
+46:1049–1051.
+Polanyi, Michael. 1962. “Tacit Knowing: Its Bearing on Some Problems of Philosophy.” Reviews of
+Modern Physics 34:601–616. Publisher: American Physical Society.
+Polanyi, Michael, John Ziman, and Steve Fuller. 1962. “The republic of science: its political and
+economic theory Minerva, I (1)(1962), 54-73.” Minerva 38:1–32. Publisher: JSTOR.
+Rahimi, Ali and Benjamin Recht. 2007. “Random Features for Large-Scale Kernel Machines.” In
+Advances in Neural Information Processing Systems , volume 20. Curran Associates, Inc.
+Rahimi, Ali and Benjamin Recht. 2017. “Reflections on Random Kitchen Sinks.”
+40
+
+=== PDF PAGE 41 ===
+Raina, Rajat, Anand Madhavan, and Andrew Y. Ng. 2009. “Large-scale deep unsupervised learning
+using graphics processors.” In Proceedings of the 26th Annual International Conference on Machine
+Learning, pp. 873–880, Montreal Quebec Canada. ACM.
+Rheinberger, Hans-J¨ org. 1997.Toward a History of Epistemic Things: Synthesizing Proteins in the
+Test Tube. Stanford: Stanford University Press.
+Roland, Alex and Philip Shiman. 2002. Strategic computing: DARPA and the quest for machine
+intelligence, 1983-1993 . History of computing. Cambridge, Mass: MIT Press.
+Rosenblatt, F. 1958. “The perceptron: A probabilistic model for information storage and organization
+in the brain.” Psychological Review 65:386–408. Place: US Publisher: American Psychological
+Association.
+Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. 1986. “Learning representations
+by back-propagating errors.” Nature 323:533–536. Publisher: Nature Publishing Group.
+Sabour, Sara, Nicholas Frosst, and Geoffrey E. Hinton. 2017. “Dynamic Routing Between Capsules.”
+arXiv:1710.09829 [cs].
+Salganik, Matthew J., Ian Lundberg, Alexander T. Kindel, Caitlin E. Ahearn, Khaled Al-Ghoneim,
+Abdullah Almaatouq, Drew M. Altschul, Jennie E. Brand, Nicole Bohme Carnegie, Ryan James
+Compton, Debanjan Datta, Thomas Davidson, Anna Filippova, Connor Gilroy, Brian J. Goode,
+Eaman Jahani, Ridhi Kashyap, Antje Kirchner, Stephen McKay, Allison C. Morgan, Alex Pent-
+land, Kivan Polimis, Louis Raes, Daniel E. Rigobon, Claudia V. Roberts, Diana M. Stanescu,
+Yoshihiko Suhara, Adaner Usmani, Erik H. Wang, Muna Adem, Abdulla Alhajri, Bedoor AlShebli,
+Redwane Amin, Ryan B. Amos, Lisa P. Argyle, Livia Baer-Bositis, Moritz B¨ uchi, Bo-Ryehn Chung,
+William Eggert, Gregory Faletto, Zhilin Fan, Jeremy Freese, Tejomay Gadgil, Josh Gagn´ e, Yue Gao,
+Andrew Halpern-Manners, Sonia P. Hashim, Sonia Hausen, Guanhua He, Kimberly Higuera, Bernie
+Hogan, Ilana M. Horwitz, Lisa M. Hummel, Naman Jain, Kun Jin, David Jurgens, Patrick Kamin-
+ski, Areg Karapetyan, E. H. Kim, Ben Leizman, Naijia Liu, Malte M¨ oser, Andrew E. Mack, Mayank
+Mahajan, Noah Mandell, Helge Marahrens, Diana Mercado-Garcia, Viola Mocz, Katariina Mueller-
+Gastell, Ahmed Musse, Qiankun Niu, William Nowak, Hamidreza Omidvar, Andrew Or, Karen
+Ouyang, Katy M. Pinto, Ethan Porter, Kristin E. Porter, Crystal Qian, Tamkinat Rauf, Anahit
+Sargsyan, Thomas Schaffner, Landon Schnabel, Bryan Schonfeld, Ben Sender, Jonathan D. Tang,
+Emma Tsurkov, Austin van Loon, Onur Varol, Xiafei Wang, Zhi Wang, Julia Wang, Flora Wang,
+Samantha Weissman, Kirstie Whitaker, Maria K. Wolters, Wei Lee Woon, James Wu, Catherine
+Wu, Kengran Yang, Jingwen Yin, Bingyu Zhao, Chenyun Zhu, Jeanne Brooks-Gunn, Barbara E.
+Engelhardt, Moritz Hardt, Dean Knox, Karen Levy, Arvind Narayanan, Brandon M. Stewart, Dun-
+can J. Watts, and Sara McLanahan. 2020. “Measuring the predictability of life outcomes with
+41
+
+=== PDF PAGE 42 ===
+a scientific mass collaboration.” Proceedings of the National Academy of Sciences 117:8398–8403.
+Publisher: Proceedings of the National Academy of Sciences.
+Salisbury, Emma. 2020. “A Cautionary Tale on Ambitious Feats of AI: The Strategic Computing
+Program.”
+Schank, Roger C. 1987. “What Is AI, Anyway?” AI Magazine 8:59–59. Number: 4.
+Schank, Roger C. 1991. “Where’s the AI?” AI Magazine 12:38–38. Number: 4.
+Shazeer, Noam. 2020. “GLU Variants Improve Transformer.” arXiv:2002.05202 [cs, stat].
+Sim, S.E., S. Easterbrook, and R.C. Holt. 2003. “Using benchmarking to advance research: a chal-
+lenge to software engineering.” In 25th International Conference on Software Engineering, 2003.
+Proceedings., pp. 74–83. ISSN: 0270-5257.
+Simon, Herbert A. 1975. “The functional equivalence of problem solving skills.” Cognitive Psychology
+7:268–288.
+Simon, Herbert A. 1995. “Artificial intelligence: an empirical science.” Artificial Intelligence 77:95–
+127.
+Simon, Herbert A. and Allen Newell. 1958. “Heuristic Problem Solving: The Next Advance in Oper-
+ations Research.” Operations Research 6:1–10. Publisher: INFORMS.
+Small, Zachary. 2023. “Sarah Silverman Sues OpenAI and Meta Over Copyright Infringement.” The
+New York Times .
+Stefik, Mark. 1985. “Strategic computing at DARPA: Overview and assessment.” Communications of
+the ACM 28:690–704. Publisher: ACM New York, NY, USA.
+Touvron, Hugo, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay
+Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Dan Bikel, Lukas Blecher, Cris-
+tian Canton Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu,
+Wenyin Fu, Brian Fuller, Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony Hartshorn,
+Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel
+Kloumann, Artem Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee,
+Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar Mishra,
+Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi,
+Alan Schelten, Ruan Silva, Eric Michael Smith, Ranjan Subramanian, Xiaoqing Ellen Tan, Binh
+Tang, Ross Taylor, Adina Williams, Jian Xiang Kuan, Puxin Xu, Zheng Yan, Iliyan Zarov, Yuchen
+Zhang, Angela Fan, Melanie Kambadur, Sharan Narang, Aurelien Rodriguez, Robert Stojnic, Sergey
+42
+
+=== PDF PAGE 43 ===
+Edunov, and Thomas Scialom. 2023. “Llama 2: Open Foundation and Fine-Tuned Chat Models.”
+arXiv:2307.09288 [cs].
+Valiant, L. G. 1984. “A theory of the learnable.” Communications of the ACM 27:1134–1142.
+Vapnik, Vladimir N. 2000. The Nature of Statistical Learning Theory . New York, NY: Springer.
+Vaswani, Ashish, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez,  Lukasz
+Kaiser, and Illia Polosukhin. 2017. “Attention is All you Need.” In Advances in Neural Information
+Processing Systems, volume 30. Curran Associates, Inc.
+Vries, Alex de. 2023. “The growing energy footprint of artificial intelligence.” Joule 7:2191–2194.
+Publisher: Elsevier.
+Watts, Duncan J. 2014. “Common Sense and Sociological Explanations.” American Journal of Soci-
+ology 120:313–351. Publisher: The University of Chicago Press.
+Winograd, Terry. 1971. “Procedures as a Representation for Data in a Computer Program for Under-
+standing Natural Language.” Accepted: 2004-10-20T20:29:48Z.
+Winston, Patrick H. 1970. “Learning Structural Descriptions from Examples.” Accepted: 2004-10-
+20T20:04:22Z.
+Workshop, BigScience, Teven Le Scao, Angela Fan, Christopher Akiki, Ellie Pavlick, Suzana Ili´ c,
+Daniel Hesslow, Roman Castagn´ e, Alexandra Sasha Luccioni, Fran¸ cois Yvon, Matthias Gall´ e,
+Jonathan Tow, Alexander M. Rush, Stella Biderman, Albert Webson, Pawan Sasanka Ammana-
+manchi, Thomas Wang, Benoˆ ıt Sagot, Niklas Muennighoff, Albert Villanova del Moral, Olatunji
+Ruwase, Rachel Bawden, Stas Bekman, Angelina McMillan-Major, Iz Beltagy, Huu Nguyen, Lucile
+Saulnier, Samson Tan, Pedro Ortiz Suarez, Victor Sanh, Hugo Lauren¸ con, Yacine Jernite, Julien
+Launay, Margaret Mitchell, Colin Raffel, Aaron Gokaslan, Adi Simhi, Aitor Soroa, Alham Fikri Aji,
+Amit Alfassy, Anna Rogers, Ariel Kreisberg Nitzav, Canwen Xu, Chenghao Mou, Chris Emezue,
+Christopher Klamm, Colin Leong, Daniel van Strien, David Ifeoluwa Adelani, Dragomir Radev,
+Eduardo Gonz´ alez Ponferrada, Efrat Levkovizh, Ethan Kim, Eyal Bar Natan, Francesco De Toni,
+G´ erard Dupont, Germ´ an Kruszewski, Giada Pistilli, Hady Elsahar, Hamza Benyamina, Hieu Tran,
+Ian Yu, Idris Abdulmumin, Isaac Johnson, Itziar Gonzalez-Dios, Javier de la Rosa, Jenny Chim,
+Jesse Dodge, Jian Zhu, Jonathan Chang, J¨ org Frohberg, Joseph Tobing, Joydeep Bhattachar-
+jee, Khalid Almubarak, Kimbo Chen, Kyle Lo, Leandro Von Werra, Leon Weber, Long Phan,
+Loubna Ben allal, Ludovic Tanguy, Manan Dey, Manuel Romero Mu˜ noz, Maraim Masoud, Mar´ ıa
+Grandury, Mario ˇSaˇ sko, Max Huang, Maximin Coavoux, Mayank Singh, Mike Tian-Jian Jiang,
+Minh Chien Vu, Mohammad A. Jauhar, Mustafa Ghaleb, Nishant Subramani, Nora Kassner,
+43
+
+=== PDF PAGE 44 ===
+Nurulaqilla Khamis, Olivier Nguyen, Omar Espejel, Ona de Gibert, Paulo Villegas, Peter Hen-
+derson, Pierre Colombo, Priscilla Amuok, Quentin Lhoest, Rheza Harliman, Rishi Bommasani,
+Roberto Luis L´ opez, Rui Ribeiro, Salomey Osei, Sampo Pyysalo, Sebastian Nagel, Shamik Bose,
+Shamsuddeen Hassan Muhammad, Shanya Sharma, Shayne Longpre, Somaieh Nikpoor, Stanislav
+Silberberg, Suhas Pai, Sydney Zink, Tiago Timponi Torrent, Timo Schick, Tristan Thrush, Valentin
+Danchev, Vassilina Nikoulina, Veronika Laippala, Violette Lepercq, Vrinda Prabhu, Zaid Alyafeai,
+Zeerak Talat, Arun Raja, Benjamin Heinzerling, Chenglei Si, Davut Emre Ta¸ sar, Elizabeth Salesky,
+Sabrina J. Mielke, Wilson Y. Lee, Abheesht Sharma, Andrea Santilli, Antoine Chaffin, Arnaud
+Stiegler, Debajyoti Datta, Eliza Szczechla, Gunjan Chhablani, Han Wang, Harshit Pandey, Hen-
+drik Strobelt, Jason Alan Fries, Jos Rozen, Leo Gao, Lintang Sutawika, M. Saiful Bari, Maged S.
+Al-shaibani, Matteo Manica, Nihal Nayak, Ryan Teehan, Samuel Albanie, Sheng Shen, Srulik Ben-
+David, Stephen H. Bach, Taewoon Kim, Tali Bers, Thibault Fevry, Trishala Neeraj, Urmish Thakker,
+Vikas Raunak, Xiangru Tang, Zheng-Xin Yong, Zhiqing Sun, Shaked Brody, Yallow Uri, Hadar To-
+jarieh, Adam Roberts, Hyung Won Chung, Jaesung Tae, Jason Phang, Ofir Press, Conglong Li,
+Deepak Narayanan, Hatim Bourfoune, Jared Casper, Jeff Rasley, Max Ryabinin, Mayank Mishra,
+Minjia Zhang, Mohammad Shoeybi, Myriam Peyrounette, Nicolas Patry, Nouamane Tazi, Omar
+Sanseviero, Patrick von Platen, Pierre Cornette, Pierre Fran¸ cois Lavall´ ee, R´ emi Lacroix, Samyam
+Rajbhandari, Sanchit Gandhi, Shaden Smith, St´ ephane Requena, Suraj Patil, Tim Dettmers, Ahmed
+Baruwa, Amanpreet Singh, Anastasia Cheveleva, Anne-Laure Ligozat, Arjun Subramonian, Aur´ elie
+N´ ev´ eol, Charles Lovering, Dan Garrette, Deepak Tunuguntla, Ehud Reiter, Ekaterina Taktasheva,
+Ekaterina Voloshina, Eli Bogdanov, Genta Indra Winata, Hailey Schoelkopf, Jan-Christoph Kalo,
+Jekaterina Novikova, Jessica Zosa Forde, Jordan Clive, Jungo Kasai, Ken Kawamura, Liam Hazan,
+Marine Carpuat, Miruna Clinciu, Najoung Kim, Newton Cheng, Oleg Serikov, Omer Antverg, Os-
+kar van der Wal, Rui Zhang, Ruochen Zhang, Sebastian Gehrmann, Shachar Mirkin, Shani Pais,
+Tatiana Shavrina, Thomas Scialom, Tian Yun, Tomasz Limisiewicz, Verena Rieser, Vitaly Pro-
+tasov, Vladislav Mikhailov, Yada Pruksachatkun, Yonatan Belinkov, Zachary Bamberger, Zdenˇ ek
+Kasner, Alice Rueda, Amanda Pestana, Amir Feizpour, Ammar Khan, Amy Faranak, Ana Santos,
+Anthony Hevia, Antigona Unldreaj, Arash Aghagol, Arezoo Abdollahi, Aycha Tammour, Azadeh
+HajiHosseini, Bahareh Behroozi, Benjamin Ajibade, Bharat Saxena, Carlos Mu˜ noz Ferrandis, Daniel
+McDuff, Danish Contractor, David Lansky, Davis David, Douwe Kiela, Duong A. Nguyen, Edward
+Tan, Emi Baylor, Ezinwanne Ozoani, Fatima Mirza, Frankline Ononiwu, Habib Rezanejad, Hessie
+Jones, Indrani Bhattacharya, Irene Solaiman, Irina Sedenko, Isar Nejadgholi, Jesse Passmore, Josh
+Seltzer, Julio Bonis Sanz, Livia Dutra, Mairon Samagaio, Maraim Elbadri, Margot Mieskes, Marissa
+Gerchick, Martha Akinlolu, Michael McKenna, Mike Qiu, Muhammed Ghauri, Mykola Burynok,
+Nafis Abrar, Nazneen Rajani, Nour Elkott, Nour Fahmy, Olanrewaju Samuel, Ran An, Rasmus
+Kromann, Ryan Hao, Samira Alizadeh, Sarmad Shubber, Silas Wang, Sourav Roy, Sylvain Vigu-
+ier, Thanh Le, Tobi Oyebade, Trieu Le, Yoyo Yang, Zach Nguyen, Abhinav Ramesh Kashyap,
+44
+
+=== PDF PAGE 45 ===
+Alfredo Palasciano, Alison Callahan, Anima Shukla, Antonio Miranda-Escalada, Ayush Singh, Ben-
+jamin Beilharz, Bo Wang, Caio Brito, Chenxi Zhou, Chirag Jain, Chuxin Xu, Cl´ ementine Fourrier,
+Daniel Le´ on Peri˜ n´ an, Daniel Molano, Dian Yu, Enrique Manjavacas, Fabio Barth, Florian Fuhri-
+mann, Gabriel Altay, Giyaseddin Bayrak, Gully Burns, Helena U. Vrabec, Imane Bello, Ishani Dash,
+Jihyun Kang, John Giorgi, Jonas Golde, Jose David Posada, Karthik Rangasai Sivaraman, Lokesh
+Bulchandani, Lu Liu, Luisa Shinzato, Madeleine Hahn de Bykhovetz, Maiko Takeuchi, Marc P` amies,
+Maria A. Castillo, Marianna Nezhurina, Mario S¨ anger, Matthias Samwald, Michael Cullan, Michael
+Weinberg, Michiel De Wolf, Mina Mihaljcic, Minna Liu, Moritz Freidank, Myungsun Kang, Natasha
+Seelam, Nathan Dahlberg, Nicholas Michio Broad, Nikolaus Muellner, Pascale Fung, Patrick Haller,
+Ramya Chandrasekhar, Renata Eisenberg, Robert Martin, Rodrigo Canalli, Rosaline Su, Ruisi Su,
+Samuel Cahyawijaya, Samuele Garda, Shlok S. Deshmukh, Shubhanshu Mishra, Sid Kiblawi, Simon
+Ott, Sinee Sang-aroonsiri, Srishti Kumar, Stefan Schweter, Sushil Bharati, Tanmay Laud, Th´ eo
+Gigant, Tomoya Kainuma, Wojciech Kusa, Yanis Labrak, Yash Shailesh Bajaj, Yash Venkatraman,
+Yifan Xu, Yingxin Xu, Yu Xu, Zhe Tan, Zhongli Xie, Zifan Ye, Mathilde Bras, Younes Belkada, and
+Thomas Wolf. 2023. “BLOOM: A 176B-Parameter Open-Access Multilingual Language Model.”
+arXiv:2211.05100 [cs].
+Yelp. ???? “Yelp Dataset.”
+Yoshua Bengio. 2017. “The Mind of the Universe.”
+Zuboff, Shoshana. 2015. “Big other: Surveillance Capitalism and the Prospects of an Information
+Civilization.” Journal of Information Technology 30:75–89. Publisher: SAGE Publications Ltd.
+45

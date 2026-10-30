@@ -1,0 +1,1038 @@
+
+=== PDF PAGE 1 ===
+Benchmark Radar: A Living Database and Search
+Engine for AI Benchmarks and Evaluation
+Koutian Wu∗†1,2 Wenjun Zhang∗4 Junjie Zhou3 Pengqian Han5 Qiming Bao5,6 Ergan Shang7
+Jiayu Wang8 Junkai Wang9 Wanghan Xu10 Songyuanyi Lu11 Yixuan Li12
+Rudy Mizrahi Celekli 13 Lazizbek Ravshanov14 Yaoliang Bian15,16 Xudong Han17 Lin Shi18
+1Earth-Space-AI 2Tacite AI 3Hangzhou Dianzi University 4The University of Queensland 5The University of Auckland 6Xtracta
+7Carnegie Mellon University 8Xi’an Jiaotong University 9Tsinghua University 10Shanghai Jiao Tong University
+11The University of Hong Kong 12Independent Researcher 13Gradia 14University of Cincinnati 15Westlake University
+16Shenzhen Loop Area Institute 17University of Sussex 18Cornell Tech
+Dashboard: benchmark-radar.org Code: github.com/ktwu01/benchmark-radar
+Abstract
+Benchmark researchers and developers of large language models (LLMs) and other AI systems
+need to find relevant evaluations, locate their benchmark datasets and code, and understand the
+settings behind reported scores. We present Benchmark Radar, a living database and search en-
+gine for retrieval and discovery of AI benchmarks, covering LLM evaluation, agentic and tool-use
+benchmarks, coding, reasoning, safety, and domain-specific evaluations. The system combines daily
+discovery of benchmark papers, repositories, datasets, and releases with a searchable benchmark
+catalog, mentions in model cards and technical reports, and score histories. It retains source iden-
+tities and citations so readers can inspect candidate benchmarks and their evaluation evidence.
+Daily discovery draws on 37 sources: 13 direct connectors and 24 first-party research and engi-
+neering feeds. The catalog contains 1,283 source records drawn from 4 benchmark catalogs and
+12,916 numeric observations on 790 records. We describe collection and retrieval, audit the full
+catalog, and examine benchmark saturation, adoption trends, and the limits of score comparisons.
+A worked example walks through a complete prior-art search, showing how to query the catalog
+and inspect benchmark evidence when designing a new evaluation. We release the web dashboard
+with a benchmark leaderboard, a Pareto frontier view of score against measured use, saturation and
+trend views, daily feeds, downloadable evidence, a command-line interface (CLI) for offline queries,
+and reproducible analysis.
+Figure 1: Benchmark Radar connects discovery, retrieval, and source inspection.
+∗These authors contributed equally to this work.
+†Corresponding author: k@tacite.ai
+1
+arXiv:2609.11115v4  [cs.AI]  27 Oct 2026
+
+=== PDF PAGE 2 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+1 Introduction
+The Transformer architecture established attention-based sequence modeling as a foundation for mod-
+ern large language models (LLMs) [66]. GPT-6 Astra and Claude Fable 5.1 are designed for coding,
+research, and tasks that span multiple tools [3, 46]. Comparing these models requires benchmarks that
+expose failures and distinguish capability gains from changes in prompts, data splits, or evaluation
+procedures [21, 49, 52, 57].
+Evaluation also matters beyond general-purpose chat. In recommender systems, Transformer-style
+sequence models and LLM-based methods support user, item, and preference modeling, with efficient
+training needed at production scale [29, 55, 63]. Foundation models are also used to model biological,
+geoscientific, and physical processes [13, 56, 65, 69, 77]. In social and political analysis, language models
+support text annotation and simulated human samples, while network methods quantify balance and
+polarization dynamics [4, 16, 35, 36, 45, 58]. Benchmark scores inform claims of progress across these
+scientific, industrial, and decision-support settings.
+Benchmarks differ in the abilities they test. Broad evaluations of knowledge and reasoning include
+MMLU [21], GPQA [52], and Humanity’s Last Exam [49]. Others isolate more specific capabilities:
+SWE-bench measures whether models can resolve real GitHub issues [27], LiveCodeBench tests code
+generation with date-based splits to reduce contamination from training data [26], and Terminal-Bench
+and Long-Horizon-Terminal-Bench test command-line agents on operational tasks [37, 41]. The Harbor
+framework ports more than 80 such benchmarks to a common execution contract so that arbitrary
+agents can be evaluated against them, and its Harbor-Index curates 82 difficult tasks drawn from
+29 of those benchmarks [20, 59]. Domain-specific evaluations include FinanceBench for finance and
+economics [25], MATH for mathematics [22], SciBench for scientific problem solving [67], LAB-Bench
+for biology [34], and ChemBench for chemistry [42]. ESM-Bench tests agents’ understanding of Earth
+system model physics and code [70]; ResearchClawBench evaluates end-to-end autonomous scientific
+research [74]; and ASI-Bench examines scientific exploration and execution with progressively less
+methodological guidance [78]. ScienceIDE converts scientific code repositories into executable, agent-
+learnable environments for training and evaluating scientific agents [15]. Benchmark construction is
+itself being automated: Benchmark Agent builds benchmarks end to end, from query analysis and
+subtask design to annotation and quality control [73]. Their tasks and scoring rules specify which
+model behaviors count as successful performance.
+Finding a benchmark, its dataset or repository, and reports of its use requires searching paper
+servers, code hosting sites, dataset hubs, vendor releases, blogs, and benchmark catalogs. Existing
+resources such as LLM Stats, OpenCompass, and Artificial Analysis provide leaderboards, evaluation
+platforms, and model-analysis views [5, 39, 47]. Connecting newly released benchmarks to their task
+materials and later use in model reports requires consulting several separate resources. Benchmark
+Radar addresses this gap by combining catalog retrieval with daily discovery, mentions in model
+reports, and scores with documented evaluation settings and sources.
+Benchmark Radar gathers benchmark-related artifacts from public sources, groups observations
+with matching identifiers, and exposes a searchable index with source labels, dates, benchmark men-
+tions, and scores (Figure 1). We present the search system, describe the collection and ranking methods
+needed to reproduce its outputs, and examine benchmark coverage, documentation and scored-model
+coverage across all catalog sources, source concentration, and gaps in evaluation settings. 1
+The system preserves one record per source benchmark, including entries without scores, dates, or
+citations. Reviewed identity links connect related records while retaining their separate measurements.
+We contribute this living search system, shared web and offline access to its evidence, and a repro-
+1Source code:https://github.com/ktwu01/benchmark-radar.
+2
+
+=== PDF PAGE 3 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+ducible full-catalog census. Section 5 shows how a contributor used retrieval and source inspection to
+assemble prior art.
+2 Related Work and Scope
+Benchmark catalogs and evaluations.LLM Stats publishes benchmark descriptions and re-
+ported model results [39]. OpenCompass provides an evaluation platform and a benchmark registry
+with artifact metadata [47]. Artificial Analysis publishes model evaluations and their methodology [5].
+Benchmark Radar uses records from these sources alongside model-report evidence. Benchmark Radar
+adds daily discovery, artifact histories, benchmark retrieval, and source inspection through shared web
+and offline access, helping readers investigate evaluations across the contributing catalogs.
+Documenting evaluation evidence.Model cards and datasheets motivate documenting evalua-
+tion conditions and dataset characteristics [14, 43]. Benchmark Radar retains that information with
+its citations. Benchmarks such as GPQA [52], SWE-bench [27], and SciBench [67] define different
+tasks. The census measures which evidence each record provides.
+Evaluating benchmarks themselves.Recent work examines benchmark saturation, item quality,
+and the interpretation of aggregate scores. In a systematic study of 60 language model benchmarks,
+Akhtar et al. [1] define saturation and report that nearly half exhibit it, with prevalence increas-
+ing with benchmark age. They find that expert curation affects resilience to saturation, and that
+public test data has no measurable effect. Sample-level auditing of MMLU, ARC, WinoGrande, Hel-
+laSwag, and TruthfulQA identifies within-benchmark variation obscured by aggregate accuracy [60]. A
+reference-free judging framework assesses conversational-agent benchmarks on consistency, complex-
+ity, and policy coverage [33]. For safety benchmarks developed for larger models, rankings of smaller
+models vary with the treatment of ambiguous responses [54]. Inverse-density weighting reduces the
+influence of benchmark multiplicity on aggregate scores [38]. Gilda and Gilda [17] argue that eval-
+uation scores should state their evidential scope and validity window, with conservative aggregation
+when component signals differ in reliability.
+Benchmark Radar complements these methods by making benchmark records, available measure-
+ments, and provenance searchable. We used its command-line client to identify candidate papers
+for this section, supplemented the results with coauthor recommendations, and reviewed the source
+papers.
+3 System and Methods
+3.1 System Overview and Daily Discovery
+Benchmark Radar adapts BuilderPulse’s daily public-source collection approach [72]. Figure 2 sep-
+arates the benchmark catalog from discovery history. Model reports include model cards, technical
+reports, system cards, and release posts; they contribute through the same record structure as bench-
+mark registries.
+Table 1 summarizes the four catalog sources and their primary uses in the v0.11.0 release.
+3
+
+=== PDF PAGE 4 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Catalog source Rows Primary use
+LLM Stats 687 Benchmark names and descriptions with source provenance.
+OpenCompass Hub 461 Paper, repository, release, and dataset links with source-specific identity
+fields.
+Artificial Analysis 25 Current commercial evaluation catalog entries.
+Model reports 110 Benchmarks mentioned in model reports, including records without
+scores.
+Total 1,283 All four sources, retaining each record’s source label.
+Table 1: Catalog sources in the v0.11.0 release. Rows count source-specific benchmark records, in-
+cluding records without scores.
+3.2 Discovery Collection
+Daily discovery observations describe mentions, releases, and updates found across public sources. An
+observation is one collected record; an artifact is a paper, repository, dataset, release, or page linked
+by exact identifiers. We retain their histories alongside the catalog and count them separately from
+benchmark records.
+Each collection run searches a 48-hour window, records counts and errors by source, removes future-
+dated rows, and publishes the daily snapshot once all core sources are healthy. At the cutoff, arXiv
+[6], Hugging Face Hub [24], and GitHub Search [19] were the core sources. Across 13 direct connectors
+and 24 first-party feeds, additional routes cover scholarly indexes, dataset hosts, repository releases,
+and institutional feeds. Appendix D records their cutoff status.
+BENCHMARK CATALOG
+registries + model reports
+DISCOVERY HISTORY
+dated mention + release snapshots
+SHARED EVIDENCE
+source-record IDs
+scores, models, citations
+links to discovery evidence
+WEB + DOWNLOADS
+OFFLINE QUERY
+same benchmark IDs
+Figure 2: Two input paths feed the published outputs: dated discovery snapshots preserve mention and
+release evidence, while benchmark registries and model reports populate the shared catalog. Clients
+use the catalog’s stable source-record IDs.
+Table 2 describes the interfaces. Search and exports retain the full catalog; display filters apply to
+the current view.
+4
+
+=== PDF PAGE 5 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Interface Reader question Evidence and scope
+Today What appeared or changed? Daily discovery observations, source
+health, and links.
+Search Which benchmarks match this task? The complete catalog, including unscored
+records.
+Leaderboard Which evaluations combine lower scores
+with broader measured use?
+Scored source records; distinct scored
+models or cited documents supply the
+selected count.
+Saturation What scores and settings were reported? Benchmark browsing and complete score
+histories; search reaches every source and
+year.
+Blog Can I read and share a daily brief? Daily briefs and an archive built from
+committed discovery snapshots.
+CLI Can I inspect the same evidence locally? The offline query client uses the same
+benchmark IDs and stable JSON response
+format.
+Table 2: Reader questions and evidence scope.
+3.3 Preserve Records Before Comparing Measurements
+A source record is one benchmark entry from one contributing source. We normalize names, identifiers,
+artifact links, score observations, model identities, and cited documents into common fields. A record
+remains in the catalog if a score, date, or citation is absent. Reviewed identity links connect related
+records while preserving their separate observations and counts.
+Daily discovery contributes a different kind of evidence: collected mentions, releases, and updates.
+Exact identifiers such as DOIs, arXiv IDs, and repository URLs link those observations to artifacts.
+Appendix C records detailed collection settings and display filters; Appendix D records source health
+at the cutoff.
+3.4 Retrieve Candidates with Their Evidence from the Dashboard or the CLI
+The same benchmark IDs reach web search, detail pages, dataset exports, and offline clients. Lexical
+search uses BM25F, a field-weighted word-matching score [53], with bounded boosts for name and
+phrase matches. Each result exposes matched and missing query words, the fields they occur in, and
+the score components. A shared query service supplies the CLI and HTTP interfaces with the same
+response format and local data provenance.
+The CLI keeps its own copy of the data.benchmark-radar initdownloads the dataset archives
+andbenchmark-radar syncupdates them; a local manifest verifies each archive’s SHA-256 checksum
+and records its schema version and provenance. Queries then run without network access, so a search
+can be repeated against a recorded dataset version. A search covers the normalized source records
+(catalog), the daily discovery snapshots (radar), or both (all). Filters restrict results by modality,
+openness, source, and the presence of a paper, repository, or dataset link.benchmark-radar serve
+answers the same queries on a local HTTP endpoint for programmatic use.
+Commands that return results accept--json, which prints a versioned payload holding the ranking
+explanation above, the matching policy applied, and the version and build date of the local data. The
+same interface ships as an agent skill (npx skills add ktwu01/benchmark-radar) that states when
+a request calls for a benchmark query, which queries to run, and how to install the CLI and initialize
+5
+
+=== PDF PAGE 6 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+its data when they are absent. A reader and an agent then work from the same records and the same
+score components.
+An analyst or agent can try focused query variants, inspect a record’s tasks and score settings, and
+follow its citations. The interface preserves the evidence needed to judge a candidate’s suitability.
+3.5 Audit the Full Population
+The census starts with every record in the rebuilt catalog index and reads its detail file. We count finite
+numeric score observations once by observation ID. Within each benchmark record, we count scored
+models by source model ID, preserving separately evaluated configurations, and cited documents by
+document ID. The global model count uses the registry’s recorded identity links.
+Eligibility depends on the measurement a calculation needs. A declared percentage unit, known
+score direction, and numeric values within 0–100 permit a percentage-scale summary. Percentage units
+come from the source’s own declaration; display multipliers are recorded separately.
+Date coverage counts valid recorded benchmark release dates. Score entries retain their own date
+basis, including model announcements and document publication; both serve as proxies for the eval-
+uation date. Appendix F records the software revision and links to the input hashes, census script,
+and validation procedure.
+4 Results
+Appendix A provides the complete linked census; Appendix B details document, model, score, and
+date coverage.
+4.1 Catalog Coverage and Task Materials
+The rebuilt catalog contains 1,283 source records across 4 sources. We found 12,916 numeric score
+observations on 790 records, with 493 records lacking numeric scores (Table 3).
+Source Records Scored Unscored Numeric scores
+LLM Stats 687 679 8 5,544
+OpenCompass Hub 461 0 461 0
+Artificial Analysis 25 25 0 7,050
+Model reports 110 86 24 322
+Total 1,283 790 493 12,916
+Table 3: Score coverage across the full catalog: 790 records have numeric observations and 493 do not.
+Scores count numeric observations.
+Of the 493 unscored records, 464 have at least one paper, repository, or dataset link. In the
+full catalog, 475 records link to papers, 506 to repositories, and 293 to datasets. For example, the
+OpenCompass Hub record for A-Bench links a paper, code repository, and dataset despite having no
+archived score.
+For scored records, Figure 3 lets readers browse by date, reported score, and number of scored
+models. Figure 4 shows the reported model scores within one source record.
+6
+
+=== PDF PAGE 7 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Figure 3: Benchmark Frontier on the Leaderboard page. The view combines reported scores, scored-
+model counts, and benchmark release dates or first-score date proxies. Gold rings mark the interface’s
+Pareto candidates; hollow marks flag unverified scales or counts, and dotted outlines flag model-release
+date proxies. The image links to the interactive view.
+4.2 Benchmark Taxonomy Across the Full Catalog
+Most source records carry a capability label. We classify 1,279 of 1,283 records into 11 top-level
+domains and 63 sub-domains (Figure 5). Labels come from the publishers’ own fields—OpenCompass
+Hub dimensions, LLM Stats categories, Artificial Analysis categories, and the model-report registry
+domains. The remaining 4 records are LLM Stats community rows whose crawl supplied no description,
+category, or modality; the catalog records that as the reason.
+Interaction paradigm and input modality are recorded asfacets: properties held beside a record’s
+domain, so every record carries exactly one Level 1 class and any number of facet values. One record
+can count toward several facets.
+Separating the axes matters: a benchmark that resolves repository issues is a coding benchmark
+run as an agent. Of the 345 agentic records, 128 take Agentic & Tool Use as their Level 1 class and 117
+sit under Coding & Software Engineering, with the rest spread across 6 further classes. A scheme with
+one axis has to choose, and choosing the domain hides those 117 records from any count of agentic
+evaluation.
+Figure 6 puts each of the 615 records with a benchmark release date on its release year. The 668
+records without a release date stay in a separate column with the same vertical scale. Panel B reports
+shares for years with at least 30 dated records and a source mix near the pooled mix. Reweighting each
+of these years to a common source mix changes the agentic share by at most 1.1 percentage points.
+7
+
+=== PDF PAGE 8 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Figure 4: Inspecting Humanity’s Last Exam in Benchmark Radar. This Artificial Analysis record
+contains 577 reported scores; the highest displayed score is 55.47. Marks identify model organizations,
+and the line connects successive best scores ordered by model release date. Release dates stand in
+for evaluation dates, and each score keeps the settings its source reported. The image links to the
+interactive view.
+8
+
+=== PDF PAGE 9 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Level 1 — capability domain Level 2 — sub-domain
+Multimodal Perception & Generation  ·  267  (20.8%)
+Coding & Software Engineering  ·  230  (17.9%)
+Language & Communication  ·  187  (14.6%)
+Math & Logical Reasoning  ·  170  (13.3%)
+Agentic & Tool Use  ·  135  (10.5%)
+Applied & Professional Domains  ·  87  (6.8%)
+Knowledge & Factuality  ·  68  (5.3%)
+Science & Research  ·  66  (5.1%)
+Safety, Security & Alignment  ·  58  (4.5%)
+General & Composite Index  ·  11  (0.9%)
+Other / Unclassified  ·  4  (0.3%)
+Image understanding / VQA  ·  171
+Cross-modal reasoning  ·  34
+Audio & speech  ·  16
+Video understanding  ·  14
+Multimodal (general)  ·  10
+Spatial & 3D  ·  9
+Visual generation & editing  ·  7
+OCR & document  ·  4
+Chart & diagram  ·  2
+Code (general)  ·  169
+Repo & issue resolution  ·  35
+Competitive programming  ·  12
+Frontend & UI  ·  6
+Data & SQL  ·  5
+Code generation  ·  2
+Code security  ·  1
+Long context (text)  ·  59
+Reading comprehension  ·  51
+Creative writing  ·  23
+Multilingual & translation  ·  21
+Instruction following  ·  16
+Language (general)  ·  9
+Dialogue & roleplay  ·  4
+Human preference / chat  ·  2
+Summarization  ·  2
+Logic & puzzles  ·  94
+Competition math  ·  29
+Abstract reasoning  ·  25
+Math (general)  ·  20
+Formal theorem proving  ·  1
+Math word problems  ·  1
+Tool & function calling  ·  38
+Agent (general)  ·  33
+Workflow & task execution  ·  31
+Browsing & deep research  ·  23
+Computer & GUI use  ·  6
+Embodied agent  ·  3
+OS & terminal  ·  1
+Healthcare & medical  ·  36
+Finance & economics  ·  28
+Business & productivity  ·  14
+Legal  ·  8
+Vertical (general)  ·  1
+Knowledge (general)  ·  27
+Academic exams  ·  22
+Factuality & hallucination  ·  13
+Commonsense  ·  3
+World knowledge QA  ·  3
+Science (general)  ·  15
+Biology & life science  ·  14
+Physics  ·  13
+Scientific reasoning  ·  11
+Chemistry  ·  6
+Research & ML engineering  ·  4
+General science QA  ·  3
+Harmfulness & alignment  ·  35
+Cybersecurity  ·  13
+Safety (general)  ·  7
+Privacy  ·  2
+Jailbreak & robustness  ·  1
+General capability  ·  10
+Robustness & consistency  ·  1
+Unclassified  ·  4
+Figure 5: Capability taxonomy over the full catalog. Ribbon height is one unit per source record, so
+both columns carry all 1,283 records. Level 1 is one primary label per record.
+9
+
+=== PDF PAGE 10 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025 2026
+0
+100
+200
+300
+400
+500
+600
+700
+Benchmarks
+1 1 1 5 10 18 12 20 9
+49
+179
+279
+31
+A · Release year of all 1,283 records, by Level 1
+Multimodal Perception & Generation (134)
+Coding & Software Engineering (68)
+Language & Communication (99)
+Math & Logical Reasoning (93)
+Agentic & Tool Use (65)
+Applied & Professional Domains (24)
+Knowledge & Factuality (57)
+Science & Research (31)
+Safety, Security & Alignment (39)
+General & Composite Index (5)
+Other / Unclassified (0)
+no release
+date
+0
+100
+200
+300
+400
+500
+600
+700668
+2023
+n=49
+2024
+n=179
+2025
+n=279
+0%
+10%
+20%
+30%
+Share of dated records
+30%
+11%
+25%
+5%
+5%
+7%
+5%
+B · Selected classes and facets, over the years whose share the evidence supports
+agentic (facet)
+Coding & Software Engineering
+Multimodal Perception & Generation
+Knowledge & Factuality
+Applied & Professional Domains
+embodied (facet)
+tool calling (facet)
+Figure 6: Release-year composition of the classified catalog. (A) The 615 dated source records by
+release year and Level 1 domain; the 668 records without a release date form the hatched column,
+drawn on the same scale. (B) Shares of selected domains and facets among each year’s dated records,
+for years with at least 30 dated records and a source mix near the pooled mix. Panel A also shows the
+108 dated records from the other years. Series markedfacetcross the Level 1 classes and can overlap.
+10
+
+=== PDF PAGE 11 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+4.3 Discovery Coverage Alongside the Catalog
+The daily discovery collection contains 11,068 observations and 6,546 artifacts linked by exact iden-
+tifiers across 46 snapshots. 4 snapshots are simulated historical backfills; their dates describe recon-
+structed collection windows.
+Five discovery source labels account for 9,743 of 11,068 observations (88.0%). Figure 7 includes
+the remaining labels in one aggregate bar. Source caps and collection failures shape this mix. Of
+the 6,546 artifacts, 59 have observations from multiple sources. Cross-source matching relies on exact
+identifiers, so artifacts with missing or inconsistent identifiers stay unmatched.
+Hugging Face 3,487
+GitHub 2,470
+arXiv 1,945
+Semantic Scholar 1,039
+OpenAlex 802
+8 other labels 1,325
+11,068 cumulative source observations through 2026-09-07
+Figure 7: Discovery observations by source through 2026-09-07. Repeat sightings count as observa-
+tions.
+Figure 8 complements source coverage with the daily reading view. Its category cards separate new
+releases from updates, while the chart exposes changes in surfaced evidence and attention alongside
+collection failures.
+11
+
+=== PDF PAGE 12 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Figure 8: Discovery trends through September 7, 2026. Category cards show newly surfaced releases
+and track updates separately; the bars show daily evidence and attention volume. A release can
+carry several category tags. The visible coverage notice reports failed sources. The image links to the
+interactive Trends view.
+5 Worked Example: Checking Prior Art
+Before designing a new evaluation, a contributor searched August 2026 work on credit assignment
+in agentic training that provides small Qwen-series baselines for reproducible experiments. A coding
+agent installed the Benchmark Radar Skill and queried the catalog and the discovery layer with several
+topic variants. The discovery layer returned 225 matches, of which 47 matched every query word; 38
+of those 47 carry an August 2026 date. After opening each candidate’s paper, SRPO and HindSearch
+met all four conditions: an August submission, a credit-assignment method, a small Qwen backbone,
+and released code. Appendix E shows the session and the searches behind this result.
+6 Limitations and Future Work
+The census describes this catalog at its recorded cutoff. Collection limits, failed requests, missing
+identifiers, and different snapshot dates affect its coverage. One underlying test can appear as several
+source records. Broader coverage requires additional source collection and review of the evidence
+already present.
+Retrieval precision, task suitability, and time saved remain to be evaluated. The worked example
+uses local queries and has no controlled baseline. Lexical matching can miss paraphrases and renamed
+tasks. Evaluating semantic retrieval [51] will require reviewed relevance judgments across queries and
+candidate records, including less familiar benchmark families.
+The arXiv discovery route collects new submissions only, so it misses later versions of papers first
+12
+
+=== PDF PAGE 13 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+posted before the collection window. The searches used for Section 2 missed two relevant earlier studies
+[1, 75], which a coauthor identified and read.
+Measuring benchmark saturation or score stagnation requires comparable test versions and settings,
+with dates tied to score reporting or evaluation.
+Classifying the 5,863 discovery-derived tracks by capability, and evaluating those labels, is future
+work.
+7 Conclusion
+Benchmark Radar brings daily benchmark discovery, catalog search, model-report mentions, and score
+histories into one living search engine. Readers can find candidate evaluations, locate task materials,
+inspect reporting choices, and follow the settings and citations behind a score. Shared benchmark IDs
+connect the web dashboard, downloadable catalog, and offline query clients.
+The v0.11.0 release makes 1,283 source records searchable and preserves 464 unscored records with
+artifact links. Its full-catalog analyses distinguish benchmark records, scored models, cited documents,
+and numeric observations.
+Author Contributions
+Koutian Wu and Wenjun Zhang built the collection pipeline, user interface, and implemented data ag-
+gregation across sources. Junjie Zhou designed CLI and skill of the radar. Pengqian Han contributed
+data analysis and copyediting. Qiming Bao contributed software, data curation, and validation. Jiayu
+Wang contributed a worked use case. Ergan Shang prepared figures and contributed copyediting.
+Songyuanyi Lu contributed discussion and improvements. Yixuan Li implemented neuroscience do-
+main tagging for Benchmark Radar. Rudy Mizrahi Celekli, Lazizbek Ravshanov, and Yaoliang Bian
+contributed to software development. Junkai Wang, Wanghan Xu, and Xudong Han contributed
+review and copyediting. Lin Shi contributed to conceptualization and advised the work.
+Acknowledgements
+We thank Ruohan Xu, Yifan Xu, Ran Hong, Hejia Geng, Haozhe Zhang, and Zhenxin Huang for
+discussion and for improving Benchmark Radar.
+References
+[1] Mubashara Akhtar, Anka Reuel, Prajna Soni, Sanchit Ahuja, Pawan Sasanka Ammanamanchi, Ruchit
+Rawal, Vil´ em Zouhar, Srishti Yadav, Chenxi Whitehouse, Dayeon Ki, Jennifer Mickel, Leshem Choshen,
+Marek ˇSuppa, Jan Batzner, Jenny Chim, Jeba Sania, Yanan Long, Hossein A. Rahmani, Christina
+Knight, Yiyang Nan, Jyoutir Raj, Yu Fan, Shubham Singh, Subramanyam Sahoo, Eliya Habba, Usman
+Gohar, Siddhesh Pawar, Robert Scholz, Arjun Subramonian, Jingwei Ni, Mykel Kochenderfer, Sanmi
+Koyejo, Mrinmaya Sachan, Stella Biderman, Zeerak Talat, Avijit Ghosh, and Irene Solaiman. When AI
+benchmarks plateau: A systematic study of benchmark saturation, 2026. URL
+https://arxiv.org/abs/2602.16763. Published at ICML 2026.
+[2] Algolia. Hacker News Search API, 2026. URLhttps://hn.algolia.com/api. Accessed 2026-09-06.
+[3] Anthropic. Introducing Claude Fable 5.1 and Claude Mythos 5.1, 2026. URL
+https://www.anthropic.com/claude-fable-and-mythos-5-1. Accessed 2026-09-07.
+13
+
+=== PDF PAGE 14 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+[4] Lisa P. Argyle, Ethan C. Busby, Nancy Fulda, Joshua R. Gubler, Christopher Rytting, and David
+Wingate. Out of one, many: Using language models to simulate human samples.Political Analysis, 31(3):
+337–351, 2023. doi: 10.1017/pan.2023.2.
+[5] Artificial Analysis. Artificial analysis intelligence benchmarking methodology, 2026. URL
+https://artificialanalysis.ai/methodology/intelligence-benchmarking. Accessed 2026-09-06.
+[6] arXiv. arXiv API User Manual, 2026. URLhttps://info.arxiv.org/help/api/user-manual.html.
+Accessed 2026-09-06.
+[7] Jonathan Bragg, Mike D’Arcy, Nishant Balepur, Dan Bareket, Bhavana Dalvi, Sergey Feldman, Dany
+Haddad, Jena D Hwang, Peter Jansen, Varsha Kishore, et al. AstaBench: Rigorous benchmarking of AI
+agents with a scientific research suite.arXiv preprint arXiv:2510.21652, 2025.
+[8] Brave Search. Brave Search API Documentation, 2026. URL
+https://api-dashboard.search.brave.com/app/documentation/web-search/get-started. Accessed
+2026-09-06.
+[9] Jun Shern Chan, Neil Chowdhury, Oliver Jaffe, James Aung, Dane Sherburn, Evan Mays, Giulio Starace,
+Kevin Liu, Leon Maksin, Tejal Patwardhan, et al. MLE-Bench: Evaluating machine learning agents on
+machine learning engineering. InInternational Conference on Learning Representations, volume 2025,
+pages 50466–50494, 2025.
+[10] Hui Chen, Miao Xiong, Yujie Lu, Wei Han, Ailin Deng, Yufei He, Jiaying Wu, Yibo Li, Yue Liu, and
+Bryan Hooi. MLR-Bench: Evaluating AI agents on open-ended machine learning research.Advances in
+Neural Information Processing Systems, 38, 2026.
+[11] Citation File Format developers. Citation file format 1.2.0, 2021. URL
+https://citation-file-format.github.io/.
+[12] Crossref. Crossref REST API, 2026. URLhttps://api.crossref.org. Accessed 2026-09-06.
+[13] Haotian Cui, Chloe Wang, Hassaan Maan, Kuan Pang, Fengning Luo, Nan Duan, and Bo Wang. scGPT:
+Toward building a foundation model for single-cell multi-omics using generative AI.Nature Methods, 21:
+1470–1480, 2024. doi: 10.1038/s41592-024-02201-0.
+[14] Timnit Gebru, Jamie Morgenstern, Briana Vecchione, Jennifer Wortman Vaughan, Hanna Wallach, Hal
+Daume, and Kate Crawford. Datasheets for datasets.Communications of the ACM, 64(12):86–92, 2021.
+doi: 10.1145/3458723.
+[15] Hejia Geng, Zesen Huang, Haoyang Li, Wenbin Li, Koutian Wu, Zihan Zhou, Yuanbo Pang, Weihao Liu,
+Zigong Xu, Zhiping Li, Zongzheng Zhang, Chuanfei Dong, Jiankai Sun, Tianzhe Zheng, Fengyu Xie, Yue
+Ma, Yueheng Shi, Tong Xie, Zonglin Di, Xianrong Liu, Qucheng Gao, Yimin Liu, Jiaming Pan, Sheng
+Huang, Xiao-Han Ma, Lanqing Yuan, Zhenlin Zhu, Ziang Liu, Ziyang Xu, Junkai Wang, Kangkai Liang,
+Jiayi Xian, Zehong Zhao, Liuwei Xu, Jingxu Xie, Peijin Zhang, Qiang Gao, Chengyi Xing, Zhe Zhao,
+Xi Wang, Yaopeng Xing, Xing Meng, Zhenfei Yin, Yingcheng Wu, and Ling Yang. ScienceIDE: Turning
+world’s scientific codebase into agent learnable environments, 2026. URL
+https://arxiv.org/abs/2609.19134.
+[16] Fabrizio Gilardi, Meysam Alizadeh, and Mael Kubli. ChatGPT outperforms crowd workers for
+text-annotation tasks.Proceedings of the National Academy of Sciences, 120(30):e2305016120, 2023. doi:
+10.1073/pnas.2305016120.
+[17] Sankalp Gilda and Shlok Gilda. Position: Evaluation scores are perishable knowledge claims, 2026. URL
+https://arxiv.org/abs/2607.26191.
+[18] GitHub Docs. REST API Endpoints for Releases, 2026. URL
+https://docs.github.com/en/rest/releases/releases. Accessed 2026-09-06.
+14
+
+=== PDF PAGE 15 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+[19] GitHub Docs. REST API Endpoints for Search, 2026. URL
+https://docs.github.com/en/rest/search/search. Accessed 2026-09-06.
+[20] Harbor Contributors. Harbor: A framework for evaluating and improving agents, 2026. URL
+https://github.com/harbor-framework/harbor. Accessed 2026-09-10.
+[21] Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob
+Steinhardt. Measuring massive multitask language understanding.International Conference on Learning
+Representations, 2021. URLhttps://arxiv.org/abs/2009.03300.
+[22] Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Tang, Dawn Song, and
+Jacob Steinhardt. Measuring mathematical problem solving with the MATH dataset.arXiv preprint
+arXiv:2103.03874, 2021. URLhttps://arxiv.org/abs/2103.03874.
+[23] Tianyu Hua, Harper Hua, Violet Xiang, Benjamin Klieger, Sang Truong, Weixin Liang, Fan-Yun Sun,
+and Nick Haber. ResearchCodeBench: Benchmarking LLMs on implementing novel machine learning
+research code.Advances in Neural Information Processing Systems, 38, 2026.
+[24] Hugging Face. Hugging Face Hub Documentation, 2026. URL
+https://huggingface.co/docs/hub/index. Accessed 2026-09-06.
+[25] Pranab Islam, Anand Kannappan, Douwe Kiela, Rebecca Qian, Nino Scherrer, and Bertie Vidgen.
+FinanceBench: A new benchmark for financial question answering.arXiv preprint arXiv:2311.11944,
+2023. URLhttps://arxiv.org/abs/2311.11944.
+[26] Naman Jain, King Han, Alex Gu, Wen-Ding Li, Fanjia Yan, Tianjun Zhang, Sida Wang, Armando
+Solar-Lezama, Koushik Sen, and Ion Stoica. LiveCodeBench: Holistic and contamination free evaluation
+of large language models for code.arXiv preprint arXiv:2403.07974, 2024. URL
+https://arxiv.org/abs/2403.07974.
+[27] Carlos E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, and Karthik
+Narasimhan. SWE-bench: Can language models resolve real-world GitHub issues?arXiv preprint
+arXiv:2310.06770, 2023. URLhttps://arxiv.org/abs/2310.06770.
+[28] Kaggle. Kaggle API Documentation, 2026. URLhttps://www.kaggle.com/docs/api. Accessed
+2026-09-06.
+[29] Wang-Cheng Kang and Julian McAuley. Self-attentive sequential recommendation. In2018 IEEE
+International Conference on Data Mining, pages 197–206, 2018. doi: 10.1109/ICDM.2018.00035.
+[30] Daniel S. Katz et al. Recognizing the value of software: a software citation guide.F1000Research, 9:1257,
+2021. doi: 10.12688/f1000research.26932.2. URLhttps://doi.org/10.12688/f1000research.26932.2.
+[31] Rodney Michael Kinney, Chloe Anastasiades, Russell Authur, Iz Beltagy, Jonathan Bragg, Alexandra
+Buraczynski, Isabel Cachola, Stefan Candra, Yoganand Chandrasekhar, Arman Cohan, et al. The
+semantic scholar open data platform.arXiv preprint arXiv:2301.10140, 2023. URL
+https://arxiv.org/abs/2301.10140.
+[32] Patrick Tser Jern Kon, Jiachen Liu, Xinyi Zhu, Qiuyi Ding, Jingjia Peng, Jiarong Xing, Yibo Huang,
+Yiming Qiu, Jayanth Srinivasa, Myungjin Lee, et al. EXP-Bench: Can AI conduct AI research
+experiments?arXiv preprint arXiv:2505.24785, 2025.
+[33] Noam Koren, Roy Bar-Haim, and Abigail Goldsteen. Benchmarking the benchmarks: Evaluating
+benchmarks for conversational agents, 2026. URLhttps://arxiv.org/abs/2608.06329.
+[34] Jon M. Laurent, Joseph D. Janizek, Michael Ruzo, Michaela M. Hinks, Michael J. Hammerling,
+Siddharth Narayanan, Manvitha Ponnapati, Andrew D. White, and Samuel G. Rodriques. LAB-Bench:
+Measuring capabilities of language models for biology research.arXiv preprint arXiv:2407.10362, 2024.
+URLhttps://arxiv.org/abs/2407.10362.
+15
+
+=== PDF PAGE 16 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+[35] Jure Leskovec, Daniel Huttenlocher, and Jon Kleinberg. Signed networks in social media. InProceedings
+of the SIGCHI Conference on Human Factors in Computing Systems, pages 1361–1370, 2010. doi:
+10.1145/1753326.1753532.
+[36] Xiaomin Li, Yuexing Hao, Jianheng Hou, Jintao Huang, Qianfeng Wen, Shirley Huang, Yifan Liu, Xiaoyi
+Liu, Yilan Fan, Yijun Wang, et al. MatrAIx: Simulating the world with 8.3 billion persona agents.arXiv
+preprint arXiv:2608.04205, 2026.
+[37] Zongxia Li, Zhongzhi Li, Yucheng Shi, Ruhan Wang, Junyao Yang, Zhichao Liu, Xiyang Wu, Anhao Li,
+Yue Yu, Ninghao Liu, et al. Long-Horizon-Terminal-Bench: Testing the limits of agents on long-horizon
+terminal tasks with dense reward-based grading.arXiv preprint arXiv:2607.08964, 2026.
+[38] Jhen-Ke Lin. Balance of benchmarks: Semantic density reweighting for benchmark multiplicity and
+task-conditioned evaluation, 2026. URLhttps://arxiv.org/abs/2608.30044.
+[39] LLM Stats. AI and LLM benchmarks 2026: Rankings, scores and results, 2026. URL
+https://llm-stats.com/benchmarks/. Accessed 2026-09-06.
+[40] Alisia Lupidi, Bhavul Gauri, Thomas Simon Foster, Bassel Al Omari, Despoina Magka, Alberto Pepe,
+Alexis Audran-Reiss, Muna Aghamelu, Nicolas Baldwin, Lucia Cipolina-Kun, et al. AIRS-Bench: A suite
+of tasks for frontier AI research science agents.arXiv preprint arXiv:2602.06855, 2026.
+[41] Mike A. Merrill et al. Terminal-Bench: Benchmarking agents on hard, realistic tasks in command line
+interfaces, 2026. URLhttps://arxiv.org/abs/2601.11868.
+[42] Adrian Mirza et al. Are large language models superhuman chemists?arXiv preprint arXiv:2404.01475,
+2024. URLhttps://arxiv.org/abs/2404.01475.
+[43] Margaret Mitchell, Simone Wu, Andrew Zaldivar, Parker Barnes, Lucy Vasserman, Ben Hutchinson,
+Elena Spitzer, Inioluwa Deborah Raji, and Timnit Gebru. Model cards for model reporting. In
+Proceedings of the Conference on Fairness, Accountability, and Transparency, pages 220–229, 2019. doi:
+10.1145/3287560.3287596.
+[44] Deepak Nathani, Lovish Madaan, Nicholas Roberts, Nikolay Bashlykov, Ajay Menon, Vincent Moens,
+Amar Budhiraja, Despoina Magka, Vladislav Vorotilov, Gaurav Chaurasia, et al. MLGym: A new
+framework and benchmark for advancing AI research agents.arXiv preprint arXiv:2502.14499, 2025.
+[45] Sky Ng, Brihi Joshi, Ishan Gupta, Shirley Huang, Zonglin Di, Yun Shen, Qianfeng Wen, Yifan Simon Liu,
+Ruoqi Gao, Zhiwei Zhang, et al. MicroVerse: An instrument for measuring self-authored identity drift in
+long-horizon multi-agent language-model simulations.arXiv preprint arXiv:2608.15844, 2026.
+[46] OpenAI. GPT-6 Astra model, 2026. URL
+https://developers.openai.com/api/docs/models/gpt-6-astra. Accessed 2026-09-07.
+[47] OpenCompass Contributors. Dataset statistics, 2026. URL
+https://opencompass.readthedocs.io/en/latest/dataset_statistics.html. Accessed 2026-09-06.
+[48] OpenReview. OpenReview Documentation, 2026. URLhttps://docs.openreview.net/. Accessed
+2026-09-06.
+[49] Long Phan et al. Humanity’s last exam.arXiv preprint arXiv:2501.14249, 2025. URL
+https://arxiv.org/abs/2501.14249.
+[50] Jason Priem, Heather Piwowar, and Richard Orr. OpenAlex: A fully-open index of scholarly works,
+authors, venues, institutions, and concepts.arXiv preprint arXiv:2205.01833, 2022. URL
+https://arxiv.org/abs/2205.01833.
+[51] Nils Reimers and Iryna Gurevych. Sentence-BERT: Sentence embeddings using Siamese BERT-networks.
+InProceedings of the 2019 Conference on Empirical Methods in Natural Language Processing, pages
+3982–3992, 2019. doi: 10.18653/v1/D19-1410.
+16
+
+=== PDF PAGE 17 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+[52] David Rein, Betty Li Hou, Asa Cooper Stickland, Jackson Petty, Richard Yuanzhe Pang, Julien Dirani,
+Julian Michael, and Samuel R. Bowman. GPQA: A graduate-level google-proof Q&A benchmark.arXiv
+preprint arXiv:2311.12022, 2023. URLhttps://arxiv.org/abs/2311.12022.
+[53] Stephen Robertson, Hugo Zaragoza, and Michael Taylor. Simple BM25 extension to multiple weighted
+fields. InProceedings of the Thirteenth ACM International Conference on Information and Knowledge
+Management, 2004. doi: 10.1145/1031171.1031181.
+[54] Nyamtulla Shaik, Fengjun Li, and Bo Luo. Benchmarking the benchmarks: Evaluating automated safety
+benchmarks for small language models, 2026. URLhttps://arxiv.org/abs/2608.17183.
+[55] Ergan Shang and Flavio Sales Truzzi. ERASE: EaRly bAckpropagation SchEdule for Faster Training of
+Modern Recommendation Systems.arXiv preprint arXiv:2608.18469, 2026.
+[56] Ergan Shang, Yuting Wei, and Kathryn Roeder. Predicting the unseen: a diffusion-based debiasing
+framework for transcriptional response prediction at single-cell resolution.Proceedings of the National
+Academy of Sciences, 122(52):e2525268122, 2025. doi: 10.1073/pnas.2525268122. URL
+https://doi.org/10.1073/pnas.2525268122.
+[57] Ergan Shang, Weijing Tang, and Yinqiu He. LLM Evaluation on Unseen Questions: Contextual
+Multidimensional IRT Model.arXiv preprint arXiv:2608.22295, 2026.
+[58] Ergan Shang, Yuan Zhang, and Weijing Tang. Inference for Balance in Dynamic Signed Networks.arXiv
+preprint arXiv:2606.08786, 2026.
+[59] Lin Shi, Haowei Lin, Zixuan Zhu, Xiaoyue Zhou, Xiang Li, et al. Harbor adapters and Harbor-Index:
+Infrastructure and a curated meta-dataset for large-scale agentic evaluation, 2026. URL
+https://arxiv.org/abs/2609.04298.
+[60] Philipp D. Siedler and Jordan Sassoon. Benchmarks are not monolithic: Sample-level auditing and
+orchestration for LLM evaluation, 2026. URLhttps://arxiv.org/abs/2607.28801.
+[61] Arfon M. Smith, Daniel S. Katz, and Kyle E. Niemeyer. Software citation principles.PeerJ Computer
+Science, 2:e86, 2016. doi: 10.7717/peerj-cs.86. URLhttps://doi.org/10.7717/peerj-cs.86.
+[62] Giulio Starace, Oliver Jaffe, Dane Sherburn, James Aung, Jun Shern Chan, Leon Maksin, Rachel Dias,
+Evan Mays, Benjamin Kinsella, Wyatt Thompson, et al. Paperbench: Evaluating ai’s ability to replicate
+ai research.arXiv preprint arXiv:2504.01848, 2025.
+[63] Fei Sun, Jun Liu, Jian Wu, Changhua Pei, Xiao Lin, Wenwu Ou, and Peng Jiang. BERT4Rec: Sequential
+recommendation with bidirectional encoder representations from transformer. InProceedings of the 28th
+ACM International Conference on Information and Knowledge Management, pages 1441–1450, 2019. doi:
+10.1145/3357384.3357895.
+[64] Qiushi Sun, Zhoumianze Liu, Chang Ma, Zichen Ding, Fangzhi Xu, Zhangyue Yin, Haiteng Zhao, Zhenyu
+Wu, Kanzhi Cheng, Zhaoyang Liu, et al. ScienceBoard: Evaluating multimodal autonomous agents in
+realistic scientific workflows.arXiv preprint arXiv:2505.19897, 2025.
+[65] Christina V. Theodoris et al. Transfer learning enables predictions in network biology.Nature, 618:
+616–624, 2023. doi: 10.1038/s41586-023-06139-9.
+[66] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz
+Kaiser, and Illia Polosukhin. Attention is all you need. InAdvances in Neural Information Processing
+Systems, volume 30, 2017. URLhttps://arxiv.org/abs/1706.03762.
+[67] Xiaoxuan Wang, Ziniu Hu, Pan Lu, Yanqiao Zhu, Jieyu Zhang, Satyen Subramaniam, Arjun R. Loomba,
+Shichang Zhang, Yizhou Sun, and Wei Wang. SciBench: Evaluating college-level scientific
+problem-solving abilities of large language models.arXiv preprint arXiv:2307.10635, 2023. URL
+https://arxiv.org/abs/2307.10635.
+17
+
+=== PDF PAGE 18 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+[68] Kyle Waters, Lucas Nuzzi, Tadhg Looram, Alessandro Tomasiello, Ariel Ghislain Kemogne Kamdoum,
+Bikun Li, Damien Sileo, Egor Kretov, Francesco Fournier-Facio, Georgios Soloupis, et al.
+Composite-stem.arXiv preprint arXiv:2604.09836, 2026.
+[69] Koutian Wu, Wen Yi, Xianghui Xue, Iain Murray Reid, and Maolin Lu. Diurnal and seasonal variations
+of meteor speed and arrival angle observed by mengcheng meteor radar.Journal of Geophysical Research:
+Space Physics, 129(10):e2024JA032767, 2024. doi: 10.1029/2024JA032767. URL
+https://doi.org/10.1029/2024JA032767.
+[70] Koutian Wu, Yuxuan Cao, Gengchen Mai, and Zeping Liu. ESM-Bench: A benchmark for evaluating
+whether AI agents understand earth system model physics and code. InHydroML 2026 Conference
+Poster. HydroML, 2026. URLhttps://zenodo.org/records/19802836.
+[71] Yunze Wu, Dayuan Fu, Weiye Si, Zhen Huang, Mohan Jiang, Keyu Li, Shijie Xia, Jie Sun, Tianze Xu,
+Xiangkun Hu, et al. Innovatorbench: Evaluating agents’ ability to conduct innovative llm research.arXiv
+preprint arXiv:2510.27598, 2025.
+[72] L. Xiaopai. Builderpulse: Ai-powered daily intelligence for indie hackers and builders. GitHub, 2026.
+URLhttps://github.com/BuilderPulse/BuilderPulse.
+[73] Shiyun Xiong, Dongming Wu, Peiwen Sun, Yuang Ai, Bokang Yang, Wencheng Han, Xiao-Hui Li, and
+Xiangyu Yue. Benchmark Everything Everywhere All at Once, 2026. URL
+https://arxiv.org/abs/2606.06462.
+[74] Wanghan Xu, Shuo Li, Tianlin Ye, Qinglong Cao, Yixin Chen, Hengjian Gao, Yiheng Wang, Qi Li, Kun
+Li, Sheng Xu, et al. ResearchClawBench: A benchmark for end-to-end autonomous scientific research.
+arXiv preprint arXiv:2606.07591, 2026.
+[75] Eddie Yang and Dashun Wang. Benchmark illusion: Disagreement among LLMs and its scientific
+consequences, 2026. URLhttps://arxiv.org/abs/2602.11898.
+[76] Zenodo. Zenodo REST API Documentation, 2026. URLhttps://developers.zenodo.org/. Accessed
+2026-09-06.
+[77] Tianyu Zhang, Ergan Shang, and Kathryn Roeder. Genetic Convergence Analysis of CRISPR
+Perturbations Deciphers Gene Functional Similarity.bioRxiv, 2025. doi: 10.1101/2025.11.13.688060.
+URLhttps://doi.org/10.1101/2025.11.13.688060.
+[78] Junwei Zhou, Zhen Sun, Binyu Li, Jiangyu Zhou, Yuexi Pan, Hengyu Wang, Honghe Ren, Xiaohan Jia,
+Xueyang Zhou, Xiaoyu Cao, et al. ASI-Bench: At the Dawn of Artificial Superintelligence.arXiv preprint
+arXiv:2608.17271, 2026.
+18
+
+=== PDF PAGE 19 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Appendix
+A Full-Catalog Census
+This census retains all 1,283 source records, including those without scores.
+1,283 records. 790 with scores. 493 without.
+LLM Stats
+687 records
+OpenCompass Hub
+461 records
+Artificial Analysis
+25 records
+Model reports
+110 records
+Numeric score recorded No numeric score recorded
+464 of the 493 unscored records still link to a paper, repository, or dataset.
+Figure 9: 464 unscored entries provide artifact links. Each mark represents one source record and
+links to its detail page. All 1,283 records appear.
+B Catalog Evidence and Measurement Coverage
+The following analyses use the same catalog as Section 4. They document the evidence behind its
+records and the requirements for comparing measurements.
+B.1 Cited Documents and Scored Models
+The common document registry contains 1,208 distinct cited documents, attached to 1,278 of the 1,283
+benchmark records. 5 records have no cited documents. The shared model registry contains 868 model
+identities. Model identifiers are available for every numeric score in all 790 scored records, allowing
+distinct models to be counted within each record. For unscored records, this count is unknown.
+Table 4 compares the three counts for GPQA Diamond. The Artificial Analysis record for GPQA
+Diamond contains scores for 586 models and cites 1 registry page. The Model reports record cites 27
+documents and contains 21 numeric observations for 19 models.
+Benchmark record Source Models Documents Scores
+GPQA Diamond Artificial Analysis 586 1 586
+GPQA Diamond Model reports 19 27 21
+Humanity’s Last Exam Artificial Analysis 577 1 577
+SciCode Artificial Analysis 577 1 577
+CritPt Artificial Analysis 492 1 492
+19
+
+=== PDF PAGE 20 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Table 4: One cited page can document hundreds of scored models. Models count distinct source model
+IDs within a record; documents count distinct citation IDs; scores count numeric observations.
+Table 4 also records 577 scored models for Humanity’s Last Exam, 577 for SciCode, and 492 for
+CritPt, each under one Artificial Analysis citation.
+B.2 Score Scales and Comparison Eligibility
+Only 82 of the 790 scored records declare a percentage unit with a known direction and values within
+0–100. The remaining 708 scored records use other or unverified scales. Table 5 accounts for the entire
+catalog.
+Measurement state Records Interpretation
+Numeric scores, declared percentage scale 82 Supports scale-specific summaries.
+Numeric scores, other or unverified scale 708 Scores kept on their native scale.
+No numeric score 493 Score headroom unknown.
+Full population 1,283 Every source record.
+Table 5: Only 82 of 790 scored records meet the percentage-scale rule in Section 3.5.
+The catalog records benchmark release dates for 615 records, leaving 668 without a release date.
+Across score observations, 12,594 entries carry model-announcement dates and 322 carry document-
+publication dates.
+20
+
+=== PDF PAGE 21 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+B.3 Documentation Across All Catalog Sources
+The documentation analysis covers all 1,283 benchmark records. It finds 1,208 distinct cited documents
+supporting 1,278 records; 5 records have no cited document. Table 6 covers every source. Each distinct
+document counts once, whether it is a registry page or a model report.
+Source Records With docs Documents
+Docs without
+named org.
+LLM Stats 687 687 687 687
+OpenCompass Hub 461 461 461 461
+Artificial Analysis 25 25 23 23
+Model reports 110 105 37 0
+Total 1,283 1,278 1,208 1,171
+Table 6: Documentation across the complete v0.11.0 catalog. “With docs” counts benchmark records;
+the last two columns count distinct documents.
+The release data names no organization for 1,171 cited documents. The complete export retains
+each document’s identity and source URL on its benchmark record.
+B.4 Reported Scores Across the Full Catalog
+The score analysis covers 12,916 numeric observations. Table 7 summarizes scored-model coverage for
+each source. 22 benchmark records contain numeric scores for at least 100 distinct source model IDs.
+Source Records Scored Unscored Scorerows
+Median
+models
+Max.
+models
+LLM Stats 687 679 8 5,544 3 239
+OpenCompass Hub 461 0 461 0 Unknown Unknown
+Artificial Analysis 25 25 0 7,050 245 586
+Model reports 110 86 24 322 2 19
+Total 1,283 790 493 12,916
+Table 7: Reported scores across every source in the v0.11.0 release. Models count distinct source model
+IDs within each benchmark record. Medians and maxima use records with known model counts. The
+record-level score export contains every catalog record, including raw maxima, all tied reporting models
+and citations, units, settings, and explicit missing values.
+The accompanyingevidence/catalog-findings.csvcontains one row per benchmark record, with
+a JSON counterpart retaining detailed evidence. Each scored record has its highest numeric value on
+the source’s native scale and every tied score observation. Units and score direction remain attached
+to that record; for a lower-is-better metric, the best result is the minimum.
+Percentage headroom is 100 minus a record’s highest value, computed when its unit is explicitly
+percent, its direction is higher-is-better, and its values stay within 0–100. The export records eligibility
+for every benchmark. Catalog-wide headroom and recency estimates report their eligible measurement
+coverage alongside the statistic. Comparing results also requires matching test versions, reasoning
+budgets, tools, attempts, and evaluators [14, 43].
+21
+
+=== PDF PAGE 22 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+B.5 Date Evidence Across the Full Catalog
+Table 8 separates benchmark release dates from dates attached to numeric observations. Both date
+bases are proxies for the evaluation date.
+Source Records
+Release
+known Doc.-datedscores Model-datedscores Undatedscores
+LLM Stats 687 42 0 5,544 0
+OpenCompass Hub 461 457 0 0 0
+Artificial Analysis 25 17 0 7,050 0
+Model reports 110 99 322 0 0
+Total 1,283 615 322 12,594 0
+Table 8: Date evidence for the complete v0.11.0 catalog. The first two numeric columns count bench-
+mark records; the final three count numeric score observations.
+The exported rows preserve each record’s release date and the date basis of its scores.
+C Collection Settings and Display Filters
+The 2026-09-07 snapshot records 1,003 fetched rows and 954 candidates after duplicate removal. Of
+these, 366 entered the published snapshot and 138 met the recommendation threshold. These counts
+describe the discovery run. Published evidence retains source URLs, retrieval times, parser versions,
+identifiers, and payload checksums. Raw responses and credentials stay private.
+Benchmark Frontier, on the Leaderboard tab, requires a numeric score and excludes known pre-
+2024 benchmarks. It retains scored records with unknown dates or counts through labelled marks,
+and keeps unverified scales outside Pareto calculations. Its initial score cutoff is 70. The linked score
+ranking keeps its own date and numeric-score requirements.
+A separate priority score for daily recommendations combines relevance (35%), evidence (20%),
+recency (20%), and adoption (25%) on a 0–100 scale. These weights set the reading priority of
+discovery observations.
+D Source Inventory and Health
+Benchmark Radar ingests from 37 sources: 13 direct connectors and 24 first-party feeds. The direct
+connectors read arXiv [6], Hugging Face Hub and Hugging Face Papers [24], GitHub Search, GitHub
+Organizations, and GitHub Releases [18, 19], Kaggle [28], Zenodo [76], Crossref [12], OpenAlex [50],
+OpenReview [48], Semantic Scholar [31], and Brave Search [8]. A Hacker News collector [2] supplies
+attention signals alongside the evidence connectors. Table 9 lists source connectors that completed
+successfully at the cutoff. Row counts are measured before duplicate removal and ranking. A connector
+is healthy when its request succeeds and its response parses. Core sources cover papers, shared model
+or dataset artifacts, and code.
+22
+
+=== PDF PAGE 23 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+Connector Role Cutoff status Core
+arXiv Primary papers via selected AI, language,
+vision, and software categories
+Healthy; 46 rows Yes
+Hugging Face Hub Datasets and Spaces connected to benchmark
+artifacts
+Healthy; 101 rows Yes
+GitHub Search Code repositories and benchmark artifacts Healthy; 300 rows; at
+cap
+Yes
+GitHub Organizations Reviewed organization repositories Healthy; 6 rows No
+Hugging Face Papers Community-surfaced papers Healthy; 26 rows No
+Kaggle Datasets Public benchmark datasets Healthy; 30 rows No
+Zenodo DOI-bearing research artifacts Healthy; 65 rows No
+Crossref DOI metadata Healthy; 180 rows No
+OpenReview Conference submissions Healthy; no eligible
+rows
+No
+GitHub Releases First-party releases Healthy; 1 row No
+OpenAlex Scholarly discovery metadata Healthy; 248 rows No
+Table 9: Healthy direct discovery connectors at the current cutoff.
+Table 10 lists research and engineering feeds operated by the institutions being monitored. They can
+surface benchmark papers, datasets, model announcements, and engineering posts. The feed collector
+returned no records at the cutoff. Semantic Scholar returned a malformed payload, and Brave Search
+lacked an API key. The snapshot records these failures. Searches restricted to an organization’s
+website cover institutions that lack a verified feed.
+Feeds 1-12 Feeds 13-24
+Meituan Engineering Ai2
+OpenAI News Together AI
+Google AI Sakana AI
+Google DeepMind Qwen
+Google Research Ollama
+Apple Machine Learning Research Stability AI
+AWS Machine Learning Nomic AI
+Hugging Face Blog Replicate
+Microsoft Research NVIDIA Developer
+NVIDIA AI Blog IBM Research
+Mistral AI Databricks
+Meta Research LangChain
+Table 10: The 24 first-party research and engineering feeds monitored by Benchmark Radar.
+E Worked Use Case: Prior-Art Check for a New Evaluation
+The contributor wanted to determine whether a proposed evaluation duplicated existing work. They
+gave the task to a coding agent together with the public setup instructions for Benchmark Radar. The
+agent installed the Benchmark Radar Skill and searched the catalog and discovery layers for August
+2026 work on credit assignment in agentic training (Figure 10).
+23
+
+=== PDF PAGE 24 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+It compared the normalized catalog records against the unverified discovery leads and opened each
+August candidate’s primary source to confirm the small-Qwen requirement before selecting records to
+compare. Figure 10 lists the commands and the fields each hit returns.
+REQUEST
+“Search work published in August 2026 on credit assignment in agentic training, with small Qwen-series models as reproducible baselines...”
+1npx skills add ktwu01/benchmark-radar
+skill installed; the CLI was already present
+2benchmark-radar search "credit assignment" --scope
+catalog
+SCOPE: catalog STATUS: partial candidatesonly
+TOTAL MATCHES: 4 FULL: 0 PARTIAL: 4
+[2] FraudBench src=claire radar paper=True matched=credit
+missing=assignment
+4 partial matches, all finance “credit”, no benchmark record
+QUERIES TRIED
+radar: credit assignment·agentic credit assignment·step-level credit
+assignment·agentic reinforcement learning·Qwen
+catalog: credit assignment·Qwen
+3benchmark-radar search "credit assignment" --scope
+radar --limit 200
+[27] SRPO: Self-Reflective Policy Optimization for Long-Horizon
+Reasoning
+date=2026-08-25 src=arXiv paper=True repo=False data=False
+matched=agentic+assignment+credit missing=
+url=arxiv.org/abs/2608.23493
+47 full matches of 225; 38 dated 2026-08
+4benchmark-radar search "Qwen" --scope catalog
+12 records, none on credit assignment. The August leads were then
+opened on arXiv:
+SRPO arXiv 2608.23493 Qwen3-8B
+HindSearch arXiv 2608.01597 Qwen2.5-3B-Instruct
+Met all four: August 2026·credit assignment·small Qwen·code
+released
+Figure 10: A coding agent runs the prior-art check with Benchmark Radar. The session installs
+the Skill, searches the catalog and the discovery layer, and verifies each August candidate against its
+primary source. Thecataloglayer holds normalized benchmark records; theradarlayer holds recent,
+unverified leads. Search is lexical, so each score ranks results for one query only, and every hit reports
+the query tokens it matched and missed together with its paper, repository, and dataset link flags.
+Table 11 shows a prior-art comparison table from an earlier benchmark-design effort by one con-
+tributor. Each row is one related benchmark and each column one design dimension, with each cell
+read from a source paper. The contributor reported that assembling it took more effort than any part
+of that project except producing the benchmark data. Benchmark Radar retrieves candidates for this
+kind of comparison and exposes the matching words and fields for inspection.
+Bench Name End-to-End Tasks Fine-Grained Eval Researcher-Quality Eval Data Generation Multi-Harness Eval #Tasks
+MLE-Bench [9]✗ ✓ ✗Transfer&Compose✓75
+MLGym-Bench [44]✗ ✓ ✗Automatic✗13
+EXP-Bench [32]✓ ✗ ✗Automatic✓461
+ResearchCodeBench [23]✗ ✓ ✗Transfer&Compose✗212
+MLR-Bench [10]✓ ✗ ✗Automatic✓201
+PaperBench [62]✗ ✓ ✗Transfer&Compose✗8316
+AstaBench [7]✓ ✓ ✗Transfer&Compose✓2400+
+InnovatorBench [71]✓ ✗ ✗Transfer&Compose✗20
+AIRS-Bench [40]✗ ✓ ✗Automatic✓20
+COMPOSITE-Stem [68]✓ ✓ ✗Manual✗70
+ScienceBoard [64]✗ ✓ ✗Manual✗169
+Table 11: A prior-art comparison table assembled manually for an earlier benchmark-design effort.
+Each row is one related benchmark and each column one design dimension, all read from the source
+papers by hand.
+24
+
+=== PDF PAGE 25 ===
+benchmark-radar.org github.com/ktwu01/benchmark-radar
+F Reproducibility, Access, and Citation
+All reported numbers come from Benchmark Radar release v0.13.0, with discovery data through 2026-
+09-07. Two audit scripts recompute the census and the document, score, and date analyses from that
+release’s catalog, registries, and dated snapshots. Capability classification and its time trends are
+generated separately and are not covered by these scripts.
+The paper repository’s reproduction guide identifies the scripts, input hashes, and validation pro-
+cedure. Table 12 lists the access and citation resources. The project also provides a Citation File
+Format record [11, 30, 61].
+Artifact Canonical or permanent location
+Source codehttps://github.com/ktwu01/benchmark-radar
+Dashboardhttps://benchmark-radar.org/
+Dataset (Hugging Face)https://huggingface.co/datasets/ktwu01/benchmark-radar
+RSShttps://benchmark-radar.org/feed.xml
+Citation metadatahttps:
+//github.com/ktwu01/benchmark-radar/blob/main/CITATION.cff
+Table 12: Access and citation artifacts for Benchmark Radar.
+Licensing
+The software is released under the MIT License. This paper and the project’s original editorial content
+are released under CC BY-NC-SA 4.0. Third-party source material remains under its original terms.
+25

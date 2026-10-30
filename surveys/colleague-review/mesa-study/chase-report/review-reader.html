@@ -1,0 +1,873 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Six selected reviews — CHASE reading copy</title><style>
+:root{font:18px/1.7 system-ui,sans-serif;color:#203345;background:#f5f6f8;color-scheme:light dark;--card:#fff;--line:#d5dfe7;--link:#075f85;--soft:#edf4f8}
+*{box-sizing:border-box}body{margin:0}header,main,footer{max-width:1100px;margin:auto;padding:32px}h1{font-size:2.1rem;line-height:1.2}h2{font-size:1.7rem;line-height:1.3}h3{font-size:1.15rem}a{color:var(--link);overflow-wrap:anywhere}a:focus-visible,summary:focus-visible{outline:3px solid #d78d22;outline-offset:4px}nav{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}nav a{display:block;padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--card)}.note{background:var(--soft);padding:20px;border-radius:8px}.review{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:32px;margin:0 0 40px;scroll-margin-top:20px}.case-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;margin:24px 0;scroll-margin-top:20px}#test-cases>nav{margin:24px 0}.case-card h3{font-size:1.5rem}.case-card h4{margin-bottom:8px}.meta{font-size:.88rem}.context{max-width:76ch;margin:32px 0}.context h3{margin:28px 0 8px}.context p{margin:0 0 16px}.section{border-top:1px solid var(--line);margin-top:28px;padding-top:12px}.efpa-block{max-width:72ch;margin:24px 0;padding:20px;border:1px solid var(--line);border-radius:8px}.efpa-block h4{margin:0 0 18px;font-size:1.05rem;color:var(--link)}.efpa-row{margin:0;padding:12px 0;overflow-wrap:anywhere}.efpa-row+.efpa-row{border-top:1px solid var(--line)}.original{white-space:pre-wrap;overflow-wrap:anywhere}.answer{padding:18px 0;border-top:1px solid var(--line)}.answer h4{font-size:1rem;margin:0 0 10px}.choice{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:3px 12px;font-weight:700}.meaning{font-size:.9rem}li{margin:10px 0}summary{cursor:pointer;padding:8px 0;font-weight:600}footer{font-size:.85rem} @media(prefers-color-scheme:dark){:root{color:#e5edf4;background:#101a22;--card:#192833;--line:#405567;--link:#8bd9f4;--soft:#243b49}}@media(max-width:650px){header,main,footer{padding:18px}.review{padding:20px}nav{grid-template-columns:1fr}h1{font-size:1.7rem}}@media print{:root{color:#000;background:white;--card:white;--line:#aaa;--soft:#eee;--link:#000}nav,.back{display:none}.review{break-before:page;border:0;padding:0}header,main,footer{padding:0}details{display:block}.answer{break-inside:avoid}}
+</style><body><header id="top"><p>CHASE · author reading copy</p><h1>Selected reviews and test cases</h1><p><a href="#test-cases">Go to the 24 invented test cases ↓</a></p>
+<p>Read the model’s responses in a clearer layout. All response wording is preserved. The EFPA reviews have added paragraph breaks between numbered items. Headings and navigation are added for readability.</p>
+<section id="study-context" aria-labelledby="context-title" class="context">
+<p class="meta">Explanation added for the reader · not part of the model responses</p>
+<h2 id="context-title">About these reviews</h2>
+<h3>What are they?</h3>
+<p>Claude Sonnet 5.5 read written descriptions of two AI benchmarks and produced these reviews. It did not run the benchmarks. ARC-AGI-2 tests solving grid puzzles. DesignQA asks questions about engineering documents.</p>
+<h3>Why did we ask for them?</h3>
+<p>The study examines how different review instructions affect what the model discusses, misses, or interprets. This helps us identify difficulties in adapting methods for reviewing human tests to AI benchmarks.</p>
+<h3>What were the three approaches?</h3>
+<ul><li><strong>MESA:</strong> 25 questions, answer choices, explanations, and a completed teaching example.</li>
+<li><strong>EFPA-TRM:</strong> the complete 2025 model for reviewing human tests, supplied as text from all 90 pages.</li>
+<li><strong>General instructions:</strong> a request to examine the benchmark’s construction, scoring, comparisons, consistency, interpretation, fairness, and reporting, without either questionnaire.</li></ul>
+<p>All three approaches received the same benchmark descriptions. Only MESA received a completed example, so the comparison concerns the whole set of supplied materials.</p>
+<h3>Why are there only six reviews on this page?</h3>
+<p>The benchmark task used five separate conversations for each approach. Each conversation reviewed ARC-AGI-2 and then DesignQA: 15 conversations produced 30 benchmark reviews. This page shows one conversation for each approach, so we can examine its two reviews in detail.</p>
+<p><strong>Three approaches × two benchmarks = six selected reviews.</strong> The other responses remain in the study records. These six are examples for close reading, not the entire experiment.</p>
+<h3>Why were these particular six selected?</h3>
+<p>They come from the conversation labelled <strong>repetition 1</strong> for each approach. The run numbers were assigned before each batch ran; they do not tell us which conversation was launched first. These reviews were not chosen because they were the best responses. A selected response would not have been replaced just because its format was invalid.</p>
+<h3>How do they fit into the wider study?</h3>
+<p>Another 15 conversations examined short invented cases, asking what each description supported, contradicted, or left unknown. Across both tasks, the reporting selection contains <strong>30 conversations, with 28 usable responses</strong>. Two completed responses did not meet the required format and were excluded from analysis, but kept in the records. One was a benchmark conversation containing two reviews, so 28 of the 30 benchmark reviews were usable.</p>
+<p>The overall reporting selection was assembled after the runs. MESA guidance was finalized after development testing, and its conversations ran after the comparison batches. This history is separate from using repetition 1 for the six reviews shown here. The methods were not run together in a randomly assigned experiment.</p>
+<h3>What can these six reviews tell us?</h3>
+<p>They illustrate differences and interpretation problems. They do not establish how common those problems are, which method is best, or how people would respond. These are repeated responses from one model, not reviews by six different people.</p>
+<p>For the full account, see the <a href="../../../../CHASE-study.md">study guide</a>, <a href="selection.json">record of selected conversations</a>, and <a href="selected-reviews.md">analysis of these six reviews</a>.</p>
+</section>
+<div class="note"><h2>What you should check</h2><strong>These are model responses, not verified facts.</strong> A statement listed as a problem may still need correction. Compare the response with the supplied reading and <a href="selected-reviews.md">our analysis</a>. Check whether we quoted it correctly, described it fairly, missed anything, or drew a conclusion the reading does not support.</div><h2>Choose a review</h2><nav aria-label="Selected reviews">
+<a href="#mesa-arc">MESA<br>ARC-AGI-2</a>
+<a href="#mesa-designqa">MESA<br>DesignQA</a>
+<a href="#efpa-arc">EFPA-TRM<br>ARC-AGI-2</a>
+<a href="#efpa-designqa">EFPA-TRM<br>DesignQA</a>
+<a href="#ordinary-arc">General instructions<br>ARC-AGI-2</a>
+<a href="#ordinary-designqa">General instructions<br>DesignQA</a>
+</nav></header><main>
+<article class="review" id="mesa-arc" aria-labelledby="mesa-arc-title"><p class="meta">Selected repetition 1 · MESA</p><h2 id="mesa-arc-title">MESA — ARC-AGI-2</h2><p class="meta"><a href="../claude-sonnet-5-5-guidance-v2/outputs/real-mesa-neutral-1/response.txt">Original response file (both benchmarks)</a> · <a href="#top">Choose another review</a></p>
+<section class="section"><h3>Overall review</h3>
+<p class="original">ARC-AGI-2 is clearly specified: the version, the problem sets, the scoring software and the task format are all described. The creators give reasons for the design and used a human study to match difficulty across the test sets. Key gaps remain. There is no estimate of run-to-run variation, no systematic test of changed setups, and no study linking scores to abilities beyond grid puzzles. Exposure and shortcut protections are partial, and the change record does not recalculate affected scores. Claims about broader reasoning go beyond the grid-problem evidence.</p>
+</section>
+<section class="section"><h3>Claims the model says are supported</h3>
+<ul>
+<li class="original">The test covers ARC-AGI-2 public problems, official scoring software and ARC Prize verified-test rules, and the version, problem sets and scoring are identified.</li>
+<li class="original">Credit requires an exact match in size and every square, with two attempts per input, and problem scores are averaged.</li>
+<li class="original">Matching the three test sets for human difficulty was based on a study with 407 people in 515 sessions.</li>
+<li class="original">The materials show no evidence that the scores measure anything beyond two-dimensional grid problems.</li>
+</ul>
+</section>
+<section class="section"><h3>Problems listed by the model</h3>
+<ul>
+<li class="original">Public problems are visible, so prior exposure remains possible, and ARC Prize acknowledges hidden-test information could still escape.</li>
+<li class="original">Corrections to coloured squares and unclear examples were needed after release.</li>
+<li class="original">The change record does not recalculate every affected AI score.</li>
+<li class="original">Verified testing uses one run, and other testing routes may use different conditions.</li>
+<li class="original">The creators&#x27; links to broader intelligence are not supported by the supplied studies.</li>
+</ul>
+</section>
+<section class="section"><h3>Information the model says is missing</h3>
+<ul>
+<li class="original">Estimates or ranges showing how much the same AI&#x27;s score changes across repeated runs.</li>
+<li class="original">Systematic tests of changed instructions, grid presentation or software.</li>
+<li class="original">A comparison point such as a human or guessing score matched to the AI testing conditions.</li>
+<li class="original">Evidence that scores predict performance in language, social interaction or real-world work.</li>
+<li class="original">Independent testing of the whole marking system.</li>
+<li class="original">How the number of 120 problems per test set was justified.</li>
+<li class="original">The complete archive of public outputs, which the preparer did not check.</li>
+</ul>
+</section>
+<section class="section"><h3>How the model interprets terms for AI</h3>
+<ul>
+<li class="original">Within this test, &#x27;reasoning&#x27; means inferring a rule from grid examples and producing an exact grid, not general intelligence.</li>
+<li class="original">A &#x27;problem score&#x27; is the average of its inputs, so 0.5 is partial credit, not &#x27;solved&#x27;.</li>
+<li class="original">&#x27;Training allowed on development problems&#x27; means exposure to development tasks is permitted, while tuning specifically for the evaluation tasks is discouraged.</li>
+<li class="original">&#x27;Verified&#x27; means run under ARC Prize&#x27;s stated conditions, not shown to be stable or repeatable.</li>
+</ul>
+</section>
+<section class="section"><h3>Model’s closing note</h3>
+<p class="original">Some questions overlap, such as 14 versus 16 and 17 versus 18. It was also unclear whether the human study counts as a comparison point for AI scores.</p>
+</section>
+<section class="section"><h3>The 25 MESA answers</h3><p class="meaning">Question wording and explanations are shown from the study materials. Answers and comments below are the model’s original text.</p>
+<div class="answer"><h4>Q1. Are the benchmark version, set of test problems and method for calculating scores identified?</h4><details><summary>What this question means</summary><p class="meaning">Identify the edition of the benchmark, the problems used, and the scoring method. This asks whether all three are stated, not whether they are good choices.</p></details><span class="choice">Yes</span><p class="original">Version, public test problems and official scoring software are named.</p></div>
+<div class="answer"><h4>Q2. Are the ability being tested, the intended AI systems and the intended uses described?</h4><details><summary>What this question means</summary><p class="meaning">Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.</p></details><span class="choice">Yes</span><p class="original">Ability, intended comparisons and broader claims are described.</p></div>
+<div class="answer"><h4>Q3. Are the test problems, the information provided and the required answers or actions described?</h4><details><summary>What this question means</summary><p class="meaning">The description should say what the AI receives and what it must produce or do. You do not need to solve the problems yourself.</p></details><span class="choice">Yes</span><p class="original">Grid pairs and required output grids are described.</p></div>
+<div class="answer"><h4>Q4. Are the instructions, resources and limits for taking the test described?</h4><details><summary>What this question means</summary><p class="meaning">Testing conditions include instructions, tools, supplied documents, time, allowed attempts, and AI settings. This asks whether relevant conditions are described, not whether every possible condition was studied.</p></details><span class="choice">Partly</span><p class="original">Verified tests specify settings and spending limits and allow two attempts, but details are not given and other routes differ.</p></div>
+<div class="answer"><h4>Q5. Is it described how answers or actions become scores and how results are presented?</h4><details><summary>What this question means</summary><p class="meaning">Look for the rules that turn responses into points, any averaging or weighting, and how results are shown. Describing a scoring rule does not establish that it is accurate or appropriate.</p></details><span class="choice">Yes</span><p class="original">Exact match, two attempts and per-problem averaging are described.</p></div>
+<div class="answer"><h4>Q6. Is it explained why the test problems measure the ability the benchmark claims to test?</h4><details><summary>What this question means</summary><p class="meaning">The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.</p></details><span class="choice">Partly</span><p class="original">Design aims are explained, but the link to broader reasoning is asserted.</p></div>
+<div class="answer"><h4>Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?</h4><details><summary>What this question means</summary><p class="meaning">Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.</p></details><span class="choice">Partly</span><p class="original">A human study and deduplication support selection, but the 120-problem set size is not justified.</p></div>
+<div class="answer"><h4>Q8. Were the test problems and the answers used to mark them checked for errors during development?</h4><details><summary>What this question means</summary><p class="meaning">This asks whether both the problems and the supplied answers used to mark them were examined for mistakes during development. It is separate from testing how new AI responses are marked. Evidence that examination occurred does not establish that every answer is correct; note limits in its coverage when relevant.</p></details><span class="choice">Partly</span><p class="original">Reviews and a human study occurred, but post-release corrections were needed and error rates are not given.</p></div>
+<div class="answer"><h4>Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?</h4><details><summary>What this question means</summary><p class="meaning">A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.</p></details><span class="choice">Partly</span><p class="original">Only grid problems are covered.</p></div>
+<div class="answer"><h4>Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?</h4><details><summary>What this question means</summary><p class="meaning">Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.</p></details><span class="choice">Partly</span><p class="original">Exact-match scoring is clear, but evidence that points reflect reasoning is limited.</p></div>
+<div class="answer"><h4>Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?</h4><details><summary>What this question means</summary><p class="meaning">Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.</p></details><span class="choice">Partly</span><p class="original">Averaging is described, with no evidence for separate skills.</p></div>
+<div class="answer"><h4>Q12. Was the marking process tested to see whether it awards the right scores consistently?</h4><details><summary>What this question means</summary><p class="meaning">Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.</p></details><span class="choice">Partly</span><p class="original">Public tests cover some cases, but the whole system was not independently tested.</p></div>
+<div class="answer"><h4>Q13. Are the comparison points used to explain the scores justified for the claims being made?</h4><details><summary>What this question means</summary><p class="meaning">A comparison point is a human score, another AI score, or a guessing result used to interpret a score. Ask whether it fits the stated claim and conditions. Comparing particular systems does not establish a ranking among all systems or a justified score cutoff for a decision.</p></details><span class="choice">Not sure</span><p class="original">No human or other comparison point for AI scores is described.</p></div>
+<div class="answer"><h4>Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?</h4><details><summary>What this question means</summary><p class="meaning">This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.</p></details><span class="choice">No</span><p class="original">Verified policy states a single run, and no variation estimates are provided.</p></div>
+<div class="answer"><h4>Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?</h4><details><summary>What this question means</summary><p class="meaning">This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.</p></details><span class="choice">Not sure</span><p class="original">No systematic study of changed setups was found in the materials reviewed.</p></div>
+<div class="answer"><h4>Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?</h4><details><summary>What this question means</summary><p class="meaning">Look for a range or other estimate of possible score differences, how it was calculated, and whether it supports the intended comparison. An estimate based on the number of problems need not measure changes across repeated evaluations; small score differences may remain unresolved.</p></details><span class="choice">Not sure</span><p class="original">No ranges or estimates of score variation are supplied.</p></div>
+<div class="answer"><h4>Q17. Were ways of earning points without using the ability being tested investigated?</h4><details><summary>What this question means</summary><p class="meaning">A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.</p></details><span class="choice">Partly</span><p class="original">Program-search resistance and rule checks were used, but not every route was ruled out.</p></div>
+<div class="answer"><h4>Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?</h4><details><summary>What this question means</summary><p class="meaning">Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.</p></details><span class="choice">Partly</span><p class="original">Agreements and monitoring exist, but public problems remain visible and leakage is acknowledged as possible.</p></div>
+<div class="answer"><h4>Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?</h4><details><summary>What this question means</summary><p class="meaning">Look for rules about training specifically for the test and repeatedly submitting results, with reasons linked to the intended use. A rule being absent from the supplied description is different from evidence that the rule is unsuitable.</p></details><span class="choice">Partly</span><p class="original">Rules on development versus evaluation training and on feedback are stated, but their justification is limited.</p></div>
+<div class="answer"><h4>Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?</h4><details><summary>What this question means</summary><p class="meaning">This concerns claims about new problems or real work beyond the benchmark. Look for evidence covering that broader claim. A stated ambition alone is not such evidence; if no broader claim or use arises, consider Not applicable.</p></details><span class="choice">Not sure</span><p class="original">No study links scores to other tasks.</p></div>
+<div class="answer"><h4>Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?</h4><details><summary>What this question means</summary><p class="meaning">Look for evidence that differences in information, tools, tasks, resources, or settings do not make the intended comparison misleading. Findings about differences between people do not by themselves establish fair comparisons between AI systems.</p></details><span class="choice">Partly</span><p class="original">Verified settings are recorded, but other routes differ.</p></div>
+<div class="answer"><h4>Q22. Are the test materials and methods available in enough detail for someone else to repeat the evaluation or examine how it was done?</h4><details><summary>What this question means</summary><p class="meaning">Look for enough problems, scoring details, instructions, and software to repeat or inspect the evaluation. Public access to some files does not necessarily reproduce hidden test results or earlier software versions.</p></details><span class="choice">Partly</span><p class="original">Public problems, software and tests are available, but hidden sets are controlled.</p></div>
+<div class="answer"><h4>Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?</h4><details><summary>What this question means</summary><p class="meaning">Look for access and reuse rules and relevant safeguards, such as protecting hidden answers. A missing permission statement does not establish that reuse is prohibited. This asks whether relevant rules are stated, not whether all materials must be public.</p></details><span class="choice">Yes</span><p class="original">The Apache 2.0 licence and hidden-data confidentiality rules are stated.</p></div>
+<div class="answer"><h4>Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?</h4><details><summary>What this question means</summary><p class="meaning">Look for a record of changes to problems, answers, or scoring and an explanation of their effects on old and new scores. A new version number alone does not explain whether scores can be compared.</p></details><span class="choice">Partly</span><p class="original">A dated change record exists but does not recalculate scores.</p></div>
+<div class="answer"><h4>Q25. Do the published claims stay within what the evidence supports?</h4><details><summary>What this question means</summary><p class="meaning">Compare what is publicly claimed with the tasks, conditions, and results actually reported. A claim about these tasks may be justified even when a broader claim is not. Missing evidence for a broad claim does not prove that the AI lacks the ability.</p></details><span class="choice">Partly</span><p class="original">Claims about broader reasoning exceed the grid evidence.</p></div>
+</section>
+<p class="back"><a href="#top">Back to all six reviews ↑</a></p></article>
+<article class="review" id="mesa-designqa" aria-labelledby="mesa-designqa-title"><p class="meta">Selected repetition 1 · MESA</p><h2 id="mesa-designqa-title">MESA — DesignQA</h2><p class="meta"><a href="../claude-sonnet-5-5-guidance-v2/outputs/real-mesa-neutral-1/response.txt">Original response file (both benchmarks)</a> · <a href="#top">Choose another review</a></p>
+<section class="section"><h3>Overall review</h3>
+<p class="original">DesignQA is clearly described: its version, question groups, inputs and scoring software are identified, and the tasks resemble parts of engineering work. Its evidence is limited. It uses one rulebook, the groups are very uneven, and wording and formatting affect marking. Systems receive different information, there is no human baseline, and score variation is poorly characterized. Some robustness checks exist, but there is no full repeat-run study. Materials are only partly reproducible, and licensing, change records and reuse rules are unclear. The paper itself limits claims about other documents.</p>
+</section>
+<section class="section"><h3>Claims the model says are supported</h3>
+<ul>
+<li class="original">The test is the original 2024 DesignQA with 1,451 question-answer pairs in six groups, plus public scoring software.</li>
+<li class="original">Groups are very uneven, from 1,192 questions in one group to 16 in another.</li>
+<li class="original">The overall score weights the six groups equally.</li>
+<li class="original">Wording and formatting can affect credit.</li>
+<li class="original">Systems differ in the information they receive, so results describe the AI plus its information supply.</li>
+<li class="original">The evidence does not support claims about other technical documents or real engineering projects.</li>
+</ul>
+</section>
+<section class="section"><h3>Problems listed by the model</h3>
+<ul>
+<li class="original">Marking examples include missing commas and valid related rules absent from the supplied answer.</li>
+<li class="original">One released answer file has fewer rows than the paper&#x27;s question count.</li>
+<li class="original">The exact historical software, settings and inputs are not fully linked to each result.</li>
+<li class="original">Always answering &#x27;yes&#x27; would earn credit on the described scale-bar drawings.</li>
+<li class="original">The rulebook and questions are public, and no protected set or overlap check was established.</li>
+<li class="original">Reviewer disagreement rates and remaining errors are not reported.</li>
+</ul>
+</section>
+<section class="section"><h3>Information the model says is missing</h3>
+<ul>
+<li class="original">Reviewer disagreement and remaining error counts.</li>
+<li class="original">A complete marking accuracy and consistency study.</li>
+<li class="original">A human engineer baseline.</li>
+<li class="original">Identical-condition repeated runs and ranges for the main comparisons.</li>
+<li class="original">Rules on training on the questions and on repeated submission.</li>
+<li class="original">A licence file and complete responsible-reuse rules.</li>
+<li class="original">A clear change record explaining the effects of revisions on scores.</li>
+<li class="original">Direct checks of exposure for each AI&#x27;s training data.</li>
+</ul>
+</section>
+<section class="section"><h3>How the model interprets terms for AI</h3>
+<ul>
+<li class="original">&#x27;Understanding engineering documents&#x27; here means performance on one Formula SAE rulebook and a few task types.</li>
+<li class="original">An AI&#x27;s result reflects the AI together with its retrieved or supplied passages.</li>
+<li class="original">The overall score is an equal-weight average of six unequal groups and not shown to measure one skill.</li>
+<li class="original">Marking by text similarity measures wording match as well as correctness.</li>
+</ul>
+</section>
+<section class="section"><h3>Model’s closing note</h3>
+<p class="original">Some questions overlap, such as 14 and 15, and the guidance for one run with varied passages was ambiguous. Question 23 could be read as either missing rules or evidence against reuse.</p>
+</section>
+<section class="section"><h3>The 25 MESA answers</h3><p class="meaning">Question wording and explanations are shown from the study materials. Answers and comments below are the model’s original text.</p>
+<div class="answer"><h4>Q1. Are the benchmark version, set of test problems and method for calculating scores identified?</h4><details><summary>What this question means</summary><p class="meaning">Identify the edition of the benchmark, the problems used, and the scoring method. This asks whether all three are stated, not whether they are good choices.</p></details><span class="choice">Yes</span><p class="original">The original 2024 version, 1,451 pairs and the public scoring software are named.</p></div>
+<div class="answer"><h4>Q2. Are the ability being tested, the intended AI systems and the intended uses described?</h4><details><summary>What this question means</summary><p class="meaning">Look for the skill being tested, which AI systems the test is intended for, and the proposed uses of its scores. A description of these aims is different from evidence that the test achieves them.</p></details><span class="choice">Yes</span><p class="original">Ability, systems and intended use are described.</p></div>
+<div class="answer"><h4>Q3. Are the test problems, the information provided and the required answers or actions described?</h4><details><summary>What this question means</summary><p class="meaning">The description should say what the AI receives and what it must produce or do. You do not need to solve the problems yourself.</p></details><span class="choice">Yes</span><p class="original">Inputs, six task groups and answer types are described.</p></div>
+<div class="answer"><h4>Q4. Are the instructions, resources and limits for taking the test described?</h4><details><summary>What this question means</summary><p class="meaning">Testing conditions include instructions, tools, supplied documents, time, allowed attempts, and AI settings. This asks whether relevant conditions are described, not whether every possible condition was studied.</p></details><span class="choice">Partly</span><p class="original">Instructions and settings are described, but systems receive different information and results are not fully linked to the inputs and software used.</p></div>
+<div class="answer"><h4>Q5. Is it described how answers or actions become scores and how results are presented?</h4><details><summary>What this question means</summary><p class="meaning">Look for the rules that turn responses into points, any averaging or weighting, and how results are shown. Describing a scoring rule does not establish that it is accurate or appropriate.</p></details><span class="choice">Yes</span><p class="original">Marking methods and equal group weighting are described.</p></div>
+<div class="answer"><h4>Q6. Is it explained why the test problems measure the ability the benchmark claims to test?</h4><details><summary>What this question means</summary><p class="meaning">The explanation should link the problems to the claimed skill. Being difficult or requiring specialist knowledge does not by itself establish that a task measures reasoning.</p></details><span class="choice">Partly</span><p class="original">Tasks follow parts of engineering work, which is the authors&#x27; reason.</p></div>
+<div class="answer"><h4>Q7. Are the origins and choice of test problems justified for the benchmark’s intended use?</h4><details><summary>What this question means</summary><p class="meaning">Look for reasons for the sources, number, topics, and difficulty of problems in relation to the intended use. Availability alone is not a reason that these problems represent the skill.</p></details><span class="choice">Partly</span><p class="original">Real competition materials are used, but there is one rulebook and groups are uneven.</p></div>
+<div class="answer"><h4>Q8. Were the test problems and the answers used to mark them checked for errors during development?</h4><details><summary>What this question means</summary><p class="meaning">This asks whether both the problems and the supplied answers used to mark them were examined for mistakes during development. It is separate from testing how new AI responses are marked. Evidence that examination occurred does not establish that every answer is correct; note limits in its coverage when relevant.</p></details><span class="choice">Partly</span><p class="original">Two additional reviewers checked manually written questions, with exceptions and a limited explanation check.</p></div>
+<div class="answer"><h4>Q9. Is there evidence that the test problems cover the relevant parts of the ability being claimed?</h4><details><summary>What this question means</summary><p class="meaning">A skill may have several relevant parts. Look for evidence that the selected problems cover the parts included in the claim. A narrow set of problems may fit a narrow claim but not a broader one.</p></details><span class="choice">Partly</span><p class="original">Limited task range and one rulebook.</p></div>
+<div class="answer"><h4>Q10. Is there evidence that the way points are awarded reflects the ability the benchmark is meant to measure?</h4><details><summary>What this question means</summary><p class="meaning">Look for evidence that earning more points means doing better at the intended skill. A fixed scoring rule can work exactly as written while rewarding formatting or other features unrelated to that skill.</p></details><span class="choice">Partly</span><p class="original">Wording and formatting affect credit.</p></div>
+<div class="answer"><h4>Q11. Is there evidence supporting how scores are combined and what any separate scores are said to measure?</h4><details><summary>What this question means</summary><p class="meaning">Look for reasons for combining results, weighting groups, and naming any separate skills. Averaging scores is a calculation; it does not by itself establish that the total measures one ability.</p></details><span class="choice">Partly</span><p class="original">Equal weighting of unequal groups is not justified as measuring distinct skills.</p></div>
+<div class="answer"><h4>Q12. Was the marking process tested to see whether it awards the right scores consistently?</h4><details><summary>What this question means</summary><p class="meaning">Marking can be done by people, fixed software rules, or another AI. This asks whether that process was tested for correct and consistent marks. Testing that found mistakes still counts as testing. Fixed software rules alone do not show that tests occurred, and evidence of some testing does not establish complete marking accuracy.</p></details><span class="choice">Partly</span><p class="original">Small marking-test files and discussion exist, but there is no complete study.</p></div>
+<div class="answer"><h4>Q13. Are the comparison points used to explain the scores justified for the claims being made?</h4><details><summary>What this question means</summary><p class="meaning">A comparison point is a human score, another AI score, or a guessing result used to interpret a score. Ask whether it fits the stated claim and conditions. Comparing particular systems does not establish a ranking among all systems or a justified score cutoff for a decision.</p></details><span class="choice">Partly</span><p class="original">Random guessing and other AI results are given, but there is no human baseline.</p></div>
+<div class="answer"><h4>Q14. Was it tested how much the same AI system’s score changes when the benchmark is run more than once?</h4><details><summary>What this question means</summary><p class="meaning">This asks whether the same AI was evaluated repeatedly under the same conditions and score changes were measured. One reported evaluation does not establish whether other evaluations occurred; an explicit statement that only one occurred rules out repetition for that evaluation. Neither establishes that repeated scores would be unstable.</p></details><span class="choice">Not sure</span><p class="original">One AI was tested with five passage sets, which is not an identical-condition repeat.</p></div>
+<div class="answer"><h4>Q15. Was it tested how much scores change when instructions, presentation or the testing setup change?</h4><details><summary>What this question means</summary><p class="meaning">This asks whether effects of changed instructions, presentation, or settings were measured. Repeating identical conditions is different from changing conditions. Findings about one change need not cover every possible change.</p></details><span class="choice">Partly</span><p class="original">Changes to passages, labels, scale bars and highlighting were examined, but not all setup changes.</p></div>
+<div class="answer"><h4>Q16. Are estimates of how much scores could vary provided in enough detail to support the comparisons or decisions being made?</h4><details><summary>What this question means</summary><p class="meaning">Look for a range or other estimate of possible score differences, how it was calculated, and whether it supports the intended comparison. An estimate based on the number of problems need not measure changes across repeated evaluations; small score differences may remain unresolved.</p></details><span class="choice">No</span><p class="original">The reported information is insufficient to judge small score differences, e.g. 6.25 points in a 16-question group.</p></div>
+<div class="answer"><h4>Q17. Were ways of earning points without using the ability being tested investigated?</h4><details><summary>What this question means</summary><p class="meaning">A shortcut earns points without the intended skill, for example through accidental clues. This asks whether such routes were investigated. Identifying a possible shortcut does not establish that a tested AI used it; an investigation that found a problem still occurred.</p></details><span class="choice">Partly</span><p class="original">Some influences are discussed but shortcuts are not fully tested.</p></div>
+<div class="answer"><h4>Q18. Was the risk that AI systems had already seen the test problems or answers assessed and addressed?</h4><details><summary>What this question means</summary><p class="meaning">Look for both an assessment of earlier exposure to questions or answers and steps to address the risk. Public availability may create a risk without proving that a particular model saw the material. Protective measures do not establish that exposure was impossible.</p></details><span class="choice">Partly</span><p class="original">Exposure is discussed but not directly checked, and there is no protected set.</p></div>
+<div class="answer"><h4>Q19. Are the rules on training specifically for this test and repeatedly submitting results justified for the intended use?</h4><details><summary>What this question means</summary><p class="meaning">Look for rules about training specifically for the test and repeatedly submitting results, with reasons linked to the intended use. A rule being absent from the supplied description is different from evidence that the rule is unsuitable.</p></details><span class="choice">Not sure</span><p class="original">Clear rules were not available in the sources examined.</p></div>
+<div class="answer"><h4>Q20. Is there evidence for any claim that the scores show how well an AI system will perform beyond the problems in this test?</h4><details><summary>What this question means</summary><p class="meaning">This concerns claims about new problems or real work beyond the benchmark. Look for evidence covering that broader claim. A stated ambition alone is not such evidence; if no broader claim or use arises, consider Not applicable.</p></details><span class="choice">Not sure</span><p class="original">Performance on other documents is acknowledged as uncertain.</p></div>
+<div class="answer"><h4>Q21. Is there evidence that comparisons are fair across the AI systems and situations the benchmark is meant to cover?</h4><details><summary>What this question means</summary><p class="meaning">Look for evidence that differences in information, tools, tasks, resources, or settings do not make the intended comparison misleading. Findings about differences between people do not by themselves establish fair comparisons between AI systems.</p></details><span class="choice">Partly</span><p class="original">Systems receive different information, though this is reported.</p></div>
+<div class="answer"><h4>Q22. Are the test materials and methods available in enough detail for someone else to repeat the evaluation or examine how it was done?</h4><details><summary>What this question means</summary><p class="meaning">Look for enough problems, scoring details, instructions, and software to repeat or inspect the evaluation. Public access to some files does not necessarily reproduce hidden test results or earlier software versions.</p></details><span class="choice">Partly</span><p class="original">Questions, code and some responses are public, but a complete record for repeating every result is lacking.</p></div>
+<div class="answer"><h4>Q23. Are the rules for accessing and reusing the benchmark, and the protections needed for responsible use, stated?</h4><details><summary>What this question means</summary><p class="meaning">Look for access and reuse rules and relevant safeguards, such as protecting hidden answers. A missing permission statement does not establish that reuse is prohibited. This asks whether relevant rules are stated, not whether all materials must be public.</p></details><span class="choice">Not sure</span><p class="original">No licence file or complete reuse rules were found, though permission may exist elsewhere.</p></div>
+<div class="answer"><h4>Q24. Are changes to the benchmark recorded, including how they affect comparisons between old and new scores?</h4><details><summary>What this question means</summary><p class="meaning">Look for a record of changes to problems, answers, or scoring and an explanation of their effects on old and new scores. A new version number alone does not explain whether scores can be compared.</p></details><span class="choice">Partly</span><p class="original">Code history identifies revisions, but their effects on scores are not explained.</p></div>
+<div class="answer"><h4>Q25. Do the published claims stay within what the evidence supports?</h4><details><summary>What this question means</summary><p class="meaning">Compare what is publicly claimed with the tasks, conditions, and results actually reported. A claim about these tasks may be justified even when a broader claim is not. Missing evidence for a broad claim does not prove that the AI lacks the ability.</p></details><span class="choice">Yes</span><p class="original">The paper acknowledges its limits.</p></div>
+</section>
+<p class="back"><a href="#top">Back to all six reviews ↑</a></p></article>
+<article class="review" id="efpa-arc" aria-labelledby="efpa-arc-title"><p class="meta">Selected repetition 1 · EFPA-TRM</p><h2 id="efpa-arc-title">EFPA-TRM — ARC-AGI-2</h2><p class="meta"><a href="../claude-sonnet-5-5/outputs/real-efpa-neutral-1/response.txt">Original response file (both benchmarks)</a> · <a href="#top">Choose another review</a></p>
+<section class="section"><h3>Overall review</h3>
+<div class="efpa-block">
+<h4>SCOPE AND METHOD.</h4>
+<p class="efpa-row">Object reviewed: ARC-AGI-2 public test problems, official scoring software and ARC Prize rules for tests it runs or verifies (sources inspected 7 Oct 2026). Applied: EFPA Test Review Model 5.0, Parts A and B, with AI reinterpretations flagged. Only the supplied passage is used. Missing evidence is rated 0 (not possible to rate), which is not evidence of poor quality. Ratings are provisional section-level judgements. No aggregate score is computed. Critical attributes: scoring, repeat-run precision, contamination control, validity for the stated reasoning claims. Where the intended use is comparing AI systems, a 0 on a critical attribute means any high-stakes use should be restricted to research or expert use.</p>
+</div>
+<div class="efpa-block">
+<h4>PART A.</h4>
+<p class="efpa-row">1 Factual description: reviewer, review dates, local/original name, authors, publisher and adaptation fields are not supplied except: instrument name ARC-AGI-2; authors &#x27;ARC Prize Foundation staff and partners&#x27;, technical report by Francois Chollet and colleagues; no adaptation, so &#x27;local&#x27; fields are n/a; publication dates not given.</p>
+<p class="efpa-row">2.1 Content domain: Other, abstract/fluid rule induction, spatial grid reasoning (Ability, Learning approximately).</p>
+<p class="efpa-row">2.2 Area of use: Other, AI research evaluation; not a human clinical/educational/work use.</p>
+<p class="efpa-row">2.3 Populations: AI systems (the passage also describes a human sample used for calibration).</p>
+<p class="efpa-row">2.4 Intended users: Other, AI researchers, ARC Prize verifiers.</p>
+<p class="efpa-row">2.5 Scales: one total score, the mean of per-problem fractions solved; no sub-scales (software provides no separate skill scores).</p>
+<p class="efpa-row">2.6 Response mode: Other, program or model output of a complete grid; no human response mode.</p>
+<p class="efpa-row">2.7 Demands on the test taker: grid-format handling, size and colour output; for humans digital interface skills (not described). Attention, language, handedness, hearing, motor, reading, vision, writing, digital skills: information missing for AI and humans; &#x27;other&#x27; = ability to ingest a grid presentation (presentation format not specified).</p>
+<p class="efpa-row">2.8 Special conditions: verified tests specify AI settings and a spending limit and use one run; other routes may differ.</p>
+<p class="efpa-row">2.9 Item response types: production-based (complete grid output), a structured non-open production; not selection.</p>
+<p class="efpa-row">2.10 Stimulus: images/grids (text serialization of grids unspecified).</p>
+<p class="efpa-row">2.11 Items: 1,000 practice problems; three test sets of 120 each (public, semi-private, private); problems can have several test inputs (count per problem not given).</p>
+<p class="efpa-row">2.12.1 Individual administration (per AI system); group n/a.</p>
+<p class="efpa-row">2.12.2 Mode: controlled supervised verified runs by ARC Prize; unsupervised open running of public problems also possible.</p>
+<p class="efpa-row">2.13 Technology: Other, official scoring software; hardware not stated.</p>
+<p class="efpa-row">2.14 Time: preparation, administration, scoring, analysis, feedback times not supplied (scoring automated, nominally 0).</p>
+<p class="efpa-row">2.15 Forms: public, semi-private, private sets matched for human difficulty; ARC-AGI-1 is a separate version.</p>
+<p class="efpa-row">2.16 Static test forms; no adaptive content.</p>
+<p class="efpa-row">2.17 Informants: self-report n/a; the AI is the performer; human participants performed puzzles in the development study.</p>
+<p class="efpa-row">3.1 Scoring: digital scoring (direct entry).</p>
+<p class="efpa-row">3.2 Scores: exact match (size and every colour) per input, two attempts, per-problem fraction, mean over problems; no correction for guessing.</p>
+<p class="efpa-row">3.3 Scales: raw score use only (proportion).</p>
+<p class="efpa-row">3.4 Transformation: not applicable.</p>
+<p class="efpa-row">3.5 Norming: no differentiated norms.</p>
+<p class="efpa-row">4.1-4.10 Digitally generated reports: no report is described; &#x27;No&#x27;;</p>
+<p class="efpa-row">4.2-4.10 n/a (public outputs, costs, times and problem scores are not interpretive reports).</p>
+<p class="efpa-row">5.1 Support: public problems, running software, marking tests, change record, technical report; technical manual/user manual not identified.</p>
+<p class="efpa-row">5.2 Publication: website/downloadable (inferred; not stated).</p>
+<p class="efpa-row">5.3 Qualifications: none stated; hidden-data and verified-test rules cover confidentiality and code review. General description: see supported claims.</p>
+</div>
+<div class="efpa-block">
+<h4>PART B.</h4>
+<p class="efpa-row">6.1.1 Theory: creators link the test to reasoning beyond recall/brute-force search and to general AI; no theoretical model detail supplied: 0.</p>
+<p class="efpa-row">6.1.2 Empirical research summary: technical report exists; its content on constructs not supplied: 0.</p>
+<p class="efpa-row">6.1.3.1 Test design: two attempts, exact match and per-problem fraction scoring described; justification for design decisions not given: provisional 2.</p>
+<p class="efpa-row">6.1.3.2 Item content: new and unused puzzles, human study (407 people, 515 sessions), developer review, removal of same-rule duplicates, public corrections: provisional 3; expert qualifications not given.</p>
+<p class="efpa-row">6.1.3.3 Final pool selection: pool larger than final set, human results used to match difficulty; criteria for item inclusion not given: provisional 2.</p>
+<p class="efpa-row">6.1.4 Translation/adaptation: n/a.</p>
+<p class="efpa-row">6.1.5 Framework not specified; no item indices reported in the passage; no DIF: &#x27;no specific indices reported&#x27; (0).</p>
+<p class="efpa-row">6.1.6, 6.1.7 Item analysis methodology and results: 0 (human-study results are only used for set matching; no discrimination or ceiling/floor figures).</p>
+<p class="efpa-row">6.1.8 Overall rationale/development: provisional 2, low confidence.</p>
+<p class="efpa-row">6.2.1 Rationale documentation: 2.</p>
+<p class="efpa-row">6.2.2 Development: 2 (change record exists; full piloting details missing).</p>
+<p class="efpa-row">6.2.3 Adaptation docs: n/a.</p>
+<p class="efpa-row">6.2.4 Standardisation: 0 for AI conditions in unverified routes; verified conditions partly described: 2.</p>
+<p class="efpa-row">6.2.5 Norms documentation: 0.</p>
+<p class="efpa-row">6.2.6 Reliability: 0 (explicitly no repeat-run ranges).</p>
+<p class="efpa-row">6.2.7 Content validity: 1-2; no expert panel statistics: 0.</p>
+<p class="efpa-row">6.2.8 Internal structure: 0.</p>
+<p class="efpa-row">6.2.9 Relations with other variables: 0 for AI; human background factors null result only.</p>
+<p class="efpa-row">6.2.10 Other validity: 0.</p>
+<p class="efpa-row">6.2.11 Fair use: 0 for AI group comparison.</p>
+<p class="efpa-row">6.2.12 Reports: n/a.</p>
+<p class="efpa-row">6.2.13 Language: 0 (not assessable from passage).</p>
+<p class="efpa-row">6.2.14 Overall documentation: provisional 2, confidence low.</p>
+<p class="efpa-row">6.3.1 Administration: verified policy partly described, step-by-step guide not seen: 2.</p>
+<p class="efpa-row">6.3.2 Scoring: exact-match rules and public marking tests, but whole system not independently tested: 2.</p>
+<p class="efpa-row">6.3.3 Norming: n/a/0.</p>
+<p class="efpa-row">6.3.4 Interpretation: scope limits stated; guidance on score differences absent: 2.</p>
+<p class="efpa-row">6.3.5 Feedback: n/a (no test takers to debrief); verified tests are not a feedback service.</p>
+<p class="efpa-row">6.3.6 Fairness/bias practice: 0.</p>
+<p class="efpa-row">6.3.7 Restrictions: training on development problems allowed; tuning for evaluation problems discouraged; verified tests not an iteration service: 2.</p>
+<p class="efpa-row">6.3.8 Software support: scoring software, public tests, change record with code changes: 3 provisional; availability of technical support not given.</p>
+<p class="efpa-row">6.3.9 References: technical report cited; breadth not assessable: 2.</p>
+<p class="efpa-row">6.3.10 Overall procedural instructions: 2.</p>
+<p class="efpa-row">6.4 Overall rationale and documentation: provisional 2.</p>
+</div>
+<div class="efpa-block">
+<p class="efpa-row">7.1.1 Software robustness: tests cover wrong sizes, changed squares, missing outputs; no robustness study: 2.</p>
+<p class="efpa-row">7.1.2-7.1.5 Task understanding, instructions, response ease, interface: n/a for AI as designed; human interface not described: 0.</p>
+<p class="efpa-row">7.1.6 Accessibility for differently abled: n/a for AI; human accessibility not described: 0.</p>
+<p class="efpa-row">7.1.7 Item content quality: 2 (corrections to colours and unclear examples published; errors were found and fixed).</p>
+<p class="efpa-row">7.1.8 Overall technology materials: 2.</p>
+<p class="efpa-row">7.2.1-7.2.7 Paper materials: n/a.</p>
+</div>
+<div class="efpa-block">
+<h4>8 NORMS.</h4>
+<p class="efpa-row">8.1.1 Appropriateness: no AI norm group; human sample used only to equalise sets; n/a/0 (see reinterpretations).</p>
+<p class="efpa-row">8.1.2 Representativeness: 0.</p>
+<p class="efpa-row">8.1.3.1 Classical sample size: n/a (human 407 participants not a norm group).</p>
+<p class="efpa-row">8.1.3.2, 8.1.3.3 Continuous norming: n/a.</p>
+<p class="efpa-row">8.1.4 Sampling: human study participants paid; selection method not given: no information supplied.</p>
+<p class="efpa-row">8.2.1.1-8.2.1.5 Domain-referenced: n/a (no cut score by judges).</p>
+<p class="efpa-row">8.2.2 Criterion-referenced norming: n/a (no critical score).</p>
+<p class="efpa-row">8.3.1 Norm age: 0, release date and test-set data collection dates not supplied; sources inspected 2026.</p>
+<p class="efpa-row">8.3.2 Acceptable norms: absent; raw proportion scores interpretable only comparatively (see 8.3.2.2: ranking-only use could make Norms n/a, but passage also uses scores for broader reasoning claims, so not declared n/a).</p>
+<p class="efpa-row">8.3.2.1 Other cases: different test mode/conditions across routes are a concern;</p>
+<p class="efpa-row">8.3.2.3 fair-use info: none.</p>
+<p class="efpa-row">8.3.3 Overall norms: not rateable/n/a: 0.</p>
+</div>
+<div class="efpa-block">
+<h4>9 RELIABILITY.</h4>
+<p class="efpa-row">9.1 Data provided: no information given on repeat-run variation (no coefficients or SEM).</p>
+<p class="efpa-row">9.2 Internal consistency 9.2.1-9.2.4: 0 (not reported; applicability to heterogeneous problems uncertain).</p>
+<p class="efpa-row">9.3 Test-retest 9.3.1-9.3.4: 0; one run policy for verified tests.</p>
+<p class="efpa-row">9.4 Equivalence 9.4.1-9.4.3: three sets matched for human difficulty, but AI equivalence not reported: 0.</p>
+<p class="efpa-row">9.5 IRT 9.5.1-9.5.3: 0.</p>
+<p class="efpa-row">9.6 Inter-rater 9.6.1-9.6.3: n/a (automatic exact match).</p>
+<p class="efpa-row">9.7 Other methods 9.7.1-9.7.3: 0.</p>
+<p class="efpa-row">9.8 Overall: 0 / not possible to rate; critical, so intended comparison use of small differences is unsupported.</p>
+</div>
+<div class="efpa-block">
+<h4>10 VALIDITY.</h4>
+<p class="efpa-row">10.1 Content: provisional 2; relevance limited to 2D grid problems.</p>
+<p class="efpa-row">10.2 Internal structure 10.2.1-10.2.3: 0 (no skill sub-scores; no DIF).</p>
+<p class="efpa-row">10.3.1.1 designs: group differences (human background factors, null) only.</p>
+<p class="efpa-row">10.3.1.2 expected group differences: 0/1.</p>
+<p class="efpa-row">10.3.1.3 convergent: 0.</p>
+<p class="efpa-row">10.3.1.4 discriminant: 0.</p>
+<p class="efpa-row">10.3.1.5 MTMM: 0.</p>
+<p class="efpa-row">10.3.1.6 experiments: 0 (no study of instruction, grid presentation or software changes).</p>
+<p class="efpa-row">10.3.1.7 other: 0.</p>
+<p class="efpa-row">10.3.1.8 sample sizes: 407 people/515 sessions, human sample only: 3 for size, applicability limited.</p>
+<p class="efpa-row">10.3.1.9 marker quality: 0.</p>
+<p class="efpa-row">10.3.1.10 age: not given.</p>
+<p class="efpa-row">10.3.1.11 overall: 0.</p>
+<p class="efpa-row">10.3.2.1-10.3.2.7 criterion: no predictive study to language, social or real-world work: 0; this is a limit of supplied information.</p>
+<p class="efpa-row">10.4.1-10.4.3 other: contamination monitoring, hold-out controls and duplicate-rule checks are consequences/response-process-adjacent evidence but do not establish absence of shortcuts: provisional 1-2.</p>
+<p class="efpa-row">10.5 Overall validity: provisional 1 for broad reasoning claims; 2 for narrow comparison of grid-solving scores; low confidence.</p>
+</div>
+<div class="efpa-block">
+<h4>11 FAIR USE.</h4>
+<p class="efpa-row">11.1.1 construct relevance across groups: 0.</p>
+<p class="efpa-row">11.1.2 documentation: 0.</p>
+<p class="efpa-row">11.2 Design: 0.</p>
+<p class="efpa-row">11.3 Piloting: human participants with background analysis, null relation: 2 provisional for human fairness proxy.</p>
+<p class="efpa-row">11.4 Reliability across subgroups: 0.</p>
+<p class="efpa-row">11.5 Validity across groups: 0.</p>
+<p class="efpa-row">11.6.1 norm interpretation: n/a.</p>
+<p class="efpa-row">11.6.2 criterion: n/a.</p>
+<p class="efpa-row">11.7 Reports: n/a.</p>
+<p class="efpa-row">11.8 Overall: 0/not rateable for AI groups; groups here are AI systems, settings and testing routes.</p>
+</div>
+<div class="efpa-block">
+<h4>12 REPORTS.</h4>
+<p class="efpa-row">12.1-12.7: n/a. No reports or sample reports.</p>
+</div>
+<div class="efpa-block">
+<h4>FINAL EVALUATION.</h4>
+<p class="efpa-row">Strengths: transparent scoring, public tests, change record, human calibration of set difficulty, documented contamination safeguards. Weaknesses: no repeat-run precision, no sensitivity analysis, no demonstrated absence of shortcuts, narrow scope, scoring not independently tested. Use: research comparison of AI systems on grid rule-induction under stated verified conditions; avoid small-gap rankings and broad intelligence claims. Summary of ratings (no aggregate): 6.4 provisional 2; 7 n/a for most, 7.1.8 provisional 2;</p>
+<p class="efpa-row">8.3.3 0/n-a;</p>
+<p class="efpa-row">9.8 0;</p>
+<p class="efpa-row">10.5 provisional 1-2;</p>
+<p class="efpa-row">11.8 0;</p>
+<p class="efpa-row">12.7 n/a. OMISSIONS: Part A fields not in passage left blank; the stars, checkbox forms and sub-item tables are summarised via grouped IDs (6.2.1-6.2.14, 7.1.2-7.1.5, 8.2.1.1-8.2.1.5, 9.2-9.7, 10.3.2.1-10.3.2.7, 12.1-12.7).</p>
+</div>
+</section>
+<section class="section"><h3>Claims the model says are supported</h3>
+<ul>
+<li class="original">Each problem gives example grid pairs and the AI must output a new grid of exactly right size and colour for new inputs.</li>
+<li class="original">Credit per input requires an exact match from at most two attempts; a nearly correct grid scores zero.</li>
+<li class="original">The inspected software gives each problem the fraction of inputs solved and averages problem scores (example 0.5 for one of two).</li>
+<li class="original">The release has 1,000 practice problems and three 120-problem test sets (public, semi-private, private), matched on human difficulty.</li>
+<li class="original">The human study had 407 people in 515 paid 90-minute sessions, using a larger pool than the final test.</li>
+<li class="original">Public code, marking tests and a dated change record exist; data use Apache 2.0.</li>
+<li class="original">ARC Prize verified tests use one run, specified settings and a spending limit; other routes may differ.</li>
+<li class="original">The supplied studies concern 2D grid problems, so broader links to language, social or real-world work are unresolved rather than disproved.</li>
+</ul>
+</section>
+<section class="section"><h3>Problems listed by the model</h3>
+<ul>
+<li class="original">No estimates of score variation across repeated identical runs are given.</li>
+<li class="original">No systematic study of effects of changed instructions, grid presentation or software is given; human-difficulty matching does not address this.</li>
+<li class="original">Safeguards against shortcut routes to high scores do not establish that all are ruled out.</li>
+<li class="original">Public problems are visible, and leakage of hidden data to AI providers could still occur despite agreements and monitoring.</li>
+<li class="original">The change record lists fixes to some coloured squares and unclear examples, and it does not recalculate affected AI scores.</li>
+<li class="original">The preparer inspected marking tests but did not independently test the whole marking system, nor check the full archive of released outputs.</li>
+<li class="original">Human study results do not all describe the final set because the study pool was larger.</li>
+<li class="original">No study shows scores predict success in language, social interaction or real-world work.</li>
+</ul>
+</section>
+<section class="section"><h3>Information the model says is missing</h3>
+<ul>
+<li class="original">Release and publication dates; authors list detail; reviewer and previous review dates (1).</li>
+<li class="original">Item-level statistics, human solve rates per set, and number of inputs per problem (6.1.5-6.1.7).</li>
+<li class="original">Repeat-run reliability, SEM, confidence intervals (9.1-9.8).</li>
+<li class="original">Expert review procedures and qualifications (6.1.3.2, 10.1).</li>
+<li class="original">Convergent, discriminant and criterion evidence for reasoning claims (10.3).</li>
+<li class="original">Grid presentation format given to AI and exact instructions (2.7, 2.10).</li>
+<li class="original">Fairness or bias analyses across AI systems or settings (11).</li>
+<li class="original">Completeness of released public outputs; technical support availability (6.3.8).</li>
+<li class="original">Timing for administration and scoring (2.14).</li>
+</ul>
+</section>
+<section class="section"><h3>How the model interprets terms for AI</h3>
+<ul>
+<li class="original">Test taker is an AI system or system-plus-settings, not a person; &#x27;population&#x27; and &#x27;groups&#x27; (2.3, 11) become model families, settings and testing routes.</li>
+<li class="original">Norms (8) are reinterpreted as comparison among AI systems; the human sample is a difficulty calibration rather than a norm group, so 8.1.1-8.1.4 and 8.3.1 largely n/a or 0.</li>
+<li class="original">Test-retest and equivalence reliability (9.3, 9.4) mean repeated runs of the same AI and cross-set comparability; stochastic AI output is a variance source with no human counterpart.</li>
+<li class="original">Demands on the test taker (2.7), accessibility (7.1.6) and instructions to the test taker (7.1.2-7.1.3) have no direct AI counterpart; they map to input format and prompt design.</li>
+<li class="original">Fair use (11) cannot rely on human DIF concepts; AI-specific analogues such as training exposure and settings differences are used cautiously and flagged.</li>
+<li class="original">Contamination and tuning-for-test concerns are outside the original model; they are mapped to validity (10.4) and restrictions (6.3.7).</li>
+<li class="original">Inter-rater reliability (9.6) and Part A section 4 and model section 12 are n/a because scoring is automatic and no reports exist.</li>
+<li class="original">Item response types (2.9) do not fit the &#x27;production&#x27; description well; outputs are fully structured grids.</li>
+</ul>
+</section>
+<section class="section"><h3>Model’s closing note</h3>
+<p class="original">Unclear: how to treat 0 versus n/a when a human-test concept has no AI analogue; whether star ratings are required given the no-aggregate instruction; and the extent of grouping allowed. Ratings are provisional and rely only on the supplied text.</p>
+</section>
+<p class="back"><a href="#top">Back to all six reviews ↑</a></p></article>
+<article class="review" id="efpa-designqa" aria-labelledby="efpa-designqa-title"><p class="meta">Selected repetition 1 · EFPA-TRM</p><h2 id="efpa-designqa-title">EFPA-TRM — DesignQA</h2><p class="meta"><a href="../claude-sonnet-5-5/outputs/real-efpa-neutral-1/response.txt">Original response file (both benchmarks)</a> · <a href="#top">Choose another review</a></p>
+<section class="section"><h3>Overall review</h3>
+<div class="efpa-block">
+<h4>SCOPE AND METHOD.</h4>
+<p class="efpa-row">Object reviewed: original DesignQA benchmark (2024 paper) and public scoring software (sources inspected 6 Oct 2026; later changes may affect results). Applied: EFPA Test Review Model 5.0, Parts A and B, with AI reinterpretations flagged. Only the supplied passage is used. Missing evidence is rated 0 (not possible to rate), not poor quality. Ratings are provisional; no aggregate score is computed. Critical attributes: marking validity, precision for small score gaps, shortcut resistance, validity for broader engineering claims.</p>
+</div>
+<div class="efpa-block">
+<h4>PART A.</h4>
+<p class="efpa-row">1 Factual: reviewer/dates not supplied; name DesignQA; authors &#x27;researchers and engineers&#x27; (names not given); publisher/dates beyond 2024 paper not given; local adaptation fields n/a.</p>
+<p class="efpa-row">2.1 Content domain: Other, engineering document understanding (rule retrieval, terminology, drawings, compliance); Verbal/Ability approximate.</p>
+<p class="efpa-row">2.2 Area: Other, engineering/AI research; Educational/Work approximate.</p>
+<p class="efpa-row">2.3 Population: AI systems (multimodal, with or without retrieval).</p>
+<p class="efpa-row">2.4 Intended users: AI researchers; other not stated.</p>
+<p class="efpa-row">2.5 Scales: six question groups (find individual rule 1,192 questions; gather related rules; explain technical term; identify component presence; check dimensions; assess functional performance, 16 questions) plus an equal-weight overall score. Other group counts not given.</p>
+<p class="efpa-row">2.6 Response mode: Other, text answer or yes/no, sometimes with explanation.</p>
+<p class="efpa-row">2.7 Demands: reading engineering text, interpreting images/drawings; digital input; others information missing.</p>
+<p class="efpa-row">2.8 Special conditions: some systems receive the whole rulebook, others retrieved passages.</p>
+<p class="efpa-row">2.9 Item response types: production (text answers), selection-like yes/no.</p>
+<p class="efpa-row">2.10 Stimulus: text, images, drawings.</p>
+<p class="efpa-row">2.11 Items: 1,451 question-answer pairs in six groups.</p>
+<p class="efpa-row">2.12.1 Individual;</p>
+<p class="efpa-row">2.12.2 mode not stated (automated).</p>
+<p class="efpa-row">2.13 Technology: not stated.</p>
+<p class="efpa-row">2.14 Times: not supplied.</p>
+<p class="efpa-row">2.15 Forms: six groups; sub-use possible; no parallel forms.</p>
+<p class="efpa-row">2.16 Static.</p>
+<p class="efpa-row">2.17 Informant: AI; no human informants.</p>
+<p class="efpa-row">3.1 Digital scoring (software).</p>
+<p class="efpa-row">3.2 Scores: wording comparison, yes/no correctness, optional explanation text similarity; equal-weight overall.</p>
+<p class="efpa-row">3.3 Raw score use (accuracy/text-similarity);</p>
+<p class="efpa-row">3.4 n/a;</p>
+<p class="efpa-row">3.5 no differentiated norms.</p>
+<p class="efpa-row">4.1-4.10 reports: none described, n/a (AI explanations are task outputs, not reports).</p>
+<p class="efpa-row">5.1 Public questions, instructions, scoring code, some AI responses; manuals not identified.</p>
+<p class="efpa-row">5.2 Website/downloadable (inferred).</p>
+<p class="efpa-row">5.3 Qualifications: none stated; no licence file found.</p>
+</div>
+<div class="efpa-block">
+<h4>PART B.</h4>
+<p class="efpa-row">6.1.1 Theory: tasks follow parts of an engineer&#x27;s work; no theory beyond this: provisional 2.</p>
+<p class="efpa-row">6.1.2 Empirical summary: authors discuss formatting, wording, retrieval quality and component familiarity: 2.</p>
+<p class="efpa-row">6.1.3.1 Design: multiple marking methods justified by differing answer types: 2.</p>
+<p class="efpa-row">6.1.3.2 Item content: real rulebook, designs and test data, practitioner input, two additional reviewers for manual questions (limited check for derived questions and some explanations): provisional 3; disagreement and residual error rates unknown.</p>
+<p class="efpa-row">6.1.3.3 Final pool decision: 0.</p>
+<p class="efpa-row">6.1.4 n/a.</p>
+<p class="efpa-row">6.1.5 Framework not specified; no item indices reported: 0.</p>
+<p class="efpa-row">6.1.6, 6.1.7: 0.</p>
+<p class="efpa-row">6.1.8 Overall: provisional 2.</p>
+<p class="efpa-row">6.2.1 Rationale doc: 2.</p>
+<p class="efpa-row">6.2.2 Development: 2.</p>
+<p class="efpa-row">6.2.3 n/a.</p>
+<p class="efpa-row">6.2.4 Standardisation: not all systems get the same information; conditions partly described: 2.</p>
+<p class="efpa-row">6.2.5 Norms: 0 (baselines only).</p>
+<p class="efpa-row">6.2.6 Reliability: 1-2; one AI tested with five passage sets, but identical repeats absent.</p>
+<p class="efpa-row">6.2.7 Content validity: 2; reviewers described.</p>
+<p class="efpa-row">6.2.8 Internal structure: 0.</p>
+<p class="efpa-row">6.2.9 Other-variable relations: 0-1.</p>
+<p class="efpa-row">6.2.10 Other sources: 2 (sensitivity probes: dimension labels, scale bars, highlighting).</p>
+<p class="efpa-row">6.2.11 Fair use: 0.</p>
+<p class="efpa-row">6.2.12 Reports: n/a.</p>
+<p class="efpa-row">6.2.13 Language: 0.</p>
+<p class="efpa-row">6.2.14 Overall documentation: provisional 2.</p>
+<p class="efpa-row">6.3.1 Administration: instructions and settings named but not linked fully to each result: 2.</p>
+<p class="efpa-row">6.3.2 Scoring: described; wording/formatting sensitivity, no complete marking-accuracy study: 2.</p>
+<p class="efpa-row">6.3.3 Norming: n/a.</p>
+<p class="efpa-row">6.3.4 Interpretation: limits acknowledged; no guidance on closely ranked systems: 2.</p>
+<p class="efpa-row">6.3.5 Feedback: n/a.</p>
+<p class="efpa-row">6.3.6 Fairness: 0.</p>
+<p class="efpa-row">6.3.7 Restrictions: rules on training on questions and repeated submissions unclear: 0.</p>
+<p class="efpa-row">6.3.8 Software support: code history, small marking-test files; no change record, licence file: 2.</p>
+<p class="efpa-row">6.3.9 References: 2.</p>
+<p class="efpa-row">6.3.10 Overall: 2.</p>
+<p class="efpa-row">6.4 Overall rationale/documentation: provisional 2.</p>
+</div>
+<div class="efpa-block">
+<p class="efpa-row">7.1.1 Software robustness: 0.</p>
+<p class="efpa-row">7.1.2-7.1.5 Task understanding, instructions, response, interface: n/a for AI as defined, otherwise 0.</p>
+<p class="efpa-row">7.1.6 Accessibility: n/a/0.</p>
+<p class="efpa-row">7.1.7 Item content quality: 2 provisional, some answer errors possible (valid related rules missing from supplied answers).</p>
+<p class="efpa-row">7.1.8 Overall: 2.</p>
+<p class="efpa-row">7.2.1-7.2.7 n/a.</p>
+</div>
+<div class="efpa-block">
+<h4>8 NORMS.</h4>
+<p class="efpa-row">8.1.1-8.1.4: no norm groups; random guessing and AI baselines only, no human engineer baseline: 0/n-a.</p>
+<p class="efpa-row">8.1.3.1-8.1.3.3 n/a.</p>
+<p class="efpa-row">8.2.1.1-8.2.2 n/a (no cut scores; compliance answers are answer-key based, not standard-setting).</p>
+<p class="efpa-row">8.3.1 age: 0 (no collection dates given beyond 2024 paper).</p>
+<p class="efpa-row">8.3.2 Norms provided: none; raw scores compared across AI systems;</p>
+<p class="efpa-row">8.3.2.1 information-supply differences between systems affect comparability;</p>
+<p class="efpa-row">8.3.2.3 none.</p>
+<p class="efpa-row">8.3.3 Overall: 0/n-a.</p>
+</div>
+<div class="efpa-block">
+<h4>9 RELIABILITY.</h4>
+<p class="efpa-row">9.1 Data: no coefficients, no SEM.</p>
+<p class="efpa-row">9.2 Internal consistency 9.2.1-9.2.4: 0; heterogeneous groups make alpha inappropriate.</p>
+<p class="efpa-row">9.3 Test-retest 9.3.1-9.3.4: 0.</p>
+<p class="efpa-row">9.4 Equivalence: five passage sets for one AI gives partial variation information;</p>
+<p class="efpa-row">9.4.1-9.4.3 provisional 1; confounded with changed input.</p>
+<p class="efpa-row">9.5 IRT: 0.</p>
+<p class="efpa-row">9.6 Inter-rater 9.6.1-9.6.3: reviewer agreement unreported; automated scoring n/a, but human question review agreement is 0.</p>
+<p class="efpa-row">9.7 Other: 16-question group sensitivity illustrated (one answer = 6.25 points): 1.</p>
+<p class="efpa-row">9.8 Overall: 1; main comparisons insufficient to judge small differences.</p>
+</div>
+<div class="efpa-block">
+<h4>10 VALIDITY.</h4>
+<p class="efpa-row">10.1 Content: provisional 2; single rulebook, uneven groups.</p>
+<p class="efpa-row">10.2.1-10.2.3 Structure: no evidence group scores measure distinct skills: 0.</p>
+<p class="efpa-row">10.3.1.1-10.3.1.11 Relations: random and AI baseline comparisons only, no human baseline, no convergent/discriminant/MTMM data: 0; sample size n/a; marker quality 0; age: 2024 paper.</p>
+<p class="efpa-row">10.3.2.1-10.3.2.7 criterion: none; prediction of other documents or real projects unsupported: 0.</p>
+<p class="efpa-row">10.4.1-10.4.3 Other: ablations of passages, labels, scale bars and highlights (response-process-like); no check that tested systems used shortcuts; always-yes strategy would succeed on the scale-bar drawings portion: provisional 2.</p>
+<p class="efpa-row">10.5 Overall: provisional 2 for the narrow tasks, 1 for broader claims; low confidence.</p>
+</div>
+<div class="efpa-block">
+<h4>11 FAIR USE.</h4>
+<p class="efpa-row">11.1.1-11.7: 0 for group-based fairness; novelty of images and possible exposure discussed;</p>
+<p class="efpa-row">11.3 piloting n/a;</p>
+<p class="efpa-row">11.6 n/a;</p>
+<p class="efpa-row">11.7 n/a.</p>
+<p class="efpa-row">11.8 Overall: not rateable (0).</p>
+</div>
+<div class="efpa-block">
+<h4>12 REPORTS.</h4>
+<p class="efpa-row">12.1-12.7: n/a.</p>
+</div>
+<div class="efpa-block">
+<h4>FINAL EVALUATION.</h4>
+<p class="efpa-row">Strengths: realistic engineering source material, varied task groups, several marking methods with documented limitations, sensitivity probes, public code and questions. Weaknesses: one rulebook, very uneven group sizes (1,192 versus 16), equal-weight overall score, wording/formatting-sensitive marking, no human baseline, non-uniform information supply, no protected test set or overlap check, incomplete replication record, an answer file with fewer rows than stated, no licence or change record found. Use: exploratory comparison of AI systems on these tasks under stated information conditions; not for fine ranking or claims about general engineering competence. Summary (no aggregate): 6.4 provisional 2; 7 n/a;</p>
+<p class="efpa-row">8.3.3 0/n-a;</p>
+<p class="efpa-row">9.8 1;</p>
+<p class="efpa-row">10.5 provisional 1-2;</p>
+<p class="efpa-row">11.8 0;</p>
+<p class="efpa-row">12.7 n/a. OMISSIONS: unsupplied Part A fields left blank; grouped IDs used for 6.2.1-6.2.14, 7.1.2-7.1.5, 8.2.1.1-8.2.2, 9.2-9.7, 10.3.1.1-10.3.2.7, 12.1-12.7.</p>
+</div>
+</section>
+<section class="section"><h3>Claims the model says are supported</h3>
+<ul>
+<li class="original">DesignQA has 1,451 question-and-answer pairs in six groups, based on one Formula SAE rulebook with designs and test data.</li>
+<li class="original">Group sizes are very uneven: 1,192 individual-rule questions versus 16 functional-performance questions.</li>
+<li class="original">Marking differs by question type and includes text-wording comparison, yes/no correctness and explanation similarity; wording and formatting can affect credit.</li>
+<li class="original">The public software gives an overall score weighting the six groups equally despite different sizes and methods.</li>
+<li class="original">Not every system gets the same information: some receive the full rulebook, others retrieved passages.</li>
+<li class="original">Random-guess and other AI baselines exist, but no human engineer baseline.</li>
+<li class="original">One AI was tested with five passage sets, which gives some variation information but does not isolate repeated identical runs.</li>
+<li class="original">In the 16-question group one extra correct answer changes accuracy by 6.25 percentage points.</li>
+<li class="original">Performance on a different technical document remains uncertain.</li>
+</ul>
+</section>
+<section class="section"><h3>Problems listed by the model</h3>
+<ul>
+<li class="original">Reviewer disagreement and remaining error counts are not established; derived questions and some explanations had a more limited check.</li>
+<li class="original">Paper gives examples of missing commas and valid related rules absent from the supplied answer affecting marking.</li>
+<li class="original">Reviewed material does not show that the overall or group scores measure distinct skills, and marking accuracy and consistency are not fully studied.</li>
+<li class="original">Ways of earning points without understanding are not fully tested; on the scale-bar drawings, all comply, so always answering yes would earn credit there.</li>
+<li class="original">Possible exposure to similar vehicle images was discussed without checking every AI&#x27;s training data; the rulebook and questions are public, and no protected test set or overlap check was established.</li>
+<li class="original">Rules on training on the questions and repeated submission were not clear in the sources examined.</li>
+<li class="original">The exact historical software, settings and inputs are not fully linked to each paper result; one released answer file has fewer rows than the paper&#x27;s question count.</li>
+<li class="original">No clear change record, licence file or reuse rules were found (this does not show reuse is prohibited).</li>
+</ul>
+</section>
+<section class="section"><h3>Information the model says is missing</h3>
+<ul>
+<li class="original">Author names, publication/revision dates, norm or data-collection dates (1, 8.3.1).</li>
+<li class="original">Item statistics, difficulty and discrimination, group sizes other than the two given (6.1.5-6.1.7, 2.11).</li>
+<li class="original">Reviewer agreement rates and residual error rates (9.6, 6.1.3.2).</li>
+<li class="original">Repeat-run variation under identical inputs; SEM or confidence intervals (9.1-9.8).</li>
+<li class="original">Human engineer baseline and expert-qualification details (8, 6.1.3.2).</li>
+<li class="original">Evidence that group scores are distinct skills; convergent/discriminant/criterion data (10.2, 10.3).</li>
+<li class="original">Complete marking-accuracy study (6.3.2).</li>
+<li class="original">Hidden test set or overlap check; rules on training and resubmission (6.3.7).</li>
+<li class="original">Licence, change record, full replication links (5.3, 6.2.2).</li>
+<li class="original">Fairness analyses across systems or retrieval conditions (11).</li>
+</ul>
+</section>
+<section class="section"><h3>How the model interprets terms for AI</h3>
+<ul>
+<li class="original">Test taker is an AI system together with its information supply (full rulebook versus retrieved passages), so comparability, populations and groups (2.3, 11) are redefined.</li>
+<li class="original">Norms (8) map to baselines (random, other AIs); no human norm group exists, so most of 8 is n/a or 0.</li>
+<li class="original">Reliability (9.3, 9.4) maps to repeated identical runs and changed passage sets; stochastic output and retrieval variation have no human analogue.</li>
+<li class="original">Demands on the test taker (2.7), accessibility (7.1.6) and instructions (7.1.2-7.1.3) map to input format and prompt design rather than human capabilities.</li>
+<li class="original">Inter-rater reliability (9.6) concerns the human question reviewers; scoring is automated.</li>
+<li class="original">Internal consistency (9.2) is doubtful because the groups are heterogeneous.</li>
+<li class="original">Contamination, exposure and shortcut strategies lack counterparts in the original model; they are placed under validity (10.4) and restrictions (6.3.7) with a flag.</li>
+<li class="original">Digitally generated reports (4, 12) are n/a; AI explanations are task outputs, not reports.</li>
+<li class="original">Fair use (11) uses system-level analogues instead of demographic DIF.</li>
+</ul>
+</section>
+<section class="section"><h3>Model’s closing note</h3>
+<p class="original">Unclear: 0 versus n/a for AI-inapplicable human-test questions; whether provisional ratings should be given given the no-aggregate instruction; and how much grouping suffices for &#x27;every item&#x27;. Ratings rely only on the supplied text.</p>
+</section>
+<p class="back"><a href="#top">Back to all six reviews ↑</a></p></article>
+<article class="review" id="ordinary-arc" aria-labelledby="ordinary-arc-title"><p class="meta">Selected repetition 1 · General instructions</p><h2 id="ordinary-arc-title">General instructions — ARC-AGI-2</h2><p class="meta"><a href="../claude-sonnet-5-5/outputs/real-ordinary-neutral-1/response.txt">Original response file (both benchmarks)</a> · <a href="#top">Choose another review</a></p>
+<section class="section"><h3>Overall review</h3>
+<p class="original">ARC-AGI-2 is a reasonably well-documented test of inferring a rule from grid examples, with strict exact-match scoring (two attempts per input; size and every colour must match). Its construction has good features: a human study (407 people, 515 paid 90-minute sessions) informed puzzle selection, removal of puzzles solvable by the same rule, three 120-problem test sets matched for human difficulty, public scoring software with tests for correct answers, wrong sizes, changed squares and missing outputs, and a dated change record. Scoring is transparent: per-problem credit is the fraction of inputs solved, then averaged, which differs from the &#x27;fully solved&#x27; wording used in the dataset description, so reports must say which is meant. Main limits concern what scores can show for comparing systems. No estimates of run-to-run variation are supplied, and verified testing uses a single run, so small score gaps cannot be judged. There is no systematic study of sensitivity to instructions, grid presentation or software, and the human-difficulty matching does not address this. Shortcut routes (program search, repeated rules) were mitigated by design but not shown to be ruled out. Exposure is a real concern: public problems are visible, training on development problems is allowed, and hidden-set protection relies on agreements and monitoring, with acknowledged possible leakage. Comparisons are cleanest for ARC Prize-verified runs with recorded settings and a spending limit; other routes may differ. The change record does not recompute affected AI scores. The study only covers 2D grid problems, so claims about reasoning or general intelligence are not supported by the supplied material; this is an information gap, not proof of no relationship. Scores are best read as performance on unfamiliar grid-rule problems under stated conditions.</p>
+</section>
+<section class="section"><h3>Claims the model says are supported</h3>
+<ul>
+<li class="original">The test asks for rule inference from example grids and requires exact output matches, with partial grids earning nothing.</li>
+<li class="original">The inspected software computes per-problem fractions and averages them, e.g. 0.5 for one of two inputs.</li>
+<li class="original">Test sets were chosen to have similar difficulty for people, using the human study.</li>
+<li class="original">Public problems, software and marking tests can be inspected; the data are Apache 2.0 licensed.</li>
+<li class="original">Verified tests use specified settings and a spending limit, and one run.</li>
+<li class="original">The materials do not support claims about language, social or real-world performance.</li>
+</ul>
+</section>
+<section class="section"><h3>Problems listed by the model</h3>
+<ul>
+<li class="original">No estimates of score variation when the same AI repeats the test.</li>
+<li class="original">No systematic study of effects of changed instructions, grid presentation or software.</li>
+<li class="original">Steps against shortcuts do not establish that all non-reasoning routes are excluded.</li>
+<li class="original">Public problems are visible, so exposure is possible; hidden-data leakage cannot be excluded.</li>
+<li class="original">Training on development problems is allowed.</li>
+<li class="original">Change record does not recalculate all affected AI scores.</li>
+<li class="original">Human-study puzzle pool was larger than the final test, so results do not all describe the final set.</li>
+<li class="original">Corrections to coloured squares and unclear examples after release.</li>
+<li class="original">Different testing routes may use different conditions.</li>
+<li class="original">Preparer did not independently test the whole marking system or check the complete archive of outputs.</li>
+<li class="original">&#x27;Solved&#x27; wording differs between the problem-level definition and the score computation.</li>
+</ul>
+</section>
+<section class="section"><h3>Information the model says is missing</h3>
+<ul>
+<li class="original">Repeat-run variability or confidence intervals for AI scores.</li>
+<li class="original">Sensitivity to prompts, grid formatting and software choices.</li>
+<li class="original">Human performance results on the final test sets.</li>
+<li class="original">Evidence that shortcut strategies do not inflate scores.</li>
+<li class="original">Evidence on contamination of the hidden sets.</li>
+<li class="original">Effects of past corrections on reported AI scores.</li>
+<li class="original">Evidence linking scores to non-grid abilities or broader intelligence.</li>
+<li class="original">Completeness of the released outputs, costs and times archive.</li>
+</ul>
+</section>
+<section class="section"><h3>How the model interprets terms for AI</h3>
+<ul>
+<li class="original">&#x27;Reasoning&#x27; or &#x27;general intelligence&#x27; here means performance on unfamiliar 2D grid rule-inference problems under exact-match scoring, not broad human-like ability.</li>
+<li class="original">&#x27;Solved&#x27; may mean fractional problem credit or full correctness of all inputs, depending on the source.</li>
+<li class="original">A higher score is a difference on this test under stated conditions, not shown to be a difference in general capability.</li>
+</ul>
+</section>
+<section class="section"><h3>Model’s closing note</h3>
+<p class="original">The ARC and DesignQA instructions were clear. The request not to calculate an aggregate score was followed. &#x27;Reinterpretations&#x27; was read as changes of meaning when the term is applied to AI.</p>
+</section>
+<p class="back"><a href="#top">Back to all six reviews ↑</a></p></article>
+<article class="review" id="ordinary-designqa" aria-labelledby="ordinary-designqa-title"><p class="meta">Selected repetition 1 · General instructions</p><h2 id="ordinary-designqa-title">General instructions — DesignQA</h2><p class="meta"><a href="../claude-sonnet-5-5/outputs/real-ordinary-neutral-1/response.txt">Original response file (both benchmarks)</a> · <a href="#top">Choose another review</a></p>
+<section class="section"><h3>Overall review</h3>
+<p class="original">DesignQA uses real Formula SAE materials, which gives practical relevance, and it covers several engineering-document tasks (1,451 questions in six groups). Its limits are substantial for comparing systems. It relies on one rulebook and a limited set of tasks, so it is not representative of engineering work. Groups are very uneven (1,192 rule-finding questions vs 16 functional-performance ones), yet the public software gives an overall score weighting the six groups equally, mixing different sizes and marking methods; the materials do not show that the overall number or group scores measure distinct skills. In the 16-question group one answer shifts accuracy by 6.25 points, so small differences are unreliable. Marking uses text comparison for some answers, with documented sensitivity to wording and formatting (missing commas, valid related rules absent from the reference). Question checking involved two additional reviewers for manually written questions, with exceptions and a limited check on explanations, but disagreement and residual error rates are not reported. Comparisons are confounded because systems get different information (whole rulebook vs retrieved passages), so results describe model plus information supply. There is no human engineer baseline. Variation is only partly informed by one model tested with five passage sets, which does not measure identical-repeat variation. Shortcut risk is not fully tested: the scale-bar drawings all comply, so always answering &#x27;yes&#x27; would score there, though no AI is shown to do this. Exposure is unaddressed: public rulebook and questions, no protected test set or overlap check, and unclear rules on training or repeated submission. Reproducibility is incomplete (software, settings and inputs not linked to each result; one answer file has fewer rows than expected), and there is no clear change record, licence file or reuse rules. Scores support statements about performance on these tasks under stated conditions, not engineering competence broadly or fine rankings.</p>
+</section>
+<section class="section"><h3>Claims the model says are supported</h3>
+<ul>
+<li class="original">The benchmark draws on real Formula SAE materials and has 1,451 questions in six groups.</li>
+<li class="original">It is limited to one rulebook and a small range of task types, as the authors acknowledge.</li>
+<li class="original">Marking is sensitive to wording and formatting.</li>
+<li class="original">The overall score weights six unequal groups equally.</li>
+<li class="original">Systems receive different information, so results reflect the AI plus its information supply.</li>
+<li class="original">One extra correct answer in the 16-question group moves accuracy 6.25 points.</li>
+<li class="original">Broader claims about engineering competence or fine distinctions between close systems are not supported.</li>
+</ul>
+</section>
+<section class="section"><h3>Problems listed by the model</h3>
+<ul>
+<li class="original">Groups are very uneven in size (1,192 vs 16).</li>
+<li class="original">No evidence that overall or group scores measure distinct skills.</li>
+<li class="original">Wording and formatting affect credit; valid related rules may be missing from the reference answers.</li>
+<li class="original">Explanations received only a limited check.</li>
+<li class="original">Reviewer disagreement and remaining error counts are not reported.</li>
+<li class="original">Marking accuracy and consistency have not been fully studied.</li>
+<li class="original">Not every system receives the same information.</li>
+<li class="original">No human engineer baseline.</li>
+<li class="original">Variation was examined only through changed passages, not identical repeats.</li>
+<li class="original">All scale-bar drawings comply, so a constant &#x27;yes&#x27; would earn credit on that portion.</li>
+<li class="original">Possible exposure to similar images is discussed but not directly checked.</li>
+<li class="original">No protected test set or systematic overlap check, and unclear training and resubmission rules.</li>
+<li class="original">Historical software, settings and inputs are not fully linked to each result.</li>
+<li class="original">One released answer file has fewer rows than the paper&#x27;s question count.</li>
+<li class="original">No clear change record, licence file or reuse rules found.</li>
+</ul>
+</section>
+<section class="section"><h3>Information the model says is missing</h3>
+<ul>
+<li class="original">Reviewer disagreement rates and remaining error rates.</li>
+<li class="original">Human engineer performance.</li>
+<li class="original">Repeat-run variation for identical tests.</li>
+<li class="original">Marking validity and consistency study.</li>
+<li class="original">Evidence of distinct skills for the group scores.</li>
+<li class="original">Test for always-yes or other non-understanding strategies.</li>
+<li class="original">Training-data overlap and contamination checks.</li>
+<li class="original">Rules on training and repeated submissions.</li>
+<li class="original">Complete records to reproduce every paper result.</li>
+<li class="original">Explanation of the discrepancy in the answer file&#x27;s row count.</li>
+<li class="original">Effects of code revisions on scores.</li>
+<li class="original">Licence and reuse terms.</li>
+<li class="original">Performance on other technical documents.</li>
+</ul>
+</section>
+<section class="section"><h3>How the model interprets terms for AI</h3>
+<ul>
+<li class="original">&#x27;Understanding engineering documents&#x27; here means performance on questions from one Formula SAE rulebook and its drawings under particular marking rules and information supply.</li>
+<li class="original">An AI&#x27;s score reflects the model combined with how rules are supplied (full text vs retrieval).</li>
+<li class="original">The overall score is an equal-weight combination of groups, not a measure of overall engineering competence.</li>
+</ul>
+</section>
+<section class="section"><h3>Model’s closing note</h3>
+<p class="original">The instructions were clear. The phrase &#x27;changes of meaning for AI&#x27; was interpreted as how terms such as understanding or reasoning change meaning when applied to AI. The instruction on a closing note was followed, and no aggregate score was calculated.</p>
+</section>
+<p class="back"><a href="#top">Back to all six reviews ↑</a></p></article>
+<section id="test-cases" aria-labelledby="cases-title"><h2 id="cases-title">The 24 invented test cases</h2><div class="note"><p>These are short fictional benchmark descriptions used in the model study. For each statement, the model had to decide whether the description supports it, contradicts it, or leaves it unknown. There are 49 statements across 24 cases.</p><p>C1–C8 are eight cases. P1A/P1B through P8A/P8B are eight pairs whose descriptions differ in one detail. They examine distinctions such as missing information versus a stated problem, and checking answers versus finding that the answers are correct.</p><p>These cases were used during development. Running them again would not make them new test material. The expected answers were prepared with assistant help and are not independently validated facts. They were withheld from the reviewing model.</p><p>Each expected answer is hidden below its statement until you open it. This page is an author reading aid, not a new experiment or a participant survey.</p><p><a href="../claude-sonnet-5-5-guidance-v2/materials/test-cases.json">Original cases and statements</a> · <a href="../claude-sonnet-5-5-guidance-v2/analyst/expected.json">Original expected answers</a></p></div><nav aria-label="Test cases">
+<a href="#case-C1">C1</a>
+<a href="#case-C2">C2</a>
+<a href="#case-C3">C3</a>
+<a href="#case-C4">C4</a>
+<a href="#case-C5">C5</a>
+<a href="#case-C6">C6</a>
+<a href="#case-C7">C7</a>
+<a href="#case-C8">C8</a>
+<a href="#case-P1A">P1A</a>
+<a href="#case-P1B">P1B</a>
+<a href="#case-P2A">P2A</a>
+<a href="#case-P2B">P2B</a>
+<a href="#case-P3A">P3A</a>
+<a href="#case-P3B">P3B</a>
+<a href="#case-P4A">P4A</a>
+<a href="#case-P4B">P4B</a>
+<a href="#case-P5A">P5A</a>
+<a href="#case-P5B">P5B</a>
+<a href="#case-P6A">P6A</a>
+<a href="#case-P6B">P6B</a>
+<a href="#case-P7A">P7A</a>
+<a href="#case-P7B">P7B</a>
+<a href="#case-P8A">P8A</a>
+<a href="#case-P8B">P8B</a>
+</nav>
+<article class="case-card" id="case-C1"><h3>Case C1</h3><h4>Description supplied to the model</h4><p class="original">Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. The report does not say whether runs were repeated.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · repeat_test</p><p class="original">The developers tested changes in scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Missing report does not prove absence of testing.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · stable</p><p class="original">The supplied findings support stable scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">One reported run provides no repeated-run stability evidence.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-C2"><h3>Case C2</h3><h4>Description supplied to the model</h4><p class="original">Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. The developers explicitly state that they ran the evaluation exactly once and did not repeat it.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · repeat_test</p><p class="original">The developers tested changes in scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">The statement explicitly denies repeated testing.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · stable</p><p class="original">The supplied findings support stable scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Not testing stability does not establish instability.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-C3"><h3>Case C3</h3><h4>Description supplied to the model</h4><p class="original">Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. They also repeated the evaluation ten times with the same system, inputs, instructions, resources, and settings. Scores ranged from 69% to 71%. The report defines stable for this comparison as a range of at most two percentage points.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · repeat_test</p><p class="original">The developers tested changes in scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Ten runs explicitly establish testing.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · stable</p><p class="original">The supplied findings support stable scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The supplied range meets the stated criterion, only for these conditions.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-C4"><h3>Case C4</h3><h4>Description supplied to the model</h4><p class="original">Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. They also repeated the evaluation ten times with the same system, inputs, instructions, resources, and settings. Scores ranged from 20% to 90%. The report defines stable for this comparison as a range of at most two percentage points.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · repeat_test</p><p class="original">The developers tested changes in scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Unfavourable testing is still testing.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · stable</p><p class="original">The supplied findings support stable scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">The observed range exceeds the explicit criterion.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-C5"><h3>Case C5</h3><h4>Description supplied to the model</h4><p class="original">Fictional GridCheck v1 contains 100 unfamiliar grid puzzles with exact-grid scoring. Its intended use is comparing performance on these grid puzzles under the stated conditions. The tested system scored 70% in one reported run. The report does not say whether runs were repeated. New installation instructions explain how to download the files and install dependencies. They report no additional evaluation results.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · repeat_test</p><p class="original">The developers tested changes in scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Installation documentation does not establish repeated testing.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · stable</p><p class="original">The supplied findings support stable scores across repeated runs under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Installation documentation does not establish stability.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-C6"><h3>Case C6</h3><h4>Description supplied to the model</h4><p class="original">Fictional GridRange v1 contains 100 unfamiliar grid puzzles, exact-grid scoring, and fixed instructions. System A solves 80 puzzles and system B solves 60 in the reported evaluation. Only grid puzzles were tested; no findings about other tasks are supplied. The intended use is comparing performance on the evaluated grid puzzles.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · narrow</p><p class="original">The results support that A performed better than B on the evaluated grid puzzles under the stated conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The reported scores support this bounded comparison.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · broad</p><p class="original">The results establish that A has greater general intelligence across domains than B.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Grid results alone do not establish cross-domain intelligence.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-C7"><h3>Case C7</h3><h4>Description supplied to the model</h4><p class="original">Fictional GridRange v1 contains 100 unfamiliar grid puzzles, exact-grid scoring, and fixed instructions. System A solves 80 puzzles and system B solves 60 in the reported evaluation. Only grid puzzles were tested; no findings about other tasks are supplied. The intended use is selecting the system with greater general intelligence across domains.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · narrow</p><p class="original">The results support that A performed better than B on the evaluated grid puzzles under the stated conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">A broader intended use does not erase the narrow result.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · broad</p><p class="original">The results establish that A has greater general intelligence across domains than B.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">A broader intended use adds no evidence.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-C8"><h3>Case C8</h3><h4>Description supplied to the model</h4><p class="original">Fictional RuleAssist v1 tests locating and applying workshop inspection rules. Initially, only test scores were available. A later preregistered trial randomly allocated 120 inspectors to assistance from system A or system B, using new inspection cases in one workshop. Blinded inspectors checked correctness. With A, 90% of decisions were correct; with B, 70%. The reported uncertainty interval for the difference was 12 to 28 percentage points. Time and safety outcomes were not measured. The intended use is choosing assistance for correct inspection decisions in this workshop.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · before</p><p class="original">The initially available test scores alone establish that A improves real workshop inspection decisions compared with B.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Initial test scores supply no workplace outcome study.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · after</p><p class="original">The later trial supports better decision correctness with A than B for the studied workshop and conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The described controlled trial supports this bounded outcome.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 3 · safety</p><p class="original">The later trial establishes that A improves workplace safety compared with B.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Safety was not measured; correctness is not itself safety evidence.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P1A"><h3>Case P1A</h3><h4>Description supplied to the model</h4><p class="original">PatternLedger evaluates a fixed AI on 48 grid transformations. A published result card gives one headline score of 75%. The card describes tasks and scoring but gives no execution history.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The developers measured score changes across repeated evaluations of this AI under identical conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">No execution history is supplied; one displayed score does not establish whether repetition occurred.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The available findings demonstrate that this benchmark produces unstable scores across identical evaluations.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">No repeated-score findings establish instability.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P1B"><h3>Case P1B</h3><h4>Description supplied to the model</h4><p class="original">PatternLedger evaluates a fixed AI on 48 grid transformations. A published result card gives one headline score of 75%. The execution record confirms that this was the only evaluation performed and that no repeat evaluations were conducted.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The developers measured score changes across repeated evaluations of this AI under identical conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">The record explicitly rules out repeated evaluations.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The available findings demonstrate that this benchmark produces unstable scores across identical evaluations.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Absence of repetition does not establish that scores would vary.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P2A"><h3>Case P2A</h3><h4>Description supplied to the model</h4><p class="original">RepeatLedger evaluates the same AI on the same 48 problems, with identical inputs, settings and resources on six occasions. Its report defines stable for this comparison as a maximum score range of three percentage points. The recorded scores are 73, 74, 74, 75, 74 and 73 percent.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">Repeated evaluations were conducted under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Six identical-condition evaluations are explicit.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The recorded scores fail the report&#x27;s stated stability rule.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">The two-point range is within the stated three-point rule.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P2B"><h3>Case P2B</h3><h4>Description supplied to the model</h4><p class="original">RepeatLedger evaluates the same AI on the same 48 problems, with identical inputs, settings and resources on six occasions. Its report defines stable for this comparison as a maximum score range of three percentage points. The recorded scores are 51, 66, 79, 55, 82 and 62 percent.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">Repeated evaluations were conducted under the same conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Six identical-condition evaluations are explicit despite their unfavorable results.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The recorded scores fail the report&#x27;s stated stability rule.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The 31-point range exceeds the stated rule.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P3A"><h3>Case P3A</h3><h4>Description supplied to the model</h4><p class="original">ManualLedger publishes tasks and one headline score for an engineering-rule benchmark. The supplied document describes question topics and how marks are calculated. It gives no execution history and no findings about mistakes in the provided answers. </p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The supplied material establishes that repeated identical-condition evaluations were studied.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">The required execution information is absent.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The supplied material demonstrates mistakes in the provided answers.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">The text does not establish answer mistakes.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P3B"><h3>Case P3B</h3><h4>Description supplied to the model</h4><p class="original">ManualLedger publishes tasks and one headline score for an engineering-rule benchmark. The supplied document describes question topics and how marks are calculated. It gives no execution history and no findings about mistakes in the provided answers. A new appendix supplies installation commands, operating-system requirements and a download mirror. It reports no further evaluation results or examination of answers.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The supplied material establishes that repeated identical-condition evaluations were studied.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Installation instructions add no execution findings.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The supplied material demonstrates mistakes in the provided answers.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Installation instructions add no answer-error findings.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P4A"><h3>Case P4A</h3><h4>Description supplied to the model</h4><p class="original">AnswerLedger contains 80 rule questions with supplied answers. Two editors independently examined every question and supplied answer before release. They later reconciled their notes, but the report gives no count of agreement before reconciliation. The report does not state whether mistakes were found or how many remained.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">Both questions and supplied answers were examined for mistakes during development.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Both kinds of material were examined.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">Every supplied answer in the released version is correct.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Examination does not establish complete correctness.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P4B"><h3>Case P4B</h3><h4>Description supplied to the model</h4><p class="original">AnswerLedger contains 80 rule questions with supplied answers. Two editors independently examined every question and supplied answer before release. They later reconciled their notes, but the report gives no count of agreement before reconciliation. The report identifies twelve supplied answers as wrong in the released version.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">Both questions and supplied answers were examined for mistakes during development.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Both kinds of material were examined even though errors remained.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">Every supplied answer in the released version is correct.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">Twelve released supplied answers are explicitly wrong.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P5A"><h3>Case P5A</h3><h4>Description supplied to the model</h4><p class="original">MarkerLedger awards points using a fixed software rule, so identical text always receives the same mark. No comparison of those marks with independently established correct marks is reported.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The marking process was tested against independently established correct marks.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">A fixed rule does not establish that marking tests occurred.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The reported findings establish that the marking process awards correct scores for every possible response.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">Determinism does not establish complete correctness.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P5B"><h3>Case P5B</h3><h4>Description supplied to the model</h4><p class="original">MarkerLedger awards points using a fixed software rule, so identical text always receives the same mark. The developers tested the software against independently established correct marks for 20 chosen responses. Two marks differed and the discrepancies remain unresolved.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The marking process was tested against independently established correct marks.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The comparison of 20 responses constitutes testing despite errors.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The reported findings establish that the marking process awards correct scores for every possible response.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">Known unresolved wrong marks contradict universal correctness.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P6A"><h3>Case P6A</h3><h4>Description supplied to the model</h4><p class="original">ScopeLedger compares systems A and B on 48 grid problems under fixed conditions. A solves 36 and B solves 24. No results from other tasks or settings are supplied. The stated use is identifying which system solved more of these 48 grid problems in this evaluation.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The findings are sufficient for the report&#x27;s stated use.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The stated use matches the directly observed comparison.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">A solved more of the evaluated grid problems than B under the reported conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">36 exceeds 24 for the same tasks and conditions.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P6B"><h3>Case P6B</h3><h4>Description supplied to the model</h4><p class="original">ScopeLedger compares systems A and B on 48 grid problems under fixed conditions. A solves 36 and B solves 24. No results from other tasks or settings are supplied. The stated use is identifying which system has greater general intelligence across subjects and real-world settings.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The findings are sufficient for the report&#x27;s stated use.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Not established</strong></p><p class="original">A grid comparison alone does not establish general intelligence across domains.</p>
+<p class="note">This expected answer is disputed. The paper also reports a separate calculation using <strong>Contradicted</strong> for this statement. That alternative was considered after the results; the original key above remains unchanged. Neither answer has been independently confirmed.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">A solved more of the evaluated grid problems than B under the reported conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Changing the stated use does not erase the narrow finding.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P7A"><h3>Case P7A</h3><h4>Description supplied to the model</h4><p class="original">CreditLedger uses a scoring rule that gives one point for a completely correct grid and zero otherwise. A partially correct grid receives zero. The stated scoring requirement is to count only completely correct output grids; partial correctness is deliberately outside this comparison.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The scoring rule meets the stated scoring requirement.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The rule implements the explicit whole-grid requirement.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">Giving zero to a partially correct grid violates the stated scoring requirement.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">Excluding partial credit matches the stated requirement.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P7B"><h3>Case P7B</h3><h4>Description supplied to the model</h4><p class="original">CreditLedger uses a scoring rule that gives one point for a completely correct grid and zero otherwise. A partially correct grid receives zero. The stated scoring requirement is to give a response credit for every correctly completed cell, including partially correct output grids.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The scoring rule meets the stated scoring requirement.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">Whole-grid scoring does not meet the explicit per-cell requirement.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">Giving zero to a partially correct grid violates the stated scoring requirement.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The stated requirement explicitly includes partial-grid credit.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P8A"><h3>Case P8A</h3><h4>Description supplied to the model</h4><p class="original">ConditionLedger studies the same AI on the same problems and reports how its scores change. The software, resources, problem order and settings remain fixed, but each evaluation uses a differently worded instruction. No evaluation repeats an identical instruction.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The study measured changes across evaluations under identical conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">Every evaluation changes wording; identical conditions are explicitly not repeated.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The study measured the effect of changing instructions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">Different instructions and the resulting scores are studied.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+<article class="case-card" id="case-P8B"><h3>Case P8B</h3><h4>Description supplied to the model</h4><p class="original">ConditionLedger studies the same AI on the same problems and reports how its scores change. The software, resources, problem order, settings and instruction are identical on every evaluation. No different instruction or presentation is studied.</p><h4>Statements to judge</h4>
+<div class="answer case-claim"><p class="meta">Statement 1 · claim1</p><p class="original">The study measured changes across evaluations under identical conditions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Supported</strong></p><p class="original">The same conditions are explicitly repeated.</p>
+</details></div>
+<div class="answer case-claim"><p class="meta">Statement 2 · claim2</p><p class="original">The study measured the effect of changing instructions.</p><details class="expected-answer"><summary>Show the expected answer and reason</summary><p><strong>Contradicted</strong></p><p class="original">No changed instructions are studied.</p>
+</details></div>
+<p><a href="#test-cases">Back to the case list ↑</a> · <a href="#top">Back to the reviews ↑</a></p></article>
+</section>
+</main><footer>Reading copy only. No response fields, saving, submission, tracking or external dependencies. Original research records remain unchanged.</footer></body></html>

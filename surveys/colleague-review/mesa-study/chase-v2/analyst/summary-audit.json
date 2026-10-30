@@ -1,0 +1,298 @@
+{
+  "status": "DRAFT",
+  "scope": "Reading paragraphs only; tables, diagrams and images remain in the packet and also require audit before text-only execution.",
+  "records": [
+    {
+      "id": "arc-p01",
+      "benchmark": "arc",
+      "title": "What the AI is asked to do",
+      "summary": "ARC-AGI-2 is a benchmark created by the ARC Prize Foundation and its collaborators to assess whether an AI system can **discover a new rule from visual examples**. Each problem presents pairs of coloured grids showing an input grid alongside its correct output grid. Using these demonstration pairs, the AI must deduce the underlying rule, apply it to a new input grid, and output a completed grid with the correct dimensions and colours in every cell. The creators selected these visual puzzles to require minimal specialized knowledge while requiring the AI to combine abstract concepts. Their goal is to measure reasoning that goes beyond memorizing facts or searching through combinations of computer programs, which they link to progress toward more general artificial intelligence.",
+      "declared_source_ids": [
+        "AR",
+        "AB",
+        "AP"
+      ],
+      "verified_original_passages": [],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "pending_source_check"
+    },
+    {
+      "id": "arc-p02",
+      "benchmark": "arc",
+      "title": "How the problems were chosen",
+      "summary": "The creators began with a collection of newly authored grid puzzles and unused tasks from earlier ARC work. To assess problem quality and establish difficulty levels, the developers **conducted a study where 407 people attempted candidate puzzles across 515 paid 90-minute sessions**. Because that study used a larger candidate pool than the final release, its findings do not describe the final test set alone. The creators also conducted internal reviews to eliminate redundant puzzles that shared identical rules. The official release provides **1,000 development problems for practice and training**, alongside **three evaluation sets of 120 problems each**, known as public, semi-private, and private sets because access to their problems differs. Using the human study results, the developers balanced these three test sets to have comparable difficulty for human solvers. After release, minor errors were corrected; a public change record lists adjustments to cell colours and ambiguous examples.",
+      "declared_source_ids": [
+        "AC",
+        "AP"
+      ],
+      "verified_original_passages": [],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "pending_source_check"
+    },
+    {
+      "id": "arc-p03",
+      "benchmark": "arc",
+      "title": "How answers earn points",
+      "summary": "The AI receives **two attempts for each new input grid**, earning credit for that input only when a submitted grid exactly matches the reference answer in dimensions and every cell colour. A nearly correct grid receives no partial credit. However, because a problem can contain multiple test inputs, the official scoring software calculates the proportion of inputs solved within that problem before averaging across problems. For example, solving one of two inputs earns **a score of 0.5 for that problem**. This software calculation differs from the dataset description, which considers a problem fully solved only when every input grid is correct. The software produces a single average accuracy and does not calculate separate subscores for distinct reasoning abilities. The public test suite checks exact matches, incorrect dimensions, altered cells, and missing outputs; the survey author inspected these tests without independently validating the entire scoring system.",
+      "declared_source_ids": [
+        "AR",
+        "AS",
+        "AT"
+      ],
+      "verified_original_passages": [],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "pending_source_check"
+    },
+    {
+      "id": "arc-p04",
+      "benchmark": "arc",
+      "title": "Testing conditions and changes in scores",
+      "summary": "The ARC Prize organization establishes official model settings and spending limits for verified evaluations, although researchers running tests locally can choose different settings. Under its verified-testing policy, the organization conducts **a single evaluation run rather than averaging multiple runs**. The technical report publishes model scores, but the documentation does not provide estimates or ranges showing how much an AI’s score varies when the identical test is repeated under the same setup. Although the local runner allows settings to be adjusted, the records contain no systematic experiments evaluating how reworded instructions, alternative grid representations, or software changes affect scores. Balancing test sets for human difficulty addresses puzzle difficulty, not the consistency of AI scores.",
+      "declared_source_ids": [
+        "AR",
+        "POL",
+        "AP",
+        "AM"
+      ],
+      "verified_original_passages": [],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "pending_source_check"
+    },
+    {
+      "id": "arc-p05",
+      "benchmark": "arc",
+      "title": "Data contamination and ways to earn points",
+      "summary": "The designers sought to prevent shortcuts by creating problems that resist program search techniques and by removing redundant rules across tasks. These steps do not prove that every unintended route to points has been eliminated. Data contamination presents a further concern because the public problems are openly accessible. For hidden evaluation sets, the ARC Prize policy specifies data retention agreements, monitors for potential data contamination, and acknowledges that puzzle leaks can still occur. To maintain separation between practice and evaluation, **training on development problems is permitted, while tuning an AI system directly on evaluation problems is discouraged**. ARC Prize also states that verified evaluations are not an optimization service for repeatedly submitting results to tune models.",
+      "declared_source_ids": [
+        "AB",
+        "AP",
+        "POL",
+        "AR"
+      ],
+      "verified_original_passages": [],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "pending_source_check"
+    },
+    {
+      "id": "arc-p06",
+      "benchmark": "arc",
+      "title": "Comparisons, access and updates",
+      "summary": "In the human solver study, statistical analysis revealed no clear relationship between human puzzle performance and recorded demographic factors such as occupation or technical background. In AI comparisons, verified tests record runner configurations, although independent evaluations may follow different procedures. Researchers can inspect **public test problems, execution software, and scorer tests**, whereas access to private evaluation sets is strictly controlled. ARC Prize states that it publishes output logs, costs, run durations, and task scores for verified evaluations, though the survey author did not verify the complete archive. The public repository uses an Apache 2.0 license, while policies for hidden evaluation sets address confidentiality and code audits. To track updates, a dated change record details corrected problems and git commits, but it does not recalculate scores for all previously tested models. ARC-AGI-1 and ARC-AGI-2 remain distinct benchmark versions.",
+      "declared_source_ids": [
+        "AP",
+        "POL",
+        "AM",
+        "AT",
+        "AL",
+        "AC"
+      ],
+      "verified_original_passages": [],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "pending_source_check"
+    },
+    {
+      "id": "arc-p07",
+      "benchmark": "arc",
+      "title": "What the findings cover",
+      "summary": "Although the benchmark creators connect ARC-AGI-2 to abstract reasoning and broader intelligence, the empirical evidence presented here is restricted to **two dimensional visual grid problems**. The documentation provides no evidence showing that ARC-AGI-2 scores predict performance in language understanding, social reasoning, or real-world autonomous tasks, nor does it provide a comprehensive test of general intelligence. These limits define the evidence available in the official sources; they leave broader claims unverified rather than proving that such relationships cannot exist.",
+      "declared_source_ids": [
+        "AB"
+      ],
+      "verified_original_passages": [],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [
+        "The passage explicitly limits broad claims, supplying part of the interpretation needed for Q20 and Q25."
+      ],
+      "status": "pending_source_check"
+    },
+    {
+      "id": "designqa-p01",
+      "benchmark": "designqa",
+      "title": "What the AI is asked to do",
+      "summary": "DesignQA was developed by engineering researchers and practitioners using documents from **Formula SAE, a competition where university students design and build formula-style racing cars**. The benchmark aims to test whether an AI system can retrieve technical rules, interpret engineering terms and drawings, and apply requirements to a vehicle design. The authors created **1,451 questions arranged into six distinct groups**: finding an individual rule, gathering multiple related rules, defining a technical term, identifying whether a component is present, checking dimension compliance, and evaluating functional performance against requirements. Depending on the question, the AI receives rulebook text, a vehicle photograph, or an engineering drawing, and must provide a textual response or a yes/no decision, sometimes accompanied by an explanation. These tasks represent real design activities, which the creators cite as their reason for testing comprehension of engineering documents.",
+      "declared_source_ids": [
+        "DQ-P"
+      ],
+      "verified_original_passages": [
+        {
+          "source": "literature/pdfs/DesignQA.pdf",
+          "locator": "Sections 3–5; specific table conflicts in source-audit-findings.md",
+          "scope": "Some source checks completed, not a complete passage audit"
+        }
+      ],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "partial_source_check"
+    },
+    {
+      "id": "designqa-p02",
+      "benchmark": "designqa",
+      "title": "How the questions were chosen and checked",
+      "summary": "The creators constructed questions using an official Formula SAE competition rulebook, CAD models, drawings, and physical testing data. While this anchors questions in realistic design scenarios, the benchmark relies on **a single rulebook and a narrow collection of tasks**, rather than a broad sample of engineering across different industries. The question groups are also heavily unbalanced: retrieving individual rules accounts for 1,192 questions, whereas checking functional performance contains only 16 questions. To check for errors during development, two additional engineering researchers reviewed the manually written questions. Derived questions and certain generated explanations received more limited checks, focusing on whether explanations supported the yes/no decision. The published paper does not report how often reviewers disagreed or how many errors were corrected.",
+      "declared_source_ids": [
+        "DQ-P"
+      ],
+      "verified_original_passages": [
+        {
+          "source": "literature/pdfs/DesignQA.pdf",
+          "locator": "Sections 3–5; specific table conflicts in source-audit-findings.md",
+          "scope": "Some source checks completed, not a complete passage audit"
+        }
+      ],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "partial_source_check"
+    },
+    {
+      "id": "designqa-p03",
+      "benchmark": "designqa",
+      "title": "How answers earn points",
+      "summary": "Because question types vary, DesignQA employs multiple scoring methods. Rule retrieval compares AI answers against reference answers using text matching and token overlap, while yes/no questions check decision accuracy and score explanations using text similarity metrics. Although these procedures are documented, **minor differences in phrasing or punctuation can affect awarded points**: the paper notes instances where missing commas or valid related rules not listed in the reference answer reduced credit. When calculating overall performance, the scoring software assigns equal weight (one sixth each) to the six question groups, despite their unequal sizes and disparate scoring methods. The documentation does not establish that this composite score or the separate group scores measure distinct underlying abilities. Small unit test files and documented scoring challenges show that checking occurred, but do not constitute a complete study of marking accuracy and consistency across judges.",
+      "declared_source_ids": [
+        "DQ-P",
+        "DQ-C1",
+        "DQ-C2",
+        "DQ-FIX"
+      ],
+      "verified_original_passages": [
+        {
+          "source": "literature/pdfs/DesignQA.pdf",
+          "locator": "Sections 3–5; specific table conflicts in source-audit-findings.md",
+          "scope": "Some source checks completed, not a complete passage audit"
+        }
+      ],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [
+        "The supplied assessment of the composite score directly bears on Q11; it is an interpretation, not just a reported scoring rule."
+      ],
+      "status": "partial_source_check"
+    },
+    {
+      "id": "designqa-p04",
+      "benchmark": "designqa",
+      "title": "Testing conditions and comparisons",
+      "summary": "The authors specify the tested AI models, prompts, and settings, but **different systems were evaluated under different information conditions**. Some models received the entire 140-page rulebook, while others received only text snippets selected by a retrieval algorithm. The reported scores therefore measure the AI model combined with its information retrieval setup, which complicates direct comparisons between models. The authors compare AI performance against random guessing baselines, but include no baseline from professional human engineers taking the test. The researchers also tested variations in input conditions, such as comparing engineering drawings with scale bars against drawings with direct dimension callouts, and standard photos against cropped component images. In one experiment, a model was tested across five different sets of retrieved rule passages, observing a performance range from 68.1% to 70.3%. Because the retrieved text changed across runs, this experiment does not measure score variation when an identical test setup is repeated. With small question sets, small score differences remain difficult to interpret; in the 16-question performance group, a single correct answer alters accuracy by 6.25 percentage points.",
+      "declared_source_ids": [
+        "DQ-P"
+      ],
+      "verified_original_passages": [
+        {
+          "source": "literature/pdfs/DesignQA.pdf",
+          "locator": "Sections 3–5; specific table conflicts in source-audit-findings.md",
+          "scope": "Some source checks completed, not a complete passage audit"
+        }
+      ],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [
+        "The sentence explaining that changed retrieval contexts are not identical repetitions directly supports Q14/Q15."
+      ],
+      "answer_cues": [
+        "Explicit distinction between changed and repeated conditions."
+      ],
+      "status": "partial_source_check",
+      "unverified_claims": [
+        "The range 68.1%–70.3% has not been located in the inspected source."
+      ]
+    },
+    {
+      "id": "designqa-p05",
+      "benchmark": "designqa",
+      "title": "Data contamination and unintended ways to earn points",
+      "summary": "The authors discuss potential shortcuts, including answer phrasing, retrieved passage quality, and prior familiarity with racing components. While this demonstrates awareness of confounding factors, the study did not systematically examine every route to earning points without engineering understanding. For instance, in the dimension group, all drawings with scale bars happen to comply with the applicable rule; always answering “yes” would achieve credit on that subset, though **the paper does not show that any evaluated AI relied on this shortcut**. Regarding data contamination, the authors note that vehicle images were newly generated from student team models, but did not inspect the training data of external commercial models. The rulebook and questions are publicly accessible, with no private test set withheld to detect memorization. Furthermore, the repository provides no formal policy governing training on benchmark questions or repeatedly submitting results.",
+      "declared_source_ids": [
+        "DQ-P",
+        "DQ-R",
+        "DQ-TREE",
+        "DQ-WEB"
+      ],
+      "verified_original_passages": [
+        {
+          "source": "literature/pdfs/DesignQA.pdf",
+          "locator": "Sections 3–5; specific table conflicts in source-audit-findings.md",
+          "scope": "Some source checks completed, not a complete passage audit"
+        }
+      ],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "partial_source_check"
+    },
+    {
+      "id": "designqa-p06",
+      "benchmark": "designqa",
+      "title": "Available materials and later changes",
+      "summary": "The authors published test materials including questions, drawings, instructions, scoring methods, and a sample of model outputs, allowing researchers to inspect how the evaluation was done. However, the repository does not provide **a complete record to reproduce every result in the paper**: exact environment configurations, specific software package versions, and complete prediction logs are not fully linked to published numbers. One released output file contains 1,190 rows rather than the 1,192 retrieval questions described in the paper. Although git commit logs document software updates, the authors provide no changelog explaining how code modifications affect benchmark scores. The repository does not include a license file or explicit rules for responsible reuse. These observations reflect limits of the inspected repository, not proof that permissions are unavailable from the authors.",
+      "declared_source_ids": [
+        "DQ-R",
+        "DQ-ENV",
+        "DQ-OUT",
+        "DQ-TREE"
+      ],
+      "verified_original_passages": [
+        {
+          "source": "literature/pdfs/DesignQA.pdf",
+          "locator": "Sections 3–5; specific table conflicts in source-audit-findings.md",
+          "scope": "Some source checks completed, not a complete passage audit"
+        }
+      ],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [],
+      "status": "partial_source_check"
+    },
+    {
+      "id": "designqa-p07",
+      "benchmark": "designqa",
+      "title": "What the results can support",
+      "summary": "The DesignQA paper emphasizes the constraints of testing a single competition rulebook, a limited set of question formats, and heuristic scoring methods. The authors explicitly note that performance across different engineering situations and real-world standards remains unknown. While the racing car tasks demonstrate practical relevance, the evidence does not establish that DesignQA scores predict success on broader engineering projects or professional design work. Published claims should therefore be interpreted as measuring performance on these specific tasks under the reported conditions, without extending claims to general engineering competence or assuming protections against data reuse.",
+      "declared_source_ids": [
+        "DQ-P",
+        "DQ-WEB"
+      ],
+      "verified_original_passages": [
+        {
+          "source": "literature/pdfs/DesignQA.pdf",
+          "locator": "Sections 3–5; specific table conflicts in source-audit-findings.md",
+          "scope": "Some source checks completed, not a complete passage audit"
+        }
+      ],
+      "retained_facts": [],
+      "omissions": [],
+      "added_interpretations": [],
+      "answer_cues": [
+        "The passage explicitly limits broad claims, supplying part of the interpretation needed for Q20 and Q25."
+      ],
+      "status": "partial_source_check"
+    }
+  ],
+  "table_audit": "See source-audit-findings.md: confirmed DesignQA conflicts require review before freeze."
+}

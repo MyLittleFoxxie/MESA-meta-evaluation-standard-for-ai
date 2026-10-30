@@ -1,0 +1,2388 @@
+
+=== PDF PAGE 1 ===
+Evaluation data contamination in LLMs: how do we measure it and (when)
+does it matter?
+Aaditya K. Singh*
+University College London
+aaditya.singh.21@ucl.ac.uk
+Muhammed Yusuf Kocyigit*†
+Boston University
+kocyigit@bu.edu
+Andrew Poulton†
+Cohere
+andrewpoulton@cohere.com
+David Esiobu
+Meta
+Maria Lomeli
+Meta
+Gergely Szilvasy
+Meta
+Dieuwke Hupkes
+Meta
+dieuwkehupkes@meta.com
+Abstract
+Evaluation data contamination, the inadvertent mixing of samples from evaluation benchmarks into
+pre-training corpora, constitutes a recently growing and important concern in the field of evaluating
+large language models (LLMs). The resulting ‘training on the test set’ makes it difficult to interpret
+evaluation benchmark scores, and an active area of research studies its effects. However, while evaluation
+data contamination is easily understood intuitively, it is surprisingly difficult to define precisely which
+examples should be considered contaminated and, consequently, to what extent contamination inflates the
+corresponding benchmark scores. In this paper, we propose that these questions should be addressed together
+and that contamination metrics can be assessed based on whether the examples they mark contaminated
+indeed give models an undue advantage. We propose a novel analysis method called ConTAM, and show –
+in a large scale survey of existing and novel n-gram based contamination metrics across 13 benchmarks
+and 7 models from 2 different families – that ConTAM can be used to better understand evaluation data
+contamination as well as its effects on benchmark scores. We find that contamination may have a much
+larger effect than reported in recent LLM releases and that there are differences in the extent to which
+models at different scale are impacted by contamination. Furthermore, we find that considering only
+the longest contaminated substring generally provides a better signal than considering a union of all
+contaminated substrings, as was common practice in previous studies, and that doing model and benchmark
+specific threshold analysis greatly increases the specificity of the results. Lastly, we investigate the impact
+of various hyperparameter choices of contamination studies, finding that – among other things – both
+using larger values of n and disregarding contaminated strings that are infrequent in the pre-training data
+lead to many false negatives. With ConTAM, we provide a method to empirically ground evaluation data
+contamination metrics in downstream effects as well as measure their magnitude. With our exploration, we
+shed light on how evaluation data contamination can impact LLMs and provide insight into the various
+considerations important when doing contamination analysis. We end our paper by discussing these in
+more detail and providing concrete suggestions for future work.
+1 Introduction
+As large language models (LLMs) improve, their evaluation becomes increasingly challenging. A frequent
+concern in this context (Sainz et al., 2024a, 2023; Jacovi et al., 2023; Elazar et al., 2024, i.a.) is that
+samples from evaluation benchmarks sometimes (partially) appear in the data used to train that same
+model, also known as evaluation data contamination. Such inadvertent ‘training on the test set’ makes it
+difficult to interpret scores on evaluation benchmarks: does a better score reflect an improvement on the
+ability that the benchmark intends to measure or does it indicate that a model succesfully memorised the
+benchmark data?
+Answering this seemingly simple question is far from straightforward. Even setting aside practical
+issues such as the sheer size of pre-training corpora and the fact that they are not often publicly available, it
+*Shared first authorship
+†Work done while at Meta
+arXiv:2411.03923v1  [cs.CL]  6 Nov 2024
+
+=== PDF PAGE 2 ===
+is surprisingly difficult to define when precisely a sample in an evaluation benchmark should be considered
+contaminated. Does the entire sample need to be verbatim present in the training data, or should partial
+appearance also count? If so, how do we define partial appearance, and how do we ‘threshold’ it? In
+addition to these measurement questions, there is the intertwined question of how much contamination
+really impacts benchmark scores. If an example occurs verbatim once in a 1.4T token training corpus,
+does this in fact give the model an unfair advantage?
+In this paper, we propose a novel methodology for assessing contamination metrics that we call the
+Contamination Threshold Analysis Method (ConTAM). ConTAM is centered around the concept of Estimated
+Performance Gain (EPG), and addresses the former two questions jointly. Motivated by the idea that
+an adequate metric of contamination returns the set of samples for which a model in fact has an undue
+benefit, it compares metrics based on the measurable impact on benchmark performance of the samples
+the metrics flag as contaminated. In doing so, it simultaneously provides handholds to make empirical
+choices regarding contamination metrics and provides information on answers the question of the extent
+to which contamination inflates benchmark scores.
+We use ConTAM to compare four main contamination metrics – three from the literature and one novel –
+that define contamination in terms of overlapping n-gram spans (termed “matches”) between a sample
+in the evaluation benchmark and the pre-training corpus. We compare these metrics across 5 parameter
+settings, on 13 benchmarks, for 7 models of various sizes trained from 2 pre-training corpora. Our
+comparisons illustrate how ConTAM can help provide insights into how evaluation data contamination
+impacts model performance, help distinguish contamination metrics, and select hyper-parameters for those
+metrics. We conduct extensive experimentation across these metrics and corresponding hyperparameter
+choices. Our main conclusions are:
+• The impact of evaluation data contamination has been underestimated in many prominent
+LLM releases, likely because of false negatives in the chosen contamination metrics (Table 2,
+Figures 3, 4 and 10)
+• While there is no true one-size-fits-all approach to contamination detection, using the longest
+contaminated substring rather than a union of all matches works better across the board,
+adequately detecting contamination in cases where no other metric did (Figures 2 and 13)
+• For virtually all benchmarks we considered, smaller n is better and even one occurrence in the
+pre-training data matters: both using values of n larger than 8 and setting a minimal count higher
+than one for occurrence in the pre-training corpus leads to false negatives (Figure 6 and 7b);
+• The impact of contamination changes with scale, in cases where there still is performance to be
+gained, larger models are better able to leverage contamination than smaller models (Figure 5, 8
+and 9);
+• Consequently, to find the most adequate contamination metric, it is important to domodel-specific
+threshold selection (Figure 1).
+With our work, we aim to contribute to an informed discussion about evaluation data contamination
+and its effects, as well as provide methodology for both researchers and practitioners to explore this
+question further and contrast the effect of different contamination metrics and hyper-parameters as newer
+pre-training corpora (Soldaini et al., 2024; Penedo et al., 2024) and benchmarks (Laurent et al., 2024) are
+released.
+Outline In the remainder of this paper, we first review earlier work on contamination detection, and
+consider their results and limitations (§ 2). Next, we describe the various contamination metrics we
+investigate in more detail and list the benchmarks, models and pre-training corpora we use for our study
+(§ 3), followed by a description of our main methodology for analysis (§ 4). After that, in our main
+results section (§ 5), we first report the results of an overall comparison between all contamination metrics
+(§ 5.1). Both numerically and qualitatively, we show how different contamination metrics provide different
+signal across datasets, and we show that taking the longest matching n-gram, rather than a union of all
+
+=== PDF PAGE 3 ===
+n-grams, detects the most meaningful EPG across datasets and models. Next, in § 5.2, we discuss how
+much contamination is detected across various benchmarks (§ 5.2.1), how much that impacts benchmark
+scores for various models (§ 5.2.2) and how that depends on model scale (§ 5.2.3). Consecutively, in
+§ 6, we investigate how various parameters that frequently occur in contamination metrics impact the
+results. Specifically, we consider the impact of n (§ 6.1), the impact of the mismatch budget (§ 6.2) and
+the frequency of matches in the pre-training corpus (§ 6.3). We wrap up with a conclusion in which
+summarise our results and provide concrete recommendations for practitioners (§ 7) and a discussion in
+which we consider the limitations of our work (§ 8).
+2 Related work
+One of the primary reasons evaluation data is considered problematic is that it can render evaluations
+unreliable and – therefore – comparisons unfair. Recently, the literature around evaluation data contamina-
+tion has grown, with some works mentioning how it is a more prevalent problem (Sainz et al., 2024b;
+Balloccu et al., 2024) in current evaluations, especially as LLM outputs become popularly shared on the
+internet (Lambert, 2024). While most practitioners attempt to decontaminate pre-training corpora before
+training, such approaches are never perfect (Brown et al., 2020; Yang et al., 2023) thus emphasising a
+need for better understanding of the impact of evaluation data contamination. Here, we discuss the three
+main ways of tackling this question.
+2.1 Causal contamination analysis
+Perhaps the most direct way to measure the impact of contamination in training data, causal contami-
+nation analysis involves specifically training models on contaminated data and measuring the increase
+in benchmark performance. Jiang et al. (2024) perform an extensive study using this method, finding
+that contamination can lead to modest improvements. However, their study is limited to considering
+small sized models (124M parameters), as pre-training from scratch is expensive. Other works, instead,
+consider finetuning pre-trained models and demonstrate significant effects of contamination when training
+on benchmark samples such as websites containing HellaSwag extracts (Gemini Team, 2024b), rephrased
+benchmark samples (Yang et al., 2023), or even reformatted samples (e.g. JSON versions of HumanEval
+questions, Gemini Team, 2024a). The finetuning approach scales more easily to larger models but does
+not provide as a clear a signal on the effects of contamination interspersed in a pre-training corpus.
+Furthermore, such causal methods continue to be expensive to compute, as even in the finetuning case
+they would require finetuning a large model on various datasets with various perturbations.
+2.2 Post-hoc contamination analysis
+An alternative to the causal analysis, post-hoc contamination analyses focus on identifying possible
+inflation in benchmark scores after a model has been trained. Such approaches focus on identifying
+samples from evaluation benchmarks that were contaminated in the pre-training data, subsetting the
+benchmark to a “clean” subset, and measuring the difference in performance between the complete
+benchmark and this clean subset. Unlike causal methods, these approaches can only give a correlational
+notion of contamination, but benefit from not needing to do any training of a model (and thus are easier to
+use on public artifacts). Furthermore, they are more amenable to studying the effect of various notions of
+contamination within a single experiment.
+Prior work has used various definitions to define what makes an example contaminated. Brown
+et al. (2020) consider any sample with at least one n-gram match (where n ranges from 8 to 13 tokens,
+depending on the benchmark) in pre-training data as contaminated. OpenAI (2023), instead, check three
+random 50-character strings, indicating a lack of consistency even by the same group of researchers.
+Other large model practitioners use yet other approaches, with Chowdhery et al. (2023) counting samples
+with over 70% of their n-grams occurring in pre-training data as contaminated, while Touvron et al.
+(2023b) consider a skip-gram approach in which small mismatches are allowed. Generally, choices for
+contamination metrics vary, and to our knowledge, no systematic study has been done to see the effects
+of various ‘hyperparameters’ in these metrics. In our work, we consider a wide range of contamination
+
+=== PDF PAGE 4 ===
+Method Normalisation Search method Scoring Join matches
+NGRAM -MATCH ✓ n-gram n-gram ✓
+TOKEN -MATCH ✓ n-gram token ✓
+TOKEN -EXTEND ✗ n-gram & extend token ✓
+LONGEST -MATCH ✗ n-gram & extend token ✗
+Table 1: Overview of the differentiating features for contamination metrics. The four contamination metrics
+studied in this paper differ on four key features. Normalisation refers to whether the method requires lowercasing
+and punctuation removal before computing matches, the search method specifies whether a mismatch budget is
+allowed, scoring signifies whether scoring is based on number of tokens contaminated or number of n-grams
+contaminatiod, and join matches indicates whether all matches are joined, or only a single match is counted.
+metrics and compare them through the lens of performance impact to give benchmark and pre-training
+corpus specific recommendations.
+2.3 Memorisation in large language models
+Memorisation in large language models (Carlini et al., 2023; Hartmann et al., 2023) is closely related to
+the notion of contamination, as it similarly involves regurgitation of data seen in pre-training. Specifically,
+the literature at the intersection of memorisation and contamination tends to focus on approximating
+contamination without access to pre-training data, for instance via membership inference attacks (e.g.
+Mireshghallah et al., 2022). Golchin and Surdeanu (2023b) check if the model can complete examples
+from the dataset with relevant context given to the model; Shi et al. (2023) use the average probability
+of the k-least frequent tokens from a sentence to measure if the model has seen that sentence before;
+and Golchin and Surdeanu (2023a) create slightly different versions of evaluation set examples using
+GPT-4 and check if the model can find the original example with high precision. Finally, Oren et al.
+(2023) measure if a model has seen large pieces of the dataset together by checking if the model gives
+higher probability to the canonical order of the original dataset compared to a randomly shuffled order of
+examples. While these methods are valuable, current methods that do not actually search the pre-training
+data have been shown to be ineffective for accurately detecting contamination (Duan et al., 2024). In our
+work, we opted to focus on post-hoc contamination analyses that look for matches in pre-training data
+that we were able to access for the purposes of this study.
+3 Methods
+For our study, we consider four different contamination metrics across various different hyperparameters.
+In this section, we discuss those metrics (§ 3.1), and we list the models and benchmarks we investigate
+(§ 3.2 and § 3.3, respectively). After, in § 4, we introduce and discuss our methods for comparing and
+analysing these metrics.
+3.1 Quantifying contamination
+We consider four contamination metrics. Three are motivated by prior work (Brown et al., 2020; Touvron
+et al., 2023b; Chowdhery et al., 2023), and one comprises a novel metric that we empirically found useful.1
+Each of these metrics specifies how contaminated an evaluation sample is through a contamination score
+between 0 and 1, where 0 indicates the sample is not contaminated at all, and 1 that the sample is
+maximally contaminated. The contamination scores can then be used to divide evaluation benchmarks
+in ‘clean’ and ‘contaminated’ partitions, depending on whether the score is surpassing a predetermined
+contamination threshold, prescribing what contamination score a sample should exceed to be considered
+as contaminated. Below, we elaborate how the contamination score is defined for the methods under
+consideration, a brief overview of their main differences is provided in Table 1.
+1A detailed overview of which methods are used in which previous work, along with their main results, is provided in Table 4.
+
+=== PDF PAGE 5 ===
+TOKEN -MATCH A common method used to assign contaminated scores, first popularised by Brown
+et al. (2020), is to consider how many tokens in an evaluation sample are part of an n-gram occurring in
+the pre-training corpus. Brown et al. (2020) normalise both the pre-training corpus and evaluation sample
+by converting to lowercase and removing punctuation before looking for matches. They then define the
+contamination score as the fraction of tokens in the evaluation sample that occurs in a contaminated n-
+gram. Brown et al. (2020) used a single n for each dataset (with a value between 8 and 13) and considered
+all n-grams that occurred at least once in the pre-training corpus. In our study, we vary both the value of
+n and the minimum frequency of the n-gram (referred to with the term mincount) as hyperparameters
+of the method. We consider values of n ∈ { 8, 10, 13, 20} and mincount ∈ { 1, 5, 10, 20, 100}. To be
+consistent with other methods, we consider n-grams in terms of tokens rather than words (i.e. an 8-gram
+is 8 tokens long, rather than 8 words long).
+NGRAM -MATCH The NGRAM -MATCH method, used by Chowdhery et al. (2023), is very similar to
+TOKEN -MATCH , except that the score is calculated as a fraction of the contaminated n-grams in the
+evaluation sample, rather than contaminated tokens. 2 Otherwise, the hyperparameters for this method are
+the same as the hyperparameters for TOKEN -MATCH , as is the normalisation. Chowdhery et al. (2023) use
+a value of n=8 and mincount=1; in our study, we consider the same values as we do for TOKEN -MATCH .
+TOKEN -EXTEND First used by Touvron et al. (2023b), the TOKEN -EXTEND metric notably differs
+from the prior two methods in that it allows for a skip_budget, which allows for substitution mismatches
+between a contaminated token string in the evaluation sample and the pre-training corpus. Using a
+match-then-extend algorithm, TOKEN -EXTEND identifies all contaminated spans of length at least n = 8
+tokens, and extends them to their longest possible match with a possible skip_budget, then calculates
+the contamination score as a fraction of tokens in the evaluation sample that were marked contaminated
+(similar to TOKEN -MATCH ). Because the skip budget can be used to account for differces in formatting as
+well as other differences, TOKEN -EXTEND does not use normalisation. Touvron et al. (2023b) consider
+values of n ∈ { 10, 20, 30, 40, 50}, and a skip budget of 4. Here, we consider n ∈ { 8, 10, 13, 20}, and
+skip_budget ∈ {0, 1, 2, 3, 4, 5}.
+LONGEST -MATCH Building off TOKEN -EXTEND , we introduce a fourth metric, that we call LONGEST -
+MATCH . The key difference between TOKEN -EXTEND and LONGEST -MATCH , is that the latter, instead of
+searching for all contaminated token spans, only considers the longest token span (again, with a possible
+skip_budget). The score is then calculated as the fraction of tokens that is part of this longest match.
+Intuitively, this method avoids assigning high contamination scores to samples for which many tokens are
+contaminated when the contamination consists of different n-grams stemming from different places in
+the pre-training corpus. Furthermore, it mitigates the issue where templated strings – e.g. “is to the left
+of the red ball” (Benchekroun et al., 2023) or “to make every square inch of the” (Cobbe et al., 2021) –
+confound the contamination scores.
+3.2 Models
+In our experiments, we consider two families of decoder-only autoregressive large language models:
+Llama 1 (Touvron et al., 2023a) and Pythia (Biderman et al., 2023), trained on two different pre-training
+corpora. Within each family, we consider multiple models to get a notion of generalisability across scale.
+For the Llama series, we consider all four model sizes (7B, 13B, 33B, and 65B); for Pythia, we consider
+the three largest sizes (1.4B, 6.9B, and 12B).
+3.3 Benchmarks
+In our analyses, we consider 13 frequently used benchmarks covering a broad range of capabilities.
+Specifically, we include COPA (Gordon et al., 2011), HellaSwag (Zellers et al., 2019), SIQA (Sap et al.,
+2019), PIQA (Bisk et al., 2020), Big Bench Hard (Suzgun et al., 2022)), TriviaQA (Joshi et al., 2017),
+2For example, a contaminated 9-token span would be counted as two contaminated 8-token spans (and thus have twice the
+contamination score) of a contaminated 8-token span (for the same sample), assuming n = 8. This differs from TOKEN -MATCH ,
+which would scale with the number of contaminated tokens (9 vs 8).
+
+=== PDF PAGE 6 ===
+GSM8k (Cobbe et al., 2021), MATH (Hendrycks et al., 2021b), HumanEval (Chen et al., 2021), MBPP
+(Austin et al., 2021), DM Contest (Li et al., 2022)), MMLU (Hendrycks et al., 2021a), and Natural
+Questions (Kwiatkowski et al., 2019). We perform contamination analyses for each method and model on
+each of these benchmarks. Some of these benchmarks (MMLU, HellaSwag, PIQA, SIQA, and COPA) are
+choice benchmarks – in those cases, we concatenate the correct choice to the prompt when calculating
+contamination. More elaborate descriptions of each benchmark are provided in Appendix B.
+4 Analysis methods
+Without a pre-determined ground truth on what constitutes contamination, comparing contamination
+metrics quantitatively is challenging. Here, we propose to compare metrics by grounding them in the
+effect that the contamination they detect has on benchmark scores, building on the intuition that a useful
+contamination metric is one that detects contamination that has an measurable effect on evaluation
+outcomes. To quantify this effect, we consider the estimated performance gain (EPG) that the detected
+contamination results in, further discussed in § 4.1. To compare metrics across hyperparameters and
+thresholds, we use two analysis methods, one numerical method relying on z-scores (§ 4.2) and one
+qualitative method that considers the behaviour of each metric with changing thresholds (§ 4.3).
+4.1 Estimated performance gain (EPG)
+The first key concept in our analysis is the EPG that results from the contamination that a metric detects.3
+The EPG for a contamination metric and corresponding contamination threshold is model-dependent and
+is defined as the difference of the model’s performance on the entire benchmark and the subsample of
+that benchmark marked by the method as uncontaminated or ‘clean’. As such, it provides an empirical
+measure of the effects of contamination while accounting for the size of the contaminated set – if the
+clean and contaminated subsets have a large difference but the contaminated set has only two samples,
+that difference does not have a large impact on the model’s evaluation score. EPG plays a central role
+in our work, because we use it to empirically ground contamination metrics, assuming that metrics and
+corresponding thresholds that result in higher EPG give more adequate accounts of contamination.
+4.2 Contamination threshold selection via z-score
+As mentioned before, each contamination metric assigns a contamination score to each sample in the
+evaluation corpus under scrutiny, after which a contamination threshold is used to determine what
+threshold a model needs to exceed to be classified as contaminated. At a contamination threshold of 0, any
+sample that has non-zero traces of contamination – as defined by the metric – is considered contaminated;
+As we move the threshold up, samples get moved from the contaminated to the clean partition of the data,
+until a threshold of 1, when all samples are marked clean.
+Importance of threshold selection The contamination threshold is an important knob to tune when
+considering and comparing contamination metrics. However, it also makes it challenging to do direct
+comparisons of metrics across models, both because different models may respond differently to the same
+levels of contamination and because the same threshold has a different meaning for different underlying
+contamination metrics. To address this issue, we select thresholds based on EPG. Empirically, we have
+found it important to select thresholds separately for each model-benchmark pair, which we found to be
+crucial for eliminating false positives. To explain why, in Figure 1 (top row), we show three examples
+of contamination analyses for different benchmarks, all of which exhibit false positives. Each of these
+benchmarks contains samples with low, nonzero contamination score (toward the left of the plot), that
+do not lead to meaningful EPG. As we move these examples to the ‘clean’ partition of the dataset, EPG
+increases (as seen by the positive slope). As a result, to meaningfully capture contamination, we have to
+select nonzero contamination thresholds to remove low scoring examples (false positives).4 Notably, we
+find this method especially necessary for math world problems, where small snippets of context are often
+meaninglessly contaminated (e.g. “a mosaic with chips of”).
+3Under a different name, this metric was also used by previous studies, starting from Brown et al. (2020).
+4This addresses some of the issues discussed in Yang et al. (2023).
+
+=== PDF PAGE 7 ===
+Figure 1: Benchmark analysis with threshold and ConTAM plots. The threshold selected for a contamination
+metric has a large impact on the predicted amount of contamination. In the top row, we show how varying the
+threshold leads to different EPGs for a given model and benchmark pair. At high thresholds, true positives may not
+be included, despite their effect on EPG; at very low thresholds, we instead see false positives that lower the EPG.
+In the bottom row, we showcase our ConTAM plots, where the x-axis is instead the % of data marked contaminated at
+a given threshold. These plots offer a way of comparing different contamination metrics, as they solely analyse the
+ordering of data points enforced by a metric, rather than specific metric scores assigned to data points. We show
+correspondence between points in the top row and bottom row and provide two examples of a true positive and a
+false positive for Llama 65B on GSM8k. Optimal and zero thresholds are shown with vertical dotted lines. All lines
+correspond to scores from the LONGEST -MATCH metric with n = 8 and skip_budget = 0.
+Using z-scores Especially when the clean set is small, simply selecting the threshold that maximises
+EPG can sometimes be sensitive to noise. To account for that, we consider a statistically-inspired approach
+where we estimate if performance on the clean subset is significantly different from the performance on
+the full benchmark. To quantify this, we compute the following z-statistic (per threshold):
+z-score = EP G
+err ,
+where err is the standard error for the given clean subset size (computed as σ/
+√
+N, where σ is the
+standard deviation on the full benchmark). 5 Selecting a threshold based on maximum z-score has the
+benefit of leading to a conservative estimate of what percentage of a dataset is contaminated – if two
+thresholds lead to the same EPG, the err will be smaller for the one with a larger clean subset (and thus
+fewer samples marked contaminated) leading to a higher z-score.
+4.3 Qualitatively comparing contamination methods with ConTAM
+Computing z-scores provides an easy method to compare contamination metrics across hyperparameters
+and thresholds. However, finding the highest overall z-score implies taking a max in two different
+dimensions for each model, benchmark and pre-training corpus: first over the contamination threshold
+for a given contamination metric (incl. hyperparameters), and then over metrics (incl. hyperparameters).
+Even when optimising z-score rather than EPG directly, this method can yield insignificant results when
+5We note some connection in this error metric and the 95% CI’s used by Madaan et al. (2024).
+
+=== PDF PAGE 8 ===
+comparing a large number of metrics across different hyperparameters. Furthermore, it does not allow
+distinguishing metrics that perform similarly at a point estimate of a single threshold but have a different
+development across thresholds. The max z-score may give the appearance that two metrics are close when
+they have a similar EPG at a single threshold value, while underneath the metrics lead to very different
+orderings of data points from “most” to “least” contaminated, in which the same samples get very different
+contamination scores.
+ConTAM plots To do a more in-depth comparison between methods, we therefore propose to directly
+consider how they order benchmark samples from least to most contaminated. As the contamination
+threshold decreases, more and more points will be included in the contaminated set. From this perspective,
+the effectiveness of the contamination scoring method can thus be interpreted in terms of how many true
+positives it adds as it removes false positives.6 To quantify this, we take inspiration from ROC-curves
+in classification and plot the EPG against the % of the dataset marked as contaminated for different
+methods, allowing us to focus on the relative ordering of different points, which can be easily compared
+across methods. We call such plots Contamination Threshold Analysis Method (ConTAM) plots. Lines with
+steeper (positive) slopes correspond to finding more true positives for every false positive (lower false
+positive rate), while lines with negative slopes indicate the method is finding more false positives. Lines
+that extend further to the right correspond to more data points having nonzero contamination score. If the
+EPG continues increasing, this would correspond to meaningful contamination (reduced false negatives),
+but if EPG decreases, this likely means false positives (like those of Figure 1, bottom row) are being added.
+In our analysis, we consider both z-score and ConTAM plots to better understand contamination metrics.
+5 Main results
+We compute contamination percentages and EPG for each benchmark, metric, hyperparameter set and
+threshold, for each of the seven models discussed in § 3.2 and their respective pre-training corpora. In this
+section, we report two main results. First, in § 5.1, we present a comparison across contamination metrics,
+providing both quantitative (§ 5.1.1) and qualitative results (§ 5.1.2). In this part of the results section, the
+main focus lies on the methods and whether they find meaningful EPG. In § 5.2, instead, we focus on how
+much contamination is found (§ 5.2.1), what impact that has on various models’ scores (§ 5.2.2), and on
+how that changes with model scale (§ 5.2.3). After, in § 6, we dive deeper and investigate how various
+parameters impact the adequacy of contamination metrics.
+5.1 Detection methods across corpora, benchmarks and models
+Running all variations of all selected contamination metrics results in very large amounts of data;
+comparing that data across pre-training corpora and models directly is a non-trivial enterprise, especially
+when different thresholds and hyperparameters are involved. As explained in § 4, we rely on two main
+methods to compare different contamination metrics: we compute the maximum z-scores for each metric,
+per benchmark-model pair as well as across many of them, and we inspect how the EPG changes with the
+number of examples it marks contaminated.
+5.1.1 At a numerical glance
+Before diving into a deeper and benchmark-specific comparison between metrics, we first present the
+average maximum z-scores for each detection method, across all seven model-pre-training corpus pairs.
+In Table 2, we report both the averages as well as the number of model-corpus pairs for which significant
+EPG was found (column N). In the following paragraphs, we discuss the main observations.
+No significant EPG for DM contest, COPA, and SIQA A first observation that can be made from
+Table 2 is that no metric we considered found any meaningful contamination for DM Contest, COPA,
+and SIQA. In Appendix Figure 13 (top row), we can see that for the benchmark DM Contest, no method
+marked any data contaminated, suggesting that either none of the methods provides suitable signal for this
+6This can also be seen as minimising the number of false negatives (equivalent to maximising true positives) and false
+positives.
+
+=== PDF PAGE 9 ===
+NGRAM-MATCH TOKEN -MATCH TOKEN -EXTEND LONGEST -MATCH
+avg N avg N avg N avg N
+Big Bench Hard 9.2 7 9.1 7 10.6 7 12.1 7
+HumanEval 2.3 5 2.8 5 2.3 2 2.6 7
+HellaSwag 12.6 7 12.6 7 12.3 7 10.3 7
+MMLU 2.6 3 2.6 3 2.3 2 7.3 7
+PIQA 6.7 7 6.5 7 6.3 7 6.2 7
+GSM8K - 0 - 0 - 0 3.4 4
+MBPP - 0 - 0 - 0 2.3 4
+TriviaQA 4.5 6 5.1 5 5.4 7 4.9 7
+MATH - 0 - 0 - 0 3.0 3
+Natural Questions 2.3 2 2.4 2 2.6 1 2.6 1
+DM Contest - 0 - 0 - 0 - 0
+COPA - 0 - 0 - 0 - 0
+SIQA - 0 - 0 - 0 - 0
+6.8 37 6.9 36 7.7 33 6.3 54
+Table 2: Maximum z-scores for each metric. We show the maximum z-scores for each metric and benchmark,
+across all models and pre-training corpus pairs where any significant EPG was found ( avg) and the number of
+model-benchmark pairs over which this average was computed (N). The bottom row gives the per method weighted
+average z-score, and the total number of model-benchmark pairs for which significant EPG was found. All methods
+are run with their “optimal” hyperparameters (n = 8, mincount = 1, skip_budget = 0) – see § 6 for justification.
+model, or that the benchmark is truly entirely uncontaminated for the pre-training corpora at hand. For the
+benchmarks COPA, and SIQA, on the other hand (rows 9 and 12 in the same figure), up to around 50%
+contamination was detected, but there was no meaningful impact on performance for any of the models.
+LONGEST -MATCH provides overall best signal Secondly, we can see that by far the most significant
+EPG was found by theLONGEST -MATCH method, which finds significant EPG for 10 out of 13 benchmarks,
+for 54 out of, in total, 70 of the model-corpus pairs across these 10 benchmarks. Among all methods, it is
+the only method that finds significant EPG for the benchmarks GSM8K, MBPP, and MATH – albeit not
+for all model-corpus pairs. Furthermore, for six out of ten benchmarks, LONGEST -MATCH finds more
+significant EPG (as quantified by average z-score across models) than the other methods. The last row
+of the table, that provides the total number of model-corpus pairs for which a method finds meaningful
+EPG and the weighted average of the significance of the EPG it finds (as quantified by the z-score), also
+illustrates the danger of looking only at average numbers: TOKEN -EXTEND clocks the highest average
+z-score, but only because it fails to detect meaningful EPG for three datasets for which LONGEST -MATCH
+does find EPG – but at lower levels. In the next section, we further highlight such differences that cannot
+be observed directly by only looking at point estimates.
+5.1.2 Qualitative patterns across datasets and models
+Having reported overall numerical results for all methods, we now continue to discuss the qualitative
+patterns we observe across datasets and detection methods in our ConTAM plots, focusing still on only the
+best hyperparameters for each method. Overall, we found that most model-benchmark pairs show one out
+of two common ‘profiles’, with few exceptions. We discuss those profiles as well as exceptions below,
+while the full set of ConTAM plots with curves for each metric (with optimal hyperparameters, see § 6), can
+be found in Figure 13 for further inspection.
+Pattern 1: LONGEST -MATCH performs best A first prevalent pattern we observe is the case where
+LONGEST -MATCH finds significant EPG where all other methods fail to. An illustrative example is
+shown in Figure 2b. As is clear in both Figure 13 as well as Table 2, we observe this pattern for MBPP,
+HumanEval,7 GSM8K, MATH, and MMLU. We find it especially interesting thatLONGEST -MATCH is
+7For Llama 1 65B, LONGEST -MATCH is the only method that finds statistically significant significant EPG. At smaller sizes,
+the methods are similar.
+
+=== PDF PAGE 10 ===
+ngram-match token-match token-extend longest-match
+0 25 50 75 100
+% of dataset marked
+contaminated
+0
+20
+40EPG
+(a) BBH
+Llama 1 65B
+0 25 50 75 100
+% of dataset marked
+contaminated
+-5
+0
+(b) MATH
+Llama 1 65B
+0 25 50 75 100
+% of dataset marked
+contaminated
+0
+10
+(c) HellaSwag
+Llama 1 65B
+0 25 50 75 100
+% of dataset marked
+contaminated
+0
+5
+(d) TriviaQA
+Pythia 12b
+Figure 2: Example profiles for different metrics. (a) We most commonly observe cases in which all methods
+perform roughly the same or (b) LONGEST -MATCH clearly performs best. We also see more exceptional patterns:
+(c) LONGEST -MATCH performs worse than other methods, except at threshold 0; and (d) LONGEST -MATCH
+and TOKEN -EXTEND perform equally well, outperforming NGRAM -MATCH and TOKEN -MATCH . Full results
+for all model-benchmark pairs can be found in Figure 13. All methods depicted are run with their “optimal”
+hyperparameters (n = 8, mincount = 1, skip_budget = 0) – see § 6 for justification.
+specifically better at quantifying contamination on these tasks that are used to evaluate more sophisticated
+reasoning. Generally, the pattern is stronger for stronger models, with, for instance, significant EPG only
+being seen in Llama 1 models for GSM8K and MATH, despite contamination being detected in both the
+Llama pre-training corpus and the Pile.
+Pattern 2: all methods are comparable A second common pattern that we observe is the case in
+which all methods perform roughly the same, with no significant differences in reported EPG per detected
+contamination. For some benchmarks, such as Big Bench Hard (Figure 2a) and TriviaQA for Llama 1
+(Figure 13, row 4), all metrics predict significant EPG, which increases as the contamination threshold
+relaxes and the percentage of the dataset marked contaminated increases.8 For other benchmarks, such as
+Natural Questions and to some extent COPA, the ConTAM curves trend positively, but our method does not
+allow us to statistically distinguish the results.
+Pattern 3: Contamination for cloze tasks More incidentally, we observe a few other profiles, that are
+shared only across a few model-benchmark pairs. One such profile is the one where LONGEST -MATCH
+performs worse than other methods, except at threshold 0. We observe this behavior on HellaSwag
+(Figure 2c) and, to a lesser degree on PIQA, across models. We hypothesise that this behaviour may be a
+result of the fact that both these benchmarks are evaluated in cloze format, by directly comparing the log
+likelihood of the possible answers. Because of that, any occurrence of substrings occurring in the correct
+answer, even if unrelated, may contribute to increasing the likelihood of the correct answer string – a
+hypothesis we explore further (with preliminary evidence) in Figure 12. Especially at non-zero thresholds,
+the LONGEST -MATCH method – which counts only the longest match and thus discounts shorter matches
+stemming from different documents – may thus miss subsequences that contribute to this increase in
+answer likelihood. However, it is somewhat questionable whether the additional matches found by other
+methods at lower thresholds should really be counted as true positives, or are rather reflective of the
+limitations of cloze-style evaluation for LLMs.
+Pattern 4: Normalisation makes a difference A last interesting pattern we observe is the one where
+LONGEST -MATCH and TOKEN -EXTEND perform equally well (within error bars) and better than NGRAM -
+MATCH and TOKEN -MATCH (Figure 2d). We observe this only for Pythia models on TriviaQA, and
+8TriviaQA is another interesting example where the average results in Table 2 paint a somewhat misleading picture. Whereas
+it appears that LONGEST -MATCH finds lower EPG than other methods, in Figure 13, we can see a slightly more nuanced picture:
+for the Llama 1 models, all methods give roughly the same result, whereas for Pythia, LONGEST -MATCH and TOKEN -EXTEND
+are similar but show a quite distinctly different pattern than NGRAM -MATCH and TOKEN -MATCH .
+
+=== PDF PAGE 11 ===
+Benchmark Llama 1 Corpus The Pile
+Method 7B 13B 33B 65B Method 1.4B 6.9B 12B
+Big Bench Hard LONGEST-MATCH 0.05 0.05 0.06 0.05 NGRAM-MATCH 0.04 0.06 0.06
+HumanEval LONGEST-MATCH 0.11 0.11 0.10 0.10 LONGEST-MATCH 0.10 0.11 0.12
+HellaSwag TOKEN-EXTEND 0.26 0.26 0.24 0.24 TOKEN-MATCH 0.20 0.17 0.17
+PIQA TOKEN-MATCH 0.13 0.13 0.13 0.13 TOKEN-MATCH 0.16 0.11 0.11
+MMLU LONGEST-MATCH 0.08 0.09 0.08 0.08 LONGEST-MATCH 0.12 0.12 0.09
+GSM8K LONGEST-MATCH 0.12 0.12 0.10 0.11 LONGEST-MATCH - - -
+MBPP LONGEST-MATCH 0.08 0.08 0.08 0.08 LONGEST-MATCH - - -
+TriviaQA LONGEST-MATCH 0.23 0.21 0.13 0.18 TOKEN-EXTEND 0.35 0.33 0.34
+MATH LONGEST-MATCH 0.20 - 0.18 0.22 LONGEST-MATCH - - -
+Natural Questions TOKEN-MATCH 0.40 - - - TOKEN-MATCH - - 0.35
+Table 3: Optimal contamination metrics per benchmark and pre-training corpus, with optimal model-
+dependent thresholds. Dashes indicate benchmarks where no significant EPG was found for any metric or
+threshold. We omit COPA, SIQA, and DM contest as no significant EPG was found for any model. In most
+cases, TOKEN -MATCH and NGRAM -MATCH perform equally well (within error bars). In those cases, we chose
+TOKEN -MATCH to simplify reporting. We also provide optimal thresholds (based on maximising z-score in ConTAM
+plots) for each model scale (see § 5.2.3 for interpretation). All methods are run with “optimal” hyperparameters
+(n = 8, mincount = 1, skip_budget = 0) – see § 6 for justification.
+7B 13B 30B 70B 1.4B 6.9B 12B
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+77 79 66 80 53 47 40
+44 45 49 50 47 38 35
+76 76 77 77 66 71 71
+68 68 68 68 52 54 54
+79 72 79 79 39 38 53
+53 57 73 64 - - -
+60 58 64 62 - - -
+78 80 82 81 38 43 40
+58 - 64 50 - - -
+53 - - - - - 29
+Llama 1 Pythia
+0
+20
+40
+60
+80
+(a) % Contaminated
+7B 13B 30B 70B 1.4B 6.9B 12B
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+18 20 20 25 4.3 4.6 4.1
+8.9 9.1 12 18 4.3 6.2 7.5
+12 12 12 12 5.6 8.1 8.7
+12 13 10 11 7.8 9.1 8.3
+5.8 7 9.3 10 2.4 2.4 2.8
+3.8 5.4 9.3 8.4 - - -
+6.1 6.1 8.5 8.2 - - -
+5.3 5.3 5.5 4.1 1.7 3.1 3.5
+0.86 - 1.8 2.1 - - -
+2.4 - - - - - 1.3
+Llama 1 Pythia
+0
+5
+10
+15
+20
+25 (b) EPG
+7B 13B 30B 70B 1.4B 6.9B 12B
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+0.23 0.26 0.3 0.31 0.08 0.09 0.1
+0.2 0.2 0.24 0.35 0.09 0.16 0.21
+0.16 0.16 0.16 0.15 0.08 0.12 0.12
+0.17 0.19 0.15 0.16 0.15 0.17 0.15
+0.07 0.09 0.12 0.13 0.06 0.06 0.05
+0.07 0.09 0.13 0.13 - - -
+0.1 0.11 0.13 0.13 - - -
+0.06 0.06 0.06 0.05 0.04 0.07 0.08
+0.01 - 0.02 0.04 - - -
+0.04 - - - - - 0.04
+Llama 1 Pythia
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+0.30
+0.35 (c) EPG per % contam.
+Figure 3: Per model % contaminated and EPG values across benchmarks. Percentage of the dataset marked
+contaminated (a) and corresponding EPG (b) and average gain per % contamination (c) for each of the model-
+benchmark pairs we considered in our study, according to the best contamination metric (see Table 3). Optimal
+thresholds are selected separately for each model-benchmark pair. For COPA, DM Contest, and SiQA no significant
+EPG was found, and they are therefore omitted from the plot.
+hypothesise that it may be that normalisation – not present in the former two methods – may hurt
+contamination detection for this benchmark and pre-training corpus.
+5.2 How much contamination is found and how much does it matter
+The previous section illustrated that while LONGEST -MATCH found overall the most meaningful EPG,
+there is no true ‘one-size-fits-all’ method that clearly performs best across all datasets and models. Now,
+we consider how much contamination there is in the benchmarks we considered using the best metric and
+threshold for each (as reported in Table 3) and how much impact that has on model performances (in the
+form of EPG).
+5.2.1 How contaminated are benchmarks?
+In Figure 3a, we report the per-model values of the percent of each benchmark that is considered
+contaminated according to the best metric, hyperparameter set, and threshold, as reported in Table 3. For
+easier comparison, we also plot the percent of contaminated data and resulting EPG for the largest two
+models of each family in Figure 4a, and the overall distributions in Figure 10a. For COPA, DM Contest,
+and SiQA no significant EPG was found, and we omitted them from these plots.
+
+=== PDF PAGE 12 ===
+From Figure 3a, it is apparent that many of the benchmarks we considered are substantially contaminated
+in the Llama 1 pre-training corpus as well as in the Pile. For 8 of the 13 datasets that we considered, on
+average more than 50% of the samples are marked contaminated for the Llama 1 pre-training corpus.
+Fewer contamination is found for the Pile, though also for that corpus the contamination numbers are
+substantially above zero for 6 out of 13 datasets, with percentages higher than or around 50% for 4
+datasets. In particular Big Bench Hard, HumanEval, HellaSwag, MMLU, PiQA, and TriviaQA show
+substantial contamination levels across both corpora. For MATH, GSM8K, and MBPP, no contamination
+resulting in EPG was found at all for the Pile, whereas contamination percentages in the Llama 1 corpus
+are substantial.9
+0 20 40 60 80 100
+% contaminated
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+Llama 1 corpus
+The Pile
+(a) % Contaminated
+0 5 10 15 20 25
+EPG
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+Llama1 - 70B
+Pythia - 12B (b) EPG
+0.0 0.1 0.2 0.3 0.4
+EPG per % contaminated
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+Llama 1 corpus
+The Pile (c) EPG per % contaminated
+Figure 4: Percent contaminated, EPG and gain per % contaminated for largest models. We show the percent
+of each dataset marked contaminated (a), the corresponding EPG (b), and the gain per % contaminated (c) for
+the largest two model sizes. With the exception of the benchmark Natural Questions, the Llama 1 corpus has
+substantially more contamination than the Pile, and also contamination scores are higher. Furthermore, with the
+exception of TriviaQA, the larger (and better) Llama models are also better able to exploit contamination, as
+indicated by the higher gain per % contaminated plotted in (c).
+5.2.2 Impact of contamination
+Having discussed what level of contamination is found, we now discuss the impact of that contamination
+and how that varies per model size and benchmark. We show the across model EPGs in Figure 3b and
+again show also results for the largest two models in Figure 4b. In both figures, we can see that not only
+the contamination percentages are larger in the Llama 1 corpus, but also the impact of the contamination
+is higher. For the largest Llama model, both HumanEval and Big Bench Hard have an estimated increase
+in performance of more than 15% (18% and 25%, respectively). Three additional datasets (HellaSwag,
+MMLU, and PiQA) have an EPG of 10 points or higher. For the smaller Pythia models, these numbers are
+substantially lower, ranging between 2 and 8 approximately. A reasonable hypothesis for this difference
+could be that substantially more contamination was in fact found in the Llama 1 corpus. However, as we
+can see in Figure 3c as well as Figure 4c, this offers only part of the explanation: the Llama models (with
+some exceptions) seem to generally be better at exploiting the contaminated examples, as illustrated by
+the higher gain they exhibit after normalising for the size of the contamination. This difference may also
+explain the fact that for GSM8K, MBPP, and MATH, significant EPGs were found only in the LLama
+series of models (and not the Pythia series). As can be seen in Figure 13, this is not because the corpus
+was free from matching n-grams: in the most lenient settings, up to around 90% of the dataset could be
+marked contaminated. However, while the contamination was exploited by the Llama 1 models, it did not
+result in any significant EPG for the Pythia models. In upcoming sections, we will further discuss the
+9MATH provides another example where taking max and average numbers hides underlying patterns. As can be seen in
+Figure 13, row 6, LONGEST -MATCH (red in the plot), provides a stable signal for Llama 33 and 65B. For Llama 7B and 13B,
+however, EPG only very slightly climbs when false positive examples are moved from the clean to contaminated set. For 13B, no
+single point estimate provides a significant z-score, while for 8B there is such a point estimate. Our z-score analysis, in this case,
+gives the impression that there is a vast difference between the 7B and 13B model. In contrast, the plot illustrates that the effect
+of the detected contamination is in fact very similar.
+
+=== PDF PAGE 13 ===
+Llama 1
+65B 33B 13B 7B
+0 25 50 75 100
+% of dataset marked contaminated
+-20
+0
+20
+40EPG
+0.079
+0.080
+0.094
+0.079
+MMLU
+(a)
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15
+0.110
+0.101
+0.117
+0.122
+GSM8K (b)
+0 25 50 75 100
+% of dataset marked contaminated
+-2
+0
+2
+3
+6
+8
+0.183
+0.130
+0.205
+0.228
+TriviaQA (c)
+Figure 5: Example scaling behaviours for Llama models. Dotted lines indicate optimal contamination thresholds
+for each model size, chosen to maximize z-score. In (a), we see a shift primarily upwards, suggesting that larger
+models are better able to exploit contamination. In (b), instead, we see how contamination curves shift up and to the
+right as the model size grows, indicating that larger models benefit from examples that look like false positives for
+smaller models. Lastly, in (c), we see the opposite case, where smaller models benefit more from contamination.
+We hypothesis that this is because larger models have high scores even on the clean partitions, and there is thus little
+room for improvement.
+relationship between model scale and ability to exploit contamination.
+5.2.3 EPG across model scale
+In Figure 3 as well as Figure 4, we have seen that, for most benchmarks, the Llama 1 models profit more
+from contamination than the Pythia models, both in absolute and proportional terms. Given that the Llama
+models generally also outperform the Pythia models (see Figure 11), we hypothesise that the reason of
+this increased profit is that larger (or better) models may be better able to exploit contamination. To
+qualitatively study the relationship between model size and ability to exploit contamination, we consider
+ConTAM plots for both model sizes in which we compare how EPG develops with the percent of the dataset
+marked contaminated by the LONGEST -MATCH method, across model sizes. In Figure 8 and Figure 9, we
+show results for all benchmarks, for both model series. We see various different patterns, that we discuss
+next using a few representative examples shown in Figure 5.
+Cases where larger models exploit contamination more For around half of the model-benchmark
+pairs, there is a clear trend in which larger models appear to benefit more from contaminated examples. In
+Figure 5b, for example, we see that, for the Llama 1 series, the larger the model, the more it benefits from
+contamination, as exemplified by the positive y-shift in EPG scores for the same amount of contamination.
+For Llama 1, we observe this pattern also for MATH, HumanEval, MMLU and – to a lesser extent –
+BIG-Bench Hard; for the Pythia models, we see it for HumanEval, Natural Questions, TriviaQA, MBPP,
+and HellaSwag. In some cases, the optimal threshold does not change much (e.g. it hovers at ≈0.08
+for MMLU, Llama 1), indicating that the same examples provide useful across model sizes, but larger
+models are simply better at exploiting them. A perhaps more interesting case occurs when there is not
+only a positive shift on the y-axis, but also on the x-axis: for Llama 1, on some benchmarks, such as
+GSM8K (Figure 5a) and HumanEval, the contamination curves shift up and to the right, indicating that
+larger models can exploit examples that may look like false positives for smaller models.10 For the Pythia
+10An example could be the GSM8K question “Henry needs to assemble some toys, specifically 57 cars and 73 motorcycles.
+Henry knows that to assemble all the toys he will need 4 wheels for each car and 2 wheels for each motorcycle. How many
+wheels will be left if he has a box with 650 wheels in it?” with a contamination score of 0.115. Llama 33B and 65B get this
+correct, but Llama 7B and 13B get it incorrect. The closest longest match in pre-training is "[84] cars and 73 motorcycles." (the
+brackets indicate a mismatch that stops the extension). Generally, we note it is difficult to “conclude” whether a contaminated
+substring is a true positive (given the inherent noise in language model evaluations) but we include this example as we find it
+unlikely that such strings are false positives, and performance on this data point indicates a true positive. Our primary approach
+
+=== PDF PAGE 14 ===
+0 50 100
+% of benchmark marked
+ contaminated
+0
+10EPG
+PiQA, Llama 1 65B
+n
+8
+10
+13
+20
+Question: Neatly wrap up an
+extension cord. Answer: Wrap the
+cord around your hand and elbow.
+Question: Extend life of flowers in
+vase. Answer: Add small amount
+of 7UP in vase.
+Question: Neatly wrap up an
+extension cord. Answer: Wrap the
+cord around your hand and elbow.
+Question: Extend life of flowers in
+vase. Answer: Add small amount
+of 7UP in vase.
+Question: how do you put
+eyelashes on? Answer: put
+eyelash glue on the fake
+eyelashes and then let it get tacky.
+then, place it on top of your actual
+eyelashes and let it dry on.
+Question: how do you put
+eyelashes on? Answer: put
+eyelash glue on the fake
+eyelashes and then let it get tacky.
+then, place it on top of your actual
+eyelashes and let it dry on.
+No
+contamination
+False
+negative 
+(at n=10)
+Differential
+contamination
+(at n=10)
+n = 8 n = 10
+a) b)
+False
+negatives
+(at n > 8)
+Figure 6: Impact of n. On the left, we show a ConTAM plot for the NGRAM -MATCH metric, for Llama 1 65 B on
+PiQA, for four values of n, with mincount fixed at 1. This plot highlights the importance of using small n for
+this NGRAM -MATCH method, highlighting how at values of n > 8 many false negatives are seen. For example,
+only 33.8% of examples have nonzero contamination scores at n = 10 while 67.9% have nonzero contamination
+scores n = 8. These additional examples are classified as false negatives since they also correspond to EPG. On the
+right, we see some example prompts from PiQA, with contaminated substrings highlighted in red. These example
+illustrate how a simple choice, such as changing n can have varied effects on contamination scores (top row: no
+change, middle row: contamination where there seemed to be none, bottom row: significantly more contamination
+than there may have seemed).
+models, we do not observe such an effect for any benchmark, and we hypothesise that their overall quality
+(see Figure 11) may be too low to benefit in a way similar to the largest Llama models.
+Cases where smaller models exploit contamination more A second pattern we observe is the exact
+opposite: for TriviaQA (Figure 5c), HellaSwag, COPA, and PiQA, larger Llama 1 models benefit less
+from contamination.We hypothesise that this may be because the larger Llama1 models perform very
+well on those benchmarks even without contamination, leaving less room for improvement exploiting
+contaminated examples. Figure 11, showing that the four previously mentioned benchmarks are indeed
+the highest performing ones for Llama 1, provides further evidence for this hypothesis. Apart from Big
+Bench Hard, which appears to be an outlier, we do not observe this pattern for the Pythia models.
+No effect Lastly, for some benchmarks, there is virtually no effect. In particular, for PiQA, HellaSwag,
+and Natural Questions, Llama 1 models have quite similar contamination curves; the same is true for
+GSM8K and PiQA.
+Conclusion In sum, while there may be cases in which larger models can exploit contamination better,
+the extent to which contamination can be exploited – evidently – interacts with scale and/or how well a
+model can perform on a task by generalising from un-contaminated data. Drawing overall conclusions
+around the impact of contamination across model sizes may therefore prove difficult, and we suggest
+that running separate threshold analyses for each model size is valuable to estimate the true impact of
+contamination.
+6 Analysis of parameter choices
+In the previous section, we presented an overview of which metrics perform well and when, but without
+considering specific hyperparameter choices. Here, we compare the impact of various parameters for the
+metrics we considered, such as the value of skip_budget where relevant (§ 6.2), the size of n (§ 6.1), and
+how frequent contamination is in the pre-training corpus (§ 6.3). In Figure 12, we also provide a brief
+analysis of the impact of the location of the contamination in the sample.
+
+=== PDF PAGE 15 ===
+Llama 1 The Pile
+DM Contest 0.987 0.988
+Big Bench Hard 0.995 0.997
+Natural Questions 0.986 0.997
+TriviaQA 0.978 0.989
+GSM8K 0.985 0.992
+MATH 0.979 0.985
+HumanEval 0.986 0.987
+MBPP 0.994 0.997
+COPA 0.992 0.997
+HellaSwag 0.989 0.995
+PIQA 0.996 0.997
+SIQA 0.994 0.997
+MMLU 0.991 0.993
+(a)
+0 50 100
+ % of benchmark marked contaminated
+0
+10EPG
+PiQA, Llama 1 65B
+mincount
+1
+5
+10
+20
+100 (b)
+Figure 7: Spearman rank correlations for TOKEN -EXTEND and impact of mincount. (a) Spearman rank
+correlations (ρ) between the ordering of examples for each benchmark and pre-training corpus when using TOKEN -
+EXTEND with skip_budget = 5 vs skip_budget = 0. (b) ConTAM plot showing the impact of mincount for PiQA,
+Llama 1 65B for the NGRAM -MATCH metric.
+6.1 The impact of n
+First, we consider one of the most important parameters in n-gram based overlap methods: the value of n
+used in the experiments. Prior work has simply chosen a value for this hyperparameter. Here, we analyse
+its effect by considering n ∈ {8, 10, 13, 20}. Specifically, we use ConTAM to understand how the value of
+n impacts the resulting EPG. We show the results in Figure 14 and Figure 15 for all model-benchmark
+combinations for the NGRAM -MATCH and LONGEST -MATCH metrics, respectively. We find that, almost
+across the board, values of n larger than 8 lead to false negatives (examples that result in increased EPG
+but are not identified as contaminated for higher values of n). To exemplify this, we provide a worked-out
+example in Figure 6, for the NGRAM -MATCH metric. For n ∈ {10, 13, 20}, the number of contaminated
+examples never exceeds 10%, 20%, and 40%, respectively, even at the lowest threshold, and the maximum
+EPG that is found for Llama 1 65B is around 4. As we move to n = 8, we can see that both the percent of
+the benchmark it marks contaminated and the resulting EPG increase, indicating that many examples are
+found that were labeled clean when using n=10 or larger, but that do result in increased EPGs. We find
+similar trends across most benchmarks and models.
+6.2 Impact of the skip budget
+Both the LONGEST -MATCH and TOKEN -EXTEND methods rely on a skip budget, which allows for minor
+differences within the matched substrings. Here, we investigate the impact of the size of this skip
+budget on the results. Surprisingly, we find that specific choice of skip_budget to make little-to-no
+difference (Figure 17). While the precise scores assigned to individual examples do change – as one
+would expect, the scores are higher for higher values of skip_budget, see Table 6 – the overall effect
+on EPG seems largely the same. This may seem counterintuitive, but makes sense considering that the
+overall ordering of points remains largely the same. We quantify this intuition in Figure 7a by computing
+the Spearman rank correlation (ρ) between the ordering of data points when using contamination scores
+with skip_budget = 0 and 5, finding that all these correlations are extremely high. We suspect this is
+due to the fact that skip_budget only accounts for substitutions – ideally, a more sophisticated matching
+algorithm would have a budget for insertions or deletions, and thus better be able to account for inserted
+content in evaluation samples (as compared to their possible “raw” contaminations in pre-training data).
+for quantifying contamination relies on groupings of data points, avoiding these individual noisy estimates.
+
+=== PDF PAGE 16 ===
+6.3 The frequency of contamination in the pre-training corpus
+In computing contamination scores, we generally do not consider how often a particular match occurs in
+the pre-training corpus. Yet, it is reasonable to assume that if an example (partly) occurs once in a very
+large corpus, that is more difficult to exploit than if it occurs multiple times. To investigate this hypothesis,
+we compare the NGRAM -MATCH method across various mincounts, that specify how often a match
+should minimally occur in the training corpus to count.11 Somewhat surprisingly, we find that, similarly
+to the finding of using small n, setting mincount to values higher than 1 results may exclude examples
+that do have a real increase in performance as a consequence (see Figure 7b for a representative example).
+We generally find similar behaviours (see Figure 16 for a plot containing the full sweeps) to the case of
+decreasing n, indicating that higher mincount values also simply lead to more false negatives (or have
+no effect). Overall, these two findings point to the fact that prior works using the NGRAM -MATCH method
+(Brown et al., 2020; Chowdhery et al., 2023) are likely too strict in what they mark as contamination,
+which may explain why they seemed to find that contamination has little effect.
+7 Conclusion
+In this paper, we presented an elaborate investigation into evaluation data contamination, with a special
+focus on how the choice of contamination metrics and its hyperparameters impact conclusions about
+contamination levels and their impact. Specifically, we conduct a study in which we compare four
+contamination metrics – three from the literature and one new – that define contamination in terms of
+overlapping n-gram spans (termed “matches”) between a sample in the evaluation benchmark and the
+pre-training corpus. We analyse these metrics across 5 parameter settings, on 13 benchmarks, for 7
+models of various sizes trained from 2 pre-training corpora.
+7.1 Methodology
+To quantitatively compare metrics, we consider theestimated performance gain (EPG) that they predict
+from the detected contamination, operating under the assumption that a useful contamination metric
+flags contamination that has an actual impact on model performance. In our comparisons, we rely on a
+quantification of the statistical difference between score distributions on the full benchmark and the subset
+marked by the various metrics as non-contaminated as measured with z-scores, supplemented by a novel
+method we call the Contamination Threshold Analysis Method (ConTAM). Where the former allows for a
+numerical comparison between metrics and/or hyperparameters, the latter provides a qualitative insight in
+how different contamination metrics and hyperparameter order samples from least to most contaminated,
+illustrating differences that a pure numeric approach would not reveal.
+7.2 Summary of results
+Using these two methods, we conduct extensive experimentation across metrics and corresponding hyper-
+parameter choices. In our investigation, we first consider if there is any best metric, across benchmarks
+and models, which we discuss in § 5.1. In this section, we discuss different patterns across benchmarks
+and models. Our main conclusions are that our novel LONGEST -MATCH metric, which considers only
+the longest overlapping substring rather than a union of all of them, provides a stable signal across the
+board. In some cases, its results are comparable with the other metrics with best hyperparameter settings;
+in others, the metric is able to find contamination that no other metric could. We also show how good
+threshold selection can help minimise the false positives and negatives given a fixed contamination metric.
+Then, in § 5.2, we report contamination results for the 13 benchmarks we consider, for seven different
+models consisting of four Llama 1 and three Pythia models. For each model, benchmark pair, we report
+results for the metric that finds the most meaningful EPG according to our analysis metrics, with optimal
+hyperparameters (which metric that is and with which thresholds can be found in Table 3). One of our
+main findings in that section is that the impact of evaluation data contamination has been underestimated
+11Note that mincount is hard to define for TOKEN -EXTEND and LONGEST -MATCH . If an extension of twice the length
+appears once, but the seed string of half the length appears 10 times, which one should we use in generating a contamination
+score? We leave such investigations to future work.
+
+=== PDF PAGE 17 ===
+in many prominent LLM releases (Figure 3, 4 and 10, among others). While previous work often reported
+substantial amounts of contamination (see Table 4, column 5), they also note that the impact of this
+contamination on benchmark scores is negligible or even negative (Table 4, column 6). Our work shows
+that these results are likely driven by too many false positives or negatives in the detected contamination,
+resulting from suboptimal (parameter selection in the chosen) contamination metrics.
+Lastly, in § 6, we investigate the effect of various metric parameters on the detected levels of contami-
+nation and their impact. We find that using smaller values ofn gives better results across the board (§ 6.1):
+using values of n larger than 8 increased the number of false negatives for virtually all benchmarks (and
+across metrics). Somewhat surprisingly, we find that the same is true for the mincount parameter that
+specifies what the minimal occurrence of an overlapping string in the pre-training data should be for it to
+count as contaminated (§ 6.3). While it stands to reason to think that the frequency of an overlapping
+string has an impact on the extent to which it influences benchmark scores, in all experiments we did,
+discounting overlapping strings that occurred more than once increased the number of false negatives
+more than it reduced the number of false positives. Lastly, in § 6.2, we studied the impact of the skip
+budget in the TOKEN -EXTEND metric and found that it has little impact.
+7.3 Recommendations for contamination analysis
+Our investigation gives a nuanced account of contamination and its impact, showing how the impact of
+contamination differs across models and sizes and that something that is beneficial for one model may not
+be for another. At the same time, the results do paint a consistent picture: the ‘best’ method is consistent
+across model families and sizes, the optimal threshold is substantially more stable within than across
+benchmarks (std 0.02 within benchmark vs 0.1 across benchmark means), and there are virtually no cases
+in which the overall best method is substantially worse any of the other methods we considered. These
+consistencies make it thus easy to provide concrete suggestions for doing contamination analysis:
+1. Running multiple contamination metrics is preferred, but if you only run one, use LONGEST -MATCH ;
+2. Use z-scores supplemented by ConTAM to do benchmark specific threshold selection. This is cheap,
+as it can be done post-hoc;
+3. Report % contaminated, EPG and the selected thresholds. If space allows, show also ConTAM plots
+for further context.
+If possible, supplementing this with manual analysis to check which samples are flagged is preferred. We
+hope our work encourages more consistent reporting of the effects of contamination on LLMs.
+8 Discussion
+In this work, we proposed to compare contamination metrics post-hoc through the effect that the samples
+they detect have on benchmark performance. This proposal is based on several assumptions. In this last
+section, we discuss those assumptions and their limitations in more detail.
+8.1 No effect =? no contamination
+One of the most central assumptions underpinning our methodology is that useful contamination metrics
+detect contamination that has an actual impact on performance.While this standpoint is very defendable
+from an evaluation perspective – if contamination has no impact on model performance, it arguably does
+not matter much for how we interpret benchmark scores – it also has some clear limitations. Specifically,
+there is a range of conclusions that cannot be drawn using our methodology.
+First, ConTAM does not allow to detect contamination if too little or too much of the benchmark is
+marked as contaminated. Both when the clean set is too small or the contaminated set is too small, it is not
+possible to get a statistically significant signal on the difference between the full benchmark and the clean
+partition. This implies that if almost all of a benchmark is marked contaminated, our method cannot be
+used to determine whether those samples are true or false positives. Additional analysis, such as manual
+inspection of the samples or perhaps approaches that directly address memorisation (see § 2.3) would be
+needed in such a case.
+
+=== PDF PAGE 18 ===
+Second, because it directly links contamination to its impact, our method does not directly allow for the
+(possible) conclusion that contamination has no impact on model scores. In our work, there were some
+cases where large percentages of contamination without any EPG, such as for the benchmarks MATH,
+GSM8K and MBPP for the Pythia models. With our methodology, those examples are considered to be
+false positives. It is, however, also possible that the Pythia models are simply not able to benefit from
+the contaminated examples, perhaps because they lack the capacity to memorise the examples. While
+this may not matter from a practical perspective, it is scientifically interesting to consider the impact of
+contamination and levels of contamination separately. Doing so would require other methods than the one
+proposed in this paper.
+Lastly, it is important to note that our method is only suitable to compare metrics that are a priori
+likely to capture forms of contamination. Doing a gridsearch through metrics that are not may result in
+preferring metrics that flag examples that are easy and therefore have better scores.12 On the other hand
+of the spectrum, metrics that are too lenient may detect pre-training data that is beneficial for a model
+because they facilicate generalisation. Any trained model that performs better on a benchmark than a
+random model must have necessarily inferred its ability from somewhere in the training corpus, and the
+pre-training data that it used to do so is not always to be considered contamination. We will further discuss
+this in the next subsection.
+8.2 Text-based vs embedding based
+In our work, we considered only text-based contamination metrics. Such metrics are limited in the type of
+contamination that they can detect. Specifically, they cannot detect types of contamination that consist of
+paraphrases of benchmark examples, and they are sensitive to minor perturbations in the prompt.13 In
+our piloting stage, we conducted a small-scale experiment in which we used similarity search (Douze
+et al., 2024) to detect contaminated examples. In this pilot, we embedded a subset of the training corpus
+and used product quantisation (Jégou et al., 2011) to partition the training corpus embeddings according
+to the subvector centroids of the quantizer, analogously to the n-gram matching approach, in order to
+bypass indexing the embeddings. Our experiments showed that using similarity search is feasible to
+detect similar samples. However, the initial approach suffered from recall issues, and further studies are
+required to determined the optimal set up. Furthermore, using embedding-based approaches may make it
+more challenging to distinguish examples that contribute to generalisation from examples that contribute
+to memorisation. Consider, for instance, the case of factual knowledge tasks: to perform well on such
+tasks, the knowledge needs to be in the training data in some form or another. While a verbatim copy of
+the evaluation question should be considered contamination, other semantically similar phrases should
+likely not be and are valuable for knowledge intensive tasks.. Nevertheless, we believe that comparing
+embedding- and text-based approaches and their differences is an interesting direction to explore in future
+work. Especially supplementing the two approaches could lead to new scientific insights, not only related
+to evaluation data contamination, but also more broadly to the relationship between pre-training data and
+model outputs.
+8.3 Post-hoc vs causal contamination
+Lastly, in our work, we adopted a post-hoc approach to contamination detection. All our analyses are
+thus fundamentally correlational. An interesting experiment to supplement our analysis and judge the
+extent to which it is obfuscated by confounds would be to do a causal intervention to study if removing
+the contaminated examples does in fact lead to a comparably lower score. However, causal contamination
+experiments are expensive, as they require re-training a model. Especially given our results in § 5.2.3,
+which indicate that contamination effects may vary which scale, such experiments would likely have
+to be conducted at scale, further increasing their cost. While some work has considered finetuning on
+benchmarks to get some notion of causal effects (e.g. Jiang et al., 2024), the connection to at-scale
+pre-training is still missing.
+12Though it is relatively unlikely that such a protocol would lead to a metric that generalises across benchmarks.
+13The skip budget accounts for this, to some extent, but is nevertheless limited because it allows for substitutions only, not
+insertions, and was shown to have little impact in our experiments.
+
+=== PDF PAGE 19 ===
+8.4 Pre- vs post-trained models
+In our work, we focused only on pre-trained models. Post-training methods such as SFT and RLHF as
+well as test-time methods that work on model inference are known to change model behaviour, which can
+potentially also impact how models can benefit from knowledge in the pre-training corpus. We consider a
+study into the effects of contamination in post-trained models as an interesting direction for future work.
+9 Acknowledgements
+We thank Lovish Madaan for help with debugging experiments. We thank Wojciech Galuba for the ground
+work on setting up the code base for running text-based overlap metrics before this project started. We
+thank Andrew Saxe for his support on the project.
+References
+Rohan Anil, Andrew M. Dai, Orhan Firat, Melvin Johnson, Dmitry Lepikhin, Alexandre Passos, Siamak Shakeri,
+Emanuel Taropa, Paige Bailey, Zhifeng Chen, Eric Chu, Jonathan H. Clark, Laurent El Shafey, Yanping Huang,
+Kathy Meier-Hellstern, Gaurav Mishra, Erica Moreira, Mark Omernick, Kevin Robinson, Sebastian Ruder,
+Yi Tay, Kefan Xiao, Yuanzhong Xu, Yujing Zhang, Gustavo Hernández Ábrego, Junwhan Ahn, Jacob Austin,
+Paul Barham, Jan A. Botha, James Bradbury, Siddhartha Brahma, Kevin Brooks, Michele Catasta, Yong Cheng,
+Colin Cherry, Christopher A. Choquette-Choo, Aakanksha Chowdhery, Clément Crepy, Shachi Dave, Mostafa
+Dehghani, Sunipa Dev, Jacob Devlin, Mark Díaz, Nan Du, Ethan Dyer, Vladimir Feinberg, Fangxiaoyu Feng,
+Vlad Fienber, Markus Freitag, Xavier Garcia, Sebastian Gehrmann, Lucas Gonzalez, and et al. 2023. Palm 2
+technical report. CoRR, abs/2305.10403.
+Jacob Austin, Augustus Odena, Maxwell Nye, Maarten Bosma, Henryk Michalewski, David Dohan, Ellen Jiang,
+Carrie Cai, Michael Terry, Quoc Le, and Charles Sutton. 2021. Program synthesis with large language models.
+Preprint, arXiv:2108.07732.
+Simone Balloccu, Patrícia Schmidtová, Mateusz Lango, and Ond ˇrej Dušek. 2024. Leak, cheat, repeat: Data
+contamination and evaluation malpractices in closed-source llms. Preprint, arXiv:2402.03927.
+Youssef Benchekroun, Megi Dervishi, Mark Ibrahim, Jean-Baptiste Gaya, Xavier Martinet, Grégoire Mialon,
+Thomas Scialom, Emmanuel Dupoux, Dieuwke Hupkes, and Pascal Vincent. 2023. Worldsense: A synthetic
+benchmark for grounded reasoning in large language models. CoRR, abs/2311.15930.
+Stella Biderman, Hailey Schoelkopf, Quentin Anthony, Herbie Bradley, Kyle O’Brien, Eric Hallahan, Moham-
+mad Aflah Khan, Shivanshu Purohit, USVSN Sai Prashanth, Edward Raff, Aviya Skowron, Lintang Sutawika,
+and Oskar van der Wal. 2023. Pythia: A suite for analyzing large language models across training and scaling.
+Preprint, arXiv:2304.01373.
+Yonatan Bisk, Rowan Zellers, Ronan Le Bras, Jianfeng Gao, and Yejin Choi. 2020. PIQA: reasoning about physical
+commonsense in natural language. In The Thirty-Fourth AAAI Conference on Artificial Intelligence, AAAI, pages
+7432–7439. AAAI Press.
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakan-
+tan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-V oss, Gretchen Krueger, Tom
+Henighan, Rewon Child, Aditya Ramesh, Daniel Ziegler, Jeffrey Wu, Clemens Winter, Chris Hesse, Mark Chen,
+Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher Berner, Sam McCandlish,
+Alec Radford, Ilya Sutskever, and Dario Amodei. 2020. Language models are few-shot learners. In Advances in
+Neural Information Processing Systems, volume 33, pages 1877–1901. Curran Associates, Inc.
+Nicholas Carlini, Daphne Ippolito, Matthew Jagielski, Katherine Lee, Florian Tramer, and Chiyuan Zhang. 2023.
+Quantifying memorization across neural language models. In The Eleventh International Conference on Learning
+Representations.
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de Oliveira Pinto, Jared Kaplan, Harri
+Edwards, Yuri Burda, Nicholas Joseph, Greg Brockman, Alex Ray, Raul Puri, Gretchen Krueger, Michael
+Petrov, Heidy Khlaaf, Girish Sastry, Pamela Mishkin, Brooke Chan, Scott Gray, Nick Ryder, Mikhail Pavlov,
+Alethea Power, Lukasz Kaiser, Mohammad Bavarian, Clemens Winter, Philippe Tillet, Felipe Petroski Such,
+Dave Cummings, Matthias Plappert, Fotios Chantzis, Elizabeth Barnes, Ariel Herbert-V oss, William Hebgen
+Guss, Alex Nichol, Alex Paino, Nikolas Tezak, Jie Tang, Igor Babuschkin, Suchir Balaji, Shantanu Jain, William
+Saunders, Christopher Hesse, Andrew N. Carr, Jan Leike, Josh Achiam, Vedant Misra, Evan Morikawa, Alec
+
+=== PDF PAGE 20 ===
+Radford, Matthew Knight, Miles Brundage, Mira Murati, Katie Mayer, Peter Welinder, Bob McGrew, Dario
+Amodei, Sam McCandlish, Ilya Sutskever, and Wojciech Zaremba. 2021. Evaluating large language models
+trained on code. Preprint, arXiv:2107.03374.
+Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham,
+Hyung Won Chung, Charles Sutton, Sebastian Gehrmann, Parker Schuh, Kensen Shi, Sasha Tsvyashchenko,
+Joshua Maynez, Abhishek Rao, Parker Barnes, Yi Tay, Noam Shazeer, Vinodkumar Prabhakaran, Emily Reif,
+Nan Du, Ben Hutchinson, Reiner Pope, James Bradbury, Jacob Austin, Michael Isard, Guy Gur-Ari, Pengcheng
+Yin, Toju Duke, Anselm Levskaya, Sanjay Ghemawat, Sunipa Dev, Henryk Michalewski, Xavier Garcia, Vedant
+Misra, Kevin Robinson, Liam Fedus, Denny Zhou, Daphne Ippolito, David Luan, Hyeontaek Lim, Barret
+Zoph, Alexander Spiridonov, Ryan Sepassi, David Dohan, Shivani Agrawal, Mark Omernick, Andrew M. Dai,
+Thanumalayan Sankaranarayana Pillai, Marie Pellat, Aitor Lewkowycz, Erica Moreira, Rewon Child, Oleksandr
+Polozov, Katherine Lee, Zongwei Zhou, Xuezhi Wang, Brennan Saeta, Mark Diaz, Orhan Firat, Michele Catasta,
+Jason Wei, Kathy Meier-Hellstern, Douglas Eck, Jeff Dean, Slav Petrov, and Noah Fiedel. 2023. Palm: Scaling
+language modeling with pathways. J. Mach. Learn. Res., 24:240:1–240:113.
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert,
+Jerry Tworek, Jacob Hilton, Reiichiro Nakano, Christopher Hesse, and John Schulman. 2021. Training verifiers
+to solve math word problems. Preprint, arXiv:2110.14168.
+Matthijs Douze, Alexandr Guzhva, Chengqi Deng, Jeff Johnson, Gergely Szilvasy, Pierre-Emmanuel Mazaré, Maria
+Lomeli, Lucas Hosseini, and Hervé Jégou. 2024. The faiss library. Preprint, arXiv:2401.08281.
+Nan Du, Yanping Huang, Andrew M. Dai, Simon Tong, Dmitry Lepikhin, Yuanzhong Xu, Maxim Krikun, Yanqi
+Zhou, Adams Wei Yu, Orhan Firat, Barret Zoph, Liam Fedus, Maarten Bosma, Zongwei Zhou, Tao Wang,
+Yu Emma Wang, Kellie Webster, Marie Pellat, Kevin Robinson, Kathleen S. Meier-Hellstern, Toju Duke, Lucas
+Dixon, Kun Zhang, Quoc V . Le, Yonghui Wu, Z. Chen, and Claire Cui. 2021. Glam: Efficient scaling of language
+models with mixture-of-experts. ArXiv, abs/2112.06905.
+Michael Duan, Anshuman Suri, Niloofar Mireshghallah, Sewon Min, Weijia Shi, Luke Zettlemoyer, Yulia Tsvetkov,
+Yejin Choi, David Evans, and Hannaneh Hajishirzi. 2024. Do membership inference attacks work on large
+language models? Preprint, arXiv:2402.07841.
+Yanai Elazar, Akshita Bhagia, Ian Magnusson, Abhilasha Ravichander, Dustin Schwenk, Alane Suhr, Evan Pete
+Walsh, Dirk Groeneveld, Luca Soldaini, Sameer Singh, Hannaneh Hajishirzi, Noah A. Smith, and Jesse Dodge.
+2024. What’s in my big data? In The Twelfth International Conference on Learning Representations, ICLR 2024,
+Vienna, Austria, May 7-11, 2024. OpenReview.net.
+Gemini Team. 2024a. Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context.
+Preprint, arXiv:2403.05530.
+Gemini Team. 2024b. Gemini: A family of highly capable multimodal models. Preprint, arXiv:2312.11805.
+Shahriar Golchin and Mihai Surdeanu. 2023a. Data contamination quiz: A tool to detect and estimate contamination
+in large language models. ArXiv, abs/2311.06233.
+Shahriar Golchin and Mihai Surdeanu. 2023b. Time travel in llms: Tracing data contamination in large language
+models. Preprint, arXiv:2308.08493.
+Andrew S. Gordon, Zornitsa Kozareva, and Melissa Roemmele. 2011. Choice of plausible alternatives: An evalua-
+tion of commonsense causal reasoning. In AAAI Spring Symposium: Logical Formalizations of Commonsense
+Reasoning.
+Valentin Hartmann, Anshuman Suri, Vincent Bindschaedler, David Evans, Shruti Tople, and Robert West. 2023.
+Sok: Memorization in general-purpose large language models. Preprint, arXiv:2310.18362.
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2021a.
+Measuring massive multitask language understanding. Preprint, arXiv:2009.03300.
+Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Tang, Dawn Song, and Jacob
+Steinhardt. 2021b. Measuring mathematical problem solving with the math dataset. Preprint, arXiv:2103.03874.
+Alon Jacovi, Avi Caciularu, Omer Goldman, and Yoav Goldberg. 2023. Stop uploading test data in plain text:
+Practical strategies for mitigating data contamination by evaluation benchmarks. In Proceedings of the 2023
+Conference on Empirical Methods in Natural Language Processing, pages 5075–5084, Singapore. Association
+for Computational Linguistics.
+
+=== PDF PAGE 21 ===
+Minhao Jiang, Ken Ziyu Liu, Ming Zhong, Rylan Schaeffer, Siru Ouyang, Jiawei Han, and Sanmi Koyejo. 2024.
+Investigating data contamination for pre-training language models. Preprint, arXiv:2401.06059.
+Mandar Joshi, Eunsol Choi, Daniel Weld, and Luke Zettlemoyer. 2017. TriviaQA: A large scale distantly supervised
+challenge dataset for reading comprehension. In Proceedings of the 55th Annual Meeting of the Association for
+Computational Linguistics (Volume 1: Long Papers), pages 1601–1611, Vancouver, Canada. Association for
+Computational Linguistics.
+Herve Jégou, Matthijs Douze, and Cordelia Schmid. 2011. Product quantization for nearest neighbor search. IEEE
+Transactions on Pattern Analysis and Machine Intelligence, 33(1):117–128.
+Richard M. Karp and Michael O. Rabin. 1987. Efficient randomized pattern-matching algorithms. IBM J. Res. Dev.,
+31:249–260.
+Tom Kwiatkowski, Jennimaria Palomaki, Olivia Redfield, Michael Collins, Ankur Parikh, Chris Alberti, Danielle
+Epstein, Illia Polosukhin, Jacob Devlin, Kenton Lee, Kristina Toutanova, Llion Jones, Matthew Kelcey, Ming-Wei
+Chang, Andrew M. Dai, Jakob Uszkoreit, Quoc Le, and Slav Petrov. 2019. Natural questions: A benchmark for
+question answering research. Transactions of the Association for Computational Linguistics, 7:452–466.
+Nathan Lambert. 2024. All data contamination in post-training/rlhf is downstream of sharegpt.
+Jon M. Laurent, Joseph D. Janizek, Michael Ruzo, Michaela M. Hinks, Michael J. Hammerling, Siddharth
+Narayanan, Manvitha Ponnapati, Andrew D. White, and Samuel G. Rodriques. 2024. Lab-bench: Measuring
+capabilities of language models for biology research. Preprint, arXiv:2407.10362.
+Yujia Li, David Choi, Junyoung Chung, Nate Kushman, Julian Schrittwieser, Rémi Leblond, Tom Eccles, James
+Keeling, Felix Gimeno, Agustin Dal Lago, Thomas Hubert, Peter Choy, Cyprien de Masson d’Autume, Igor
+Babuschkin, Xinyun Chen, Po-Sen Huang, Johannes Welbl, Sven Gowal, Alexey Cherepanov, James Molloy,
+Daniel J. Mankowitz, Esme Sutherland Robson, Pushmeet Kohli, Nando de Freitas, Koray Kavukcuoglu, and
+Oriol Vinyals. 2022. Competition-level code generation with alphacode. Science, 378(6624):1092–1097.
+Lovish Madaan, Aaditya K. Singh, Rylan Schaeffer, Andrew Poulton, Sanmi Koyejo, Pontus Stenetorp, Sha-
+ran Narang, and Dieuwke Hupkes. 2024. Quantifying variance in evaluation benchmarks. Preprint,
+arXiv:2406.10229.
+Fatemehsadat Mireshghallah, Kartik Goyal, Archit Uniyal, Taylor Berg-Kirkpatrick, and Reza Shokri. 2022. Quanti-
+fying privacy risks of masked language models using membership inference attacks. Preprint, arXiv:2203.03929.
+OpenAI. 2023. Gpt-4 technical report. Preprint, arXiv:2303.08774.
+Yonatan Oren, Nicole Meister, Niladri Chatterji, Faisal Ladhak, and Tatsunori B. Hashimoto. 2023. Proving test set
+contamination in black box language models. Preprint, arXiv:2310.17623.
+Guilherme Penedo, Hynek Kydlíˇcek, Loubna Ben allal, Anton Lozhkov, Margaret Mitchell, Colin Raffel, Lean-
+dro V on Werra, and Thomas Wolf. 2024. The fineweb datasets: Decanting the web for the finest text data at scale.
+Preprint, arXiv:2406.17557.
+Oscar Sainz, Jon Campos, Iker García-Ferrero, Julen Etxaniz, Oier Lopez de Lacalle, and Eneko Agirre. 2023. NLP
+evaluation in trouble: On the need to measure LLM data contamination for each benchmark. In Findings of
+the Association for Computational Linguistics: EMNLP 2023, pages 10776–10787, Singapore. Association for
+Computational Linguistics.
+Oscar Sainz, Iker García Ferrero, Eneko Agirre, Jon Ander Campos, Alon Jacovi, Yanai Elazar, and Yoav Gold-
+berg, editors. 2024a. Proceedings of the 1st Workshop on Data Contamination (CONDA) . Association for
+Computational Linguistics, Bangkok, Thailand.
+Oscar Sainz, Iker García-Ferrero, Alon Jacovi, Jon Ander Campos, Yanai Elazar, Eneko Agirre, Yoav Goldberg,
+Wei-Lin Chen, Jenny Chim, Leshem Choshen, Luca D’Amico-Wong, Melissa Dell, Run-Ze Fan, Shahriar
+Golchin, Yucheng Li, Pengfei Liu, Bhavish Pahwa, Ameya Prabhu, Suryansh Sharma, Emily Silcock, Kateryna
+Solonko, David Stap, Mihai Surdeanu, Yu-Min Tseng, Vishaal Udandarao, Zengzhi Wang, Ruijie Xu, and Jinglin
+Yang. 2024b. Data contamination report from the 2024 conda shared task. Preprint, arXiv:2407.21530.
+Maarten Sap, Hannah Rashkin, Derek Chen, Ronan LeBras, and Yejin Choi. 2019. Socialiqa: Commonsense
+reasoning about social interactions. Preprint, arXiv:1904.09728.
+Weijia Shi, Anirudh Ajith, Mengzhou Xia, Yangsibo Huang, Daogao Liu, Terra Blevins, Danqi Chen, and Luke
+Zettlemoyer. 2023. Detecting pretraining data from large language models. Preprint, arXiv:2310.16789.
+
+=== PDF PAGE 22 ===
+Luca Soldaini, Rodney Kinney, Akshita Bhagia, Dustin Schwenk, David Atkinson, Russell Authur, Ben Bogin,
+Khyathi Chandu, Jennifer Dumas, Yanai Elazar, Valentin Hofmann, Ananya Harsh Jha, Sachin Kumar, Li Lucy,
+Xinxi Lyu, Nathan Lambert, Ian Magnusson, Jacob Morrison, Niklas Muennighoff, Aakanksha Naik, Crystal
+Nam, Matthew E. Peters, Abhilasha Ravichander, Kyle Richardson, Zejiang Shen, Emma Strubell, Nishant
+Subramani, Oyvind Tafjord, Pete Walsh, Luke Zettlemoyer, Noah A. Smith, Hannaneh Hajishirzi, Iz Beltagy,
+Dirk Groeneveld, Jesse Dodge, and Kyle Lo. 2024. Dolma: an open corpus of three trillion tokens for language
+model pretraining research. Preprint, arXiv:2402.00159.
+Aarohi Srivastava, Abhinav Rastogi, Abhishek Rao, et al. 2023. Beyond the imitation game: Quantifying and
+extrapolating the capabilities of language models. Preprint, arXiv:2206.04615.
+Mirac Suzgun, Nathan Scales, Nathanael Schärli, Sebastian Gehrmann, Yi Tay, Hyung Won Chung, Aakanksha
+Chowdhery, Quoc V . Le, Ed H. Chi, Denny Zhou, and Jason Wei. 2022. Challenging big-bench tasks and whether
+chain-of-thought can solve them. Preprint, arXiv:2210.09261.
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste
+Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, Aurelien Rodriguez, Armand Joulin, Edouard Grave, and
+Guillaume Lample. 2023a. Llama: Open and efficient foundation language models. Preprint, arXiv:2302.13971.
+Hugo Touvron, Louis Martin, Kevin R. Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov,
+Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Daniel M. Bikel, Lukas Blecher, Cristian Cantón Ferrer, Moya
+Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller, Cynthia Gao,
+Vedanuj Goswami, Naman Goyal, Anthony S. Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas,
+Viktor Kerkez, Madian Khabsa, Isabel M. Kloumann, A. V . Korenev, Punit Singh Koura, Marie-Anne Lachaux,
+Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar
+Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi, Alan
+Schelten, Ruan Silva, Eric Michael Smith, R. Subramanian, Xia Tan, Binh Tang, Ross Taylor, Adina Williams,
+Jian Xiang Kuan, Puxin Xu, Zhengxu Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melanie Kambadur, Sharan
+Narang, Aurelien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas Scialom. 2023b. Llama 2: Open
+foundation and fine-tuned chat models. ArXiv, abs/2307.09288.
+Jason Wei, Maarten Bosma, Vincent Y Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester, Nan Du, Andrew M Dai,
+and Quoc V Le. 2021. Finetuned language models are zero-shot learners. arXiv preprint arXiv:2109.01652.
+Shuo Yang, Wei-Lin Chiang, Lianmin Zheng, Joseph E. Gonzalez, and Ion Stoica. 2023. Rethinking benchmark
+and contamination for language models with rephrased samples. Preprint, arXiv:2311.04850.
+Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali Farhadi, and Yejin Choi. 2019. Hellaswag: Can a machine really
+finish your sentence? Preprint, arXiv:1905.07830.
+Zheng Zhang, Scott Schwartz, Lukas Wagner, and Webb Miller. 2000. A greedy algorithm for aligning dna
+sequences. Journal of Computational Biology, 7(1-2):203–214. PMID: 10890397.
+
+=== PDF PAGE 23 ===
+A Overview of previously used contamination metrics
+In Table 4, we provide an overview of the various contamination metrics used in previous work, the
+benchmarks that the respective papers computed these metrics for, and – as much as possible – the
+approximate results achieved with these metrics. Whenever possible, we reported the impact in terms of
+EPG. In some cases, the information to do so was not sufficient, or particular metrics were not provided.
+These are marked with NA or presented in the format they were shared in the paper.
+Model Overlap T datasets %contam. impact
+PALM 8B
+(Chowdhery et al., 2023) 13 tokens 0.7 TriviaQA, Lambada, WebQuestions, WSC, Winograd,
+SQuADv2, ARC-e, ARC-c, CB, ReCoRD 85-20% -0.6-4.4
+Llama 2 7B
+(Touvron et al., 2023b)
+10 tokens, 4 skips 0.8 HellaSwag, MMLU, MMLU-hum 8-11% 1-1.8
+10 tokens, 4 skips 0.2 HellaSwag, MMLU-Hum 15-26% 2.8-2.1
+{10,20,. . . ,50} tokens
+4 skips 0.2 TriviaQA, NQ, BBH, GSM8K, HumanEval NA 0
+Llama 2 70B
+(Touvron et al., 2023b)
+10 tokens, 4 skips 0.8 HellaSwag, MMLU, MMLU-hum 8-11% 0.9-1.2
+10 tokens, 4 skips 0.2 HellaSwag, MMLU-Hum 15-26% 0.9-3.1
+{10,20,. . . ,50}
+tokens, 4 skips 0.2 TriviaQA, NQ, BBH, GSM8K, HumanEval NA 0
+PALM 405B
+(Chowdhery et al., 2023) 13 tokens 0.7 TriviaQA, Lambada, WebQuestions, WSC, Winograd,
+SQuADv2, ARC-e, ARC-c, CB, ReCoRD 85-20% -5.8-3.5
+PALM2
+(Anil et al., 2023)
+15 tokens 0 WikiLingua, XL-Sum, XSum 9-47% 0.3-0.6
+25 tokens 0 Proficiency exams NA NA
+GPT4
+(OpenAI, 2023)
+50 char 0 Proficiency exams <4%
+50 char 0 GSM8k, MMLU, AI2, WinoGrande (1000 samples) 0.6-3.4% NA
+50 char 0 HumanEval, DROP 21-25% <0%
+GPT3
+(Brown et al., 2020)
+8-13 words 0 DROP,PIQA 89-93% 3-7
+8-13 words 0 Anagrams 2, SQuADv2, Winograd, RACE-m, CB
+WMT’16(De→En, En→De), Anagrams 1 3-94% 1-2.8
+8-13 words 0
+ANLI R1, Quac, Symbol Insertion, CoQa, ReCoRD, BoolQ, NQ
+MultiRC, RACE-h, LAMBADA, LAMBADA (No Blanks)
+WSC, Reversed Words, WMT’16 (En→Ro, Ro→En),
+WMT’14 (En→Fr, Fr→En), WebQs, ANLI R2
+TriviaQA, ANLI R3, WiC, RTE, OpenBookQA,
+ARC-E, ARC-C, COPA, HellaSwag, Cycled Letters
+SAT, Analogies, StoryCloze, Winogrande
+1-100% -9.8-0.9
+GLaM
+(Du et al., 2021)
+8-13 words 0
+ANLI R1, ANLI R2, ANLI R3, ARC-C, ARC-E,
+BoolQ, CB, COPA, CoQa, DROP, HellaSwag,
+LAMBADA, MultiRC, NQ, OpenBookQA, PIQA,
+Quac, RACE-h, RACE-m, RTE, ReCoRD, SQuADv2,
+StoryCloze, TriviaQA, WSC, WiC, Winograd, Winogrande
+0-99.66% NA
+FLAN
+(Wei et al., 2021)
+8-13 words 0 ANLI R2 97.9% 4.8
+8-13 words 0
+DROP, ANLI R1, MultiRC, PIQA, ANLI R3, HellaSwag
+RTE, WMT’14 (En→Fr, Fr→En), BoolQ, TQA, ARC-E
+ARC-C, OpenbookQA, WMT’16(En→De, De→En)
+WMT’16(En→Ro, Ro→En), COPA, CB, NQ, StoryCloze
+Winogrande, SQuADv2, ReCoRD
+0.2-99.4% -10.6-0.5
+Gemini Pro & Ultra
+(Gemini Team, 2024b)
+NA 0 HellaSwag NA 4.9 & 8.2
+Gemini 1.5
+(Gemini Team, 2024a)
+NA 0 HumanEval 100% 14.6
+Table 4: Contamination metrics used by different LLM releases, and their (approximate) results. In this table,
+we attempt to provide an overview of the various contamination metrics and their parameters used by previous LLM
+releases, along with the reported results. Where possible, we computed EPG from the values reported in the papers.
+In some cases, the information to do so was not sufficient or particular metrics were not provided. These are marked
+with NA or presented in the format they were shared in the paper. For the Gemini and Gemini 1.5 model case stuides
+with HellaSwag and HumanEval are shared in the paper and we present these results with the information available.
+B Benchmarks
+For the evaluation benchmarks we chose 13 datasets that are widely used for evaluating LLMs from
+various task types. Below, we briefly describe each dataset. We run the reported benchmarks in two
+different settings. For the ‘generative benchmarks’, the model has to generate the correct response
+
+=== PDF PAGE 24 ===
+given the input prompt. We run the following benchmarks in generative mode: GSM8K, HumanEval,
+NaturalQuestions, Deepmind Coding Contest, TriviaQA, BBH, and MBPP. A second set of benchmarks
+are instead ran in ‘choice’ mode. These benchmarks are ran in a multiple choice setup, where we present
+the question together with all the possible answers, all represented by a letter (A, B, C, etc.) and ask
+the model to predict the letter associated with the correct choice. We extract the model prediction by
+selecting the letter with the highest probability. We use this setup for COPA, SiQA, and MMLU. Lastly,
+for HellaSwag and PiQA, we extract model answers by comparing the probabilities of the answers rather
+than the letters, and selecting the highest probability answer. For these benchmarks, we add an additional
+analysis that considers whether it matters more whether the contamination is in the question or answer
+field (for an overview, see Table 5).
+COPA The Choice of Plausible Alternative (COPA) was presented by Gordon et al. (2011) as a
+commonsense reasoning task. For each premise there is two choices and a question type that indicates
+whether the correct choice caused the premise or was result of it(effect). There is no specific context or
+source, and the dataset contains 100 examples in the validation split. The model is expected to identify
+the correct choice based on the question type indicated.
+GMS8K GSM8K (Cobbe et al., 2021) is a MATH benchmark consisting of grade school math problems.
+The problems are formatted as questions and answers. The model is expected to answer the questions
+correctly through a free-form generation. The models are evaluated based on how many open-ended
+questions they can answer. The validation set consists of almost 8.8K questions.
+HellaSwag Zellers et al. (2019) presented HellaSwag datasets as a commonsense reasoning dataset.
+Given a context can a model choose the correct continuation of a text from 4 choices. The incorrect
+choices are specifically chosen to be challenging options for models that humans can differentiate with
+the given context. The validation and test sets contain little more than 10K examples.
+HumanEval HumnEval is a coding benchmark consisting of 164 coding questions released by Chen
+et al. (2021). The dataset gives the model the name of the function and a docstring and expects the model
+to complete the function correctly. The model is expected to generate a passing solution and is evaluated
+on passing test cases for each question.
+MMLU MMLU is a four-way multiple-choice question-answering task presented by Hendrycks et al.
+(2021a). The dataset consists of 57 tasks that range from math questions to law and history; questions test
+knowledge as well as reasoning and consists of almost 16K questions.
+SiQA Social interaction QA (SiQA, Sap et al., 2019) is designed to evaluate models’ reasoning abilities
+about social situations. Each example consists of a context/situation a question and 3 choices. The model
+is expected to choose the correct answer. The validation set consists of 1.9K questions.
+PiQA PiQA (Bisk et al., 2020) is a benchmark consisting of questions that test physical reasoning
+abilities. The examples consist of a goal and two choices and the model is expected to reason about the
+choices and identify which would achieve the given goal. The test set consists of close to 1.9K questions.
+Natural Questions Natural Questions (Kwiatkowski et al., 2019) is a dataset of collected questions
+people asked on the Google search engine. The dataset can be formulated as a document question
+answering task by providing the relevant Wikipedia page but can also be formulated as closed book
+question answering task. In this work, we use the latter formulation so the data only consists of questions
+the model is expected to generate answers. The evaluation is then done with exact match to one of the
+answers. The dataset consists of around 8K examples.
+Deepmind Coding Contest Deepmind Coding Contest, or DM Contest (Li et al., 2022) is a code
+challenge dataset with 165 questions in the test set. The inputs define a coding problem with details,
+unlike HumanEval where the input is a docstring. This task presents the model with a natural language
+description of the problem that needs to be solved and instructions on how to format the output. The
+model is evaluated by whether the generated code passes the test cases.
+
+=== PDF PAGE 25 ===
+TriviaQA TriviaQA (Joshi et al., 2017) is a large-scale reading comprehension task that requires
+reasoning over information in a context to answer questions. The dataset consists of a context and a
+question over that context that needs reasoning with multiple pieces of information from that context. The
+outputs are expected to match at least one of the label answers.
+MATH The dataset MATH Hendrycks et al. (2021b) targets mathematical reasoning and consists of
+competition math problems where the input is a problem description and the generation is parsed and
+expected to exactly match the correct output. The dataset consists of 12.5K examples.
+Big Bench Hard Big Bench Hard (BBH Suzgun et al., 2022) comprises 23 tasks from BIG-Bench
+(Srivastava et al., 2023) where language models had not yet surpassed human annotators at the time of
+release. The input is a question and the output is evaluated by whether or not it matches the correct
+label. This subset has around 5K questions that range from solving boolean expressions to sorting words
+alphabetically.
+MBPP Mostly Basic Programming Problems (Austin et al., 2021, MBPP) is a 1K dataset of program-
+ming questions in Python. The inputs are natural language definition of coding problems with a few
+tests/conditions and the model generated code is executed on test cases.
+Type Definition Examples
+Question
+Contamination that is bound in the question/prompt field
+and does not contain any tokens from the correct choice
+when the contamination is extended to the fullest
+holding a pocket knife while
+Answer
+Contamination that is bound in the correct choice field and
+does not contain any tokens from the question when the
+contamination is extended to the fullest
+a small stone from the flowing river
+Full prompt
+Contamination can be anywhere in the full prompt,
+including in just the question or answer. We take the
+longest contaminating subsequence
+.
+in the wilderness. Then he takes a small stone
+a small stone from the flowing river
+holding a pocket knife while
+Across question &
+answer boundary
+Contamination spans over the question and answer boundary
+in the fully prompted example. Theskipgrammethod can
+use askip_budgetto skip a limited number of tokens, but
+contamination must match at least 1 token in both fields
+in the wilderness. Then he takes a small stone
+Table 5: Different types of contamination ‘spans’.Given the Question ‘A man is holding a pocket knife while
+sitting on some rocks in the wilderness. then he ’ and the answer ‘takes a small stone from the flowing river
+and smashes it on another stone ’, we give examples of the different types of contamination we find with the
+LONGEST -MATCH method.
+C Contamination metrics – brief implementation details
+In this section, we provide brief implementation details for the methods we used. For further details,
+please reach out to the corresponding authors.
+NGRAM -MATCH To quantify contamination, the NGRAM -MATCH method considers the presence of
+n-grams from an evaluation sample in pre-training data. In our implementation, we tokenise each training
+corpus or benchmark and compute hashes for every n-gram in it using a polynomial rolling hash function
+(Karp and Rabin, 1987). We then intersect the hash tables of a training corpus and a benchmark to identify
+matches. We repeat this procedure for each choice of n ∈ {8, 10, 13, 20}. To control for mincount, we
+only consider hash values on the training corpus side with the given minimum number of occurrences.
+TOKEN -MATCH The TOKEN -MATCH method uses the same normalisation and rolling hash function
+from as the NGRAM -MATCH method. The main difference between the two methods is how we calculate
+the scores. While the NGRAM -MATCH method focuses on the number of matching n-grams, the TOKEN -
+MATCH method looks at the total number of tokens that are present in the matching windows. The
+
+=== PDF PAGE 26 ===
+difference can be seen if we consider a sample with two disjoint 8-grams that match. For the NGRAM -
+MATCH method, since only two 8-grams match, the nominator of the contamination score would be 2; for
+the TOKEN -MATCH method there are 16 tokens within the matching spans. Thus, the NGRAM -MATCH
+method gives higher scores for longer contiguous matches, while the TOKEN -MATCH method gives higher
+scores compared to NGRAM -MATCH when there are disjoint matches over a text.
+TOKEN -EXTEND First used by Touvron et al. (2023b), the LONGEST -MATCH method focuses on the
+longest token span from an evaluation sample which appears in pre-training data, allowing for minor
+syntactic and formatting differences with a small skip_budget. We implement this skipgram-matching
+procedure by first identifying small seed matches (of sizen = 8 tokens), and then extending these matches
+to the left and right (similar to the BLAST algorithm in genetics (Zhang et al., 2000)) while allowing for
+up to skip_budget token mismatches. In our experiments, we range over different skip_budget values.
+We compute results separately for values of n > 8, but compute these results post-hoc.
+LONGEST -MATCH We computed the contamination scores for the LONGEST -MATCH method are
+computed ad-hoc from the hashed matches computed for the TOKEN -EXTEND metric, but considering
+only the longest matching substring, rather than all substrings.
+D Scaling behaviours
+In § 5.2.3, we discussed the effect of scale on the impact of contamination, with a few representative
+examples. For completeness, we provide the same plots for all benchmarks and both model series here, in
+Figure 8 and Figure 9.
+Llama 1
+65B 33B 13B 7B
+0 25 50 75 100
+% of dataset marked contaminated
+-20
+0
+20
+40EPG
+0.050
+0.059
+0.051
+0.053
+Big Bench Hard
+0 25 50 75 100
+% of dataset marked contaminated
+-6
+-3
+-1
+0
+2
+4
+0.406
+0.406
+0.400
+0.400
+Natural Questions
+0 25 50 75 100
+% of dataset marked contaminated
+-2
+0
+2
+3
+6
+8
+0.183
+0.130
+0.205
+0.228
+TriviaQA
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15
+0.110
+0.101
+0.117
+0.122
+GSM8K
+0 25 50 75 100
+% of dataset marked contaminated
+-6
+-3
+-1
+0
+2
+4
+6EPG 0.220 0.1770.2190.196
+MATH
+0 25 50 75 100
+% of dataset marked contaminated
+-10
+0
+10
+20
+30
+0.099
+0.100
+0.105
+0.108
+HumanEval
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15
+20
+0.079
+0.076
+0.084
+0.082
+MBPP
+0 25 50 75 100
+% of dataset marked contaminated
+-2
+0
+2
+3
+6
+0.400
+0.470
+0.400
+0.400
+COPA
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15
+20EPG
+0.059
+0.057
+0.059
+0.059
+HellaSwag
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15
+0.0550.0550.0550.055
+PIQA
+0 25 50 75 100
+% of dataset marked contaminated
+-2
+0
+2
+3
+0.000
+0.000
+0.000
+0.000
+SIQA
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15
+0.079
+0.080
+0.094
+0.079
+MMLU
+Figure 8: Scaling behaviour for Llama 1 models. We show how the effects of contamination change with model
+size, for Llama 1 models. These plots supplement the analysis presented in § 5.2.3. Plots for Pythia models can be
+found in Figure 9.
+
+=== PDF PAGE 27 ===
+Pythia
+12B 6.9B 1.4B
+0 25 50 75 100
+% of dataset marked contaminated
+-2
+0
+2
+3
+6EPG
+0.056
+0.050
+0.046
+Big Bench Hard
+0 25 50 75 100
+% of dataset marked contaminated
+-6
+-3
+-1
+0
+2
+4
+0.2850.2660.307
+Natural Questions
+0 25 50 75 100
+% of dataset marked contaminated
+-6
+-3
+-1
+0
+2
+4
+6
+0.2810.2810.351
+TriviaQA
+0 25 50 75 100
+% of dataset marked contaminated
+-6
+-3
+-1
+0
+2
+4
+0.141 0.104 0.056
+GSM8K
+0 25 50 75 100
+% of dataset marked contaminated
+-6
+-3
+-1
+0
+2EPG
+0.0640.219 0.103
+MATH
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15
+20
+0.115
+0.110
+0.100
+HumanEval
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+0.078
+0.081
+0.081
+MBPP
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+-2
+0
+2
+5
+7
+0.571
+0.571
+0.571
+COPA
+0 25 50 75 100
+% of dataset marked contaminated
+-5
+0
+5
+10
+15EPG
+0.064
+0.065
+0.064
+HellaSwag
+0 25 50 75 100
+% of dataset marked contaminated
+-2
+0
+2
+5
+7
+10
+0.062
+0.066
+0.066
+PIQA
+0 25 50 75 100
+% of dataset marked contaminated
+-2
+0
+2
+3
+6
+0.140
+0.115
+0.134
+SIQA
+0 25 50 75 100
+% of dataset marked contaminated
+-6
+-3
+-1
+0
+2
+4
+6
+0.0920.1170.115
+MMLU
+Figure 9: Scaling behaviour for Pythia models. We show how the effects of contamination change with model
+size, for Pythia models. These plots supplement the analysis presented in § 5.2.3. Plots for Llama 1 models can be
+found in Figure 8.
+E Additional plots
+In Figure 10, we include box-plots of the percentage marked contaminated and corresponding EPG. This
+plot supplements our analysis in § 5.2.1. In Figure 11, we report the benchmark scores for all models,
+contextualising our results in § 5.2.3.
+F Extensive contamination analyses
+In § 6, we discussed how different methods (and hyperparameters settings) may lead to better or worse
+quantification of contamination. Specifically, we focus on interpreting methods in terms of how many true
+postives versus false positives they add. To ensure our claims are justified, we conducted analyses across
+7 models and 13 benchmarks. Due to limited space in the main text, we chose not to include 91 plots
+per comparison and instead focused on the overarching themes and takeaways. Here, we provide these
+extended results as a resource for future contamination researchers. First, in Figure 13, we show how
+the different methods compare for all benchmarks we considered, given their optimal hyperparameters
+(n=8, skip=0 and mincount=1). In the consecutive plots, we include ConTAM plots to illustrate how
+the value of n impacts the found contamination and EPG, for both NGRAM -MATCH and LONGEST -
+MATCH , respectively; what is the effect of mincount for NGRAM -MATCH ; and what is the effect of the
+skip_budget for TOKEN -EXTEND . Lastly, we show, for HellaSwag and PiQA, how it matterswhere in the
+example (the question or the response) the contamination occurs, in Figure 12. Table 6 furthermore shows
+the average and maximum changes given different skip budgets, supplementing our analysis in § 6.2.
+
+=== PDF PAGE 28 ===
+0 20 40 60 80
+% Contaminated
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+Llama 1 corpus
+The Pile
+(a) % Contaminated
+0 5 10 15 20 25
+EPG
+Big Bench Hard
+HumanEval
+HellaSwag
+PIQA
+MMLU
+GSM8K
+MBPP
+TriviaQA
+MATH
+Natural Questions
+Llama 1
+Pythia (b) EPG
+Figure 10: %Contaminated and EPG across models and benchmarks. (a) Percentage of the dataset marked
+contaminated. (b) Corresponding EPG of the model-benchmark pairs we considered in our study, according to the
+LONGEST -MATCH method. Optimal thresholds are selected separately for each model-benchmark pair. Per-model
+values are reported in Figure 3.
+BBH COPA GSM8k HellaSwag HumanEval MATH MBPP MMLU Natural 
+ Questions
+PiQA SIQA TriviaQA
+0
+20
+40
+60
+80
+100Score
+Llama 1 7B
+Llama 1 13B
+Llama 1 33B
+Llama 1 65B
+Pythia 1.4B
+Pythia 6.9B
+Pythia 12B
+Figure 11: Performances across models and datasets. For context, we show the performances of all models on the
+benchmarks we consider. Error bars correspond to 95% CIs.
+
+=== PDF PAGE 29 ===
+0
+5
+10
+15
+HellaSwag
+EPG
+Llama 1 7B Llama 1 13B Llama 1 33B Llama 1 65B Pythia 1.4B Pythia 6.9B Pythia 12B
+0 50 100
+% of dataset
+marked
+contaminated
+0
+5
+10
+15
+PIQA
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Contaminated where?
+Full prompt Question Answer Across question/answer boundary
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Figure 12: Contam. analysis for different locations of contamination. For Hellaswag and PIQA we restrict the
+ConTAM to where the contamination occurs when using the LONGEST -MATCH method (with skip_budget = 0 ).
+Specifically, we see for these benchmarks that restricting to contamination only in the answer leads to qualitatively
+higher curves, indicating a better ordering of data points. This supports the hypothesis in the main text (§ 5.1.2,
+Table 3), where we suggested that LONGEST -MATCH does not perform as well on these benchmarks since it may not
+“count” contamination in only the answer as strongly as TOKEN -MATCH .
+Benchmark Llama 1 Corpus The Pile
+mean max mean max
+DM Contest 0.059 0.180 0.053 0.155
+Big Bench Hard 0.033 0.225 0.023 0.271
+Natural Questions 0.023 0.333 0.008 0.300
+TriviaQA 0.032 0.526 0.023 0.360
+GSM8K 0.031 0.386 0.017 0.289
+MATH 0.048 0.540 0.044 0.351
+HumanEval 0.059 0.255 0.052 0.197
+MBPP 0.028 0.214 0.025 0.214
+COPA 0.012 0.211 0.009 0.176
+HellaSwag 0.028 0.424 0.017 0.448
+PIQA 0.018 0.333 0.013 0.312
+SIQA 0.009 0.235 0.004 0.156
+MMLU 0.031 0.463 0.025 0.258
+Table 6: Average and maximum changes between skip_budget 0 and 5. We show the average and maximum
+changes in contamination scores using the TOKEN -EXTEND method when allowing a skip_budget of 5 tokens
+(versus 0). The minimum change is 0, since skip_budget of 5 is a less strict method (finding at least as many
+contaminated tokens per evaluation sample).
+
+=== PDF PAGE 30 ===
+-5
+0
+5
+DM Contest
+EPG
+Llama 1 7B Llama 1 13B Llama 1 33B Llama 1 65B Pythia 1 .4B Pythia 6 .9B Pythia 12B
+0
+20
+40
+BBH
+EPG
+0
+5
+NQ
+EPG
+0
+5
+TriviaQA
+EPG
+-10
+0
+10
+GSM8K
+EPG
+-5
+0
+MATH
+EPG
+-20
+0
+20
+HumanEval
+EPG
+-20
+0
+20
+MBPP
+EPG
+-10
+0
+10
+COPA
+EPG
+0
+10
+HellaSwag
+EPG
+0
+10
+PIQA
+EPG
+0
+5
+SIQA
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+-10
+0
+10
+MMLU
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Method
+ngram-match token-match token-extend longest-match
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Figure 13: Contam. analysis over all benchmarks (rows) and models (columns) as we vary the scoring method.
+
+=== PDF PAGE 31 ===
+-5
+0
+5
+DM Contest
+EPG
+Llama 1 7B Llama 1 13B Llama 1 33B Llama 1 65B Pythia 1.4B Pythia 6.9B Pythia 12B
+0
+20
+Big Bench Hard
+EPG
+0
+5
+Natural Questions
+EPG
+0
+5
+TriviaQA
+EPG
+-10
+0
+10
+GSM8K
+EPG
+-5
+0
+MATH
+EPG
+-20
+0
+20
+HumanEval
+EPG
+-20
+0
+20
+MBPP
+EPG
+-10
+0
+10
+COPA
+EPG
+0
+10
+HellaSwag
+EPG
+0
+10
+PIQA
+EPG
+0
+5
+SIQA
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+-10
+0
+10
+MMLU
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+n
+8 10 13 20
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Figure 14: Contam. analysis over all benchmarks (rows) and models (columns) as we vary n in NGRAM -
+MATCH .
+
+=== PDF PAGE 32 ===
+-5
+0
+5
+DM Contest
+EPG
+Llama 1 7B Llama 1 13B Llama 1 33B Llama 1 65B Pythia 1.4B Pythia 6.9B Pythia 12B
+0
+20
+40
+Big Bench Hard
+EPG
+-2
+0
+2
+Natural Questions
+EPG
+0
+5
+TriviaQA
+EPG
+-10
+0
+10
+GSM8K
+EPG
+-5
+0
+MATH
+EPG
+-20
+0
+20
+HumanEval
+EPG
+0
+10
+MBPP
+EPG
+-10
+0
+10
+COPA
+EPG
+0
+10
+HellaSwag
+EPG
+0
+10
+PIQA
+EPG
+0
+5
+SIQA
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+-10
+0
+10
+MMLU
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+n
+8 10 13 20
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Figure 15: Contam. analysis over all benchmarks (rows) and models (columns) as we vary n in LONGEST -
+MATCH .
+
+=== PDF PAGE 33 ===
+-5
+0
+5
+DM Contest
+EPG
+Llama 1 7B Llama 1 13B Llama 1 33B Llama 1 65B Pythia 1.4B Pythia 6.9B Pythia 12B
+0
+20
+Big Bench Hard
+EPG
+0
+5
+Natural Questions
+EPG
+0
+5
+TriviaQA
+EPG
+-10
+0
+10
+GSM8K
+EPG
+-5
+0
+MATH
+EPG
+-20
+0
+20
+HumanEval
+EPG
+-20
+0
+20
+MBPP
+EPG
+-10
+0
+10
+COPA
+EPG
+0
+10
+HellaSwag
+EPG
+0
+10
+PIQA
+EPG
+0
+5
+SIQA
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+-10
+0
+10
+MMLU
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+mincount
+1 5 10 20 100
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Figure 16: Contam. analysis over all benchmarks (rows) and models (columns) as we vary mincount in
+NGRAM -MATCH .
+
+=== PDF PAGE 34 ===
+-5
+0
+5
+DM Contest
+EPG
+Llama 1 7B Llama 1 13B Llama 1 33B Llama 1 65B Pythia 1.4B Pythia 6.9B Pythia 12B
+0
+20
+40
+Big Bench Hard
+EPG
+-2
+0
+2
+Natural Questions
+EPG
+0
+5
+TriviaQA
+EPG
+-10
+0
+10
+GSM8K
+EPG
+-5
+0
+MATH
+EPG
+-20
+0
+20
+HumanEval
+EPG
+0
+10
+MBPP
+EPG
+-10
+0
+10
+COPA
+EPG
+0
+10
+HellaSwag
+EPG
+0
+10
+PIQA
+EPG
+0
+5
+SIQA
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+-10
+0
+10
+MMLU
+EPG
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+skip_budget
+5 4 3 2 1 0
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+0 50 100
+% of dataset
+marked
+contaminated
+Figure 17: Contam. analysis over all benchmarks (rows) and models (columns) as we vary skip_budget in
+TOKEN -EXTEND .

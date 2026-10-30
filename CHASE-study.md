@@ -51,7 +51,7 @@ The six illustrations use repetition 1 for each method, covering both benchmarks
 
 The selected MESA response answers DesignQA Q23 Not sure and Q24 Partly. It recognizes that permission may exist elsewhere and that code history does not explain score effects. All five DesignQA reviews choose Partly for Q8 and Q12. The selected ARC-AGI-2 response treats the preparer's lack of independent marking tests as if the whole system had not been independently tested; it also scopes Q14 to the single-run verified-testing policy. These claims require qualification. Missing reviewer-disagreement counts appear under both documented problems and missing information.
 
-A human author reported checking an earlier set of six reviews and coding. That includes the four EFPA-TRM/general-instruction reviews used here, but not the two MESA reviews in this reporting selection. The current MESA interpretation is assistant analysis. No independent coding, inter-rater agreement, or validation of expected labels is claimed.
+A human author reported checking an earlier set of six reviews and coding, including the four EFPA-TRM/general-instruction reviews used here. The author reviewed the two MESA responses against the supplied passages, checked their interpretation, and reviewed the expected answers, including the disputed P6B label. The current MESA interpretation was prepared by an assistant and checked by the author. These checks do not constitute independent validation; no separate coding or agreement statistic is reported.
 
 ## Materials and records
 
@@ -69,8 +69,8 @@ A human author reported checking an earlier set of six reviews and coding. That 
 | [Closing notes](surveys/colleague-review/mesa-study/chase-report/closing-notes.csv) | Reported interpretation difficulties |
 | [Qualitative audit](surveys/colleague-review/mesa-study/chase-report/selected-reviews.md) | Complete selected-review examination |
 | [Manuscript traceability](surveys/colleague-review/mesa-study/chase-report/manuscript-traceability.md) | Claims mapped to records |
-| [Adaptation map](surveys/colleague-review/simulation-study/analyst/adaptation-map.md) | Proposed EFPA correspondences |
-| [Standards assessment](surveys/colleague-review/simulation-study/analyst/standards-assessment.md) | ACM SIGSOFT methods guidance |
+| [Adaptation map](supporting/adaptation/adaptation-map.md) | Proposed EFPA correspondences |
+| [Standards assessment](supporting/adaptation/standards-assessment.md) | ACM SIGSOFT methods guidance |
 
 ## Reproduce the offline analysis
 
@@ -83,12 +83,12 @@ These commands read saved responses and write only current reporting outputs. Th
 
 ## Archived records
 
-None of the following is pooled with the current study or presented as second-model confirmation. Their labels describe the materials used at the time; they do not name multiple current MESA instruments.
+None of the following is pooled with the current study or presented as second-model confirmation. Their labels describe the materials used at the time; they do not name multiple current MESA instruments. These historical series were removed from the active working tree during repository cleanup and remain preserved in the `pre-reorganization-2026-10-22` Git snapshot; see [provenance/archive-index.md](provenance/archive-index.md) and [provenance/relocation-map.json](provenance/relocation-map.json) for retrieval commands and file hashes.
 
-- [`mesa-study/main/`](surveys/colleague-review/mesa-study/main/README.md): the same 30-conversation design with GPT-6.1 Sol through the Codex CLI. It stopped at a Codex usage limit: 20 of 30 completed, one failed without a response, nine never ran. The user then asked for the whole design to be run again with Claude Sonnet 5.5.
-- [`mesa-study/2026-10-17/`](surveys/colleague-review/mesa-study/2026-10-17/README.md): a larger 180-conversation GPT-6.1 Sol design, stopped after 44 conversations when the smaller design was chosen.
-- [`accessibility-study/v1/`](surveys/colleague-review/accessibility-study/v1/README.md): an earlier comparison of two explanation texts for the same 25 questions (40 conversations, GPT-6.1 Sol).
-- [`simulation-study/`](surveys/colleague-review/simulation-study/README.md): the first series (120 conversations, GPT-6.1 Sol, four instruction versions), its [protocol](surveys/colleague-review/simulation-protocol.md), and an incomplete Astra series.
+- `mesa-study/main/` ([archive index](provenance/archive-index.md#archived-historical-model-studies)): the same 30-conversation design with GPT-6.1 Sol through the Codex CLI. It stopped at a Codex usage limit: 20 of 30 completed, one failed without a response, nine never ran. The user then asked for the whole design to be run again with Claude Sonnet 5.5.
+- `mesa-study/2026-10-17/` ([archive index](provenance/archive-index.md#archived-historical-model-studies)): a larger 180-conversation GPT-6.1 Sol design, stopped after 44 conversations when the smaller design was chosen.
+- `accessibility-study/v1/` ([archive index](provenance/archive-index.md#archived-historical-model-studies)): an earlier comparison of two explanation texts for the same 25 questions (40 conversations, GPT-6.1 Sol).
+- `simulation-study/` ([archive index](provenance/archive-index.md#archived-historical-model-studies)): the first series (120 conversations, GPT-6.1 Sol, four instruction versions), its protocol (`surveys/colleague-review/simulation-protocol.md` in snapshot `pre-reorganization-2026-10-22`), and an incomplete Astra series.
 
 ## Limits
 

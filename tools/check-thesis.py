@@ -7,14 +7,24 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+RELOC = (
+    json.loads((ROOT / "provenance/relocation-map.json").read_text())["path_map"]
+    if (ROOT / "provenance/relocation-map.json").exists()
+    else {}
+)
+
+
+def resolve(path: str) -> Path:
+    p = ROOT / path
+    return p if p.exists() else ROOT / RELOC.get(path, path)
 
 
 def read(path):
-    return (ROOT / path).read_text()
+    return resolve(path).read_text()
 
 
 def digest(path):
-    return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+    return hashlib.sha256(resolve(path).read_bytes()).hexdigest()
 
 
 def rating_ids(text):
@@ -56,8 +66,10 @@ def main():
     assert len(mapped) == len(set(mapped)) == 131
     assert set(full_ids) <= set(mapped)
 
+    reviews_root = ROOT / "supporting/retrai-paper/reviews" if (ROOT / "supporting/retrai-paper/reviews").exists() else ROOT / "reviews"
+    thesis_root = ROOT / "supporting/retrai-paper/thesis" if (ROOT / "supporting/retrai-paper/thesis").exists() else ROOT / "thesis"
     ratings = {}
-    for path in sorted((ROOT / "reviews").glob("*/*.md")):
+    for path in sorted(reviews_root.glob("*/*.md")):
         summary = path.read_text().split("### Summary of Ratings", 1)[1]
         rows = re.findall(r"^\|\s*Section\s+(\d+)\..*?\|\s*([0-4]|n/a)\s*\|", summary, re.M)
         assert len(rows) == 7, path
@@ -85,10 +97,13 @@ def main():
         else:
             assert stack and stack.pop() == name, name
     assert not stack
-    for path in (ROOT / "thesis").glob("*.md"):
+    for path in thesis_root.glob("*.md"):
         for target in re.findall(r"\]\(([^)]+)\)", path.read_text()):
             if "://" not in target:
-                assert (path.parent / target.split("#")[0]).exists(), (path, target)
+                local_target = target.split("#")[0]
+                direct = path.parent / local_target
+                orig_rel = str((ROOT / "thesis" / local_target).resolve().relative_to(ROOT.resolve()))
+                assert direct.exists() or resolve(orig_rel).exists(), (path, target)
     print("Checks passed: original reviews, tested hashes, 87/40 items, 131 mapped units,")
     print("pilot comparison, citation keys, labels, LaTeX environments, and local links.")
     print("This checks file consistency, not research validity. LaTeX was not compiled.")

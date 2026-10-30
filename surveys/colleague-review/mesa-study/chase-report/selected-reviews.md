@@ -2,7 +2,7 @@
 
 Each method uses repetition 1, covering both benchmarks. These identifiers were fixed within each execution batch. OpenAI Codex read the complete selected responses against the twelve saved passage-specific checklist points. The comparison-method excerpts were retained and checked against their raw outputs; MESA excerpts and interpretations use the current reporting selection. Codes describe what the response states, not review accuracy or an instrument quality score.
 
-The human author reported checking an earlier set of six reviews, which includes the four comparison-method reviews here. That check does not cover the two MESA reviews used here. No independent coding or inter-rater agreement is claimed.
+The human author reported checking an earlier set of six reviews, which includes the four comparison-method reviews here. The author reviewed the two MESA responses against the supplied passages, checked their interpretation, and reviewed the expected answers, including the disputed P6B label. The author confirmed these checks in the manuscript revision conversation. No independent coding or agreement statistic is claimed.
 
 ## mesa — ARC: grid-task results versus wider intelligence claims
 

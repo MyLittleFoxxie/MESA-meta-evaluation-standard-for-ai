@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "answers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "choice",
+          "reason",
+          "passage_ids",
+          "quotation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "choice": {
+            "enum": [
+              "Yes",
+              "Partly",
+              "No",
+              "Not sure",
+              "Not applicable"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "passage_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "quotation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

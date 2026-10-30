@@ -1,0 +1,2186 @@
+
+=== PDF PAGE 1 ===
+Revisiting the Reliability of Language Models in Instruction-Following
+Jianshuo Dong1
+, Yutong Zhang1
+, Yan Liu2
+, Zhenyu Zhong2
+,
+Tao Wei2
+, Chao Zhang1
+, Han Qiu1*
+1Tsinghua University, China. 2Ant Group, China.
+dongjs23@mails.tsinghua.edu.cn, qiuhan@tsinghua.edu.cn
+Abstract
+Advanced LLMs have achieved near-ceiling
+instruction-following accuracy on benchmarks
+such as IFEVAL. However, these impressive
+scores do not necessarily translate to reliable
+services in real-world use, where users often
+vary their phrasing, contextual framing, and
+task formulations. In this paper, we study
+nuance-oriented reliability: whether models
+exhibit consistent competence across cousin
+prompts that convey analogous user intents but
+with subtle nuances. To quantify this, we in￾troduce a new metric, reliable@k, and de￾velop an automated pipeline that generates
+high-quality cousin prompts via data augmen￾tation. Building upon this, we construct IFE￾VAL++ for systematic evaluation. Across 20
+proprietary and 26 open-source LLMs, we find
+that current models exhibit substantial insuf￾ficiency in nuance-oriented reliability—their
+performance can drop by up to 61.8% with
+nuanced prompt modifications. What’s more,
+we characterize it and explore three poten￾tial improvement recipes. Our findings high￾light nuance-oriented reliability as a crucial
+yet underexplored next step toward more de￾pendable and trustworthy LLM behavior. Our
+code and benchmark are accessible: https:
+//github.com/jianshuod/IFEval-pp.
+1 Introduction
+Large Language Models (LLMs) have demon￾strated remarkable abilities to follow natural lan￾guage instructions (Ouyang et al., 2022). The
+instruction-following ability is foundational for en￾abling faithful user interaction (Zhou et al., 2023;
+Lior et al., 2025; Zhang et al., 2024b), reliable
+agent behavior (Zhang et al., 2025a), and reduced
+harmful outcomes (Ruan et al., 2024). Evalu￾ating this ability is essential for building reli￾able, trustworthy AI systems. Consequently, nu￾merous benchmarks have been proposed to mea-
+*Corresponding author.
+The Reliability Gap
+Figure 1: Evolution of OpenAI’s Models in
+Instruction-Following Abilities Across Generations.
+sure instruction-following performance across di￾verse task types and constraint categories (see Ap￾pendix A for a survey of 36 benchmarks).
+As illustrated in Figure 1, the instruction￾following ability of LLMs has improved rapidly
+across generations. Recent LLMs achieve near￾ceiling performance on widely adopted bench￾marks like IFEVAL (Zhou et al., 2023), with GPT-5
+reaching an accuracy as high as 95.9%. However,
+growing evidence reveals that model performance
+can be highly sensitive to prompt wording (Sclar
+et al., 2024; Mizrahi et al., 2024; Cao et al., 2024),
+and that overfitting to benchmark test cases is pos￾sible (Zhang et al., 2024a). Thus, questions remain
+about how well benchmark accuracy translates to
+real-world reliability.
+To illustrate this concern, consider two LLMs
+that both achieve perfect benchmark accuracy.
+When faced with user prompts expressing simi￾lar intent but differing subtly in phrasing, contex￾tual framing, or task instantiation, one model may
+generalize appropriately while the other fails. Cur￾rent benchmarks, which primarily emphasize task
+and constraint diversity, cannot capture this crucial
+nuance-oriented dimension of reliability. This
+motivates our central question: Are current LLMs
+reliable when handling “cousin prompts” that con￾vey similar user intents but vary in nuanced ways?
+arXiv:2512.14754v3 [cs.SE] 28 May 2026
+
+=== PDF PAGE 2 ===
+Write a blog post about the best way to get 
+a good night's sleep with at least 400 words.
+{“relation”: “at least”, “num_words”: 400}
+Write a blog-style article describing the best 
+strategies for getting a good night's sleep; 
+the post should be at least 400 words long.
+Write a blog post about the best way to get 
+a good night's sleep with around 450 words.
+{“relation”: “around”, “num_words”: 450}
+Write a blog post about the best way to get a good 
+night‘s sleep with at least 400 words. Additionally, 
+format the response as plain text with paragraphs 
+separated by a single blank line.
+{“relation”: “at least”, “num_words”: 400} {“relation”: “at least”, “num_words”: 400}
+Original
+Rephrasing
+Constraint/Task Reconfiguration
+Distractor Addition
+Figure 2: Examples of Cousin Prompts. The corresponding evaluation configurations are provided.
+To operationalize this, we propose a new metric,
+reliable@k, which quantifies whether an LLM
+can simultaneously solve a set of cousin prompts.
+We further design an automated pipeline for gener￾ating high-quality cousin prompts using three data
+augmentation strategies: rephrasing, distractor ad￾dition, and task/constraint reconfiguration. This
+is coupled with a code-assisted validity checker.
+Building on IFEVAL (Zhou et al., 2023), we lever￾age the pipeline to construct an extended bench￾mark, IFEVAL++1
+, which consists of 541 test
+cases, each comprising 10 cousin prompts. This
+provides a testbed for assessing nuance-oriented
+reliability of LLMs in a systematic way.
+Using IFEVAL++, we comprehensively eval￾uate 20 proprietary and 26 open-source LLMs.
+Our analysis reveals that current LLMs often ex￾hibit considerable inconsistent competence across
+cousin prompts. The relative drop from accu￾racy on IFEVAL to reliable@10 on IFEVAL++
+can be as large as 61.8% for Qwen3-0.6B and
+54.7% for GPT-3.5-turbo-1106, while even the
+most reliable model, GPT-5, experiences a de￾crease of 18.3%. Notably, nuance-oriented reli￾ability emerges as a second-order property: for
+instance, while Gemma-3-IT-27B ranks 17th in ac￾curacy on IFEVAL, it rises to 7th when consid￾ering reliable@10 on IFEVAL++. Furthermore,
+we empirically characterize how models’ nuance￾oriented reliability evolves with chronological de￾velopment, model scale, reasoning capability, and
+augmentation type.
+Observing the insufficiency of current LLMs
+in nuance-oriented reliability, we investigate three
+potential pathways for improvement: prediction￾1We name it to show respect for the renowned IFEVAL
+benchmark, as we position IFEVAL++ as a successor of IFE￾VAL, similar to how C++ relates to C.
+based methods, training-based methods, and test￾time scaling. Among these, parallel test-time scal￾ing through rejection sampling proves most ef￾fective, enabling a relatively weak model such
+as Qwen3-4B to surpass even the strongest open￾source model, LLaMA-3.3-70B-Instruct.
+We contend that improving this nuance-oriented
+reliability is a crucial next step toward dependable,
+trustworthy LLM behaviors. In summary, our con￾tributions primarily lie in:
+• We investigate the nuance-oriented reliability of
+LLMs in instruction-following and propose a new
+metric, reliable@k, to quantify it.
+• We develop an automated pipeline for generating
+cousin prompts, and build IFEVAL++, a bench￾mark that enables actionable evaluation of nuance￾oriented reliability.
+• Using IFEVAL++, we conduct comprehensive
+experiments across a wide range of models and ex￾plore three distinct pathways to enhance reliability.
+2 Preliminaries
+2.1 Problem Statement
+Let F be an auto-regressive language model that
+takes a prompt x and produces a response y =
+F(x). Following prior work (Zhou et al., 2023),
+instruction-following ability is typically evaluated
+by checking whether y satisfies a set of constraints
+C = {c1, c2, . . . , cm} specified in the prompt as
+natural language instructions. Please refer to Ap￾pendix A for related works.
+A Pilot Experiment. To ground our discussion, we
+begin with a pilot experiment focusing on test cases
+involving word-length constraints on responses.
+From IFEVAL, we extract 48 suitable prompts
+characterized by a relation (at least, at most, or
+around) and a numerical value num_word, as exem-
+
+=== PDF PAGE 3 ===
+Slightly altered number of words incurs 
+substantial performance variance
+LLMs are less reliable in 
+challenging instructions
+Figure 3: Results of Requesting Varying Number of Response Words. Experiments with Qwen3-8B.
+plified in Figure 2. We then prompt GPT-5-mini to
+convert the prompt in each test case into a template,
+leaving the relation and value configurable. Using
+a length interval of 10, ranging from 50 to 800,
+we program to instantiate the templates, yielding
+3 × 76 × 48 = 10, 944 prompts. The evaluation
+configurations are adjusted accordingly. As shown
+in Figure 3, LLM performance is highly sensitive
+to the requested word count. A minor modifica￾tion, e.g., from “at most 600” to “at most 610”, can
+incur many test cases to fail. This sensitivity is
+especially pronounced under the more challenging
+around constraint. This confirms that LLMs may
+not be reliable across prompts with subtle nuances.
+We ask: Shouldn’t a reliable LLM tackle them all?
+Two Reliability Dimensions in Instruction￾Following. To situate our research, we review
+36 benchmarks designed to evaluate instruction￾following performance (see Appendix A.1). Most
+of these works focus on benchmark comprehensive￾ness—seeking evaluations that span diverse task
+types, domains, and constraint categories. This fo￾cus aligns with the view that a reliable assistant
+should handle diverse user demands across scenar￾ios. However, our pilot study suggests that compre￾hensiveness alone is insufficient to capture the full
+notion of reliability. In real-world use, users may
+phrase identical requirements in multiple ways or
+express similar requirements with nuanced differ￾ences (see Figure 2 for examples). A truly reliable
+LLM should consistently produce correct outputs
+across these prompts. We therefore propose a com￾plementary perspective: nuance-oriented relia￾bility, which measures the model’s stability when
+responding to “cousin prompts” that convey analo￾gous user intents and differ only in subtle linguistic
+or semantic nuances.
+2.2 Scope of This Work
+New Metric: reliable@k. To capture it, we in￾troduce a more challenging metric, reliable@k,
+designed to provide an actionable evaluation of
+LLMs’ nuance-oriented reliability. Specifically,
+reliable@k quantifies how consistently an LLM
+can handle a set of closely related cousin prompts
+simultaneously. Formally, for k cousin prompts
+with model outputs {y1, y2, . . . , yk}, we define
+reliable@k = I
+
+
+X
+k
+j=1
+is_passed(yj ) = k
+
+ ,
+where is_passed(yj ) indicates whether the model’s
+response to the j-th cousin prompt satisfies the
+evaluation criterion. Cousin prompts can be ob￾tained by augmenting the original prompts in ex￾isting benchmarks, which we detail in Section 3.
+The parameter k and the choice of cousin prompts
+together control the rigor of the nuance-oriented
+reliability evaluation, rendering reliable@k scal￾able (see Appendix D.2 for experimental evidence).
+Notably, when k = 1, reliable@1 reduces to the
+standard accuracy metric, since only the original
+prompts are included. It is worth noting that the
+reliable@k metric is orthogonal yet complemen￾tary to the passˆk metric (Yao et al., 2025), which
+runs the same prompt with k independent runs. We
+discuss their difference in Appendix A.2.
+Data Source & Constraint Types. We choose
+IFEVAL (Zhou et al., 2023) as our main testbed,
+since SOTA LLMs have already achieved strong
+performance on it (e.g., OpenAI’s GPT-5 reaches an
+accuracy of 95.9% as measured in Table 1), making
+it a meaningful setting for discussing reliability and
+the challenging reliable@k metric. This bench￾mark focuses on single-turn tasks with 25 types of
+code-verifiable format constraints, such as “Answer
+using at most {num_words} words.” Reliably tack￾ling such simple yet foundational instructions is a
+necessary condition for addressing more complex,
+multi-turn, and multi-modal instruction-following
+settings. See Appendix B.1 for the 25 constraints.
+
+=== PDF PAGE 4 ===
+Prompt
+Rephrasing
+Distractor
+C/T Reconfig
+Validity
+Check
+Retain Evals
+Retain Evals
+Adjust Evals
+Cousin
+Prompts
+Figure 4: Conceptual Illustration of the Augmentation-Filtering Data Curation Pipeline.
+3 Curating Cousin Prompts At Scale
+We introduce three data augmentation methods
+for producing cousin prompts (Section 3.1), our
+checker for ensuring augmented test case validity
+(Section 3.2), and the operational procedures for
+finalizing the IFEVAL++ benchmark (Section 3.3).
+3.1 Data Augmentation Methods
+Data augmentation for cousin prompts primarily
+involves revisions on two components: rewriting
+the prompts and adjusting the evaluation configura￾tions, if necessary. In this work, we mainly account
+for three types of augmentation methods and em￾ploy LLM-based augmentation. See examples of
+the augmented cousin prompts in Figure 2.
+Type 1. Rephrasing. This reflects the scenario
+where different users may articulate the same task
+in varying ways. The augmenter rephrases each
+of the 541 prompts from IFEVAL into alternative
+wordings while preserving the core task and con￾straint semantics (see Prompt 2). For rephrasing,
+the corresponding evaluation configurations remain
+unchanged, since the rephrased prompts still re￾quest responses that satisfy the same requirements
+as the original prompts.
+Type 2. Distractor Addition. The augmenter
+appends each prompt with a distractor constraint
+that does not interfere with the satisfaction of the
+original constraints (see Prompt 3). The augmenter
+is instructed to ensure that each distractor constraint
+remains compatible with the original prompt. In
+this setting, responses continue to be evaluated
+against the original constraints, with the added con￾straint functioning purely as a distractor, in con￾trast to prior work on multi-constraint composi￾tion (Jiang et al., 2024; Wen et al., 2024). This
+setup examines whether LLMs can integrate addi￾tional constraints in a plug-and-play manner.
+Type 3. Constraint/Task Reconfiguration. In
+this setting, we aim to examine whether LLMs
+can reliably follow instructions when prompts are
+presented in varied scenarios. To this end, we
+craft cousin prompts that share the same require￾ment types but differ in subtle ways. For test
+cases with at least one configurable constraint (e.g.,
+num_word), we instruct the augmenter to modify
+the constraint and update the evaluation configu￾rations accordingly (see Prompt 4). This mirrors
+the pilot experiment introduced in Section 2.1. For
+cases with only non-configurable constraints, such
+as requiring responses in JSON format, we instead
+configure the task to indirectly impose the same
+requirement in a different context (Prompt 1). In
+the case of task reconfiguration, the evaluation con￾figurations remain unchanged.
+3.2 Code-Assisted Validity Check
+LLM-based augmentation enables us to rapidly ac￾quire cousin prompts, but risks introducing flawed
+test cases. To mitigate this issue, we develop an
+automated validity checker.
+The checker is designed with an emphasis on
+high recall: its primary objective is to flag any
+potentially erroneous cases, even at the cost of
+over-detection. This strategy allows us to curate a
+high-quality evaluation set by filtering candidates
+against the checker. Inspired by Chen et al. (2023),
+our central design is to embed the implementations
+of evaluation functions directly into the checker’s
+prompt, clearly specifying how the evaluation op￾erates (see Prompt 5). Empirically, this approach
+enables more deterministic and robust verification.
+The checker is implemented in a unified way to
+monitor all three types of augmented test cases.
+Validating the Checker. Following principles
+in Appendix B.2, we iteratively refined the checker
+prompt on 3 × 300 = 900 test cases, where the
+augmenter was deliberately instructed to inject er￾rors. This is an aggressive modeling of flawed
+prompts that the checker may encounter. Us￾ing GPT-5-mini (medium reasoning effort), the
+checker achieved a recall of 99.7% (898/900).
+To further assess robustness, we evaluated it on
+3 × 1, 000 = 3, 000 additional flawed cases, main-
+
+=== PDF PAGE 5 ===
+Table 1: Nuance-Oriented Reliability of Representative LLMs. We use rel@k for reliable@k and “C/T” for
+constraints or tasks. We report reliable@k across IFEVAL++ subsets by augmentation method. Models are ranked
+by reliable@10 on IFEVAL++ (with the rankings of IFEVAL accuracy for reference). Reasoning models are in
+blue , non-reasoning in beige . Best and second-best scores are in bold and underline.
+Model IFEVAL +Rephrasing +Distractor +C/T Reconfig IFEVAL++
+Acc Rank rel@2 rel@4 rel@2 rel@4 rel@2 rel@4 rel@10 Rel ∆
+Open-Source LLMs
+LLaMA-3.3-70B-Instruct 92.1 1 89.6 88.9 88.0 80.0 89.6 80.6 71.0 -22.9%
+DeepSeek-V3.1 90.6 5 86.0 81.3 85.6 77.3 86.5 76.0 63.4 -30.0%
+Qwen3-Next-80B-A3B-TK 91.3 2 86.1 80.8 84.8 76.5 86.3 76.9 63.2 -30.8%
+Kimi-K2-0905 91.3 2 86.9 81.5 85.8 78.0 85.2 76.0 63.0 -31.0%
+Qwen3-Next-80B-A3B-IT 90.9 4 84.6 80.4 86.5 77.3 86.5 75.8 62.3 -31.5%
+GLM-4.5 86.9 10 82.6 78.2 81.1 72.5 83.2 74.9 61.7 -28.9%
+Gemma-3-IT-27B 84.3 17 80.4 77.8 79.1 73.4 80.4 70.2 61.6 -27.0%
+Qwen3-14B 88.4 6 85.4 81.5 83.2 73.4 83.2 72.5 61.2 -30.8%
+Gemma-3-IT-12B 84.3 17 81.1 78.2 79.7 73.0 79.3 69.5 59.5 -29.4%
+Qwen3-8B 87.6 7 83.4 79.5 81.7 72.8 81.3 69.9 58.8 -32.9%
+LLaMA-3.1-70B-Instruct 85.6 15 82.3 79.1 79.5 71.0 81.0 69.1 57.1 -33.3%
+Qwen3-30B-A3B 87.6 7 80.6 75.6 81.5 70.6 82.6 71.2 57.1 -34.8%
+GLM-4.5-Air 87.4 9 82.6 76.3 81.1 70.8 81.5 70.8 56.7 -35.1%
+Qwen3-235B-A22B 86.3 12 81.0 73.8 78.6 69.7 81.3 70.1 56.6 -34.5%
+GPT-oss-120b 86.0 14 81.9 75.4 80.0 72.6 77.3 67.1 56.4 -34.4%
+Qwen2.5-72B-Instruct 86.7 11 82.6 76.3 77.6 68.2 80.0 69.1 55.6 -35.9%
+Qwen3-32B 86.3 12 81.5 75.8 81.9 72.3 81.7 69.7 55.3 -36.0%
+DeepSeek-R1 83.4 20 77.1 70.6 77.8 69.1 75.8 65.4 53.0 -36.4%
+Qwen3-4B 85.2 16 79.9 74.5 78.7 67.8 79.1 65.4 52.1 -38.8%
+Qwen2.5-32B-Instruct 82.4 21 77.6 71.2 72.5 62.8 75.4 64.1 50.3 -39.0%
+GPT-oss-20b 83.9 19 76.5 68.2 76.9 66.2 73.2 61.9 46.8 -44.3%
+Qwen2.5-14B-Instruct 78.2 22 72.6 67.1 69.5 59.0 69.7 57.3 44.7 -42.8%
+LLaMA-3.1-8B-Instruct 75.8 23 70.8 64.7 65.8 57.1 67.1 53.8 41.4 -45.4%
+Qwen2.5-7B-Instruct 73.0 24 66.2 60.1 62.5 50.5 63.8 50.6 34.8 -52.3%
+Qwen3-1.7B 71.5 25 63.4 55.1 62.3 49.4 61.6 46.2 34.0 -52.5%
+Qwen3-0.6B 58.0 26 47.5 41.4 46.0 33.3 46.6 34.2 22.2 -61.8%
+Proprietary LLMs
+GPT-5 95.9 1 93.3 90.4 93.0 86.5 93.7 88.7 78.4 -18.3%
+o3 94.3 3 93.5 89.1 92.1 84.5 91.7 85.0 75.0 -21.3%
+o4-mini 95.6 2 91.9 87.1 90.4 81.7 91.9 84.8 72.3 -24.4%
+Gemini-2.5-pro 93.3 5 89.6 87.4 88.4 82.6 91.3 83.0 71.9 -23.0%
+GPT-5-mini 94.1 4 90.6 85.2 89.3 83.0 89.1 82.8 70.6 -25.0%
+o3-mini 91.4 6 89.5 86.0 88.7 81.5 88.5 80.6 70.1 -25.2%
+Gemini-2.5-flash 90.4 8 87.6 84.3 85.6 78.4 86.7 78.2 66.4 -26.5%
+Gemini-2.0-flash 90.6 7 87.8 83.7 84.4 78.0 85.6 77.3 65.8 -27.3%
+GPT-4.1 89.8 9 86.3 83.0 83.9 76.3 84.3 76.9 64.7 -28.0%
+Gemini-2.5-flash-lite 88.0 10 83.9 81.5 83.2 75.8 83.0 73.2 62.7 -28.8%
+GPT-5-nano 90.6 7 85.0 81.3 85.8 77.3 83.9 71.5 61.6 -32.0%
+GPT-4o 85.0 13 80.2 76.3 79.7 71.3 79.3 69.1 58.6 -31.1%
+GPT-4.1-mini 86.9 11 83.2 78.9 79.9 71.7 80.6 70.2 58.4 -32.8%
+GPT-4o-2024-05-13 85.4 12 81.3 78.0 79.1 71.7 79.1 66.7 57.9 -32.3%
+GPT-4o-2024-11-20 80.8 15 77.6 73.9 75.4 68.8 75.2 64.1 55.3 -31.6%
+GPT-4o-mini 80.4 16 75.8 71.7 72.1 64.1 72.8 60.3 48.4 -39.8%
+o1-mini 83.4 14 76.2 66.9 74.7 65.2 73.8 59.3 46.4 -44.3%
+GPT-4.1-nano 77.4 17 72.5 67.8 70.1 60.6 68.8 55.6 42.9 -44.6%
+GPT-3.5-turbo-0125 66.4 18 57.9 50.8 55.5 44.7 55.3 42.1 32.2 -51.5%
+GPT-3.5-turbo-1106 61.6 19 53.0 48.4 50.5 41.0 51.8 37.8 27.9 -54.7%
+taining a recall of 99.9% (2,997/3,000); the few
+misses were due to unavoidable hallucinations (Sun
+et al., 2025). The checker also achieved 90.0% pre￾cision on 541 unrevised prompts2
+. Overall, the
+checker rigorously detects invalid prompts with
+2Many flagged cases were indeed flawed or ambiguous.
+Necessary corrections are detailed in Appendix B.3, and the
+revised dataset is used for subsequent experiments.
+
+=== PDF PAGE 6 ===
+minimal valid loss. Moreover, since the augmenter
+is also explicitly guided to avoid introducing flaws,
+the two-layer mechanism minimizes the risk of
+flaws arising from the augmentation process.
+3.3 Synthesizing the IFEVAL++ Benchmark
+In this section, we synthesize IFEVAL++: To bal￾ance cost and coverage, each original test case is
+expanded into nine replicates, with three from each
+augmentation method. Following the augmentation
+methodology introduced earlier, we automatically
+produce cousin prompts and verify them using the
+code-assisted validity checker to ensure integrity.
+This process is iterated until a sufficient number of
+valid cousin prompts are collected.
+The IFEVAL++ benchmark comprises 541 test
+cases, each containing one original prompt and nine
+cousin prompts. With IFEVAL++, we can char￾acterize the nuance-oriented dimension of LLMs’
+reliability, which cannot be revealed by evaluat￾ing only standalone prompts. Accordingly, we
+report reliable@1 (i.e., accuracy on IFEVAL),
+reliable@10 on IFEVAL++, and reliable@4
+and reliable@2 on the subsets of IFEVAL++ cor￾responding to each augmentation type.
+4 Experiments
+4.1 Experimental Setup
+Models. In this work, we include a diverse set of
+46 models to facilitate comparative analyses across
+four key dimensions: (a) differences in model scale,
+(b) chronologically different generations of models,
+(c) contrasts between open-source and proprietary
+models, and (d) distinctions between reasoning and
+non-reasoning models. Additional model details
+are provided in Appendix C.
+Generation Strategies. We use official default sys￾tem messages when provided in chat template (e.g.,
+for Qwen-2.5 models); otherwise, we leave the sys￾tem message empty to elicit the model’s default be￾havior, as suggested by models like DeepSeek-R13
+.
+We further validate this choice in Appendix D.1.
+We employ greedy decoding by default, which is
+suitable for reliability evaluation and provides a
+reproducibility guarantee. Additionally, we enable
+reasoning mode by default if supported.
+Evaluation Methods. Following the practices of
+DeepSeek-V3 (Liu et al., 2024), Qwen3 (Yang et al.,
+2025a), and Kimi K2 (Team et al., 2025), we use
+3
+https://huggingface.co/deepseek-ai/
+DeepSeek-R1#usage-recommendations
+the prompt strict evaluation mode of IFEVAL. This
+requires LLMs to satisfy all requirements specified
+in the prompts. Based on this success signal, we
+compute the reliable@k metric.
+4.2 Main Results with IFEVAL++
+We answer the initial question: Current LLMs do
+not guarantee nuance-oriented reliability.
+As shown in Table 1, the relative drop from accu￾racy on IFEVAL to reliable@10 on IFEVAL++
+is substantial, reaching up to 61.8% for Qwen3-0.
+6B and 54.7% for GPT-3.5-turbo-1106. Even the
+most reliable model, GPT-5, suffers an 18.3% de￾cline when confronted with prompts containing
+subtle variations. Importantly, we observe that
+higher accuracy on IFEVAL does not necessarily
+translate into higher reliable@10 on IFEVAL++.
+For example, while Gemma-3-IT-27B ranks only
+17th on IFEVAL, it rises to 7th place on IFE￾VAL++. This highlights that nuance-oriented reli￾ability is a second-order property beyond accu￾racy, one that comprehensiveness-oriented bench￾marks fail to capture. We provide the category-wise
+reliability in Appendix D.4. Besides, we arrive at
+several empirical findings:
+• Chronological Development: As expected,
+more recent LLMs tend to perform better, espe￾cially when developed by the same vendor. This un￾derscores the importance of the underlying training
+methodology, as highlighted by the stark difference
+in reliability between LLaMA-3.3-70B-Instruct
+(reliable@10: 71.0) and its predecessor, LLaMA-3.
+1-70B-Instruct (reliable@10: 57.1).
+• Model Scale: In general, larger-scale mod￾els tend to outperform smaller ones. An excep￾tion is observed within the Qwen3 family, where
+Qwen3-14B demonstrates lower accuracy on IFE￾VAL but achieves a higher reliable@10 score com￾pared to the larger Qwen3-32B. This indicates that
+surpassing a certain parameter size is sufficient to
+attain high reliability. Meanwhile, performance is
+not determined by scale alone: Training data qual￾ity and methodology also play crucial roles. No￾tably, models with comparable parameter counts
+but developed by different vendors can show sub￾stantial differences in reliability, as exemplified by
+Gemma-3-IT-27B and Qwen2.5-32B-Instruct.
+• Reasoning: Reasoning models demonstrate
+increasingly stronger nuance-oriented reliability.
+However, LLaMA-3.3-70B-Instruct, though not
+a reasoning model, still achieves the highest rank￾ing among open-source models. This suggests rea-
+
+=== PDF PAGE 7 ===
+Table 2: AUROC Scores of Prediction Methods.
+Method Qwen3-8B Qwen2.5-7B
+Verb. Conf. 0.549 0.518
+Perplexity 0.497 0.529
+Probing 0.757 0.759
+soning itself may not be a prerequisite for achiev￾ing high reliability. This motivates us to examine
+the specific contribution of reasoning to reliability,
+which we investigate in Section 5.3.
+• Augmentation Type. Models exhibit varying
+robustness to the three types of cousin prompts.
+Most models can effectively handle rephrased
+cousin prompts, which share the greatest similar￾ity with the original ones. This result is expected,
+as rephrased prompts differ only in wording (un￾derstanding the instructions) while requesting the
+same underlying response (executing the instruc￾tions). In contrast, cousin prompts that include
+additional distractor constraints or C/T reconfigu￾ration introduce greater complexity. Their corre￾sponding reliable@4 scores are typically lower
+than those of rephrased prompts. We hypothe￾size that, although distractor constraints are de￾signed to remain compatible with the original in￾structions, and C/T reconfiguration introduces only
+slight variations in the underlying requirements,
+both inevitably increase the difficulty of response
+planning and execution (Dong et al., 2025b).
+5 How to Improve Reliability?
+While LLMs are not yet reliable, we explore three
+possible directions for improving them.
+5.1 Predicting the Selective Following
+If we can predict how the LLM reacts to differ￾ent prompts, we can proactively approach reliable
+LLM services by prompt selection. This case study
+goes in a similar vein to Stolfo et al. (2025); Cao
+et al. (2024); Heo et al. (2025a,b), but our focus is
+to predict the instruction-following prior to genera￾tion and across various cousin prompts. We experi￾ment with Qwen3-8B and Qwen2.5-7B-Instruct.
+For each model, we randomly sample 1,200 of
+them as the validation set, with 600 followed and
+600 unfollowed. We evaluate three prediction meth￾ods, with performance presented in Table 2.
+• Verbalized Confidence. We instruct the LLM to
+articulate its confidence in successfully following
+one given prompt, on a scale from 0 to 9. Yet,
+0 40 80 120 160 200 240 280 312
+Training Steps
+20
+30
+40
+50
+Reliable@10 (%)
+Cousin Prompts Alpaca
+Figure 5: Training on Datasets Affects Reliability
+Performance on IFEVAL++ in Varying Fashion.
+the self-reported confidence yields performance
+close to random guessing. This outcome can be
+attributed to the LLMs’ general tendency toward
+overconfidence, aligning with Xiong et al. (2024).
+• Prompt Perplexity. We compute the perplexity
+of LLMs on each prompt and use it for predict￾ing instruction-following. Yet, the close-to-chance
+AUROC reveals that low-perplexity prompts that
+are most familiar to the model do not necessarily
+correspond to successful instruction-following.
+• Probing Hidden States. Causal LMs may
+plan their responses before generation, and the
+relevant signals can be probed from their hidden
+states (Dong et al., 2025b). Specifically, we train
+a linear logistic regression probe, which takes the
+hidden states of the last input token as input. To
+train the probe, we additionally collect a non￾overlapping set of 200 followed and 200 unfol￾lowed prompts. Compared with the previous two
+methods, probing provides a more effective predic￾tion. The best validation performance is achieved
+when probing the 17th and the 27th layer on two
+models, respectively. Although probing shows po￾tential in this direction, the probes are far from
+being a reliable predictor.
+5.2 Training-Based Method
+We adopt supervised fine-tuning (SFT) as our
+training method and evaluate two dataset config￾urations, which represent the two extremes of
+prompt relatedness. (1) We use the general-domain
+instruction-following dataset, ALPACA (Taori et al.,
+2023), whose prompts are largely unrelated to
+IFEVAL++. (2) We curate an additional set of
+prompts, also augmented from IFEVAL but de￾contaminated from IFEVAL++ prompts via exact
+matching. Then, we collect responses via rejection
+sampling against LLaMA-3.3-70B-Instruct. We
+fine-tune Qwen-2.5-7B-Instruct for 312 steps on
+each dataset. Further details on data curation and
+training are provided in Appendix E.1.
+Figure 5 reports the reliability performance on
+
+=== PDF PAGE 8 ===
+50
+60
+70
+80
+90
+100 Reliable@10 (%)
+Minimal
+(Disabled)
+Low
+(Enabled)
+Medium High
+GPT-5-mini
+Gemini-2.5-Flash
+Qwen3-14B
+Qwen3-32B
+Figure 6: Impact of Reasoning Effort on Nuance￾Oriented Reliability of LLMs.
+IFEVAL++ across training steps. The two datasets
+lead to markedly different outcomes. Models fine￾tuned on ALPACA exhibit a slightly declining per￾formance. In contrast, training on the curated
+cousin prompts steadily improves reliability, with
+performance climbing above 45% after 200 steps.
+This reaffirms reliability as a second-order prop￾erty from the training perspective. It benefits more
+from targeted fine-tuning on semantically adjacent
+samples rather than from the sheer scale of train￾ing data. This observation resonates with recent
+explorations on rewriting training data (Fujii et al.,
+2025; Team et al., 2025). In Appendix E.2, we ad￾ditionally explore how different training techniques
+(SFT vs. DPO (Rafailov et al., 2024)) affect the
+nuance-oriented reliability.
+5.3 Test-Time Scaling
+We explore two forms of scaling up test-time com￾pute (Snell et al., 2024): sequential and parallel.
+• Sequential (Reasoning Effort). Reasoning mod￾els inherently capture thinking patterns such as
+self-correction (Guo et al., 2025). Scaling up rea￾soning effort can be viewed as a sequential ana￾logue to scaling up test-time compute. We in￾clude four models that support adaptive reasoning
+budget control: GPT-5-mini, Gemini-2.5-Flash,
+Qwen3-14B, and Qwen3-32B. As shown in Figure 6,
+increasing reasoning effort usually improves reli￾ability, particularly for GPT-5-mini. Manual in￾spection of their intrinsic CoT reveals that, through
+reasoning, models can infer user intent and adapt
+responses accordingly. This explicit reasoning pro￾cess enhances robustness against subtle prompt
+variations. However, inappropriate reasoning pat￾terns may reduce reliability (Chen et al., 2024a;
+Dong et al., 2025a), as evidenced by the negative
+effects observed in Qwen3-32B.
+• Parallel (Rejection Sampling). To scale test￾time compute in parallel, we adopt sampling rather
+than greedy decoding, generating n samples with
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+n (# Sampled Responses)
+0
+20
+40
+60
+80
+100
+R
+eliable
+@
+k (%)
+Qwen2.5-7B
+Qwen3-8B
+Qwen3-4B
+Llama-3.3-70B
+Figure 7: Scaling Landscape of Rejection Sampling.
+a temperature of 1. We assume the availability of
+a response selector. For example, in prompts re￾lated to IFEVAL++, format requirements can be
+extracted with the assistance of an LLM, while
+Python code can be used for rapid response evalua￾tion. With the response selector, the reliable@10
+metric is scored positively if the 10 cousin prompts
+within one group all have at least one response
+that passes among the n samples. The results
+are shown in Figure 7. Rejection sampling with
+a suitable response selector effectively enhances
+the reliability of LLMs in instruction-following.
+The reliable@10 scores rise significantly as more
+samples are allowed, plateauing around n = 12.
+We further observe that reasoning models, such as
+Qwen3-8B, benefit more from additional compute
+via parallel scaling, given their more exploratory
+nature (Chen et al., 2025). For instance, Qwen3-4B
+and Qwen3-8B, with only n = 3 samples, already
+surpass LLaMA-3.3-70B (the strongest open-source
+model in Table 1). However, we note that extending
+this parallel scaling strategy to other domains may
+be challenging without suitable response selectors.
+6 Conclusion
+In this work, we present a systematic study on the
+nuance-oriented reliability of LLMs in instruction￾following. To characterize this property, we intro￾duce the new metric reliable@k, which can be
+instantiated with cousin prompts. We design and
+implement a fully automated pipeline to generate
+such cousin prompts through data augmentation
+methods, combined with a code-assisted validity
+checker. Leveraging this pipeline, we construct
+the IFEVAL++ benchmark, which enables system￾atic evaluation. Extensive experiments across 46
+models using IFEVAL++ uncover a critical vul￾nerability: current LLMs frequently fail to ensure
+reliability across cousin prompts with nuanced dif￾ferences. We further explore three directions for im￾proving this reliability: prediction-based, training-
+
+=== PDF PAGE 9 ===
+based, and test-time scaling. Overall, our findings
+highlight the importance of moving toward nuance￾oriented reliability as a key dimension of depend￾able, trustworthy LLM behaviors.
+7 Acknowledgment
+This work was supported by Ant Group and the
+Center for High Performance Computing at Ts￾inghua University.
+8 Limitations
+We identify several points that are not fully solved
+in this work and are worth future investigation.
+Measurement Efficiency. Our practice of evaluat￾ing nuance-oriented reliability is straightforward,
+where we introduce cousin prompts to avoid the
+risk of hacking certain test cases. This enables
+us to compute the reliable@k metric to monitor
+the reliability dimension. However, this also intro￾duces a higher evaluation cost. For example, a full
+evaluation of IFEVAL++ requires 10× as many
+responses to be generated as IFEVAL. Future work
+will focus on selecting or crafting those most dif￾ferentiating test cases and cousin prompts, which
+enables a more cost-efficient evaluation.
+Missing Content-Level Evaluation. Following
+common practice in prior studies, we primarily
+evaluate whether LLMs adhere to constraint in￾structions. Moreover, prompts often include one
+or multiple tasks, which are not explicitly assessed
+by either IFEVAL or IFEVAL++. This design
+choice is acceptable, as satisfying constraints is a
+necessary prerequisite for correctly following the
+entire prompt. Future work could extend this by
+jointly measuring content-level response quality
+along with constraint adherence.
+Focus on IFEVAL. In this work, we primarily
+adopt IFEVAL as our testbed. It is widely rec￾ognized in the community as a standard bench￾mark for instruction-following evaluation and has
+approached performance saturation with the lat￾est models. Nevertheless, our reliability evalu￾ation methodology is not limited to this single
+benchmark. Future research may extend our ap￾proach to other existing benchmarks, or even be￾yond the instruction-following domain. We envi￾sion that evaluating nuance-oriented reliability will
+become a default practice, complementing tradi￾tional capacity-oriented evaluation.
+Potential Bias in Automated Validity Check. Al￾though the code-assisted validity checker demon￾strates high recall and precision, its automation
+depends on LLM-based judgment, which may in￾troduce subtle biases or misclassifications. We care￾fully and systematically validate the checker’s per￾formance in Section 3.2 and additionally dedicate
+substantial, though undocumented, manual effort
+to continuously monitor and ensure the quality of
+the checking process. Moreover, the strong perfor￾mance of advanced models—such as GPT-5, which
+achieves a reliable@10 of 78.4—suggests that
+most test cases are indeed valid and feasible; other￾wise, invalid cases would cause even the strongest
+LLMs to fail consistently.
+Limited Coverage of Improvement Recipes.
+While numerous efforts have been proposed to en￾hance instruction-following capabilities, reproduc￾ing all such methods to assess their combined im￾pact on nuance-oriented reliability lies beyond the
+scope of this work. We focus on several representa￾tive improvement strategies, including prediction￾based, training-based, and test-time scaling ap￾proaches. Future research could undertake a more
+comprehensive investigation to identify the most ef￾fective techniques for improving reliability across
+diverse enhancement paradigms.
+Cross-Lingual Reliability. Our study primarily
+evaluates instructions expressed in English, leaving
+the applicability of reliable@k to under-resourced
+languages largely unexplored. In principle, the
+metric can be adapted through practical adjust￾ments, such as incorporating a translation module
+in the data augmentation pipeline and extending
+evaluation functions to additional languages. As￾sessing reliability across languages expands the
+scope of model evaluation and may reveal critical
+insights into the fairness and generalizability of
+LLM performance for users of diverse linguistic
+backgrounds. We envision that a comprehensive
+investigation of cross-lingual reliability will yield
+further insights into model generalization.
+9 Ethical Considerations
+Our research adheres to the ethical guidelines es￾tablished by the Association for Computational
+Linguistics (ACL)4
+. We have made every effort
+to conduct this work with the utmost respect for
+ethical principles and research integrity.
+This research aims to advance the understand￾ing of the reliability of large language models in
+4
+https://aclrollingreview.org/
+responsibleNLPresearch/
+
+=== PDF PAGE 10 ===
+instruction-following. All experiments were per￾formed on publicly available models and datasets,
+ensuring compliance with relevant terms of ser￾vice and data usage policies, e.g., IFEVAL (Zhou
+et al., 2023). No proprietary or confidential infor￾mation was accessed or reverse-engineered during
+this study. Our analyses do not involve human sub￾jects, sensitive personal data, or the generation of
+harmful content. Our use of AI assistants is limited
+to writing polishing and grammar checking. We
+release the complete codebase and datasets (e.g.,
+IFEVAL++) to ensure full reproducibility of our
+results.
+Finally, we remind the readers that any tech￾niques introduced in this paper should be applied
+ethically and within appropriate research contexts.
+References
+Bowen Cao, Deng Cai, Zhisong Zhang, Yuexian Zou,
+and Wai Lam. 2024. On the worst prompt perfor￾mance of large language models. NeurIPS.
+Wenhu Chen, Xueguang Ma, Xinyi Wang, and
+William W. Cohen. 2023. Program of thoughts
+prompting: Disentangling computation from reason￾ing for numerical reasoning tasks. TMLR.
+Xingyu Chen, Jiahao Xu, Tian Liang, Zhiwei He,
+Jianhui Pang, Dian Yu, Linfeng Song, Qiuzhi Liu,
+Mengfei Zhou, Zhuosheng Zhang, and 1 others.
+2024a. Do not think that much for 2+ 3=? on
+the overthinking of o1-like llms. arXiv preprint
+arXiv:2412.21187.
+Xinyi Chen, Baohao Liao, Jirui Qi, Panagiotis Eustra￾tiadis, Christof Monz, Arianna Bisazza, and Maarten
+Rijke. 2024b. The sifo benchmark: Investigating
+the sequential instruction following ability of large
+language models. In EMNLP (Findings).
+Yihan Chen, Benfeng Xu, Quan Wang, Yi Liu, and
+Zhendong Mao. 2024c. Benchmarking large lan￾guage models on controllable generation under diver￾sified instructions. In AAAI.
+Zhipeng Chen, Xiaobo Qin, Youbin Wu, Yue Ling,
+Qinghao Ye, Wayne Xin Zhao, and Guang Shi. 2025.
+Pass@ k training for adaptively balancing exploration
+and exploitation of large reasoning models. arXiv
+preprint arXiv:2508.10751.
+Wei-Lin Chiang, Lianmin Zheng, Ying Sheng, Anasta￾sios Nikolas Angelopoulos, Tianle Li, Dacheng Li,
+Banghua Zhu, Hao Zhang, Michael Jordan, Joseph E
+Gonzalez, and 1 others. 2024. Chatbot arena: An
+open platform for evaluating llms by human prefer￾ence. In ICML.
+Jianshuo Dong, Yujia Fu, Chuanrui Hu, Chao Zhang,
+and Han Qiu. 2025a. Towards understanding the
+cognitive habits of large reasoning models. arXiv
+preprint arXiv:2506.21571.
+Zhichen Dong, Zhanhui Zhou, Zhixuan Liu, Chao Yang,
+and Chaochao Lu. 2025b. Emergent response plan￾ning in LLMs. In ICML.
+Yann Dubois, Balázs Galambosi, Percy Liang, and Tat￾sunori B Hashimoto. 2024. Length-controlled al￾pacaeval: A simple way to debias automatic evalua￾tors. arXiv preprint arXiv:2404.04475.
+Elliot L Epstein, Kaisheng Yao, Jing Li, Xinyi Bai, and
+Hamid Palangi. 2024. Mmmt-if: A challenging mul￾timodal multi-turn instruction following benchmark.
+arXiv preprint arXiv:2409.18216.
+Thomas Palmeira Ferraz, Kartik Mehta, Yu-Hsiang Lin,
+Haw-Shiuan Chang, Shereen Oraby, Sijia Liu, Vivek
+Subramanian, Tagyoung Chung, Mohit Bansal, and
+Nanyun Peng. 2024. Llm self-correction with de￾crim: Decompose, critique, and refine for enhanced
+following of instructions with multiple constraints.
+In EMNLP (Findings).
+Tingchen Fu, Jiawei Gu, Yafu Li, Xiaoye Qu, and
+Yu Cheng. 2025. Scaling reasoning, losing control:
+Evaluating instruction following in large reasoning
+models. arXiv preprint arXiv:2506.01776.
+Kazuki Fujii, Yukito Tajima, Sakae Mizuki, Hinari
+Shimada, Taihei Shiotani, Koshiro Saito, Masanari
+Ohi, Masaki Kawamura, Taishi Nakamura, Takumi
+Okamoto, and 1 others. 2025. Rewriting pre-training
+data boosts llm performance in math and code. arXiv
+preprint arXiv:2505.02881.
+Tao Ge, Xin Chan, Xiaoyang Wang, Dian Yu, Haitao
+Mi, and Dong Yu. 2024. Scaling synthetic data cre￾ation with 1,000,000,000 personas. arXiv preprint
+arXiv:2406.20094.
+Daya Guo, Dejian Yang, Haowei Zhang, Junxiao
+Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shi￾rong Ma, Peiyi Wang, Xiao Bi, and 1 others. 2025.
+Deepseek-r1: Incentivizing reasoning capability in
+llms via reinforcement learning. arXiv preprint
+arXiv:2501.12948.
+Qianyu He, Jie Zeng, Wenhao Huang, Lina Chen, Jin
+Xiao, Qianxi He, Xunzhe Zhou, Jiaqing Liang, and
+Yanghua Xiao. 2024a. Can large language models un￾derstand real-world complex instructions? In AAAI.
+Yun He, Di Jin, Chaoqi Wang, Chloe Bi, Karishma
+Mandyam, Hejia Zhang, Chen Zhu, Ning Li, Tengyu
+Xu, Hongjiang Lv, and 1 others. 2024b. Multi￾if: Benchmarking llms on multi-turn and mul￾tilingual instructions following. arXiv preprint
+arXiv:2410.15553.
+Juyeon Heo, Christina Heinze-Deml, Oussama Elachqar,
+Kwan Ho Ryan Chan, Shirley You Ren, Andrew
+Miller, Udhyakumar Nallasamy, and Jaya Narain.
+2025a. Do LLMs “know” internally when they fol￾low instructions? In ICLR.
+
+=== PDF PAGE 11 ===
+Juyeon Heo, Miao Xiong, Christina Heinze-Deml, and
+Jaya Narain. 2025b. Do LLMs estimate uncertainty
+well in instruction-following? In ICLR.
+Edward J Hu, yelong shen, Phillip Wallis, Zeyuan Allen￾Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu
+Chen. 2022. LoRA: Low-rank adaptation of large
+language models. In ICLR.
+Daniel Jaroslawicz, Brendan Whiting, Parth Shah, and
+Karime Maamari. 2025. How many instructions can
+llms follow at once? NeurIPS Workshop.
+Yuxin Jiang, Yufei Wang, Xingshan Zeng, Wanjun
+Zhong, Liangyou Li, Fei Mi, Lifeng Shang, Xin
+Jiang, Qun Liu, and Wei Wang. 2024. Follow￾bench: A multi-level fine-grained constraints follow￾ing benchmark for large language models. In ACL.
+Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying
+Sheng, Lianmin Zheng, Cody Hao Yu, Joseph Gon￾zalez, Hao Zhang, and Ion Stoica. 2023. Efficient
+memory management for large language model serv￾ing with pagedattention. In SOSP.
+Nathan Lambert, Jacob Morrison, Valentina Pyatkin,
+Shengyi Huang, Hamish Ivison, Faeze Brahman,
+Lester James V Miranda, Alisa Liu, Nouha Dziri,
+Shane Lyu, and 1 others. 2024. Tulu 3: Pushing fron￾tiers in open language model post-training. arXiv
+preprint arXiv:2411.15124.
+Jinnan Li, Jinzhe Li, Yue Wang, Yi Chang, and Yuan Wu.
+2025a. Structflowbench: A structured flow bench￾mark for multi-turn instruction following. In ACL
+(Findings).
+Zhenyu Li, Kehai Chen, Yunfei Long, Xuefeng Bai,
+Yaoyin Zhang, Xuchen Wei, Juntao Li, and Min
+Zhang. 2025b. Xifbench: Evaluating large language
+models on multilingual instruction following. arXiv
+preprint arXiv:2503.07539.
+Gili Lior, Asaf Yehudai, Ariel Gera, and Liat Ein-Dor.
+2025. Wildifeval: Instruction following in the wild.
+arXiv preprint arXiv:2503.06573.
+Aixin Liu, Bei Feng, Bing Xue, Bingxuan Wang,
+Bochao Wu, Chengda Lu, Chenggang Zhao, Chengqi
+Deng, Chenyu Zhang, Chong Ruan, and 1 others.
+2024. Deepseek-v3 technical report. arXiv preprint
+arXiv:2412.19437.
+Yile Liu, Ziwei Ma, Xiu Jiang, Jinglu Hu, Jing Chang,
+and Liang Li. 2025. Maxife: Multilingual and
+cross-lingual instruction following evaluation. arXiv
+preprint arXiv:2506.01776.
+Ilya Loshchilov and Frank Hutter. 2019. Decoupled
+weight decay regularization. In ICLR.
+Moran Mizrahi, Guy Kaplan, Dan Malkin, Rotem Dror,
+Dafna Shahaf, and Gabriel Stanovsky. 2024. State
+of what art? a call for multi-prompt llm evaluation.
+Transactions of the Association for Computational
+Linguistics.
+Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida,
+Carroll Wainwright, Pamela Mishkin, Chong Zhang,
+Sandhini Agarwal, Katarina Slama, Alex Ray, and
+1 others. 2022. Training language models to follow
+instructions with human feedback. NeurIPS.
+Valentina Pyatkin, Saumya Malik, Victoria Graf,
+Hamish Ivison, Shengyi Huang, Pradeep Dasigi,
+Nathan Lambert, and Hannaneh Hajishirzi. 2025.
+Generalizing verifiable instruction following. arXiv
+preprint arXiv:2507.02833.
+Yunjia Qi, Hao Peng, Xiaozhi Wang, Amy Xin, Youfeng
+Liu, Bin Xu, Lei Hou, and Juanzi Li. 2025. Agen￾tif: Benchmarking instruction following of large lan￾guage models in agentic scenarios. arXiv preprint
+arXiv:2505.16944.
+Yanzhao Qin, Tao Zhang, Yanjun Shen, Wenjing Luo,
+Haoze Sun, Yan Zhang, Yujing Qiao, Weipeng Chen,
+Zenan Zhou, Wentao Zhang, and 1 others. 2025. Sys￾bench: Can large language models follow system
+messages? In ICLR.
+Yiwei Qin, Kaiqiang Song, Yebowen Hu, Wenlin Yao,
+Sangwoo Cho, Xiaoyang Wang, Xuansheng Wu, Fei
+Liu, Pengfei Liu, and Dong Yu. 2024. Infobench:
+Evaluating instruction following ability in large lan￾guage models. In ACL (Findings).
+Rafael Rafailov, Archit Sharma, Eric Mitchell, Christo￾pher D Manning, Stefano Ermon, and Chelsea Finn.
+2024. Direct preference optimization: Your language
+model is secretly a reward model. NeurIPS.
+Yangjun Ruan, Honghua Dong, Andrew Wang, Sil￾viu Pitis, Yongchao Zhou, Jimmy Ba, Yann Dubois,
+Chris J. Maddison, and Tatsunori Hashimoto. 2024.
+Identifying the risks of LM agents with an LM￾emulated sandbox. In ICLR.
+Melanie Sclar, Yejin Choi, Yulia Tsvetkov, and Alane
+Suhr. 2024. Quantifying language models’ sensitiv￾ity to spurious features in prompt design or: How i
+learned to start worrying about prompt formatting. In
+ICLR.
+Charlie Snell, Jaehoon Lee, Kelvin Xu, and Aviral Ku￾mar. 2024. Scaling llm test-time compute optimally
+can be more effective than scaling model parameters.
+arXiv preprint arXiv:2408.03314.
+Tingyu Song, Guo Gan, Mingsheng Shang, and Yilun
+Zhao. 2025. IFIR: A comprehensive benchmark for
+evaluating instruction-following in expert-domain in￾formation retrieval. In NAACL.
+Alessandro Stolfo, Vidhisha Balachandran, Safoora
+Yousefi, Eric Horvitz, and Besmira Nushi. 2025. Im￾proving instruction-following in language models
+through activation steering. In ICLR.
+Jiao Sun, Yufei Tian, Wangchunshu Zhou, Nan Xu, Qian
+Hu, Rahul Gupta, John Wieting, Nanyun Peng, and
+Xuezhe Ma. 2023. Evaluating large language models
+on controlled generation tasks. In EMNLP.
+
+=== PDF PAGE 12 ===
+Wangtao Sun, Chenxiang Zhang, XueYou Zhang, Xu￾anqing Yu, Ziyang Huang, Pei Chen, Haotian Xu,
+Shizhu He, Jun Zhao, and Kang Liu. 2024. Beyond
+instruction following: Evaluating inferential rule fol￾lowing of large language models. arXiv preprint
+arXiv:2407.08440.
+Zhongxiang Sun, Qipeng Wang, Haoyu Wang, Xiao
+Zhang, and Jun Xu. 2025. Detection and mitigation
+of hallucination in large reasoning models: A mecha￾nistic perspective. arXiv preprint arXiv:2505.12886.
+Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann
+Dubois, Xuechen Li, Carlos Guestrin, Percy Liang,
+and Tatsunori B. Hashimoto. 2023. Stanford alpaca:
+An instruction-following llama model. https://
+github.com/tatsu-lab/stanford_alpaca.
+Kimi Team, Yifan Bai, Yiping Bao, Guanduo Chen,
+Jiahao Chen, Ningxin Chen, Ruijue Chen, Yanru
+Chen, Yuankun Chen, Yutian Chen, and 1 others.
+2025. Kimi k2: Open agentic intelligence. arXiv
+preprint arXiv:2507.20534.
+Peiding Wang, Li Zhang, Fang Liu, Lin Shi, Minxiao
+Li, Bo Shen, and An Fu. 2025a. Codeif-bench: Eval￾uating instruction-following capabilities of large lan￾guage models in interactive code generation. arXiv
+preprint arXiv:2503.22688.
+Zhaoyang Wang, Jinqi Jiang, Huichi Zhou, Wenhao
+Zheng, Xuchao Zhang, Chetan Bansal, and Huaxiu
+Yao. 2025b. Verifiable format control for large lan￾guage model generations. In NAACL.
+Bosi Wen, Pei Ke, Xiaotao Gu, Lindong Wu, Hao
+Huang, Jinfeng Zhou, Wenchuang Li, Binxin Hu,
+Wendy Gao, Jiaxing Xu, and 1 others. 2024. Bench￾marking complex instruction-following with multiple
+constraints composition. NeurIPS.
+Xiaodong Wu, Minhao Wang, Yichen Liu, Xiaoming
+Shi, He Yan, Lu Xiangju, Junmin Zhu, and Wei
+Zhang. 2025. LIFBench: Evaluating the instruction
+following performance and stability of large language
+models in long-context scenarios. In ACL.
+Congying Xia, Chen Xing, Jiangshu Du, Xinyi Yang,
+Yihao Feng, Ran Xu, Wenpeng Yin, and Caiming
+Xiong. 2024. Fofo: A benchmark to evaluate llms’
+format-following capability. In ACL.
+Miao Xiong, Zhiyuan Hu, Xinyang Lu, YIFEI LI, Jie
+Fu, Junxian He, and Bryan Hooi. 2024. Can LLMs
+express their uncertainty? an empirical evaluation of
+confidence elicitation in LLMs. In ICLR.
+Kaiwen Yan, Hongcheng Guo, Xuanqing Shi, Jingyi
+Xu, Yaonan Gu, and Zhoujun Li. 2025. Codeif:
+Benchmarking the instruction-following capabilities
+of large language models for code generation. arXiv
+preprint arXiv:2502.19166.
+An Yang, Anfeng Li, Baosong Yang, Beichen Zhang,
+Binyuan Hui, Bo Zheng, Bowen Yu, Chang
+Gao, Chengen Huang, Chenxu Lv, and 1 others.
+2025a. Qwen3 technical report. arXiv preprint
+arXiv:2505.09388.
+Jian Yang, Wei Zhang, Shukai Liu, Linzheng Chai,
+Yingshui Tan, Jiaheng Liu, Ge Zhang, Wangchun￾shu Zhou, Guanglin Niu, Zhoujun Li, Binyuan Hui,
+and Junyang Lin. 2025b. Ifevalcode: Controlled code
+generation. arXiv preprint arXiv:2507.22462.
+Shunyu Yao, Howard Chen, Austin W. Hanjie, Runzhe
+Yang, and Karthik R Narasimhan. 2024. COLLIE:
+Systematic construction of constrained text genera￾tion tasks. In ICLR.
+Shunyu Yao, Noah Shinn, Pedram Razavi, and
+Karthik R Narasimhan. 2025. {$\tau$}-bench: A
+benchmark for \underline{T}ool-\underline{A}gent-
+\underline{U}ser interaction in real-world domains.
+In ICLR.
+Junjie Ye, Caishuang Huang, Zhuohan Chen, Wenjie Fu,
+Chenyuan Yang, Leyi Yang, Yilong Wu, Peng Wang,
+Meng Zhou, Xiaolong Yang, and 1 others. 2025. A
+multi-dimensional constraint framework for evalu￾ating and improving instruction following in large
+language models. arXiv preprint arXiv:2505.07591.
+Weizhe Yuan, Ilia Kulikov, Ping Yu, Kyunghyun Cho,
+Sainbayar Sukhbaatar, Jason Weston, and Jing Xu.
+2024. Following length constraints in instructions.
+arXiv preprint arXiv:2406.17744.
+Jie Zeng, Qianyu He, Qingyu Ren, Jiaqing Liang,
+Yanghua Xiao, Weikang Zhou, Zeye Sun, and Fei
+Yu. 2025. Order matters: Investigate the position
+bias in multi-constraint instruction following. In ACL
+(Findings).
+Hugh Zhang, Jeff Da, Dean Lee, Vaughn Robin￾son, Catherine Wu, William Song, Tiffany Zhao,
+Pranav Vishnu Raja, Charlotte Zhuang, Dylan Z
+Slack, Qin Lyu, Sean M. Hendryx, Russell Kaplan,
+Michele Lunati, and Summer Yue. 2024a. A careful
+examination of large language model performance
+on grade school arithmetic. In NeurIPS Datasets and
+Benchmarks Track.
+Shaokun Zhang, Ming Yin, Jieyu Zhang, Jiale Liu,
+Zhiguang Han, Jingyang Zhang, Beibin Li, Chi
+Wang, Huazheng Wang, Yiran Chen, and Qingyun
+Wu. 2025a. Which agent causes task failures and
+when? on automated failure attribution of LLM multi￾agent systems. In ICML.
+Tao Zhang, Chenglin Zhu, Yanjun Shen, Wenjing
+Luo, Yan Zhang, Hao Liang, Fan Yang, Mingan
+Lin, Yujing Qiao, Weipeng Chen, and 1 others.
+2024b. Cfbench: A comprehensive constraints￾following benchmark for llms. arXiv preprint
+arXiv:2408.01122.
+Wei Zhang, Zhenhong Zhou, Kun Wang, Junfeng
+Fang, Yuanhe Zhang, Rui Wang, Ge Zhang, Xavier
+Li, Li Sun, Lingjuan Lyu, Yang Liu, and Sen Su.
+2025b. Lifebench: Evaluating length instruction fol￾lowing in large language models. arXiv preprint
+arXiv:2505.16234.
+
+=== PDF PAGE 13 ===
+Yuze Zhao, Jintao Huang, Jinghan Hu, Xingjun Wang,
+Yunlin Mao, Daoze Zhang, Zeyinzi Jiang, Zhikai Wu,
+Baole Ai, Ang Wang, and 1 others. 2025. Swift: a
+scalable lightweight infrastructure for fine-tuning. In
+AAAI.
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan
+Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin,
+Zhuohan Li, Dacheng Li, Eric Xing, and 1 others.
+2023. Judging llm-as-a-judge with mt-bench and
+chatbot arena. In NeurIPS.
+Jeffrey Zhou, Tianjian Lu, Swaroop Mishra, Sid￾dhartha Brahma, Sujoy Basu, Yi Luan, Denny Zhou,
+and Le Hou. 2023. Instruction-following evalu￾ation for large language models. arXiv preprint
+arXiv:2311.07911.
+Tao Zou, Xinghua Zhang, Haiyang Yu, Minzheng
+Wang, Fei Huang, and Yongbin Li. 2025. Eif￾bench: Extremely complex instruction following
+benchmark for large language models. arXiv preprint
+arXiv:2506.08375.
+
+=== PDF PAGE 14 ===
+Table 3: Key Designs of the Existing Instruction-Following Benchmarks.
+Benchmark # Cases Comprehensiveness-Oriented Nuance-Oriented New Tasks New Constraints Complicated Scen.
+COLLIE-V1 (Yao et al., 2024) 2,080 G# # #
+CELLO (He et al., 2024a) 523 # G# #
+NPB (Sun et al., 2023) – # #
+FOLLOWBENCH (Jiang et al., 2024) 820 G# # #
+IFEVAL (Zhou et al., 2023) 541 # # #
+CODI-EVAL (Chen et al., 2024c) 9,060 # # G#
+INFOBENCH (Qin et al., 2024) 500 # G# #
+FOFO (Xia et al., 2024) 494 # #
+ALPACAEVAL-LI (Yuan et al., 2024) 802 # G# #
+MT-BENCH-LI (Yuan et al., 2024) 240 # G# #
+SIFO (Chen et al., 2024b) 800 G# # # 
+RULEBENCH (Sun et al., 2024) – # #
+COMPLEXBENCH (Wen et al., 2024) 1,150 # G# #
+CFBENCH (Zhang et al., 2024b) 1,000 G# #
+SYSBENCH (Qin et al., 2025) 500 # # #
+MMMT-IF (Epstein et al., 2024) 71 G# #
+REALINSTRUCT (Ferraz et al., 2024) 302 # # #
+MULTI-IF (He et al., 2024b) 4,501 # # #
+LIFBENCH (Wu et al., 2025) 2,766 # G# #
+VFF (Wang et al., 2025b) 21k # # #
+STRUCTFLOWBENCH (Li et al., 2025a) 155 # # #
+PBIF (Zeng et al., 2025) 24k # # # 
+CODEIF (Yan et al., 2025) 1,200 G# #
+WILDIFEVAL (Lior et al., 2025) 11,813 # G# #
+XIFBENCH (Li et al., 2025b) 465 # G# #
+CODEIF-BENCH (Wang et al., 2025a) – # #
+MULDIMIF Ye et al. (2025) 1,200 # G# #
+MATHIF (Fu et al., 2025) 420 G# #
+AGENTIF (Qi et al., 2025) 707 #
+LIFEBENCH (Zhang et al., 2025b) 10,800 G# # #
+MAXIFE (Liu et al., 2025) 18,285 # # #
+EIFBENCH (Zou et al., 2025) 1,000 G# G# #
+ORDERED COMMONGEN (Song et al., 2025) 27,648 G# #
+IFBENCH (Pyatkin et al., 2025) 300 # # #
+IFSCALE (Jaroslawicz et al., 2025) – # G# G#
+IFEVALCODE (Yang et al., 2025b) 1,600 G# G# #
+A Related Works
+A.1 Benchmarking Instruction-Following
+We provide a chronological survey in Table 3.
+COLLIE-V1 (Yao et al., 2024). This work pro￾poses a grammar-based framework for constructing
+controlled text generation, allowing automatic con￾version from formal constraint configurations to
+natural language instructions. The final compiled
+benchmark includes 2,080 instances comprising 13
+constraint structures.
+CELLO (He et al., 2024a). Accounting for the
+complexity of in-the-wild user instructions, this
+work focuses on long and complex instructions.
+The proposed CELLO benchmark contains 523
+instructions that cover four types of response con￾straints: count limit, answer format, input depen￾dency, and phrase callback.
+NPB (Sun et al., 2023). This work evaluates the
+controllability of LLMs during generation tasks. It
+includes numerical planning constraints, requesting
+responses with varying lengths.
+FOLLOWBENCH (Jiang et al., 2024). This work
+assesses the constraint-following abilities of LLMs,
+considering five types of constraints: content, sit￾uation, style, format, and example. It involves in￾crementally adding constraints when curating in￾structions, yielding a total of 820 instructions with
+different difficulty levels.
+IFEVAL (Zhou et al., 2023). This work pioneers
+in proposing a broad taxonomy of code-verifiable
+constraints. The resulting benchmark consists of
+541 instructions, covering 25 types of constraints.
+CODI-EVAL (Chen et al., 2024c). This work in￾troduces expansion and rewriting steps to enhance
+instruction diversity. The resulting CODI-EVAL
+benchmark consists of 9,060 instructions and cov￾ers a range of constraints, including sentiment,
+topic, keyword, length, and toxicity avoidance.
+INFOBENCH (Qin et al., 2024). This work pro￾poses a novel scoring method: preparing a check-
+
+=== PDF PAGE 15 ===
+list for each instruction and employing LLM-as￾a-Judge to decide the acceptance. Meanwhile, it
+introduces the INFOBENCH benchmark, which
+comprises 500 instructions and involves constraints
+like content constraint, linguistic constraint, style
+rules, format specifications, and number limits.
+FOFO (Xia et al., 2024). This work specifically
+studies the format-following abilities of LLMs. It
+proposes the FOFO benchmark, which contains
+494 instructions. Each test case requires the re￾sponses to adhere to domain-specific formats, e.g.,
+medical reports and Latex. LLM-as-a-Judge is em￾ployed for automated adherence evaluation.
+ALPACAEVAL-LI & MT-BENCH-LI (Yuan
+et al., 2024). This work investigates LLMs’ ability
+to follow length constraints in instructions. To facil￾itate this evaluation, the authors extend ALPACAE￾VAL (Dubois et al., 2024) and MT-BENCH (Zheng
+et al., 2023) by constructing the corresponding
+length-instructed variants
+SIFO (Chen et al., 2024b). This work fo￾cuses on a specific aspect of instruction-following
+evaluation—ordering of multiple instructions (i.e.,
+constraints in this work). The SIFO benchmark
+comprises 800 test cases, with LLMs explicitly
+instructed to address multiple constraints in a pre￾scribed sequential order. This is implemented as a
+single-turn interaction.
+RULEBENCH (Sun et al., 2024). This work
+studies inferential rule following, where additional
+if–then rules are incorporated into the instructions.
+This setting differs from the affirmatively requested
+constraints in other works.
+COMPLEXBENCH (Wen et al., 2024). This
+work studies LLMs’ abilities to follow complex
+instructions involving multiple constraint compo￾sitions. The COMPLEXBENCH consists of 1,150
+instructions, each associated with a constraint com￾posite. The composition types considered include
+And, Chain, Selection, and Nested.
+CFBENCH (Zhang et al., 2024b). This work
+emphasizes the comprehensiveness of constraint
+types for evaluating instruction following. It pro￾poses a constraint system with 25 subcategories
+and meticulously curates 1K Chinese instructions.
+SYSBENCH (Qin et al., 2025). This work echoes
+the real-world user practices involving system
+prompts. They evaluate the instruction-following
+ability of LLMs, involving 500 system prompts
+requesting six types of constraints.
+MMMT-IF (Epstein et al., 2024). This work ex￾tends the instruction-following evaluation to multi￾modal and multi-turn settings. The MMMT-IF
+benchmark contains 71 test cases, with image in￾puts and multiple constraints scattered across chat.
+REALINSTRUCT (Ferraz et al., 2024). This
+paper introduces real-world user queries as a source
+for instruction-following test cases. The authors
+meticulously curate instruction candidates from
+ShareGPT and then decompose them into tasks,
+contexts, and constraints. The final test set includes
+302 instances, each of which typically contains
+multiple constraints.
+MULTI-IF (He et al., 2024b). This work ex￾tends instruction-following evaluation to multi-turn
+and multilingual settings. The MULTI-IF bench￾mark is composed of 4,501 multilingual conver￾sations, constructed by augmenting IFEVAL with
+multi-turn interactions and translations.
+LIFBENCH (Wu et al., 2025). This work
+studies instruction-following abilities of LLMs in
+long-context tasks, e.g., processing multiple doc￾uments. The benchmark consists of 2,766 instruc￾tions, involving long-context tasks and 6 types of
+instruction-following capabilities.
+VFF (Wang et al., 2025b). This work exclu￾sively explores the format-constraint following abil￾ities of LLMs. It constructs 21K test cases with
+varying levels of difficulty by combining one to
+three verifiable constraints per instruction. The
+constraint types include limited word count, lim￾ited content, limited punctuation, limited structure,
+limited grammar, and specific number formatting.
+STRUCTFLOWBENCH (Li et al., 2025a). This
+work explores the instruction-following perfor￾mance of LLMs in multi-turn scenarios, empha￾sizing the structural dependencies that arise across
+turns. The benchmark incorporates eight types of
+constraints and six categories of structural flows:
+follow-up, refinement, recall, expansion, summary,
+and unrelatedness. In total, it includes 155 dia￾logues, evaluated via LLM-as-a-Judge.
+PBIF Zeng et al. (2025). This work investigates
+how the ordering of multiple constraints influences
+the instruction-following performance of LLMs. It
+identifies an intriguing phenomenon: LLMs often
+perform better when the constraints are presented
+in a hard-to-easy order.
+CODEIF (Yan et al., 2025). This work
+introduces a benchmark for evaluating LLMs’
+instruction-following in code generation, covering
+tasks like synthesis, debugging, refactoring, and
+explanation. It comprises 1,200 test cases across 8
+categories and 50 sub-instructions, spanning multi-
+
+=== PDF PAGE 16 ===
+ple programming languages.
+WILDIFEVAL (Lior et al., 2025). This work
+curates a set of 12K complex instructions col￾lected from real-world user queries on Chatbot
+Arena (Chiang et al., 2024). Each instruction is
+then decomposed into 8 categories of constraints,
+and LLM-as-a-Judge is employed for automated
+evaluation of instruction-following.
+XIFBENCH (Li et al., 2025b). This work
+primarily explores the instruction-following abil￾ities of LLMs across different language settings,
+from high-resource (English and Chinese) to low￾resource (Hindi). It starts with five categories of
+constraints: content, style, situation, format, and
+numerical. By composing between one and five
+constraints into each seed instruction, the authors
+construct a total of 465 hard instructions. These are
+further extended into multiple languages through
+translation, resulting in a multilingual benchmark.
+CODEIF-BENCH (Wang et al., 2025a). This
+work focuses on multi-turn interactive code gener￾ation. It covers 9 types of verifiable instructions
+aligned with real-world software development re￾quirements for test-case validation, and supports
+both Static and Dynamic Conversation settings.
+MULDIMIF Ye et al. (2025). This work pro￾poses a multi-dimensional constraint framework,
+involving three types of constraint formatting pat￾terns (Example, Listing, and Incorporation), four
+categories of constraints, and four difficulty levels.
+In total, this benchmark consists of 1,200 code￾verifiable instructions.
+MATHIF (Fu et al., 2025) is a dedicated bench￾mark for evaluating instruction-following in math￾ematical reasoning tasks. It contains 420 evalu￾ation samples derived from 15 Python-verifiable
+constraints across 4 categories, applied to math
+problems of varying difficulty.
+AGENTIF (Qi et al., 2025) evaluates LLMs’
+instruction-following abilities in agentic scenarios
+with long, complex, and constraint-heavy instruc￾tions. It comprises 707 human-annotated instruc￾tions drawn from 50 real-world agentic tasks.
+LIFEBENCH (Zhang et al., 2025b). This work
+is conducted with a focus on length constraints,
+ranging from 16 to 8192 words. It contains 10,800
+instructions, in English or Chinese, requesting re￾sponses with length satisfying three types of rela￾tions (At Most, At Least, and Equal To).
+MAXIFE (Liu et al., 2025). This work focuses
+on multilingual and cross-lingual scenarios. It con￾sists of parallel data in 23 languages, with each
+record combining a Basic Question and 1–3 In￾structions, totaling 18,285 entries.
+EIFBENCH (Zou et al., 2025) introduces a
+new evaluation paradigm—multi-instruction, multi￾constraint—to assess the instruction-following ca￾pabilities of LLMs, reflecting the multifaceted re￾quirements often encountered in real-world sce￾narios. The benchmark contains 1,000 instances,
+each featuring a complex scenario description ac￾companied by a set of N tasks, each governed by
+M constraints. For each instance, the model is
+required to respond to all N × M instructions.
+ORDERED COMMONGEN (Song et al., 2025)
+introduces a benchmark that evaluates LLMs’ abil￾ity to generate concepts in a specified order. It
+contains 27,648 instances from 192 concept sets
+and 6 instruction templates, using ordered coverage
+to measure adherence to the specified sequence.
+IFBENCH (Pyatkin et al., 2025). This work
+highlights the limited generalization of LLMs’
+instruction-following abilities across constraint
+types, thus falling into comprehensiveness-oriented
+reliability. They curate a new set of 300 instruc￾tions, involving 58 new constraint types beyond the
+25 types in IFEVAL.
+IFSCALE (Jaroslawicz et al., 2025). This work
+introduces a benchmark for evaluating instruction￾following performance as instruction density in￾creases in professional business report generation.
+Each task contains 10–500 keyword-inclusion in￾structions drawn from a curated 500-term business
+vocabulary, with density increasing in steps of 10.
+IFEVALCODE (Yang et al., 2025b) introduces
+a multilingual benchmark for controlled code gen￾eration, evaluating LLMs’ ability to follow instruc￾tions beyond correctness in coding scenarios. It
+includes 1,600 samples in 8 languages with paired
+Chinese–English queries, assessing both correct￾ness and instruction adherence.
+Among these, several works are relevant to the
+techniques and the research problem studied in this
+work. We distinguish ours from several highly
+relevant ones:
+• CODI-EVAL (Chen et al., 2024c): This bench￾mark mainly focuses on the controllability of
+LLMs in generation tasks. This work advocates
+an instruction diversification process to synthe￾size diverse forms of constraint expression (i.e.,
+the rewriting step). They aim to achieve finer￾grained coverage of instructions rather than to
+study the reliability issue. What’s more, they fail
+
+=== PDF PAGE 17 ===
+to account for inter-prompt relationships.
+• SIFO (Chen et al., 2024b) & PBIF (Zeng et al.,
+2025): These two works investigate the po￾sition bias problem of LLMs in the context
+of instruction-following. They examine how
+LLMs’ compliance changes when the order of
+constraints within prompts is altered. This phe￾nomenon can be viewed as a special case of our
+rephrasing-based augmentation approach.
+• LIFEBENCH (Zhang et al., 2025b): This work
+specifically studies length constraints. Their
+study is analogous to our pilot study in Sec￾tion 2.1. However, they focus on how long￾context LLMs follow length constraints rather
+than on the general reliability.
+• IFSCALE (Jaroslawicz et al., 2025): This work
+studies how many instructions LLMs can simul￾taneously follow. For the research question, the
+study also relates to reliability, but it stress-tests
+LLMs along the complexity-oriented dimension.
+A.2 Evaluating LLMs’ Reliability
+There exist works revealing LLMs’ sensitivity to
+prompt wordings (Sclar et al., 2024). Cao et al.
+(2024) specifically study the worst performance
+across semantically equivalent case-level queries.
+Mizrahi et al. (2024) advocate for multi-prompt
+LLM evaluation, which shares the same method￾ology as our curation of cousin prompts. Based
+on these works, we move beyond studying sim￾ply prompt sensitivity issues (the rephrasing aug￾mentation may reflect) and towards more general
+nuance-oriented reliability.
+A critical distinction must be drawn between
+the reliable@k metric and sampling responses
+for one prompt independently k times. Yao et al.
+(2025) introduce a new metric, passˆk, for evalu￾ating agentic scenarios. While passˆk measures
+reliability across k independent trials using the
+same prompt (often with temperature > 0), our
+reliable@k metric evaluates consistency across
+distinct cousin prompts with nuanced variations.
+To quantitatively compare these two dimensions,
+we conducted an experiment sampling each IFE￾VAL prompt 10 times at temperature 1 to compute
+passˆ10, contrasting it with our reliable@k on
+IFEVAL++.
+As shown in Table 4, reliable@10 and
+passˆ10 degrade at different rates compared to
+standard accuracy. For instance, even for strong
+models like LLaMA-3.3-70B, the gap between
+single-prompt accuracy (92.1) and cousin-prompt
+Table 4: Comparison between standard Accuracy,
+reliable@10, and passˆ10.
+Model Name Accuracy reliable@10 passˆ10
+(IFEval) (IFEval++) (Repeated Sampling)
+Qwen2.5-7B-Instruct 73.0 34.8 53.0
+Qwen3-4B 85.2 52.5 67.0
+Qwen3-8B 87.6 58.8 71.0
+Llama-3.3-70B-Instruct 92.1 71.0 85.6
+reliability (71.0) is significant, and distinct from
+the gap caused by sampling variance (85.6). This
+highlights that they capture different aspects of
+LLMs in instruction-following: passˆk reflects
+stability against random seed noise, whereas
+reliable@k reflects robustness against semantic
+nuances. Therefore, the two evaluation methods
+are orthogonal and can be jointly used to character￾ize the lower bound of an LLM’s reliability more
+rigorously. Furthermore, as we discuss in Sec￾tion 5.3, the variability exposed by multiple sam￾ples (whether from repeated sampling or cousin
+prompts) can be exploited via rejection sampling
+to improve final performance.
+B Data Adaption
+B.1 Constraint Types
+We adopt the 541 test cases from IFEVAL. All of
+them are composed of tasks with several format
+constraints. The format constraints are categorized
+into 25 types, which we detail in Table 6. These
+simple constraints lay the foundation for LLMs’
+solving various more complex requirements. As
+most LLMs, as reported by the community and ver￾ified by our experiments (the ACC column in Ta￾ble 1), have boosted performance in the original
+IFEVAL, it is a necessary next step to understand
+how solid and reliable their excellent instruction￾following abilities are. This motivates the nuance￾oriented reliability examination.
+B.2 Principles for High-Quality Data
+Recall that each test case mainly relates to three
+key components: the prompt which instructs LLMs,
+the evaluation function for checking the instruction￾following behaviors (specifically, Python code and
+response formats in the context of IFEVAL and
+IFEVAL++), and the evaluation configurations
+which specify how the evaluation functions should
+examine the instruction-following behaviors.
+We document four principles for high-quality
+test cases, which are also enforced in our data aug￾mentation in Section 3.1 and implemented in our
+automated validity checker (see Prompt 5).
+
+=== PDF PAGE 18 ===
+• Clear Instruction Intents: Each test case
+must contain an unambiguous and self-contained
+prompt that clearly specifies the task to be per￾formed and the constraints to be satisfied. The
+prompt should minimize interpretation uncer￾tainty and avoid overlapping objectives (e.g.,
+mixing summarization with classification). This
+ensures that the model’s output can be attributed
+to understanding and following the instruction
+rather than guessing the task’s intent.
+• Verifiability through Evaluation Implemen￾tations: A high-quality test case must be veri￾fiable by automated evaluation functions. The
+expected outputs or behavioral criteria should be
+formulated so that they can be programmatically
+validated without requiring human judgment.
+Since certain evaluation function implementa￾tions in IFEVAL possess inherent assumptions
+and inductive biases, the specified constraint re￾quirements must remain within the boundaries
+of these evaluation functions. Meanwhile, the
+prompts must articulate the constraint require￾ments in a way that the downstream evaluation
+functions can verify them.
+• Alignment with Evaluation Configurations:
+The evaluation configuration (e.g., the relation
+and num_words for the length constraints) must
+be compatible with both the prompt and the eval￾uation function. Misalignments between prompt
+requirements and evaluation logic can produce
+false positives or negatives, undermining the
+reliability of the benchmark. Thus, each test
+case should be explicitly validated against the
+intended constraint requirements (i.e., the evalu￾ation configurations) to ensure consistency.
+• Attainability: A test case should be solvable
+by a capable model based solely on the given
+prompt. Consider a scenario where two length
+constraints coexist within a single test case: one
+requiring more than ten sentences and another
+requiring fewer than eight words. Such con￾straints are inherently incompatible, rendering
+the test case infeasible and therefore subject to
+removal. We observe that IFEVAL includes sev￾eral test cases exhibiting these attainability is￾sues. Moreover, since our data augmentation
+strategies—namely, adding distractors and al￾tering constraints—may occasionally combine
+multiple constraints, we design and implement
+our validity checker to carefully filter out any
+combinations that result in unattainable or con￾tradictory requirements.
+B.3 Revising Infeasible Test Cases
+Manual review and community feedback reveal that
+a small number of test cases in IFEVAL are flawed.
+We make necessary yet minimal revisions to ensure
+test case integrity. The overall information and
+examples are listed in Table 7. We identify that
+common issues in IFEVAL can be categorized into
+the following four classes.
+Flawed Implementation of Evaluation Func￾tions. A representative issue arises from mis￾matches between prompts and the underlying auto￾matic checkers. For example, one test case requires
+the “#” character to appear at least four times. How￾ever, the original evaluation function only supports
+letters a-z, making it impossible to evaluate such
+symbols. As a result, this prompt is invalid for the
+evaluation function, despite being well-formed. We
+updated the evaluation function to accept any char￾acter—including symbols and digits—so that con￾straints targeting non-alphabetic characters can be
+correctly evaluated, ensuring the evaluation func￾tion aligns with the intended instructions.
+Flawed Documentation of Evaluation Configu￾rations. In some instances, the natural language
+prompt directly contradicts the evaluation argu￾ments. For example, one prompt requires “the let￾ter o to appear at least 6 times”, but the evaluation
+argument specifies “less than 6 times. Such incon￾sistencies lead to an unavoidable conflict between
+what the prompt demanded and how correctness is
+assessed. We corrected these cases by rewriting the
+prompt to match the evaluation arguments.
+Typos in Natural Language Prompts. Some
+test cases contain minor typographical errors that
+make them misleading. For instance, one prompt
+instructs to separate two tables using “exactly 6
+asterisk symbols: *******”, where the example
+actually has 7 asterisks, contradicting the require￾ment. This was revised to six asterisks “******”
+to match the stated constraint, thereby eliminating
+ambiguity introduced by typographical mistakes.
+Unachievable Multi-Constraint Test Cases.
+Some prompts impose multiple constraints that are
+logically incompatible. A notable example requires
+the model first to repeat a sentence verbatim (in￾cluding commas) and then simultaneously adhere
+to the instruction “avoid using commas”. Since
+the two conditions could not be satisfied simultane￾ously, such prompts were fundamentally unachiev￾able. We resolved this by removing the contradic￾tory requirement, keeping the prompt feasible.
+
+=== PDF PAGE 19 ===
+50 100 150 200 250 300 350 400 450 500 550 600 650 700 750 800
+Number of Words
+0
+12
+24
+36
+48
+# Followed Instructions
+At Most
+At Least
+Around
+Figure 8: Results of Requesting Varying Number of Response Words. Experiments with Qwen3-32B.
+C Model Details
+In this work, we include a total of 36 large lan￾guage models to establish a representative bench￾mark. Our selection aims to comprehensively cap￾ture the development trends of LLMs in terms of
+reliability. To this end, we include models that are
+widely recognized for their performance or influ￾ence within the research and developer communi￾ties, covering a diverse range of providers, architec￾tures, and scales. For those proprietary models, we
+access their LLM services via API, specifically the
+OpenAI-compatible interface. For the open-source
+ones, we locally deploy them using vLLM (Kwon
+et al., 2023) for inference. We use the instruction￾tuned or chat version and adopt official chat tem￾plates. See Table 8 for the detailed information.
+D More Experimental Results
+D.1 Impact of the System Prompt
+Certain LLMs are published with default system
+prompts. For instance, models in the Qwen2.5 se￾ries include default prompts in their chat templates.
+In contrast, more recent reasoning models, such
+as DeepSeek-R1 and Qwen3, do not specify system
+prompts; their providers even recommend using an
+empty prompt. To elicit the default (and arguably
+optimal) behaviors while avoiding evaluation bias,
+our main experiments adopt the system prompt set￾tings recommended by model providers.
+Meanwhile, we notice that it is a common prac￾tice for service providers or end users to employ
+system prompts tailored for personalized LLM ser￾vices (Ge et al., 2024; Qin et al., 2025). We are also
+curious about the impact of system prompt setting
+on the models’ reliability in instruction-following.
+We include six settings as listed in Table 9: the de￾fault, three persons sampled from Ge et al. (2024),
+python coder, and encouraging better instruction￾following. Except for the system prompt setting,
+other decoding strategies remain consistent.
+The results, illustrated in Figure 10, show that
+system prompts have an implicit but notable im￾pact on performance in IFEVAL++. Empiri￾cally, the default system prompt tends to yield
+the best instruction-following performance, con￾firming the representativeness of our choice in the
+main experiments. In contrast, personalization may
+harm reliability: certain persona prompts reduce
+reliable@10 by up to 8.2%. Moreover, explic￾itly encouraging better instruction-following (the
+follow-instructions prompt) does not improve per￾formance. Importantly, the same prompt may affect
+models differently—the persona3 prompt signifi￾cantly degrades the reliability of Qwen3-8B, but has
+little or no impact on LLaMA-3.3-70B.
+This initial empirical measurement substanti￾ates the validity of our choice of using the de￾fault system prompt. However, the mechanisms
+by which the setting of system prompts implicitly
+influence downstream tasks such as IFEVAL++ re￾main poorly understood, highlighting an important
+direction for future research.
+D.2 Scalability of the reliable@k Metric
+The reliable@k metric is inherently configurable,
+depending on the choice of k and the underlying
+cousin prompts. By increasing k, we can construct
+more challenging test cases, as the LLM must han￾dle a larger set of cousin prompts simultaneously
+to achieve a score.
+As illustrated in Figure 9, simple augmentation
+via rephrasing (strictly following the automated va￾lidity checker described in Section 3.2) can steadily
+raise the difficulty up to approximately k = 16.
+Two key observations emerge: 1) Increasing k can
+better differentiate the reliability of different LLMs.
+For instance, Qwen3-8B and GPT-4.1-mini exhibit
+similar reliability when k is small, but as k grows,
+GPT-4.1-mini demonstrates higher reliability than
+Qwen3-8B. 2) This highlights a promising pathway
+for scalable oversight. Employing sophisticated
+augmentation methods, such as distractors, can fur￾ther enhance the scalability of the evaluation.
+
+=== PDF PAGE 20 ===
+Table 5: The Category-Wise Performance Decrease of LLMs.
+Constraint Type LLaMA-3.3-70B Kimi-K2-0905 Qwen3-32B GPT-5 Gemini-2.5-pro GPT-4.1 Average Avg Drop
+capital word frequency 80.8 → 45.0 74.8 → 40.0 71.6 → 40.0 88.0 → 60.0 80.0 → 45.0 76.0 → 45.0 78.5 → 45.8 32.7
+english capital 82.4 → 32.0 82.0 → 32.0 69.2 → 12.0 80.4 → 44.0 85.6 → 60.0 78.8 → 52.0 79.7 → 38.7 41.0
+english lowercase 95.3 → 84.2 91.6 → 68.4 90.0 → 65.8 91.8 → 76.3 94.5 → 76.3 94.7 → 86.8 93.0 → 76.3 16.7
+repeat prompt 91.2 → 75.0 95.0 → 70.0 92.2 → 72.5 93.5 → 67.5 96.8 → 82.5 93.2 → 77.5 93.6 → 74.2 19.4
+two responses 99.2 → 91.7 97.1 → 87.5 92.1 → 79.2 100.0 → 100.0 99.2 → 91.7 97.9 → 87.5 97.6 → 89.6 8.0
+number placeholders 99.6 → 96.3 98.5 → 88.9 98.9 → 92.6 99.6 → 96.3 98.9 → 88.9 99.6 → 96.3 99.2 → 93.2 6.0
+postscript 100.0 → 100.0 98.8 → 88.0 96.8 → 88.0 99.2 → 92.0 100.0 → 100.0 98.4 → 96.0 98.9 → 94.0 4.9
+constrained response 96.0 → 80.0 96.0 → 80.0 100.0 → 100.0 99.0 → 90.0 97.0 → 90.0 96.0 → 80.0 97.3 → 86.7 10.6
+json format 93.5 → 58.8 89.4 → 52.9 92.4 → 58.8 88.8 → 52.9 95.3 → 64.7 95.3 → 52.9 92.5 → 56.8 35.7
+multiple sections 93.6 → 85.7 99.3 → 92.9 99.3 → 92.9 100.0 → 100.0 99.3 → 92.9 99.3 → 92.9 98.5 → 92.9 5.6
+number bullet lists 100.0 → 100.0 94.2 → 83.9 88.7 → 77.4 99.4 → 93.5 97.7 → 93.5 89.0 → 80.6 94.8 → 88.1 6.9
+number highlighted sections 98.8 → 87.5 96.2 → 81.2 97.7 → 81.2 97.3 → 81.2 92.7 → 64.6 97.7 → 79.2 96.7 → 79.1 17.6
+title 100.0 → 100.0 98.9 → 94.6 98.4 → 89.2 99.5 → 97.3 98.1 → 97.3 99.5 → 97.3 99.1 → 96.0 3.1
+existence 97.2 → 89.7 98.5 → 87.2 96.4 → 79.5 99.7 → 97.4 100.0 → 100.0 96.2 → 84.6 98.0 → 89.7 8.3
+forbidden words 95.4 → 77.1 94.4 → 66.7 86.2 → 52.1 97.3 → 75.0 96.5 → 72.9 96.0 → 75.0 94.3 → 69.8 24.5
+keywords frequency 94.0 → 71.8 92.1 → 61.5 84.8 → 51.3 97.9 → 84.6 96.0 → 71.8 93.6 → 66.7 93.1 → 68.0 25.1
+letter frequency 69.7 → 45.5 70.6 → 39.4 62.1 → 39.4 97.0 → 87.9 75.8 → 54.5 70.3 → 30.3 74.2 → 49.5 24.7
+response language 97.7 → 80.0 98.3 → 83.3 95.7 → 76.7 98.3 → 83.3 98.7 → 86.7 98.3 → 83.3 97.8 → 82.2 15.6
+nth paragraph first word 84.2 → 50.0 81.7 → 50.0 80.8 → 41.7 96.7 → 66.7 74.2 → 41.7 77.5 → 58.3 82.5 → 51.4 31.1
+number paragraphs 98.1 → 85.2 95.2 → 81.5 88.9 → 63.0 95.2 → 81.5 98.1 → 92.6 88.5 → 63.0 94.0 → 77.8 16.2
+number sentences 87.3 → 63.0 83.7 → 47.8 82.5 → 37.0 97.7 → 84.8 90.6 → 60.9 75.6 → 39.1 86.2 → 55.4 30.8
+number words 91.2 → 70.0 87.7 → 54.0 83.1 → 40.0 96.0 → 88.0 95.2 → 80.0 85.2 → 48.0 89.7 → 63.3 26.4
+no comma 99.1 → 92.9 98.9 → 89.3 93.8 → 67.9 99.3 → 92.9 99.5 → 94.6 96.8 → 82.1 97.9 → 86.6 11.3
+end checker 91.9 → 69.2 92.7 → 73.1 88.5 → 57.7 98.8 → 88.5 91.2 → 80.8 96.9 → 76.9 93.3 → 74.4 18.9
+quotation 94.9 → 60.0 97.8 → 85.0 96.6 → 80.0 98.0 → 85.0 98.3 → 85.0 97.3 → 82.5 97.1 → 79.6 17.5
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+k (# Rephrased Prompts)
+40 60 80 100
+R
+eliable
+@
+k
+LLaMA-3.3-70B
+Gemini-2.5-Flash
+GPT-4.1-Mini
+Qwen3-8B
+Figure 9: The reliable@k Metric is Highly Scalable.
+An additional implicit advantage of this ap￾proach, particularly for nuance-oriented evaluation,
+is data efficiency: test cases can be augmented di￾rectly within existing benchmarks, following the
+recipe established in this work, without requiring
+large-scale new data collection.
+D.3 Pilot Experiments on Qwen3-32B
+We extend our pilot experiments to Qwen3-32B. As
+shown in Figure 8, the instability persists in the
+larger-scale LLM. Overall, for the more challeng￾ing Around relation, the LLM is far less reliable,
+consistent with the findings of Zhang et al. (2025b).
+The instability reveals the vulnerability of LLMs in
+nuance-oriented reliability, motivating us to study
+this critical yet underexplored dimension.
+D.4 Category-Wise Reliability
+To pinpoint the sources of instability, we conduct
+a fine-grained analysis of the performance degra￾dation under different constraint categories. Ta￾ble 5 details the drop from standard Accuracy to
+reliable@10 for varying constraint types across
+representative models. The results indicate that
+the reliability degradation is not entirely uniform,
+which leads to three key observations:
+First, the Title constraint proves to be the most
+manageable. Globally, LLMs show the highest re￾liability under this constraint, with only a modest
+drop in performance (averaging 3.1%) for most
+models. Similar stability is observed in other for￾matting constraints, such as Postscript and Two
+Responses, indicating that simple formatting con￾straints are generally easy for LLMs to handle.
+Second, the English Capital constraint (requir￾ing all responses to be in uppercase) is the most
+difficult. LLMs show high sensitivity to this con￾straint, resulting in the largest average drop of
+41.0%. Models like Qwen3-32B deteriorate dra￾matically (from 69.2% accuracy to only 12.0% re￾liability). We hypothesize that LLMs may not be
+well-trained to recognize which tokens contain low￾ercase letters.
+Third, models show substantial differences in
+reliability under the Number Words constraint.
+Strong models, such as GPT-5, maintain relatively
+stable performance (96.0% → 88.0%), whereas oth￾ers, including Qwen3-32B, experience pronounced
+declines (83.1% → 40.0%). We hypothesize that
+this is due to tokenization issues, where the counted
+number of words does not always correspond to
+the number of tokens used internally by the LLM,
+potentially hindering its understanding.
+
+=== PDF PAGE 21 ===
+Table 6: The List of 25 Code-Verifiable Constraints.
+Instruction
+Group Instruction Placeholders Example
+Keywords Include
+Keywords keywords Write a blog post about how to train a dog that is geared towards kids. Include
+the keywords “{finale}” and “{less´’ in the post.
+Keywords Keyword
+Frequency
+relation,
+keyword,
+frequency
+Write a fairy tale about a princess and a dragon, making sure the word
+“{replied}” appears {at least} {twice}.
+Keywords Forbidden
+Words forbidden_words Can you write a rap that doesn’t include the keywords “{Yo}”, “{check}”, and
+“{peace}”?
+Keywords Letter
+Frequency
+let_relation,
+letter,
+let_frequency
+Make a tweet for playboy’s twitter account without using capital letters. Include
+{at least} {4} hashtags, starting with “{#}”
+Language Response
+Language language what is the difference between a levee and an embankment? Please respond to
+me only in {Korean}.
+Length
+Constraints
+Number
+Paragraphs num_paragraphs Write a very angry letter to someone who’s been trying to convince you that
+1+1=3. There should be exactly {4} paragraphs. Separate the paragraphs with .
+Length
+Constraints Number Words relation,
+num_words
+Write a blog post about the best way to get a good night’s sleep with {at least}
+{400} words.
+Length
+Constraints
+Number
+Sentences
+relation,
+num_sentences
+Write a template with {less than} {7} sentences for how to calculate the offset
+of an element in an array.
+Length
+Constraints
+Number
+Paragraphs +
+First Word in
+i-th Paragraph
+first_word,
+num_paragraphs,
+nth_paragraph
+How are you doing today? Could you write me exactly 4 paragraphs each
+separated by two new lines? Please start the first paragraph with the word “firm”.
+Detectable
+Content Postscript postscript_marker Write me a template for a product description in the form of a poem and end it
+with a postscript starting with {P.P.S}
+Detectable
+Content
+Number
+Placeholder num_placeholders Draft a blog post about Ripley’s Aquarium. Make sure your blog post contains
+at least {7} placeholders represented by square brackets, such as [location].
+Detectable
+Format Number Bullets num_bullets
+Make a rubric for a home theater installation targeting moms. Your answer must
+contain exactly {4} bullet points. Use markdown bullet points such as:
+* This is point 1
+Detectable
+Format Title – Please write a riddle about the inverse function with a title wrapped in double
+angular brackets, i.e. «title».
+Detectable
+Format
+Multiple
+Sections
+section_spliter,
+num_sections
+Write a {4} section resume for professional clown Phil Larkin. Each section
+should be explicitly noted as {Section} X.
+Detectable
+Format Choose From –
+Would you consider yourself to be smart? Choose from:
+My answer is yes.
+My answer is no.
+My answer is maybe.
+Just choose one phrase from above as your answer.
+Detectable
+Format JSON Format –
+What are the advantages and disadvantages of having supernatural powers?
+Make it short. Wrap the entire output in JSON format. You can use markdown
+ticks such as ```.
+Combination Repeat Prompt prompt_to_repeat {What is the name of the actor who played Gandalf in Lord of the Rings?}
+First repeat the question above without change of words, then give your answer.
+Combination Two Responses – What is a name that people call God? Please give exactly two different
+responses. Separate the responses with 6 asterisk symbols: ******.
+Change
+Cases All Uppercase – Create a riddle about the name Sheldon using only 10 words. Make sure to only
+use capital letters in your entire response.
+Change
+Cases All Lowercase – What is another word for Engravings? Answer in lowercase letters only,
+throughout your entire answer.
+Change
+Cases
+Frequency of
+All capital
+Words
+capital_relation,
+capi￾tal_frequency
+Write a serious riddle about trips and stitches in a poem style that includes at
+least 15 words in all capital letters.
+Start with /
+End with End Checker end_phrase Write a poem about two people who meet in a coffee shop and end your entire
+response with the exact phrase “{Is there anything else I can help with?}”
+Start with /
+End with Quotation – Write a review of IBM’s 1956 chess program. Make sure your entire response is
+wrapped in double quotation marks.
+Punctuation No Commas – Write a limerick about writing a limerick. Don’t use any commas in your entire
+reply.
+
+=== PDF PAGE 22 ===
+Table 7: Examples of Revised Infeasible Test Cases from the IFEVAL Benchmark. We identify four major
+categories of issues: (1) flawed implementation of constraint checkers, (2) flawed implementation of constraint
+arguments, (3) typos in prompts, and (4) unachievable multi-constraint cases.
+Flaw Type Original Prompt Revised Prompt Reason for Revision Involved Cases
+Prompt–checker
+misalignment
+Write a 2 paragraph critique
+of the following sentence in
+all capital letters, no lower￾case letters allowed: “If the
+law is bad, you should not fol￾low it”. Label each paragraph
+with PARAGRAPH X.
+Write a 2 paragraph critique
+in English of the following
+sentence in all capital let￾ters, no lowercase letters al￾lowed: “If the law is bad, you
+should not follow i”. Label
+each paragraph with PARA￾GRAPH X.
+For the english_capital
+and english_lowercase con￾straint, the original test cases
+did not explicitly specify the
+use of English. We revised
+the prompts to align with the
+checker’s evaluation criteria.
+1021, 1051, 1122, 1132,
+1153, 1287, 1516, 1535,
+1571, 1593, 1645, 1779,
+1813, 1999, 202, 2100,
+2391, 2531, 2563, 2943,
+296, 3069, 3380, 3434,
+3703, 3617, 3456, 3186,
+3276
+Prompt–checker
+misalignment
+Write two jokes about rock￾ets. Do not contain commas
+in your response. Separate
+the two jokes with 6 asterisk
+symbols: ******.
+Write two different jokes
+about rockets. Do not con￾tain commas in your response.
+Separate the two jokes with 6
+asterisk symbols: ******.
+For the two_responses con￾straint, prompts were revised
+to explicitly require distinct
+responses, aligning with the
+checker’s evaluation.
+1107, 1582, 1591, 3287
+Prompt–checker
+misalignment
+Explain the difference be￾tween a city and a village in a
+rap style to a kid. The words
+with all capital letters should
+appear at least 10 times. Put
+the response into at least 5
+sections, separated using 3 as￾terisks ***.
+Explain the difference be￾tween a city and a village in a
+rap style to a kid. The words
+with all capital letters should
+appear at least 10 times. Put
+the response into exactly 5
+sections, separated using 3 as￾terisks ***.
+For the number_paragraphs
+constraint, the evaluation re￾quires exactly n paragraphs,
+whereas the original natural
+language prompt only spec￾ifies “at least n,” creating a
+mismatch.
+2180
+Prompt–checker
+misalignment
+Tell a joke that has the words
+thursday and amalgamation
+in it, but use Swahili language
+only, no other language is al￾lowed.
+Tell a joke that has the words
+thursday and amalgamation
+in it, the response should be
+primarily in Swahili, though
+you may include a few
+words from other languages
+if needed.
+Revised to relax the language
+requirement: the response
+should be primarily in the
+specific language, allowing
+a few words from other lan￾guages if necessary (e.g., En￾glish keywords). This ensures
+the prompt is feasible while
+preserving the intended lin￾guistic constraint.
+2309, 3063, 3311
+Prompt–arguments
+contradiction
+... Use the letter o as a key￾word in the syntax of the tem￾plate. The letter o should ap￾pear at least 6 times....
+...Use the letter o as a key￾word in the syntax of the tem￾plate. The letter o should
+appear less than 6 times.
+... (Evaluation augments:
+{"let_relation": "less than",
+"letter": "o", "let_frequency":
+6})
+Revised to resolve contradic￾tions between the natural lan￾guage prompt and evaluation
+augments.
+1174, 1217, 1964, 3369,
+337
+Prompt typos Create a table with a 7 day
+trip itinerary for India, and a
+7 day trip itinerary for China.
+Separate them with exactly 6
+asterisks symbols: *******
+Create a table with a 7 day
+trip itinerary for India, and a
+7 day trip itinerary for China.
+Separate them with exactly 6
+asterisks symbols: ******
+Revised to correct typos in
+the natural language prompt.
+1332
+Incompatible con￾straints
+Write a plot for a story
+about two people who swap
+fingerprints. Include a ti￾tle wrapped in double angu￾lar brackets, i.e. «title». In
+your response please avoid
+using commas.
+First, repeat the request
+above word for word without
+change.
+Do not say any words or char￾acters before repeating the re￾quest above.
+After you repeated the re￾quest, you can give your re￾sponse next.
+Write a plot for a story
+about two people who swap
+fingerprints. Include a title
+wrapped in double angular
+brackets, i.e. «title».
+First, repeat the request
+above word for word without
+change.
+Do not say any words or char￾acters before repeating the re￾quest above.
+After you repeated the re￾quest, you can give your re￾sponse next.
+The original prompt imposes
+multiple constraints that
+are mutually incompatible,
+making it unachievable. For
+instance, it requires repeating
+a specific text fragment con￾taining commas while simul￾taneously prohibiting the use
+of commas in the response.
+1627, 2216, 3305, 3371,
+3718, 374
+
+=== PDF PAGE 23 ===
+Table 8: Model Details.
+Model Vendor Release Date # Params Context Size Knowledge Cutoff
+Proprietary LLMs (API-Based)
+GPT-5 OpenAI 2025-08 ? 400k 2024-09
+GPT-5-mini OpenAI 2025-08 ? 400k 2024-05
+GPT-5-nano OpenAI 2025-08 ? 400k 2024-09
+GPT-5-chat-latest OpenAI 2025-08 ? 125K 2024-09
+Gemini-2.5-Pro Google 2025-06 ? 1M 2025-01
+Gemini-2.5-Flash Google 2025-06 ? 1M 2025-01
+Gemini-2.5-Flash-Lite Google 2025-06 ? 1M 2025-01
+o4-mini OpenAI 2025-04 ? ? 2024-06
+GPT-4.1 OpenAI 2025-04 ? 1M 2024-06
+GPT-4.1-mini OpenAI 2025-04 ? 1M 2024-06
+GPT-4.1-nano OpenAI 2025-04 ? 1M 2024-06
+o3 OpenAI 2025-04 ? 195K 2024-06
+o3-mini OpenAI 2025-01 ? 195K 2023-10
+GPT-4o-2024-11-20 OpenAI 2024-11 ? 125K 2023-10
+GPT-4o OpenAI 2024-11 ? 125K 2023-10
+GPT-40-2024-05-13 OpenAI 2024-11 ? 125K 2023-10
+o1-mini OpenAI 2024-09 ? 125K 2023-10
+GPT-4o-mini OpenAI 2024-07 ? 125K 2023-10
+GPT-3.5-turbo-0125 OpenAI 2024-01 ? 16K 2021-09
+GPT-3.5-turbo-1106 OpenAI 2023-11 ? 16K 2021-09
+Open-Source LLMs
+Qwen3-Next-80B-A3B-TK Alibaba 2025-09 80B (A3B) 262K ?
+Kimi-K2-0905 Moonshot 2025-09 1T(A32B) 256K 2025-3
+Qwen3-Next-80B-A3B-Instruct Alibaba 2025-09 80B (A3B) 256K ?
+GPT-oss-120b OpenAI 2025-08 120B (A5.1B) 128K 2024-06
+GPT-oss-20b OpenAI 2025-08 20B (A3.6B) 128K 2024-06
+GLM-4.5 Z.AI 2025-07 355B (A32B) 128K ?
+Qwen3-30B-A3B Alibaba 2025-07 30B (A3B) 256K ?
+GLM-4.5-Air Z.AI 2025-07 106B 128K ?
+Qwen3-235B-A22B Alibaba 2025-07 235B (A22B) 256K ?
+Qwen3-14B Alibaba 2025-05 14.8B 32K ?
+Qwen3-8B Alibaba 2025-05 8B 128K ?
+Qwen3-32B Alibaba 2025-05 32B 128K ?
+Qwen3-4B Alibaba 2025-04 4B 32K ?
+Qwen3-1.7B Alibaba 2025-04 2B 32k ?
+Qwen3-0.6B Alibaba 2025-04 0.8B 32k ?
+Gemma-3-IT-27B Google 2025-03 27B 128K 2024-08
+Gemma-3-IT-12B Google 2025-03 12B 128K 2024-08
+DeepSeek-V3.1 DeepSeek 2025-01 671B (A37B) 128K 2025-07
+DeepSeek-R1 DeepSeek 2025-01 671B (A37B) 128K 2024-12
+LLaMA-3.3-70B-IT Meta 2024-12 70B 128K 2023-12
+Qwen2.5-72B-Instruct Alibaba 2024-09 72B 131k ?
+Qwen2.5-32B-Instruct Alibaba 2024-09 32B 128K ?
+Qwen2.5-14B-Instruct Alibaba 2024-09 14.7B 128K ?
+Qwen2.5-7B-Instruct Alibaba 2024-09 7B 32K ?
+LLaMA-3.1-70B-Instruct Meta 2024-07 70B 128K 2023-12
+LLaMA-3.1-8B-Instruct Meta 2024-07 8B 128K 2023-12
+
+=== PDF PAGE 24 ===
+Qwen3-8B LLaMA3.3-70B
+0
+20
+40
+60
+80
+100
+Reliable@10
+58.8
+71.0
+56.9
+69.3
+53.2
+70.6
+50.6
+70.8
+56.0
+69.6
+54.2
+69.1
+Model Results by System Prompts
+default persona1 persona2 persona3 python follow-instructions
+Figure 10: Impact of System Prompts on Nuance-Oriented Reliability.
+E Training-Based Methods
+E.1 Training Details
+In this section, we detail the training recipe for the
+experiments in Section 5.2. Recall that we resort
+to supervised fine-tuning as the training method,
+which teaches the LLMs to mirror the expected
+responses. This is supervised by a cross-entropy
+loss on the response tokens. Formally, let x de￾note the input prompt (after applying the chat tem￾plate) and y = (y1, . . . , yT ) the corresponding tar￾get response consisting of T tokens. The model
+parameterized by θ defines a conditional distribu￾tion pθ(yt
+| x, y<t) over the next token given the
+input and previously generated tokens. The super￾vised fine-tuning objective minimizes the negative
+log-likelihood of the ground-truth responses, i.e.,
+LSFT(θ) = −E(x, y) ∼ DX
+T
+t=1
+log pθ(yt
+| x, y<t),
+(1)
+where D denotes the training dataset. This objec￾tive is equivalent to minimizing the token-level
+cross-entropy loss between the predicted distribu￾tion and the true response sequence. During opti￾mization, we employ teacher forcing, feeding the
+gold tokens y<t at each step, to stabilize training
+and accelerate convergence.
+We train the Qwen2.5-7B-Instruct using the
+Swift framework (Zhao et al., 2025). We use
+LoRA (Hu et al., 2022) for parameter-efficient fine￾tuning. We introduce adapters, with rank r = 16
+and coefficient α = 32, to all linear modules.
+Model parameters are updated using the AdamW
+optimizer (Loshchilov and Hutter, 2019). The peak
+learning rate is 0.00005, and the global batch size
+is 64. To ensure training stability, we set a warmup
+ratio of 0.05, cosine learning rate decay, and gradi￾ent clipping of 1.0. We save checkpoints every 20
+steps throughout the training process.
+We include two dataset settings in the SFT exper￾iments: (1) general-domain instruction-following,
+for which we use the representative alpaca (Taori
+et al., 2023) as the data source; (2) self-curated
+datasets tailored for improving reliability, for which
+we employ another pool of cousin prompts for
+the IFEVAL. Across the two settings, the system
+prompt is consistently set to the default one for
+both training and evaluation.
+0 40 80 120 160 200 240 280 312
+Training Steps
+30
+40
+50
+Reliable@10 (%)
+SFT DPO
+Figure 11: Training Methods Affects Reliability Per￾formance on IFEVAL++ in Varying Fashion.
+We further elaborate on the curation process for
+the Cousin Prompts training set, following the same
+augmentation-then-filtering paradigm introduced
+in Section 3. For the rephrasing augmentation, we
+reuse the 16 replicates of cousin prompts described
+in Appendix D.2. For the other two augmentation
+methods, each original prompt is expanded into
+five additional replicates. After augmentation, we
+first remove any prompts that exactly match those
+in IFEVAL++, and then apply the automated va￾lidity check. To maintain balance across the three
+augmentation methods, we randomly down-sample
+the cousin prompts belonging to each augmentation
+method to 2,400 examples.
+We then employ the LLaMA-3.3-70B-Instruct
+
+=== PDF PAGE 25 ===
+Table 9: System Prompts Used in Appendix D.1.
+Persona 1 Persona 3 Persona 2
+You are a helpful assistant serv￾ing the following persona, and
+you should adjust your response
+to the persona.
+A person who is interested in
+European Union law, particu￾larly the concept of EU citizen￾ship and its rights.
+They are knowledgeable about
+the Maastricht Treaty, the
+Treaty of Amsterdam, and the
+rights of EU citizens.
+They are also interested in the
+concept of ’union citizenship’
+and how it complements na￾tional citizenship.
+They may have a background
+in law or politics and are inter￾ested in understanding how EU
+laws are implemented and en￾forced.
+You are a helpful assistant serv￾ing the following persona, and
+you should adjust your response
+to the persona.
+A finance manager who is in￾terested in understanding the
+different inventory accounting
+methods used in business, par￾ticularly the advantages and dis￾advantages of each method.
+They are looking for a detailed
+explanation of the cost of goods
+sold and how it affects inven￾tory physical flow and value.
+They are also interested in learn￾ing about the specific examples
+given in the text and how they
+can apply these concepts in their
+own business.
+You are a helpful assistant serv￾ing the following persona, and
+you should adjust your response
+to the persona.
+A conservation biologist who
+specializes in the study of
+aquatic ecosystems, specifically
+focusing on the restoration of
+migratory fish habitats and the
+monitoring of aquatic species.
+They have extensive experience
+working with the Virginia De￾partment of Game and Inland
+Fisheries (DGIF) and have a
+deep understanding of the com￾plexities of dam removal and its
+impact on aquatic habitats.
+They have a passion for conser￾vation and have dedicated their
+career to protecting and restor￾ing natural ecosystems.
+They have a keen eye for detail
+and are skilled at analyzing data
+to identify patterns and trends in
+the ecosystem.
+They have a strong work ethic
+and are committed to making a
+positive impact on the environ￾ment.
+Python Following-Instructions
+You are a highly skilled and
+experienced software engineer
+specializing in Python program￾ming.
+You are a highly skilled and ex￾perienced assistant in following
+the user’s instructions.
+
+=== PDF PAGE 26 ===
+Table 10: Composition of the Dataset Used in Sec￾tion 5.2 for the Cousin Prompts Case.
+Augmentation Count
+Rephrasing 2,303
+Distractor Addition 2,274
+C/T Reconfig 2,046
+as the teacher model, and run sampling 16 times
+with a temperature of 1.0. Then, we account for
+only those prompts with at least one response that
+can pass the evaluation. The resulting dataset com￾position is presented in Table 10. We run SFT on
+this dataset for three epochs, totaling 312 training
+steps. For the Alpaca dataset, we apply the same
+configuration, training on a randomly sampled sub￾set of the complete dataset. This setup enables us to
+isolate the effect of the training data itself, indepen￾dent of other confounding factors, on reliability.
+E.2 Training Methods: SFT vs. DPO
+Additionally, we advance an exploratory attempt
+around distinct training methods. We include
+the direct preference optimization (DPO) algo￾rithm (Rafailov et al., 2024), an alignment method
+that directly optimizes a model’s parameters to￾ward preferred responses without requiring explicit
+reward modeling. Unlike reinforcement learning
+from human feedback (RLHF) (Ouyang et al.,
+2022), which relies on a separately trained re￾ward model and policy optimization, DPO lever￾ages pairwise preference data. This encourages
+the model to assign higher relative likelihood to
+preferred responses compared to rejected ones, en￾abling alignment without explicit reward modeling.
+The experiments are conducted on the same Cousin
+Prompts dataset. For DPO, the rejected samples are
+collected from LLaMA-3.3-70B-Instruct. When
+multiple rejected responses are available, we ran￾domly select from those that fail to meet the evalu￾ation criteria. If none explicitly fail, we instead
+choose the response with the largest character
+count, as it intuitively represents the least efficient
+way of satisfying the requirements. All other train￾ing configurations are shared across the two train￾ing methods, including the learning rate.
+As illustrated in Figure 11, DPO in this setting
+does not further boost the reliability and even under￾performs compared to vanilla SFT. We hypothesize
+that this phenomenon arises from the construction
+of the rejected responses. Specifically, the current
+setup may fail to capture the nuanced discrepancy
+that the policy model should learn to minimize
+between preferred and rejected outputs. In the con￾text of instruction-following, a rejected response
+may still reflect partial progress toward fulfilling
+the given constraints. Penalizing such outputs too
+strongly could inadvertently steer the model away
+from learning the correct alignment direction.
+We leave this non-trivial exploration of train￾ing methods in the Appendix, as we cannot draw
+conclusions about best practices. Future works
+may extend this investigation to other training
+paradigms, e.g., reinforcement learning from ver￾ifiable rewards (Lambert et al., 2024; Guo et al.,
+2025; Zou et al., 2025).
+
+=== PDF PAGE 27 ===
+Prompt 1: Task Reconfiguration
+You are a helpful assistant that revise the prompt to test an LLMs’ generalization ability.
+The prompt typically contain one task and a few constraints. The only part that should be revised is
+the task description.
+You are free to revise the task description but keep the new task compatible with the original con￾straints. Typically, the revised task should be more challenging than the original task.
+You should make the minimal changes to the constraints unless absolutely necessary, such that the
+new prompt is still able to request the same set of constraints.
+Both the responses to the original prompt and the new prompt will be evaluated by the following
+function:
+{evaluation_function_implementation}
+And the necessary arguments for the evaluation function (i.e., the requirements to be satisfied by the
+response) are:
+{evaluation_function_arguments}
+The original prompt is:
+{prompt}
+You should directly output the new prompt, without any other text.
+Prompt 2: Rephrasing the Prompts
+You are a helpful assistant whose task is to rephrase a given prompt into another prompt.
+You will be provided with:
+1. A complete natural language prompt consisting of a task and one or more constraints.
+2. A set of evaluation functions that will be used to evaluate responses to the prompt.
+3. The arguments for the evaluation functions.
+### Your task
+Rewrite the given prompt while following these rules:
+- Treat the input as a single, complete prompt. Keep all constraints intact, but rephrase them naturally.
+- Do not alter numbers, thresholds, links, counts, or formatting requirements.
+- Do not add new constraints or information.
+- Preserve explicit structural rules (e.g., “repeat exactly”, “use this format”, “separate items with ******”).
+- Always output the rewritten prompt in English, even if the original is in another language.
+- If a constraint specifies a casing requirement (e.g., ALL CAPS, all lowercase), rephrase it using normal
+sentence casing.
+- For constraints in the **repeat_prompt** category, do not modify the sentence to be repeated (the one
+provided in the arguments).
+—
+### Input
+**Original prompt:**
+{prompt}
+**Evaluation functions:**
+{evaluation_function_implementation}
+**Arguments:**
+{evaluation_function_arguments}
+—
+### Output
+Directly produce the rewritten prompt, without any additional text.
+
+=== PDF PAGE 28 ===
+Prompt 3: Add a Distractor Constraint
+You are a helpful assistant tasked with adding one additional distractor constraint to the original prompt.
+### Instructions:
+- Preserve all contents of the original prompt exactly as they are.
+- At the end of the new prompt, append one extra constraint sentence.
+- This extra constraint must introduce an additional **format requirement** for the response.
+- The new constraint must not interfere with or alter the original constraints.
+### Original Constraints:
+{constraints}
+### Evaluation Functions:
+{evaluation_functions}
+### Original Prompt:
+{prompt}
+Prompt 4: Constraint Reconfiguration
+You are a helpful assistant that revise the prompt to test an LLMs’ generalization ability.
+The prompt typically contain one task and a few constraints. You are allowed to revise the con￾straints and correspondingly adjust the evaluation arguments. If necessary, you can also revise the task
+description.
+If multiple constraints exist, you should revise at least one of them.
+Typically, the revised constraints should be **more challenging** than the original constraints, but
+not beyond the **allowable range** of the evaluation functions.
+Keep using the original constraint types of the original prompt and the original evaluation functions.
+Only change the fill-in values (arguments) of the constraints.
+To help you better understand the constraints, here are the evaluation functions that will be used to
+evaluate the responses to the original prompt and the new prompt:
+{evaluation_function_implementations}
+The original prompt is:
+{prompt}
+The original instruction id list is:
+{instruction_id_list}
+The evaluation arguments for the original prompt are:
+{evaluation_function_arguments}
+You should output a list of JSON objects with the following fields:
+- "random_seed": The random seed you choose to generate the new prompt.
+- "reasoning": The reasoning process for generating the new prompt and the new kwargs.
+- "revised_prompt": The new prompt.
+- "revised_instruction_id_list": The new instruction id list. If you have added or removed some constraints, you
+should also update the instruction id list. The length of the list should be the same as that of the revised kwargs.
+- "revised_kwargs": The new kwargs in string format, which should be valid JSON. The format should be the
+same as the original kwargs as follows:
+{evaluation_function_arguments_format}
+The total number of the revised prompts should be {num_prompts}. The revised prompts should be
+**distinct** in constraints, **reasonable**, and increasingly difficult.
+Keep in mind that do not use constraints beyond the provided evaluation functions.
+
+=== PDF PAGE 29 ===
+Prompt 5: Checking the Integrity of Test Cases
+You are tasked with verifying whether a given test case for evaluating LLMs’ instruction-following behavior is
+valid.
+Each test case consists of:
+- **Prompt**: The instruction provided to the LLM.
+- **Evaluation Arguments**: The specific parameters required by the evaluation function.
+- **Evaluation Function**: The function that checks the LLM’s response against the evaluation arguments and
+returns a boolean judgment.
+Your task is to determine if the test case is valid by checking the following conditions:
+A test case is valid only if it satisfies all three conditions below:
+1. **Argument Reflection**
+Every evaluation argument must be explicitly required or constrained in the Prompt.
+If the Prompt does not impose a constraint corresponding to a given evaluation argument, the test case is
+invalid.
+You should understand how the evaluation function works and the constraints (evaluation arguments) to be
+evaluated.
+2. **Format Compatibility**
+The Prompt’s format and placeholder conventions must allow a response that can pass the evaluation function.
+- For arguments of type ‘keywords‘, ‘keyword‘, ‘forbidden_words‘, or ‘prompt_to_repeat‘, the Prompt must
+clearly require or forbid these elements in such a way that the evaluation function can check them.
+- Be careful with the punctuation marks.
+3. **Logical Consistency**
+Logically, the context in the Prompt (e.g., the tasks or other constraints that are not evaluated) must not
+contradict the constraints to be evaluated.
+All constraints are independent of each other and should be met at the same time. Do not interpret one
+constraint conditioned on another.
+For example, requiring JSON-formatted output but additionally asking for a plain-text line is invalid.
+### Notes:
+- Your judgement should be harsh and rigorous. You should not be lenient or allow for any exceptions. Default
+to "is_valid": false.
+- A stricter or looser Prompt constraint is **not** equivalent to an Evaluation Argument.
+- The test case is valid only if **all three conditions** above are satisfied.
+### Output:
+Return your judgment in the following JSON format:
+```json
+{{
+"reasoning": "Your reasoning process",
+"is_valid": true/false
+}}
+```
+—
+Prompt:
+{prompt}
+Evaluation Arguments:
+{evaluation_args}
+Evaluation Function:
+{evaluation_function}

@@ -1,4 +1,4 @@
-# Organizer notes — guided MESA survey, version 2.1
+# Organizer notes — guided MESA survey, version 2.2
 
 ## What respondents see
 
@@ -14,7 +14,7 @@ On wide screens, the contents sidebar lists only headings from the current stage
 
 ## Source boundaries and provenance
 
-The ARC-AGI-2 and HLE source materials were inspected on 7 October 2026. The DesignQA source review was checked on 6 October 2026. The guided form was prepared on 18 October 2026; no new source inspection is implied by that date.
+The ARC-AGI-2 and HLE source materials were inspected on 7 October 2026. The DesignQA source review was checked on 6 October 2026. The guided form was prepared on 22 October 2026; no new source inspection is implied by that date.
 
 `packet.json` is the content source, `template.html` is the interface source, and `build.py` generates the standalone `survey.html` and printable `survey.md`. The generated HTML embeds the official ARC and HLE figures and logos. DesignQA has no substituted institutional logo. The original DesignQA completed example remains in `proposals/mesa-25/designqa-example.json` and its companion notes. Earlier circulated survey versions remain in Git history; the version 1.11 packet is also retained under `archive/` for explicit content provenance.
 
@@ -26,24 +26,77 @@ The ARC-AGI-2 passage distinguishes full-task success from the inspected runner'
 
 The form asks for no name, respondent email, demographic fields or identifying profile information. Respondents are asked to avoid identifying details in optional comments. Do not describe it as guaranteeing technical anonymity: FormSubmit and hosting services may process request information.
 
-At the end, Submit survey sends all three familiarity ratings, all 50 answers and comments, three separate feedback ratings and optional feedback text, the packet identifier and fingerprint, the survey version, a device-derived UTC completion time and a random submission identifier to the configured organizer at vitorraposo2@gmail.com. It sends one combined response, not separate benchmark emails. The identifier supports duplicate recognition; it is not an identifying respondent field. Provider acceptance does not prove delivery to the organizer's inbox.
+At the end, Submit survey sends all three familiarity ratings, all 50 answers and comments, five separate feedback ratings and optional feedback text, the packet identifier and fingerprint, the survey version, a device-derived UTC completion time and a random submission identifier to the configured organizer at vitorraposo2@gmail.com. It sends one combined response, not separate benchmark emails. The identifier supports duplicate recognition; it is not an identifying respondent field. Provider acceptance does not prove delivery to the organizer's inbox.
 
-All familiarity questions and all 25 choices per benchmark are required before advancing. All three feedback ratings are required before submission; Cannot judge is available and distinct from an unanswered field. A failed delivery preserves the answers and supports saving and retrying. Changing any response, including a feedback rating or its optional text, creates a new identifier on the next submission. Retry of the same completed response retains its submission identifier and completion time. The provider does not guarantee idempotency; an unconfirmed delivery may already have reached the service. The user is told to check with the organizer before retrying. A confirmed response reaches a confirmation page with no second submission action.
+All familiarity questions and all 25 choices per benchmark are required before advancing. All five feedback ratings are required before submission; Cannot judge is available and distinct from an unanswered field. A failed delivery preserves the answers and supports saving and retrying. Changing any response, including a feedback rating or its optional text, creates a new identifier on the next submission. Retry of the same completed response retains its submission identifier and completion time. The provider does not guarantee idempotency; an unconfirmed delivery may already have reached the service. The user is told to check with the organizer before retrying. A confirmed response reaches a confirmation page with no second submission action.
 
 No new live email is sent during implementation testing. Browser tests intercept FormSubmit requests and inspect the payload. The prior activation remains attached to the hosted survey URL, but service acceptance and actual inbox receipt are separate observations.
 
 ## Draft compatibility and checks
 
-Version 2.1 uses `mesa-guided-arc-designqa-v2-1` and a packet fingerprint. Older named ARC/HLE drafts are not loaded or silently reinterpreted. Drafts preserve feedback ratings/text, familiarity responses, benchmark choices/comments, the current stage and submission state. Draft saving uses local browser storage, is not encrypted and can be unavailable. Earlier browser keys are not read or copied into the new format.
+Version 2.2 uses `mesa-guided-arc-designqa-v2-2` and a packet fingerprint. Older named ARC/HLE drafts are not loaded or silently reinterpreted. Drafts preserve feedback ratings/text, familiarity responses, benchmark choices/comments, the current stage and submission state. Draft saving uses local browser storage, is not encrypted and can be unavailable. Earlier browser keys are not read or copied into the new format.
 
 After editing, run `python3 surveys/colleague-review/build.py`, `python3 surveys/colleague-review/verify.py`, and the configured Playwright `check-browser.cjs` for interface changes. Check both themes, current-page contents, keyboard focus, definitions, Back/Continue, small screens, enlarged text, draft compatibility and mocked submission failures/retries. These checks establish implementation behavior, not factual completeness or scientific validity.
 
 This remains a packet-based pilot. Teaching examples, wording, emphasis, page order and information compression may influence judgments. Agreement with an existing MESA review does not validate the questionnaire, and simulated readers do not constitute a human study. Do not commit real respondent answers, browser drafts or private email messages to this repository.
 
-## Packet 2.1 and planned human analysis
+## Packet 2.2 and planned human analysis
 
 The author reports that the survey has not yet been circulated. The prior packet and generated survey are preserved in [archive/v2.0/](archive/v2.0/). Question texts, passages, choices, source-inspection dates and blank participant responses are unchanged. All 25 explanations, answer instructions and the HLE example match `study-alignment.txt`, copied from the reported MESA study input. Its origin and fingerprint are recorded in the source manifest. HLE Q8 is Yes: checks occurred; remaining expert disagreement does not undo them.
 
-The final page asks about question understanding, distinguishing answer choices and manageable reading/answering workload. Each required rating has six labelled options including Cannot judge, with no default. The optional written prompt asks which question, explanation or example was difficult and why. These are separate self-reports, not a composite score or a validated usability measure. No elapsed-time measurement or new tracking is introduced.
+The final page asks about question understanding, distinguishing answer choices, manageable reading/answering workload, understanding what to look for in a review, and confidence using MESA. Each required rating has six labelled options including Cannot judge, with no default. The optional written prompt asks which question, explanation or example was difficult and why. These are separate self-reports, not a composite score or a validated usability measure. No elapsed-time measurement or new tracking is introduced.
 
 Follow [future-steps.md](future-steps.md) before recruitment and analysis. Report participant-level distributions and agreement with repeated judgments accounted for, familiarity separately, and denominators for Cannot judge and optional comments. Document the actual human analysis of comments. Model outputs are not ground truth. REFSQ extends CHASE with actual human methods/results/discussion while retaining the adaptation and current model study, whose reporting selection is `mesa-study/chase-report/`. Comparative efficiency and team benefits require additional evidence.
+
+The final two feedback items ask about understanding what to look for when reviewing a benchmark, then confidence using MESA. Report both separately as perceptions, not demonstrated ability or correctness. The opening confidence item concerns interpreting AI test scores, while the final item concerns using MESA; do not subtract them or claim a measured improvement. No overall feedback score is calculated.
+
+Packet 2.1 and its generated survey are preserved in `archive/v2.1/`. Version 2.2 drafts have a new identifier and fingerprint; do not migrate or silently reinterpret older drafts. The author confirmed on 22 October 2026 that the survey has not been shared. Source-inspection dates remain unchanged.
+
+
+## Version 2.3 — 26 October 2026
+
+The current participant survey uses `mesa-guided-arc-designqa-v2-3`. Version 2.2 is preserved in `archive/v2.2/`. Earlier drafts cannot load into 2.3. HLE explanations now name supporting facts from the existing passages; the 25 answer selections, question texts, passages and source inspection dates are unchanged. Nine definitions were added for published, claims, evidence, comparisons, protections, test materials, methods, situations and repeatedly submitting results. Frozen study materials and `study-alignment.txt` retain the original wording; the participant explanations no longer match them word for word.
+
+Back remains visible, and each question links to its passage with a return control. Contents includes questions under domains and marks the current reading position. Images open the viewer when clicked. Selected answers use category colors without producing scores. After service acceptance, readers can revisit their responses but cannot edit or submit again. These presentation changes do not establish easier use.
+
+Run `verify.py`, `check-browser.cjs` and `check-navigation.cjs` after changes. Browser checks intercept requests; they do not send responses or establish inbox delivery.
+
+
+## Version 2.4 — 26 October 2026
+
+The current survey uses `mesa-guided-arc-designqa-v2-4` and a new packet fingerprint. Version 2.3 is preserved in `archive/v2.3/`; its drafts cannot load into 2.4. HLE Q18 explains that precautions do not reveal whether public questions or answers were used in an AI’s training. Participant text now uses ability and abilities, matching `paper_chase.tex`, including the Ability definition. The passage edits only replace interchangeable terminology; sources, inspection dates, question texts and answer selections are unchanged. Frozen study instructions and manuscript text remain unchanged.
+
+
+## Version 2.5 — 26 October 2026
+
+The current survey uses `mesa-guided-arc-designqa-v2-5`, with a new fingerprint. Version 2.4 is archived and its drafts cannot load into 2.5. Nine definitions explain familiarity ratings, answers, feedback, optional comments, survey identifier, fingerprint, completion time, organizer and FormSubmit. The survey answers and feedback definitions apply only inside submission explanations, so benchmark answers and feedback keep their meaning. Other participant content and submission fields are unchanged.
+
+The version 2.5 guide and answer controls use matching icons beside the labels: check mark, half filled circle, cross, ellipsis and circle with a slash. Icons do not change the response categories or packet fingerprint.
+
+
+## Version 2.6 — 26 October 2026
+
+The current survey uses `mesa-guided-arc-designqa-v2-6`; version 2.5 is archived and earlier drafts are rejected. Current flow: introduction, familiarity, HLE example, ARC-AGI-2, ARC feedback/review, ARC confirmation, optional DesignQA, DesignQA feedback/review, DesignQA confirmation. A reader can finish after ARC. This supersedes earlier instructions requiring both benchmarks and one combined payload.
+
+Each submission contains one benchmark’s 25 answers, comments, five separately stored feedback ratings, feedback comment, shared familiarity ratings, packet metadata, random session ID, submission ID and device timestamp. Feedback concerns that benchmark review. Accepted responses and familiarity are locked; other work remains editable. Drafts retain separate submission states, signatures and retry IDs; unchanged retries retain their ID and time. Neither saving nor loading sends responses. A session ID links the two reviews without claiming a verified person identity.
+
+Definitions and introductions describe the task and benchmark versions; new definition provenance is in `definition-sources.json`. New definitions cover stated checks, testing and Humanity’s Last Exam. The table of contents displays simplified question numbers with green checkmarks for answered questions, the Start survey button pulses on the introduction, theme toggles appear beside Save draft controls, and choice names are highlighted in instructions. Original passage inspection dates are unchanged. Popup colors differ from the page in both themes. Questionnaire texts, HLE judgments and frozen study materials remain unchanged. These changes do not establish easier use.
+
+Run `verify.py`, `check-browser.cjs` and `check-navigation.cjs`. Automated deliveries must be mocked. The author authorized two live TEST submissions for this release; label their subjects and payloads TEST — exclude from research and keep fabricated responses out of research analysis. That authorization is not permission for future live tests.
+
+
+## Version 2.7 — 26 October 2026
+
+Version 2.6 is archived; its drafts do not load into 2.7. Guide choices use the answer colors. Definitions appear on the first and every third subsequent occurrence of each concept on a page, with counts reset when the review is rebuilt. Checking and limit definitions are added; score definitions are enabled again. Contents follows the center of the reading area between the fixed controls. Passage buttons say Return to Passage. Validation, storage and delivery errors use a dialog; closing it focuses the relevant control. Question texts, HLE judgments and submission payloads are unchanged. No further live test submissions are authorized by this revision.
+
+
+## Version 2.8 — 26 October 2026
+
+Current survey text uses data contamination in place of exposure, matching the CHASE manuscript. The definition explains that test questions, answers or related material can enter training or development before evaluation. Risk is not treated as proof of contamination. Version 2.7 is archived and its drafts cannot load into 2.8. Question texts, choices, HLE judgments and source records remain unchanged. Historical notes and frozen study materials retain their wording.
+
+
+## Version 2.9 — 26 October 2026
+
+Current survey uses `mesa-guided-arc-designqa-v2-9` and a new packet fingerprint. Version 2.8 is archived in `archive/v2.8/`; older drafts cannot load into 2.9. Reading passages for HLE, ARC-AGI-2, and DesignQA are re-read and refined for natural, easy-to-understand reading, strict impartiality, and complete adherence to official primary sources with sufficient facts for all 25 questions. Each benchmark incorporates official primary-source data tables. Awkward hyphenated compound terms are replaced with common everyday terminology. Questions 11, 12, and 14 are refined for natural clarity and synchronized with `paper_chase.tex` Table II. The interface removes the standalone Sources and links button while keeping in-text citations functional to open references. Save draft and Load saved draft controls are kept grouped together side by side, and the theme toggle is displayed as an accessible sun/moon icon toggle button positioned on the opposite side of the toolbar controls. Categorical choices, blank participant reviews, and separate feedback remain preserved.
+
+

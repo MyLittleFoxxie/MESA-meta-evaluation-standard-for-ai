@@ -19,8 +19,16 @@ import os
 import re
 import sys
 
-TEMPLATE = "MESA EFPA template official.md"
-OUTPUT = "MESA scorecard.md"
+TEMPLATE = (
+    "supporting/retrai-paper/MESA EFPA template official.md"
+    if os.path.exists("supporting/retrai-paper/MESA EFPA template official.md")
+    else "MESA EFPA template official.md"
+)
+OUTPUT = (
+    "supporting/retrai-paper/MESA scorecard.md"
+    if os.path.exists("supporting/retrai-paper")
+    else "MESA scorecard.md"
+)
 
 # --- what to keep (mirrors tools/scorecard-manifest.md) ------------------------------------
 

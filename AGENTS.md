@@ -16,11 +16,12 @@ Both current manuscripts use the title **MESA: Adapting the EFPA Test Review Mod
 
 - **`paper_chase.tex` → CHASE:** reports the questionnaire adaptation and model experiments. Human evaluation is outside this paper's study and belongs only in future work. Do not describe a human study as unfinished work required to complete the CHASE paper.
 - **`paper_refsq.tex` → REFSQ:** is planned as the CHASE paper extended with human evaluation. Retain the shared questionnaire, conceptual basis, and model-study contribution, then add the human-study method, observed results, and discussion. Do not treat it as an unrelated human-only paper or assume the existing file already contains the complete extension.
-- **`paper.tex`:** preserved original manuscript; do not replace it with either submission manuscript without an explicit request.
+- **`paper.tex`:** preserved RETRAI submission manuscript; do not replace it with either current submission manuscript without an explicit request.
+- **`paper_old.tex`:** preserved older manuscript; do not replace its content.
 
 When asked to update manuscript content, keep shared definitions and verified model-study facts consistent across the relevant versions while preserving their different evaluation scope. Do not copy human findings into the CHASE paper. Do not invent participants, recruitment details, dates, responses, agreement, comments, or findings for REFSQ; use explicit placeholders until real records are available.
 
-IEEE is the confirmed CHASE manuscript format. Research methods follow relevant ACM SIGSOFT Empirical Standards independently of the typesetting format; see `surveys/colleague-review/simulation-study/analyst/standards-assessment.md`. Do not assume that the CHASE format also determines REFSQ's format.
+IEEE is the confirmed CHASE manuscript format. Research methods follow relevant ACM SIGSOFT Empirical Standards independently of the typesetting format; see `supporting/adaptation/standards-assessment.md`. Do not assume that the CHASE format also determines REFSQ's format.
 
 ## Research and writing
 
@@ -39,7 +40,7 @@ IEEE is the confirmed CHASE manuscript format. Research methods follow relevant 
 Start with `CHASE-study.md` and `surveys/colleague-review/mesa-study/chase-report/selection.json`. Current reporting and traceability are in `surveys/colleague-review/mesa-study/chase-report/`; consult the frozen batch protocols for execution details.
 
 - `surveys/colleague-review/mesa-study/chase-report/`: current reporting selection, combining ten MESA sessions from `claude-sonnet-5-5-guidance-v2` with twenty EFPA-TRM/general-instruction sessions from `claude-sonnet-5-5`. It contains 30 conversations, 28 usable responses and 32 physical attempts, including two authentication failures. Historical batch analyses and all frozen materials remain preserved; use this selection for current manuscript findings.
-- Archived GPT-6.1 Sol series, never pooled with the current study: `mesa-study/main/` (same 30-run design, stopped at a Codex usage limit), `mesa-study/2026-10-17/` (stopped 180-run design), `accessibility-study/v1/`, and `simulation-study/` (first 120-run series and an incomplete Astra series). The paper names only the current study's model; these series are described in the repository records.
+- Archived GPT-6.1 Sol series, never pooled with the current study: `mesa-study/main/` (same 30-run design, stopped at a Codex usage limit), `mesa-study/2026-10-17/` (stopped 180-run design), `accessibility-study/v1/`, and `simulation-study/` (first 120-run series and an incomplete Astra series). The paper names only the current study's model; these historical series are preserved in the `pre-reorganization-2026-10-22` Git snapshot and indexed in [provenance/archive-index.md](provenance/archive-index.md).
 - The reviewer model (Claude Sonnet 5.5) and an assistant running Claude Code with Claude Opus 5.5 are from the same model family; disclose this when the assistant analyzes the outputs.
 - Original prompts, expected fictional answers, raw responses, and failure logs are research records. Do not rewrite them after observing results. Changed materials require a new version and manifest.
 - Preserve incomplete and invalid outputs. A completed invalid response cannot be silently repaired or replaced. Keep retries separately and follow the protocol's handling rules.
@@ -50,7 +51,7 @@ Start with `CHASE-study.md` and `surveys/colleague-review/mesa-study/chase-repor
 
 For survey work, read `surveys/colleague-review/agent-guide.md` and `surveys/colleague-review/packet.json`. The packet is the source for the 25 questions, five choices, definitions, passages, and completed example.
 
-The guided flow is Introduction → three 1–5 familiarity self-reports → completed HLE example → ARC-AGI-2 → DesignQA → combined review/submission → confirmation. Leave both participant benchmarks blank. Use Back and Continue with contents restricted to the current page and inline definitions. Collect no names or respondent emails. Familiarity is self-report, not a knowledge test; comments are optional. One final payload contains familiarity, all 50 answers, three separately stored required feedback ratings, optional written feedback, and packet identifier/fingerprint metadata. The final review page asks about question clarity, distinguishing choices and manageable workload, each with Cannot judge and no preselection. Preserve feedback in drafts, validation and retry signatures; unanswered and Cannot judge remain distinct.
+The guided flow is Introduction → three 1–5 familiarity self-reports → completed HLE example → ARC-AGI-2 → DesignQA → combined review/submission → confirmation. Leave both participant benchmarks blank. Use Back and Continue with contents restricted to the current page and inline definitions. Collect no names or respondent emails. Familiarity is self-report, not a knowledge test; comments are optional. One final payload contains familiarity, all 50 answers, five separately stored required feedback ratings, optional written feedback, and packet identifier/fingerprint metadata. The final review page asks about question clarity, distinguishing choices, manageable workload, understanding what to look for, and confidence using MESA, each with Cannot judge and no preselection. Preserve feedback in drafts, validation and retry signatures; unanswered and Cannot judge remain distinct.
 
 Read [the human-evaluation plan](surveys/colleague-review/future-steps.md) before recruitment or human analysis. Freeze population, recruitment, consent/ethics, sample-size rationale, exclusions and analysis decisions before collection. Report feedback separately, with explicit Cannot judge and optional-comment denominators; do not compute a composite score or call it a validated usability measure. Human comment analysis must document actual analysts and decisions; model answers are not ground truth and disagreement does not establish misunderstanding.
 
@@ -58,14 +59,16 @@ Human research for REFSQ examines the questionnaire together with supplied passa
 
 Prepare agent-completed examples only when requested and label them separately. Experimental presentation changes belong in a separate static HTML document with no response fields, submission service, saving, email integration, or tracking. Preserve the live participant survey. Never send real submissions or test emails without explicit authorization.
 
+The final two feedback items ask about understanding what to look for when reviewing a benchmark, then confidence using MESA. Report both separately as perceptions, not demonstrated ability or correctness. The opening confidence item concerns interpreting AI test scores, while the final item concerns using MESA; do not subtract them or claim a measured improvement. No overall feedback score is calculated.
+
 ## Source boundaries and preservation
 
-- `Papers/`: original PDF source library.
-- `literature/`: source transcriptions; `EFPA_Test_Review_Model_2025_Markdown.md` records EFPA's source structure. The original PDF remains authoritative where extraction loses detail.
-- `MESA EFPA template official.md` and `MESA scorecard.md`: supporting adaptation records. The scorecard is generated; do not hand-edit it.
-- `reviews/`: supporting benchmark reviews, including HLE, ARC-AGI-2, and DesignQA. Preserve their version boundaries; they are not current questionnaire ground truth.
-- `tools/`: utilities; `reports/` and `dist/hf_mesa_dataset/`, if present, are derived outputs rather than source evidence.
-- `.codex/agents/`: task profiles; `.codex/memory/`: durable context. Historical instructions must not override the manuscript scope recorded here.
+- `literature/`: [source index and thematic reading guide](literature/README.md), original PDFs (`literature/pdfs/`), extracted transcriptions (`literature/transcriptions/`, including `EFPA_Test_Review_Model_2025_Markdown.md`), and source inventories (`literature/notes/`). The original PDF remains authoritative where extraction loses detail.
+- `supporting/adaptation/`: current EFPA correspondence map (`adaptation-map.md`) and ACM SIGSOFT empirical standards assessment (`standards-assessment.md`).
+- `supporting/retrai-paper/`: supporting adaptation records substantiating `paper.tex` (`MESA EFPA template official.md`, generated `MESA scorecard.md`, `reviews/`, `thesis/`, and `provenance/`). The scorecard is generated; do not hand-edit it. Supporting reviews preserve their version boundaries and are not current questionnaire ground truth.
+- `supporting/editorial/`: `CHASE-review-response.md`.
+- `tools/`: scorecard and thesis verification utilities (`build-scorecard.py`, `check-thesis.py`, `scorecard-manifest.md`).
+- `provenance/`: [archive-index.md](provenance/archive-index.md), [relocation-map.json](provenance/relocation-map.json), and [reorganization-plan.md](provenance/reorganization-plan.md) mapping relocated paths and documenting retrieval from the `pre-reorganization-2026-10-22` Git snapshot. Historical instructions in the archive must not override the manuscript scope recorded here.
 
 Inspect Git status and preserve unrelated changes. Do not overwrite source papers, templates, reviews, participant records, or notes without authorization. Assign numerical EFPA-style ratings only when explicitly requested for that instrument or a supporting detailed review, with evidence, missing evidence, reasons, and cautions. Do not mechanically average them.
 

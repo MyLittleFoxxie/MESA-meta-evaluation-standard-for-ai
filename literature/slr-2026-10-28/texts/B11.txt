@@ -1,0 +1,1340 @@
+
+=== PDF PAGE 1 ===
+State of What Art?
+A Call for Multi-Prompt LLM Evaluation
+Moran Mizrahi† Guy Kaplan† Dan Malkin† Rotem Dror⋄ Dafna Shahaf† Gabriel Stanovsky†
+†School of Computer Science, The Hebrew University of Jerusalem
+⋄Department of Information Systems, University of Haifa
+{moran.mizrahi, guy.kaplan2, dan.malkinhueb, gabriel.stanovsky}@mail.huji.ac.il
+rdror@is.haifa.ac.il, dshahaf@cs.huji.ac.il
+Abstract
+Recent advances in LLMs have led to
+an abundance of evaluation benchmarks,
+which typically rely on a single instruc-
+tion template per task. We create a large-
+scale collection of instruction paraphrases
+and comprehensively analyze the brittle-
+ness introduced by single-prompt evalua-
+tions across 6.5M instances, involving 20
+different LLMs and 39 tasks from 3 bench-
+marks. We find that different instruc-
+tion templates lead to very different per-
+formance, both absolute and relative. In-
+stead, we propose a set of diverse metrics
+on multiple instruction paraphrases, specif-
+ically tailored for different use cases (e.g.,
+LLM vs. downstream development), ensur-
+ing a more reliable and meaningful assess-
+ment of LLM capabilities. We show that
+our metrics provide new insights into the
+strengths and limitations of current LLMs.
+1 Introduction
+Recent years have seen an explosion of large lan-
+guage models (LLMs), which generalize to unseen
+tasks via natural language instructions. Various
+LLM evaluation benchmarks, such as BIG-bench
+and HELM, use a single instruction template per
+task, evaluating all models against it (Srivastava
+et al., 2023a; Liang et al., 2023). However, there
+could be a myriad of ways to phrase an instruction
+template for a given task; see Figure 1 for exam-
+ples of different templates for the task of recog-
+nizing homophones. Naturally, LLM performance
+depends on the chosen template.
+We explore the question of robustly comparing
+different models on a given task . We first create
+a dataset of paraphrased instructions, employing
+three automatic paraphrasing methods based on
+recent techniques such as chain-of-thought. We
+manually verify and filter a large collection of
+more than 175 paraphrases for different tasks (5K
+instruction paraphrases in total), which we make
+publicly available for future research.1
+Next, we use our dataset to perform a large-
+scale statistical evaluation of over 6.5M instances,
+involving 20 different LLMs and 39 tasks from 3
+benchmarks. We find that models perform very
+differently on different instruction paraphrases.
+For example, Figure 1 shows four models eval-
+uated on four semantically equivalent prompts,
+with both absolute and relative performance vary-
+ing widely; one can even observe cases where the
+same model performs the best on one instruction
+and the worst on a semantically equivalent instruc-
+tion (e.g., GPT-3.5-Turbo on P1 vs. P4). Subse-
+quently, we argue that very little can be said on
+either absolute or relative performance based on
+single-instruction evaluation. This may also par-
+tially explain why some models seem less accurate
+in practice than their formal evaluation suggests.
+Note that while the claim that evaluating against
+a single instruction template leads to brittle results
+is not surprising per se, to the best of our knowl-
+edge it has never been subjected to rigorous em-
+pirical testing before.
+To address the limitations of single-instruction
+evaluation, we propose to take a step back and
+consider multi-prompt LLM evaluation — a set
+of metrics which measure aggregated performance
+over a set of instruction template paraphrases.
+We argue that different use cases should entail
+different evaluation metrics. For example, LLM
+developers may be interested in measuring the ro-
+bustness of performance across multiple instruc-
+tion templates. In contrast, developers aiming to
+integrate an LLM into a specific downstream task
+may be interested in comparing models according
+to their corresponding top-performing instruction.
+We evaluate 20 LLMs with our metrics, find-
+ing that their absolute and relative performance
+differ from results obtained with the benchmarks’
+1github.com/SLAB-NLP/Multi-Prompt-LLM-Evaluation
+arXiv:2401.00595v3  [cs.CL]  6 May 2024
+
+=== PDF PAGE 2 ===
+Figure 1: Evaluation of different OpenAI mod-
+els on the homophones task from LM ENTRY over
+four paraphrases. Each cluster of columns corre-
+sponds to a distinct paraphrased instruction tem-
+plate (see respective texts below; words in bold
+indicate an instantiation). Despite all instructions
+being semantically equivalent, both absolute per-
+formance and relative ranking vary widely.
+original instructions. We demonstrate that dif-
+ferent models excel in different metrics: For in-
+stance, in the LM ENTRY benchmark, LLaMA-
+based models are comparable to T5-based models
+when looking at top-performing instructions, but
+lag behind when average performance is consid-
+ered, due to poor performance on a large number
+of paraphrases. We also show that our automatic
+paraphrasing method is effective, and there is no
+need to manually verify the paraphrases.
+Our results suggest that future work should use
+multi-prompt LLM evaluations and choose a met-
+ric for aggregating the results according to the ex-
+trinsic needs of the evaluators. We hope that our
+work will help spur more consistency and compa-
+rability in LLM evaluation, which is strongly tied
+to real-world usage of LLMs.
+2 Background and Definitions
+Below we survey how generalization to a new task
+format is evaluated and compared between LLMs,
+finding that the common practice involves a single
+(or very few) task instruction templates. In the rest
+of the paper, we will argue that such practice leads
+to brittle, unreliable results.
+Task instruction templates. Following Mishra
+et al. (2022); Chung et al. (2024), we sepa-
+rate between task instruction, samples, and input-
+output exemplars which may be provided during
+in-context learning. We define an instruction tem-
+plate for a given task as a string with placeholders
+where the input samples are to be inserted. As seen
+in Figure 1, the same task can be described using
+different task instruction templates.
+Evaluation benchmarks. Several recent efforts
+aim to standardize LLM evaluation. Notable ex-
+amples include MMLU (Hendrycks et al., 2020),
+BIG-bench (Srivastava et al., 2023a; Suzgun et al.,
+2023), and HELM (Liang et al., 2023). In all of
+these, each task has a single instruction template,
+against which all models are evaluated. Another
+benchmark, LMENTRY (Efrat et al., 2023), reports
+models’ average performance on three instruction
+templates. The instruction templates are provided
+with these benchmarks, allowing new models to
+be tested against the same template.
+We note that many notable works do not dis-
+close the instruction templates used for eval-
+uation (e.g., LLaMA (Touvron et al., 2023),
+PALM (Chowdhery et al., 2023), GPT-4 (Achiam
+et al., 2023), Gemini (Team et al., 2023)). While
+there are reasons to withhold instructions (e.g.,
+avoid potential leakage), this practice exacerbates
+the challenge of meaningful comparative evalua-
+tion.
+Prompt robustness. Related to this study is
+a line of work measuring LLM’s robustness to
+prompt (or instruction template) modifications.
+Unlike our work, these typically aim to measure
+model performance againstadversarial paraphras-
+ing approaches. PromptBench (Zhu et al., 2023)
+measures performance on erroneous instructions
+(e.g., instructions written by non-native English
+speakers). They then compare performance on
+perturbed instructions vs. the benchmark’s origi-
+nal instructions, which are considered the gold-
+standard reference. Gu et al. (2023) examined a
+single LLM’s robustness under various instruc-
+tion perturbations, including word-, sentence-, and
+instruction-level changes. Sun et al. (2023) show
+that LLMs perform better on instructions they
+have seen in training compared to manual para-
+phrases. We later incorporate their manual para-
+phrases in our evaluation of BIG-bench Lite.
+In contrast to works on prompt robustness, we
+
+=== PDF PAGE 3 ===
+analyze the impact of the choice of prompt in
+terms of both absolute and relative model perfor-
+mance, covering a wide range of models and sev-
+eral different metrics.
+3 Experimental Setup
+3.1 Tasks
+We evaluate 39 diverse tasks from three evaluation
+benchmarks, as itemized below.
+10 tasks from LM ENTRY (Efrat et al., 2023).
+LMENTRY consists of simple linguistic tasks
+(e.g., “write a word that doesn’t contain the let-
+ter l”), each accompanied by three associated in-
+struction templates. The tasks are designed to cap-
+ture explainable and controllable linguistic phe-
+nomena. We choose the 10 tasks that received the
+lowest scores in the original paper, as these more
+challenging tasks are likely to better highlight the
+differences between models.
+14 tasks from BIG-bench Lite (BBL; Srivas-
+tava et al., 2023a). These cover multiple knowl-
+edge domains, sampled from the larger BIG-
+Bench benchmark (Srivastava et al., 2023b). We
+focus on a set of 14 tasks studied recently by Sun
+et al. (2023). Each task in BBL is associated with
+a single instruction template.
+15 tasks from BIG-bench Hard (BBH; Suz-
+gun et al., 2023). This is another curated subset
+of BIG-bench, containing particularly challenging
+tasks on which LLM underperform the average
+human score. We focused on a set of 15 classifi-
+cation and multiple choice tasks to streamline the
+evaluation process. Each task in BBH is associ-
+ated with a single instruction template.
+Measuring performance. In LM ENTRY we
+measure performance using the official evaluation
+script, while in Big-Bench we perform exact string
+matching. We note that while exact matching
+is somewhat strict, we believe it is also fair and
+straightforward.
+3.2 Models
+We evaluate 16 instruction-tuned LLMs from 11
+diverse model families (Chung et al., 2024; Sanh
+et al., 2021; Taori et al., 2023; Zheng et al., 2024;
+Durbin, 2023; Ding et al., 2023; NousResearch,
+2023; Almazrouei et al., 2023; Team, 2023; Col-
+lective, 2023) (see Table 1). We refrain from in-
+cluding closed, API-based models (e.g., OpenAI
+Model Model size Base model # Params
+Flan-T5
+Small
+T5
+80M
+Base 250M
+Large 780M
+XL 3B
+XXL 11B
+T0 Small T5 3B
+T0pp 11B
+Alpaca Small LLaMA 7B
+Big 13B
+Vicuna LLaMA 13B
+Airoboros LLaMA 13B
+UltraLM LLaMA 13B
+Nous-Hermes LLaMA 13B
+Falcon-Instruct Falcon 7B
+MPT MPT 7B
+Minotaur StarCoder Plus 15B
+Table 1: The different LLMs evaluated in this
+work, grouped by model family, along with their
+size, in number of parameters. All models were
+instruction-tuned.
+models) in our main evaluation for two reasons.
+First, using them at scale is an expensive prospect.
+For example, running our entire evaluation suite
+on GPT-4 will cost thousands of dollars. Second,
+and more importantly, the closed API for these
+models reportedly manipulates the input prompts
+in an undisclosed manner (e.g., wrapping them
+with meta-prompts, or rerouting to other mod-
+els) (Rao et al., 2023) which interferes with our
+evaluation. We do however perform a small-scale
+evaluation of OpenAI models in Section 7 to show
+that they are also sensitive to prompt paraphrasing.
+4 Evaluating against a Single Prompt
+Leads to Instability in Results
+As discussed in the previous section, LLMs are
+usually evaluated against a single instruction tem-
+plate. In this section, we will show that this ap-
+proach is quite brittle. Indeed, a simple rephras-
+ing of the instruction template can lead to drastic
+changes in both absolute and relative model per-
+formance.
+In Section 4.1 we create a large number of
+automatically-generated instruction paraphrases
+for tasks from the LM ENTRY and BBH bench-
+marks. Paraphrases are created using an LLM
+and verified by human annotators. In Section 4.2,
+we statistically analyze the performance of vari-
+ous LLMs against these instruction templates and
+
+=== PDF PAGE 4 ===
+BenchmarkMethod #Automatic
+Paraphrases
+#Correct
+Paraphrases
+Correct
+Ratio
+LMENTRY
+All
+Rephrase
+CoT
+Gradual
+2429
+461
+1286
+652
+2186
+408
+1234
+514
+90.00%
+88.50%
+95.96%
+78.83%
+BBH
+All
+Rephrase
+CoT
+Gradual
+2615
+734
+775
+1091
+2209
+627
+630
+937
+84.47%
+85.42%
+81.29%
+85.88%
+Table 2: Manual validation and filtering of
+automatic instruction paraphrases generated for
+LMENTRY and BBH, showing percentages of
+valid paraphrases.
+quantify the variation in model performance. Fi-
+nally, in Section 4.3, we show that models exhibit
+similar brittleness with manually-written para-
+phrases for tasks from the BBL benchmark.
+4.1 Paraphrasing Instruction Templates
+We use three prompting methods which were
+found useful in previous works: (1) instruction
+template rephrasing: asking an LLM to rephrase
+a seed prompt (Lester et al., 2021; Gonen et al.,
+2023; Honovich et al., 2023a); (2) Chain-of-
+Thought prompting (Wei et al., 2022): we pro-
+vided the model with a sequence of steps in which
+the model is asked first to produce a task descrip-
+tion, and then to generate various instruction tem-
+plates for the task; and (3) Gradual template gen-
+eration: inspired by Honovich et al. (2023b), we
+split the COT approach into three LLM calls. The
+first for generating a task description from a seed
+instruction template, the second for generating in-
+struction provided by input-output examples, and
+the third for processing the instruction and exam-
+ples into an instruction template.
+In all of the above, we use GPT-3.5-Turbo for
+generation, and the original instruction templates
+for each of our tasks to seed these three genera-
+tion methods, resulting on average in more than
+200 automatically-generated instruction template
+paraphrases for each of our tasks (see Table 2). We
+make this collection, as well as the code used to
+generate it, publicly available for reproducibility
+and to enable future work.
+Manual validation and filtering of auto-
+matic instruction paraphrases. All automati-
+cally generated paraphrases were manually veri-
+fied and filtered by an annotator from our group to
+ensure their coherence and relevance to the task. A
+Benchmark Correct (%) Agreement
+(accuracy)
+Agreement
+(Cohen’sκ)
+LMENTRY 86.0 .953 .774
+BBH 86.7 .916 .491
+Table 3: Human evaluation of doubly annotated
+paraphrases. Out of 375 automatically generated
+instructions, more than 85% were found to be cor-
+rect by both annotators. Both Cohen’s κ and the
+agreement accuracy indicate varying, yet gener-
+ally high levels of agreement given pronounced la-
+bel imbalance.
+portion of the data involving 15 randomly selected
+templates from each task, totaling in 375 instruc-
+tions, was also given to a second annotator; results
+show reliable agreement (Table 3), indicating our
+evaluation process is calibrated.
+See Table 2 for a fine-grained distribution across
+the different generation metrics. Overall, we
+found that 90% of the generated paraphrases cre-
+ated for LMENTRY were correct, and roughly 84%
+of the paraphrases for BBH were correct.
+On average, the validation process yields 240
+validated instruction paraphrases per task for
+LM ENTRY and 175 paraphrases per task for BBH.
+Next, we use these paraphrases to quantify perfor-
+mance variability due to instruction template para-
+phrasing across ∼ 6.5M instances.2
+4.2 Quantifying Performance Variance due
+to Instruction Paraphrasing
+We leverage the collection of validated para-
+phrases to assess how model performance varies
+with paraphrasing. Our main finding is that the
+common approach of evaluating against a single
+propmt is unstable, leading to unreliable results.
+Instance sampling and prompt construction.
+Our study involves a large number of tasks, mod-
+els, and instruction paraphrases. However, eval-
+uating LLMs can become prohibitively expen-
+sive with the increase of the number of samples,
+datasets, models, and instruction templates (Per-
+litz et al., 2023). To make our evaluation feasible,
+we chose to evaluate each instruction template on
+a randomly selected subset of 100 task samples.
+Furthermore, we found that all models struggle on
+2Calculated as the number of models tested per task ×
+number of paraphrased instructions per task × 100 samples,
+across all tasks and benchmarks ≈ 240 × 16 × 100 × 10
+(LM ENTRY ) +175 × 11 × 100 × 15 (BBH).
+
+=== PDF PAGE 5 ===
+BBH, beyond the point of meaningful compari-
+son. To address this, we evaluate 11 out of the 16
+models on it (the ones with the largest number of
+parameters), and add an example of the prediction
+format to all instruction template paraphrases.
+Examining the effect of few-shot learning is be-
+yond the scope of this paper, however, Sclar et al.
+(2023), Weber et al. (2023) and V oronov et al.
+(2024) recently observed similar performance sen-
+sibility when introducing varying number of in-
+context examples.
+Using a single-instruction template leads to
+brittle ranking. We compute Kendall’s W :
+Nm×n 7→ [0, 1] (Kendall and Smith, 1939), a non-
+parametric statistic which measures the ranking
+correlation between m judges (instruction tem-
+plates, in our case) ranking n objects (LLMs, in
+our case) by calculating the squared deviation be-
+tween the sum of ranks of different judges ( Ri =Pm
+j=1 rij) and their mean value:
+W = 12 Pn
+i=1(Ri − ¯R)2
+m2(n3 − n)
+Kendall’sW would be 1 for all tasks if model
+ranking were the same among all instruction tem-
+plates (in other words, they are interchangeable for
+the sake of evaluation). In contrast, the more W
+approaches 0, the lesser the rankings induced by
+different instructions agree.
+The results (Table 4) demonstrate that a single
+instruction template leads to unreliable rankings
+for many of the tasks, with 10 of the tasks exhibit-
+ing only slight to moderate ranking agreement,
+and only two exhibiting strong agreement. To
+complement the analysis, we performed Friedman
+test with tied data (Corder and Foreman, 2011),
+showing that different instructions lead to statisti-
+cally significant differences in performance for 21
+out of the 25 tasks.
+Examples of differences in model ranking. We
+illustrate the implications of ranking differences in
+Figure 2. In all three cases, P1 and P2 are valid
+paraphrases, yet they lead to vastly different rank-
+ings. For example, T0pp ranks first on the BBH
+task (center) according to P1 and only 9th accord-
+ing to P2. Similarly, Alpaca-13B and Alpaca-7B
+are in the top-performing models on the LM EN-
+TRY task P2, while they rank last for P1.
+We quantify the difference between two rank-
+ings with Kendall’sτ : Nn × Nn 7→ [−1, 1], which
+Tasks Kendall’s W Friedman p-val
+LMENTRY
+not containing .271 (weak) 0.0*
+word before .367 (weak) 0.0*
+first alphabet .436 (weak) 0.0*
+less letters .485 (weak) 0.0*
+rhyming word .496 (weak) 0.0*
+ends with word .518 (weak) 0.0*
+homophones .518 (weak) 0.0*
+all words .522 (weak) 0.0*
+any words .527 (weak) 0.0*
+more letters .540 (weak) 0.0*
+BIG-bench Hard
+recommendations .628 (medium) .897
+formal fallacies .704 (medium) 5.6E-13
+geometric shapes .710 (medium) .167
+hyperbaton .730 (medium) 1.0E-4
+logical deduction 3 .740 (medium) 4.9E-16
+disambiguation qa .764 (medium) 2.1E-17
+ruin names .776 (medium) .366
+logical deduction 7 .778 (medium) 1.4E-13
+translation error .800 (medium) 6.9E-9
+logical deduction 5 .818 (medium) 3.0E-9
+snarks .823 (medium) .604
+penguins in a table .830 (medium) 7.3E-15
+navigate .838 (medium) 5.6E-10
+causal judgement .851 (strong) 4.9E-7
+sports .873 (strong) 8.0E-13
+BIG-bench Lite
+known unknown .316 (weak) 4.4E-5
+play dialog .355 (weak) 4.3E-5
+winowhy .520 (weak) 6.0E-4
+strategic qa .529 (weak) .191
+hindu knowledge .560 (weak) .569
+conceptual .731 (medium) .132
+strange stories .731 (medium) .431
+code desc .756 (medium) .002
+novel concepts .787 (medium) .620
+logic grid puzzle .796 (medium) .010
+lang. identification .811 (medium) .002
+vitaminc .888 (strong) .772
+bbq lite .890 (strong) .023
+logical deduction .913 (strong) .895
+Table 4: Kendall’s W ∈ [0, 1] values for all tasks
+sorted in ascending order. The smaller the value of
+W the more that the ranking on different prompts
+is de-correlated. Most W are smaller than 0.85,
+indicating weak to moderate agreement. The p-
+values from Friedman test indicate significant dif-
+ferences between rankings of models when using
+different prompts. ∗p-values of 0 represent statisti-
+cal significance levels that are smaller than 1E-50.
+estimates the agreement between two specific in-
+struction templates which induce rankings R1, R2
+over n LLMs, formally defined as (Kendall, 1945):
+τb = P − Qp
+(P + Q + T ) · (P + Q + U)
+
+=== PDF PAGE 6 ===
+Figure 2: Model performance and ranking induced by pairs of paraphrases that exhibit the minimal
+Kendall τ correlation on three different tasks (one for each benchmark). For each template pair, models
+are ordered according to their performance against the first instruction template P1, enabling straight-
+forward comparisons of ranking changes. In other words, if the bars of P2 appear scattered rather than
+follow a clear descending order, this indicates a significant reshuffling of rankings.
+Where P is the number of concordant pairs, Q
+is the number of discordant pairs, T is the number
+of ties in the first ranking, and U is the number of
+ties in the second ranking. Therefore, τ > 0 indi-
+cates that most pairs are concordant (with τ = 1
+indicating perfect agreement), and τ < 0 indicates
+that most pairs are discordant (with τ = −1 indi-
+cating perfect disagreement). Overall, 15 tasks out
+of 25 have instruction template paraphrases with
+negative Kendall’s τ, indicating mostly disagree-
+ing LLM rankings.
+Absolute model performance varies widely
+on single-instruction templates. Aside from
+vastly different relative model rankings, instruc-
+tion template paraphrases often result in varying
+absolute model performances. To quantify this
+variance, we calculated divergence, defined as the
+number of standard deviations by which the per-
+formance, as assessed using the original instruc-
+tion templates, deviates from the model’s average
+performance over all paraphrases.
+The results in Figure 3 reveal noticeable di-
+vergence for the LM ENTRY benchmark, defined
+as surpassing one standard deviation (Kazmier
+et al., 2003). For instance, the performance of
+the Alpaca-13B with the original instruction tem-
+plates outperformed its average performance by
+more than one standard deviation in 7 out of 10
+LM ENTRY tasks. For lack of space, the figure
+does not depict the BBH benchmark, but similar
+patterns of divergence were observed there as well.
+In line with Lou et al. (2023), we find that ma-
+jor differences in performance can occur even for
+very similar paraphrase pairs. For example, the
+Flan-T5-large model demonstrated an average per-
+formance degradation of 28% when changing the
+word ‘excludes’ to ‘lacks’, while the Flan-T5-XL
+model showed an average performance improve-
+ment of 46% on that same edit. See a compre-
+hensive edit distance comparison in Figure 4 and
+Table 5.
+4.3 LLMs are also Sensitive to Manual
+Paraphrases
+Inconsistencies observed in our analyses could
+stem from paraphrases that leaked to the training
+of the models. To address this, we extended our
+analysis with instruction paraphrases which were
+recently written by Sun et al. (2023) for the BBL
+tasks (7-12 instruction templates per task). Impor-
+tantly, these human-crafted paraphrases were writ-
+ten after model training.
+
+=== PDF PAGE 7 ===
+Figure 3: Model and task performance diver-
+gence. For each LM ENTRY task, we show the
+number of standard deviations by which perfor-
+mance of each model on the original instructions
+deviates from averaged performance. Dark cells
+indicate substantial divergence values (>1 std).
+We use these annotations to examine model per-
+formance. Our analysis revealed similar inconsis-
+tencies as observed with automated paraphrases,
+demonstrating model sensitivity to paraphrasing
+even when the potential for instruction leakage is
+minimized. See Table 4 for the Kendall’s W val-
+ues for all BBL tasks, and Figure 2 for a pair
+of instruction templates exhibiting the minimal
+Kendall’sτ correlation across all BBL tasks.
+5 Different Use Cases Merit Different
+Metrics
+We have shown that LLM performance is greatly
+affected by paraphrasing of instruction templates.
+This calls into question current evaluation prac-
+tices, which typically rely on LLM performance
+on a single instruction template. In this section we
+explore ways to evaluate LLMs using adiverse set
+of instruction templates.
+Most importantly, we argue that the answer
+should depend on the purpose of the evaluation ,
+and that different extrinsic needs should lead to
+different evaluation metrics, rather than striving
+for a coarse catch-all metric. We introduce a set
+of metrics, each tailored to specific scenarios and
+realistic user needs.
+Notations. In the following, M is a pretrained
+LLM, T = {(xi, yi)} denotes an evaluation
+dataset for M, IT is a set of natural language task
+instruction paraphrases for T (e.g., obtained via
+automatic paraphrasing), and ε(M, T, i) ∈ [0, 1]
+denotes the aggregated performance ofM on sam-
+ples from T , using a single instruction template
+i ∈ IT according to a standard metric, e.g., accu-
+racy or F1.
+5.1 Maximum Performance Metric – For
+Particular Downstream Applications
+We define the maximum performance (MaxP) of a
+model M on task T to be the maximum individ-
+ual instruction template performance this model
+achieves across all instruction templates:
+M axP(M, T, IT ) = max
+i∈IT
+ε(M, T, i)
+Use case: This metric is useful for developers
+aiming to integrate an LLM into a specific down-
+stream task and domain (e.g., sentiment analysis in
+the news domain). In such cases, a user input is of-
+ten embedded within a fixed instruction template.
+As such, it makes sense to find the best-performing
+instruction template for a given model (Wei et al.,
+2021). To mitigate overfitting, we advise develop-
+ers to use a new sample set for the task. This en-
+sures the chosen prompt is validated by its ability
+to maximize performance on these held-out sam-
+ples irrespective of prior exposure during training.
+5.2 Average Performance Metric – For LLM
+Developers
+We define the average performance (AvgP) of a
+model M on task T as the mean of the individual
+instruction template performances over all instruc-
+tion templates for the task:
+AvgP (M, T, IT ) = 1
+|IT | ·
+X
+i∈IT
+ε(M, T, i)
+Use case: Average prompt performance is use-
+ful for assessing model robustness to paraphrases.
+We believe this should be standard practice for
+LLM developers when presenting the performance
+of a new LLM on a range of tasks and prompt para-
+phrases (Le Scao et al., 2022), as it mitigates out-
+liers in performance.
+5.3 Combined Performance Score
+In the same way the F1 score combines preci-
+sion and recall into a single metric, we propose
+a Combined Performance Score (CPS) that unites
+
+=== PDF PAGE 8 ===
+Figure 4: Average performance differences between various models for the most common minimal
+edits between two instruction templates (e.g., substituting ‘excludes’ with ‘lacks’) in the LM ENTRY
+benchmark.
+the maximum and average performance metrics to
+capture both peak capability and robustness of the
+model across prompts. To define CPS, we first in-
+troduce a model saturation score:
+Sat(M, T, IT ) = 1 − (M axP − AvgP )
+This score measures how closely the model’s best
+performance aligns with its average performance.
+A high saturation score indicates that the model’s
+performance does not drop significantly for non-
+optimal instructions. Then, the CPS is calculated
+as the product of the model’s best performance
+(M axP) and its saturation (Sat):
+CP S(M, T, IT ) = Sat · M axP
+Use case: This metric is valuable for select-
+ing a model for a suite of applications or a plat-
+form offering diverse tasks. For instance, when
+integrating an LLM into an application with user-
+visible prompts, such as a multi-functional chat-
+bot, it is crucial for the model to be both effective
+(high M axP) and robust (high Sat). CPS facil-
+itates identifying models that strike a balance be-
+tween top-tier performance and robust reliability
+across varying instruction templates.
+6 Multi-Prompt Evaluation
+In Figure 6 we evaluate all our 16 models accord-
+ing to the metrics we proposed in the previous sec-
+tion, on sample tasks from each of the three bench-
+marks (full results for all tasks are available in our
+repository). We report several interesting obser-
+vations. First, we find that all aggregate metrics
+diverge from the performance on the original in-
+struction templates. For the vast majority of the
+tasks in our study, the top three models determined
+by the original instruction templates were different
+from those which ranked first according to the av-
+erage and maximum metrics.
+More broadly, model ranking depended on the
+metric used. For instance, see Figure 6 (top): In
+LM ENTRY ’s rhyming word task, Falcon-Instruct-
+7b and Vicuna-13b rank first according to M axP
+(0.74, gray and yellow bars), but their average per-
+formances AvgP are only 0.17 and 0.15, respec-
+tively. Similarly, across all tasks in the LMENTRY
+benchmark, LLaMA-based models were compet-
+itive with T5-based models in terms of M axP.
+However, in terms of AvgP , they tended to lag
+behind, due to extremely poor performance on
+a large number of paraphrases (see Figure 5 for
+%paraphrases that achieved at least 5% accuracy).
+Finally, we found that noise stemming from au-
+tomatic paraphrase generation has virtually no im-
+pact on metric-based model rankings. We com-
+pute Kendall’s τ to compare model rankings be-
+fore and after the manual filtering of paraphrases.
+The results (Table 6) show near-perfect to perfect
+agreement in rankings across all tasks, except for
+
+=== PDF PAGE 9 ===
+Change Model P1 Acc. P2 Acc. Diff.
+‘.’ –> ‘:’ nous-hermes Create a word that does not in-
+clude the letter “{letter}”.
+.04 Create a word that does not in-
+clude the letter “{letter}”:
+.65 +.61
+alpaca-13b Create a sentence that concludes
+with the term “{word}”.
+.61 Create a sentence that concludes
+with the term “{word}”:
+.19 -.42
++ ‘.’ alpaca-13b Write a word that lacks the letter
+“letter”
+.04 Write a word that lacks the letter
+“letter”.
+.42 +.38
+flan-t5-xl Write a word that omits the letter
+“letter”
+.77 Write a word that omits the letter
+“letter”.
+.54 -.23
++ ‘using’ flan-t5-large Your task is to write a word with-
+out the letter “{letter}”
+.46 Your task is to write a word with-
+outusingthe letter “{letter}”
+.12 -.35
+falcon-7b Write a word without the letter
+{letter}.\nOutput word:
+.12 Write a word without usingthe
+letter {letter}.\nOutput word:
+.35 +.23
+omits –> lacks ultralm-13b Write a word that omitsthe letter
+“{letter}”.
+.62 Write a word that lacksthe letter
+“{letter}”.
+.19 -.42
+flan-t5-xl Write a word thatomitsthe letter
+“{letter}”.
+.54 Write a word that lacksthe letter
+“{letter}”.
+.81 +.27
+contain –> have falcon-7b Write a word that does not con-
+tainthe letter “{letter}”
+.81 Write a word that does nothave
+the letter “{letter}”
+.19 -.62
+flan-t5-xxl Please write a word that does not
+containthe letter “{letter}”.
+.62 Please write a word that does not
+havethe letter “{letter}”.
+.88 +.27
+include –> have falcon-7b Write a word that does not in-
+cludethe letter “{letter}”.
+.81 Write a word that does nothave
+the letter “{letter}”.
+.19 -.62
+flan-t5-xl Write a word that does not in-
+cludethe letter “{letter}”.
+.42 Write a word that does nothave
+the letter “{letter}”.
+.73 +.31
+ultralm-13b Please write a word that does not
+includethe letter “{letter}”.
+.46 Please write a word that does not
+havethe letter “{letter}”.
+.12 -.35
+excludes –> lacks flan-t5-large Write a word thatexcludesthe
+letter “{letter}”.
+.54 Write a word that lacksthe letter
+“{letter}”.
+.12 -.42
+flan-t5-xl Write a word that excludesthe
+letter “{letter}”.
+.19 Write a word that lacksthe letter
+“{letter}”.
+.81 +.62
+Table 5: Representative examples of instruction template pairs from LM ENTRY with very minor differ-
+ences but notable variations in performance (open-source models).
+Figure 5: Percentage of instruction paraphrases
+with accuracy higher than 5% in T5 models (blue)
+vs. LLaMA models (purple) on LM ENTRY tasks.
+the “ends with word” task in LM ENTRY . Upon
+examination, this seems to be mostly due to an er-
+ror in LMENTRY ’s evaluation script. These results
+suggest that it may be enough to compute our met-
+rics over range of automatically-generated para-
+phrases, without having to manually verify them.
+Benchmark Max perf. Average perf. Combined perf.
+LMENTRY .963 .978 .948
+BBH .991 .983 .966
+Table 6: Averaged Kendall’s Tau values compar-
+ing rankings before and after filtering incorrect
+paraphrases for each metric across all tasks (ex-
+cluding “ends with word” for LMENTRY ).
+7 Small-Scale Evaluation of OpenAI
+Models on Prompt Paraphrasing
+In this section we perform a small-scale evalua-
+tion showing that API LLMs are also sensitive to
+instruction paraphrasing. Our evaluation focuses
+on four OpenAI models: davinci, text-davinci-
+002, text-davinci-003, and GPT-3.5-Turbo on the
+
+=== PDF PAGE 10 ===
+Figure 6: The performance of various models
+according to the metrics proposed in Section 5,
+evaluated on sample tasks from each of the three
+benchmarks. The name of the metric appears be-
+low each group of columns; height of a column
+represents value in that specific metric . The or-
+der of the columns (i.e., models) between groups
+is fixed, set according to decreasing performance
+on the original instruction templates to enable
+straightforward comparisons of ranking changes.
+LMENTRY benchmark.
+Due to budget constraints, we show that the per-
+formance of these models diverges significantly
+between the benchmark’s original instruction tem-
+plates and a selection of paraphrases, in terms of
+both average and maximum metrics.
+Estimating average performance. To estimate
+the average performance of OpenAI models on a
+specific task, we adopted a randomized approach.
+For each task sample, we randomly selected a
+paraphrase from our collection, and evaluated the
+model’s response, scoring the entire set of task
+samples. To approximate average performance,
+this experiment was repeated 20 times, determined
+by the data from our 16 open-source models.
+Estimating maximal performance. To esti-
+mate which of the roughly 175 instruction tem-
+plates per task performs the best for each model,
+we implemented a simple greedy search. Initially,
+we evaluated all paraphrases on 10 task instances,
+then narrowed down to the top 100 instruction
+Figure 7: Comparison of the maximum per-
+formance of four OpenAI models using orig-
+inal prompts (in solid colors) vs. all prompt
+paraphrases (semi-transparent). Each group of
+columns corresponds to a different task in the
+LM ENTRY benchmark.
+templates for another 10 instances. Finally, the
+top 10 instruction templates were evaluated on the
+remaining instances, and the template that per-
+formed the best was chosen to estimate the maxi-
+mum performance.
+7.1 Results
+Below we summarize the results of our evaluation
+of OpenAI models. The full details appear in our
+repository.0
+OpenAI models are also sensitive to minor
+prompt variations. Minor changes in the phras-
+ing of the instruction could lead to drastic perfor-
+mance changes for the OpenAI models, similar
+to our findings in Section 4.2 with smaller-scale
+LLMs. See representative examples in Table 7,
+showing nearly identical instruction template pairs
+resulting in notable variations in performance.
+Average performance is lower than that ob-
+served in the original benchmark instructions.
+In 72.5% of the cases, the performance of the orig-
+inal instructions was higher than the estimated av-
+erage across all paraphrases. In the davinci model,
+the original prompts added on average 21 more ac-
+curacy points.
+Original prompt performances fall below
+all paraphrases’ estimated maximum perfor-
+mance. Figure 7 depicts maximum performance
+of the original instructions for four LM EN-
+TRY tasks in solid colors, with overlaid semi-
+transparent columns indicating the estimated max-
+imum performance on all paraphrases . No-
+tably, for text-davinci-002, we found paraphrases
+
+=== PDF PAGE 11 ===
+Change Model P1 Acc. P2 Acc. Diff.
+{...} –> “{...}” td002 Which word has a greater number of
+letters,{word1}or{word2}?
+.50 Which word has a greater number of
+letters,“{word1}”or“{word2}”?
+.23 -0.27
+td002 Which of the words {word1}and
+{word2}is alphabetically first?
+.54 Which of the words “{word1}”and
+“{word2}”is alphabetically first?
+.77 +0.23
+td003 Which word has a greater number of
+letters,{word1}or{word2}?
+.60 Which word has a greater number of
+letters,“{word1}”or“{word2}”?
+.14 -0.46
+td003 Compare the length of {word1}and
+{word2}and tell me which one is
+shorter.
+.39 Compare the length of“{word1}”and
+“{word2}”and tell me which one is
+shorter.
+.73 +0.34
+cgpt Which word has a greater number of
+letters,{word1}or{word2}?
+.55 Which word has a greater number of
+letters,“{word1}”or“{word2}”?
+.24 -0.31
+cgpt Compare the length of {word1}and
+{word2}. Which one is longer?
+.04 Compare the length of“{word1}”and
+“{word2}”. Which one is longer?
+.70 +0.66
+‘,’ –> ‘:’ td002 Which word is a rhyme for “{query}”,
+“{word1}” or “{word2}”?
+.08 Which word is a rhyme for “{query}”:
+“{word1}” or “{word2}”?
+.85 +0.77
+td003 Which word is a rhyme for “{query}”,
+“{word1}” or “{word2}”?
+.48 Which word is a rhyme for “{query}”:
+“{word1}” or “{word2}”?
+.90 +0.42
+‘,’ –> ‘-’ td002 Which word rhymes with “{query}”,
+“{word1}” or “{word2}”?
+.06 Which word rhymes with “{query}”-
+“{word1}” or “{word2}”?
+.73 +0.67
+td003 Which word rhymes with “{query}”,
+“{word1}” or “{word2}”?
+.17 Which word rhymes with “{query}”-
+“{word1}” or “{word2}”?
+.60 +0.43
+the –> a td002 What is the word that rhymes with
+“{query}” - “{word1}” or “{word2}”?
+.03 What is a word that rhymes with
+“{query}” - “{word1}” or “{word2}”?
+.78 +0.75
+which –> what td002 Whichword rhymes with “{query}” -
+“{word1}” or “{word2}”?
+.73 Whatword rhymes with “{query}” -
+“{word1}” or “{word2}”?
+.82 +0.09
+td003 Whichword rhymes with “{query}” -
+“{word1}” or “{word2}”?
+.60 Whatword rhymes with “{query}” -
+“{word1}” or “{word2}”?
+.15 -0.45
+word –> term td002 Create a wordthat excludes the letter
+“{letter}”.
+.54 Create a termthat excludes the letter
+“{letter}”.
+.04 -0.50
+td003 Create a wordthat excludes the letter
+“{letter}”.
+.96 Create a termthat excludes the letter
+“{letter}”.
+.58 -0.38
+cgpt Create a wordthat excludes the letter
+“{letter}”.
+.81 Create a termthat excludes the letter
+“{letter}”.
+.42 -0.39
+Table 7: Minimal distance pairs from LMENTRY with large performance differences in OpenAI models.
+that improved its maximal accuracy performance
+above 90% for 8 out of 10 tasks. Across all four
+models, 26 out of 40 differences were statistically
+significant according to the McNemar test.
+Model rankings diverge between the differ-
+ent metrics and original instruction templates.
+Similarly to our main evaluation, there were many
+mismatches between ranking on the original in-
+struction templates and our metrics. Agreement
+was observed in only 5 out of 10 tasks for the av-
+erage metric, and in 4 out of 10 tasks for the max-
+imum metric.
+8 Related Work
+Our work is part of an emerging trend highlight-
+ing the many challenges standing in the way of
+meaningful, scalable, and reproducible evaluation
+of large language models.
+Perlitz et al. (2023) focus on the rising cost of
+exhaustive evaluation of LLMs on large number
+of samples. They developed methods for choosing
+subsets of the test data which are expected to be
+a good representative of the whole. An interest-
+ing avenue for future work can extend Perlitz et al.
+(2023)’s approach to also include various instruc-
+tion templates, thus efficiently approximating our
+suggested evaluation methods.
+Sclar et al. (2023) show that LLMs are sensitive
+to prompt formatting. These are minor prompt de-
+sign choices, such as the addition or omission of
+punctuation marks. They create a large pool of
+instruction paraphrases, ensuring that paraphrases
+maintain the meaning of the original prompt. We
+notice a similar phenomenon, albeit more anec-
+dotally, when our automatic paraphrasing tech-
+
+=== PDF PAGE 12 ===
+niques incidentally produce minor changes in for-
+matting (Table 7). V oronov et al. (2024) showed
+that LLMs are sensitive to the format of in-context
+examples. For example, they varied the manner in
+which each input-output is separated, and test how
+such choices interact with the phrasing of the in-
+struction template, the number of demonstrations,
+or the model size.
+The works discussed above represent a distinct
+thread within the larger field of model robustness,
+which is typically defined as a measure of mod-
+els’ ability to adapt to distribution shifts between
+training and inference (Wang et al., 2022), or to
+cope with adversarial examples (Wang et al., 2021,
+2023). In contrast, these works do not change the
+underlying instance to be classified (e.g., the ho-
+mophone pairs in our running example), but rather
+the task instruction. This challenge arises with the
+introduction of LLMs which take such instructions
+as part of the input, rather than through dedicated
+calibration in training or finetuning.
+9 Conclusions
+Our research highlights the sensitivity of large lan-
+guage models (LLMs) to prompt paraphrasing,
+challenging the adequacy of single-prompt eval-
+uations. We propose alternative evaluation met-
+rics that use a diverse set of instruction templates
+for each task, designed for more robust and mean-
+ingful LLM evaluation. For example, LLM de-
+velopers may be interested in measuring the ro-
+bustness of performance across multiple prompts,
+which we propose to evaluate as the average across
+a large collection of prompts. In contrast, when
+developing a downstream model, different mod-
+els should be compared according to their corre-
+sponding top-performing prompt.
+Evaluating based on these metrics underscores
+the necessity for nuanced evaluation methods, re-
+vealing notable differences in absolute perfor-
+mance and relative model rankings compared to
+traditional evaluations. We hope that our work
+will help spur more consistency and comparabil-
+ity in LLM evaluation which is strongly coupled
+to real-world LLM uses. We believe this shift is
+crucial for accurately understanding and leverag-
+ing the true capabilities of LLMs.
+Acknowledgements
+We thank the reviewers for their insightful com-
+ments. We further thank Asaf Yehudai and Oyvind
+Tafjord for engaging discussions, and the mem-
+bers of SLAB and Hyadata Lab at the Hebrew
+University of Jerusalem for their thoughtful re-
+marks. This work was supported by the Euro-
+pean Research Council (ERC) under the Euro-
+pean Union’s Horizon 2020 research and innova-
+tion programme (grant no. 852686, SIAM) and
+was partially supported by the Israeli Ministry of
+Science and Technology (grant no. 2336).
+References
+Josh Achiam, Steven Adler, Sandhini Agar-
+wal, Lama Ahmad, Ilge Akkaya, Floren-
+cia Leoni Aleman, Diogo Almeida, Janko Al-
+tenschmidt, Sam Altman, Shyamal Anadkat,
+et al. 2023. Gpt-4 technical report. arXiv
+preprint arXiv:2303.08774.
+Ebtesam Almazrouei, Hamza Alobeidli, Abdu-
+laziz Alshamsi, Alessandro Cappelli, Ruxandra
+Cojocaru, Merouane Debbah, Etienne Goffinet,
+Daniel Heslow, Julien Launay, Quentin Malar-
+tic, et al. 2023. Falcon-40b: an open large lan-
+guage model with state-of-the-art performance.
+Technical report, Technical report, Technology
+Innovation Institute.
+Aakanksha Chowdhery, Sharan Narang, Jacob De-
+vlin, Maarten Bosma, Gaurav Mishra, Adam
+Roberts, Paul Barham, Hyung Won Chung,
+Charles Sutton, Sebastian Gehrmann, et al.
+2023. Palm: Scaling language modeling with
+pathways. Journal of Machine Learning Re-
+search, 24(240):1–113.
+Hyung Won Chung, Le Hou, Shayne Longpre,
+Barret Zoph, Yi Tay, William Fedus, Yunx-
+uan Li, Xuezhi Wang, Mostafa Dehghani,
+Siddhartha Brahma, et al. 2024. Scaling
+instruction-finetuned language models. Journal
+of Machine Learning Research, 25(70):1–53.
+OpenAccess AI Collective. 2023.
+Minotaur. https://huggingface.co/
+openaccess-ai-collective/minotaur-15b. Last
+Accessed: 2024-04-30.
+Gregory W Corder and Dale I Foreman. 2011.
+Nonparametric Statistics for Non-Statisticians .
+John Wiley & Sons, Inc.
+Ning Ding, Yulin Chen, Bokai Xu, Yujia Qin,
+Shengding Hu, Zhiyuan Liu, Maosong Sun,
+
+=== PDF PAGE 13 ===
+and Bowen Zhou. 2023. Enhancing chat lan-
+guage models by scaling high-quality instruc-
+tional conversations. In Proceedings of the
+2023 Conference on Empirical Methods in Nat-
+ural Language Processing, pages 3029–3051.
+Jon Durbin. 2023. Airoboros. https://github.com/
+jondurbin/airoboros. Last Accessed: 2024-04-
+30.
+Avia Efrat, Or Honovich, and Omer Levy. 2023.
+Lmentry: A language model benchmark of ele-
+mentary language tasks. In Findings of the As-
+sociation for Computational Linguistics: ACL
+2023, pages 10476–10501.
+Hila Gonen, Srini Iyer, Terra Blevins, Noah A
+Smith, and Luke Zettlemoyer. 2023. Demysti-
+fying prompts in language models via perplex-
+ity estimation. In Findings of the Association
+for Computational Linguistics: EMNLP 2023 ,
+pages 10136–10148.
+Jiasheng Gu, Hongyu Zhao, Hanzi Xu, Liangyu
+Nie, Hongyuan Mei, and Wenpeng Yin. 2023.
+Robustness of learning from task instructions.
+In Findings of the Association for Computa-
+tional Linguistics: ACL 2023 , pages 13935–
+13948.
+Dan Hendrycks, Collin Burns, Steven Basart,
+Andy Zou, Mantas Mazeika, Dawn Song, and
+Jacob Steinhardt. 2020. Measuring massive
+multitask language understanding. In Interna-
+tional Conference on Learning Representations.
+Or Honovich, Thomas Scialom, Omer Levy, and
+Timo Schick. 2023a. Unnatural instructions:
+Tuning language models with (almost) no hu-
+man labor. In Proceedings of the 61st Annual
+Meeting of the Association for Computational
+Linguistics (Volume 1: Long Papers) , pages
+14409–14428.
+Or Honovich, Uri Shaham, Samuel R Bowman,
+and Omer Levy. 2023b. Instruction induction:
+From few examples to natural language task de-
+scriptions. In 61st Annual Meeting of the As-
+sociation for Computational Linguistics, ACL
+2023, pages 1935–1952. Association for Com-
+putational Linguistics (ACL).
+Leonard J Kazmier, Michael K Staton, Daniel L
+Fulks, et al. 2003. Business statistics: based on
+schaums outline of theory and problems of busi-
+ness statistics, by leonard j. kazmier. Technical
+report, McGraw-Hill.
+Maurice G Kendall. 1945. The treatment of ties in
+ranking problems. Biometrika, 33(3):239–251.
+Maurice G Kendall and B Babington Smith. 1939.
+The problem of m rankings. The annals of
+mathematical statistics, 10(3):275–287.
+Teven Le Scao, Angela Fan, Christopher Akiki,
+Ellie Pavlick, Suzana Ili ´c, Daniel Hesslow,
+Roman Castagné, Alexandra Sasha Luccioni,
+François Yvon, Matthias Gallé, et al. 2022.
+Bloom: A 176b-parameter open-access multi-
+lingual language model. arXiv e-prints, pages
+arXiv–2211.
+Brian Lester, Rami Al-Rfou, and Noah Con-
+stant. 2021. The power of scale for parameter-
+efficient prompt tuning. In Proceedings of
+the 2021 Conference on Empirical Methods in
+Natural Language Processing. Association for
+Computational Linguistics.
+Percy Liang, Rishi Bommasani, Tony Lee, Dim-
+itris Tsipras, Dilara Soylu, Michihiro Yasunaga,
+Yian Zhang, Deepak Narayanan, Yuhuai Wu,
+Ananya Kumar, et al. 2023. Holistic evaluation
+of language models. Transactions on Machine
+Learning Research.
+Renze Lou, Kai Zhang, and Wenpeng Yin. 2023.
+Is prompt all you need? no. a comprehensive
+and broader view of instruction learning. arXiv
+preprint arXiv:2303.10475.
+Swaroop Mishra, Daniel Khashabi, Chitta Baral,
+and Hannaneh Hajishirzi. 2022. Cross-task
+generalization via natural language crowdsourc-
+ing instructions. In 60th Annual Meeting of
+the Association for Computational Linguistics,
+ACL 2022, pages 3470–3487. Association for
+Computational Linguistics (ACL).
+NousResearch. 2023. Nous-hermes.
+https://huggingface.co/NousResearch/
+Nous-Hermes-13b. Last Accessed: 2024-
+04-30.
+Yotam Perlitz, Elron Bandel, Ariel Gera,
+Ofir Arviv, Liat Ein-Dor, Eyal Shnarch,
+Noam Slonim, Michal Shmueli-Scheuer, and
+
+=== PDF PAGE 14 ===
+Leshem Choshen. 2023. Efficient benchmark-
+ing (of language models). arXiv preprint
+arXiv:2308.11696.
+Abhinav Rao, Sachin Vashistha, Atharva Naik,
+Somak Aditya, and Monojit Choudhury. 2023.
+Tricking llms into disobedience: Understand-
+ing, analyzing, and preventing jailbreaks. arXiv
+preprint arXiv:2305.14965.
+Victor Sanh, Albert Webson, Colin Raffel,
+Stephen Bach, Lintang Sutawika, Zaid
+Alyafeai, Antoine Chaffin, Arnaud Stiegler,
+Arun Raja, Manan Dey, et al. 2021. Multitask
+prompted training enables zero-shot task
+generalization. In International Conference on
+Learning Representations.
+Melanie Sclar, Yejin Choi, Yulia Tsvetkov, and
+Alane Suhr. 2023. Quantifying language mod-
+els’ sensitivity to spurious features in prompt
+design or: How i learned to start worrying about
+prompt formatting. In The Twelfth Interna-
+tional Conference on Learning Representations.
+Aarohi Srivastava, Abhinav Rastogi, Abhishek
+Rao, Abu Awal Md Shoeb, Abubakar Abid,
+Adam Fisch, Adam R Brown, Adam Santoro,
+Aditya Gupta, Adrià Garriga-Alonso, et al.
+2023a. Beyond the imitation game: Quan-
+tifying and extrapolating the capabilities of
+language models. Transactions on Machine
+Learning Research.
+Aarohi Srivastava, Abhinav Rastogi, Abhishek
+Rao, Abu Awal Md Shoeb, Abubakar Abid,
+Adam Fisch, Adam R Brown, Adam Santoro,
+Aditya Gupta, Adrià Garriga-Alonso, et al.
+2023b. Beyond the imitation game: Quan-
+tifying and extrapolating the capabilities of
+language models. Transactions on Machine
+Learning Research.
+Jiuding Sun, Chantal Shaib, and Byron C Wal-
+lace. 2023. Evaluating the zero-shot robustness
+of instruction-tuned language models. In The
+Twelfth International Conference on Learning
+Representations.
+Mirac Suzgun, Nathan Scales, Nathanael Schärli,
+Sebastian Gehrmann, Yi Tay, Hyung Won
+Chung, Aakanksha Chowdhery, Quoc Le,
+Ed Chi, Denny Zhou, et al. 2023. Challenging
+big-bench tasks and whether chain-of-thought
+can solve them. In Findings of the Associa-
+tion for Computational Linguistics: ACL 2023 ,
+pages 13003–13051.
+Rohan Taori, Ishaan Gulrajani, Tianyi Zhang,
+Yann Dubois, Xuechen Li, Carlos Guestrin,
+Percy Liang, and Tatsunori B Hashimoto.
+2023. Alpaca: A strong, replicable instruction-
+following model. Stanford Center for Research
+on Foundation Models. https://crfm.stanford.
+edu/2023/03/13/alpaca.html . Last Accessed:
+2024-04-30.
+Gemini Team, Rohan Anil, Sebastian Borgeaud,
+Yonghui Wu, Jean-Baptiste Alayrac, Jiahui Yu,
+Radu Soricut, Johan Schalkwyk, Andrew M
+Dai, Anja Hauth, et al. 2023. Gemini: a fam-
+ily of highly capable multimodal models. arXiv
+preprint arXiv:2312.11805.
+MosaicML NLP Team. 2023. Introducing mpt-7b:
+A new standard for open-source, commercially
+usable llms. www.mosaicml.com/blog/mpt-7b.
+Last Accessed: 2024-04-30.
+Hugo Touvron, Thibaut Lavril, Gautier Izacard,
+Xavier Martinet, Marie-Anne Lachaux, Timo-
+thée Lacroix, Baptiste Rozière, Naman Goyal,
+Eric Hambro, Faisal Azhar, et al. 2023. Llama:
+Open and efficient foundation language models.
+arXiv preprint arXiv:2302.13971.
+Anton V oronov, Lena Wolf, and Max Ryabinin.
+2024. Mind your format: Towards consistent
+evaluation of in-context learning improvements.
+arXiv preprint arXiv:2401.06766.
+Boxin Wang, Chejian Xu, Shuohang Wang, Zhe
+Gan, Yu Cheng, Jianfeng Gao, Ahmed Hassan
+Awadallah, and Bo Li. 2021. Adversarial glue:
+A multi-task benchmark for robustness evalua-
+tion of language models. In Thirty-fifth Confer-
+ence on Neural Information Processing Systems
+Datasets and Benchmarks Track (Round 2).
+Jindong Wang, HU Xixu, Wenxin Hou, Hao Chen,
+Runkai Zheng, Yidong Wang, Linyi Yang, Wei
+Ye, Haojun Huang, Xiubo Geng, et al. 2023. On
+the robustness of chatgpt: An adversarial and
+out-of-distribution perspective. In ICLR 2023
+Workshop on Trustworthy and Reliable Large-
+Scale Machine Learning Models.
+Xuezhi Wang, Haohan Wang, and Diyi Yang.
+2022. Measure and improve robustness in nlp
+
+=== PDF PAGE 15 ===
+models: A survey. In 2022 Conference of
+the North American Chapter of the Association
+for Computational Linguistics: Human Lan-
+guage Technologies, NAACL 2022, pages 4569–
+4586. Association for Computational Linguis-
+tics (ACL).
+Lucas Weber, Elia Bruni, and Dieuwke Hupkes.
+2023. Mind the instructions: a holistic evalua-
+tion of consistency and interactions in prompt-
+based learning. In Proceedings of the 27th Con-
+ference on Computational Natural Language
+Learning (CoNLL), pages 294–313.
+Jason Wei, Maarten Bosma, Vincent Zhao, Kelvin
+Guu, Adams Wei Yu, Brian Lester, Nan Du, An-
+drew M Dai, and Quoc V Le. 2021. Finetuned
+language models are zero-shot learners. In In-
+ternational Conference on Learning Represen-
+tations.
+Jason Wei, Xuezhi Wang, Dale Schuurmans,
+Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le,
+Denny Zhou, et al. 2022. Chain-of-thought
+prompting elicits reasoning in large language
+models. Advances in Neural Information Pro-
+cessing Systems, 35:24824–24837.
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng,
+Siyuan Zhuang, Zhanghao Wu, Yonghao
+Zhuang, Zi Lin, Zhuohan Li, Dacheng Li, Eric
+Xing, et al. 2024. Judging llm-as-a-judge with
+mt-bench and chatbot arena. Advances in Neu-
+ral Information Processing Systems, 36.
+Kaijie Zhu, Jindong Wang, Jiaheng Zhou, Zichen
+Wang, Hao Chen, Yidong Wang, Linyi Yang,
+Wei Ye, Neil Zhenqiang Gong, Yue Zhang, et al.
+2023. Promptbench: Towards evaluating the ro-
+bustness of large language models on adversar-
+ial prompts. arXiv preprint arXiv:2306.04528.

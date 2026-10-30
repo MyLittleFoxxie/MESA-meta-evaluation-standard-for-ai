@@ -57,7 +57,7 @@ def main():
   for quote in row['quotes']:check(any(quote in t for t in strings(review)),'Audit quote '+row['condition']+' '+quote[:30])
  for field in ['id','condition','source']:
   check(all(x[field] in next(j for j in load(B/'selection.json')['jobs'] if j['id']==x['id'] and j['source']==x['source'])[field] for x in selected),'Selected-review source mapping '+field)
- current=[R/'paper_chase.tex',R/'README.md',R/'CHASE-study.md',R/'CHASE-review-response.md']
+ current=[R/'paper_chase.tex',R/'README.md',R/'CHASE-study.md',R/'supporting/editorial/CHASE-review-response.md']
  for p in current:
   t=p.read_text();check(not re.search(r'\brevised\b',t,re.I),'Prohibited wording absent '+p.name)
   for stale in ['243/245','456/500','91.2','both questions are answered No','Five of the ten notes named question 8','sec:followup','original MESA','new MESA']:

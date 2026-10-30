@@ -1,0 +1,148 @@
+\documentclass[10pt,conference]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\begin{document}
+\title{Auditing Artificial Intelligence Benchmarks with Coding Agents}
+\author{Anonymous authors}
+\maketitle
+\begin{abstract}
+Benchmark review requires evidence about both evaluation software and the interpretations attached to its scores. This paper introduces a revision of MESA as a benchmark audit rubric with ten criteria. Five concern software and documentation; five concern selected aspects of measurement. Each criterion has its own rating anchors, while insufficient evidence and inapplicability remain separate. We examine how coding agents apply this rubric when given a paper and repository description, and when also allowed to inspect repository files. Two sequential batches each completed twelve sessions across HumanEval, TruthfulQA and DesignQA with two access conditions and two repetitions: GPT-6 Luna through Codex, and later Claude Fable 5.1 through Claude Code, both at medium reasoning effort. Source snapshots, prompts, assistant reference proposals and an analysis plan were frozen before each batch. All 24 main responses met the output structure, giving 240 judgments. Status and rating matched in 46 of 60 repeat pairs and 42 of 60 access pairs in the Codex batch, and in 55 of 60 and 45 of 60 in the Claude batch, where every access change concerned a software or documentation criterion. Across batches, 92 of 120 paired judgments matched. Selected responses show ratings that exceed the support stated in their reasons, and repository inspection surfaced code and documentation discrepancies absent from the papers. These counts do not treat reference agreement or agreement between batches as correctness. The study does not establish human usability, expert agreement or benchmark quality. Its contribution is a documented audit procedure and an examination of how source access affects the evidence recorded by two model configurations.
+\end{abstract}
+\begin{IEEEkeywords}
+benchmark review, measurement, coding agents, evidence, software evaluation
+\end{IEEEkeywords}
+
+\section{Introduction}
+An evaluation script can implement its stated formula and still produce a score that does not support the intended claim. Conversely, missing documentation does not establish that a benchmark was built incorrectly. Benchmark review must examine the software, the information available about its development, and the reasons for interpreting its scores in a particular way. Guidance on test review and score validation provides a basis for distinguishing these questions \cite{efpa_test_review_model_2025,kane_validation,aera_apa_ncme_standards_2014}.
+
+Coding agents can inspect source files, compare definitions with implementations and locate documentation. These capabilities make repository access worth examining in benchmark review. They do not by themselves establish that an agent can judge whether tasks represent an ability, whether uncertainty is adequate for a comparison, or whether a human baseline supports a claim. Research on benchmark design and construct validity motivates those distinctions \cite{reuel_betterbench,bean_measuring_what_matters,jo_wilson_what_does_your_benchmark_measure}.
+
+We develop MESA as a benchmark audit rubric with ten criteria. This is a research revision of the project, distinct from its earlier questionnaire with 25 questions. The revision concentrates on five software and documentation concerns and five measurement concerns. It changes both coverage and answer format. Earlier results for the questionnaire therefore do not validate the rubric or supply its expected answers.
+
+The study asks three questions. First, what evidence does the agent record when applying the criteria? Second, how do its judgments change when repository files become available alongside the paper and README? Third, how much do judgments vary between two repetitions of the same configuration? These questions do not assume that repository access improves judgments or that software inspection settles measurement questions.
+
+The contribution consists of the rubric and its limits, a procedure for collecting evidence without exposing reference judgments, and a comparison of source access within each of two requested model configurations. The Codex batch and the later Claude batch are reported separately, with a descriptive comparison of their paired judgments. Human evaluation is outside this paper. It is not a prerequisite for completing the model study.
+
+\section{Basis for the Review}
+\subsection{Description, checking and interpretation}
+The European Federation of Psychologists' Associations Test Review Model separates describing a test from evaluating its properties and use. Its 2025 edition includes forms and guidance across 90 pages \cite{efpa_test_review_model_2025}. The distinction remains useful for benchmark review: identifying a scoring rule is different from checking its implementation, and documenting a checking procedure is different from obtaining favorable findings.
+
+Measurement arguments concern the interpretations and uses of scores rather than an unconditional property of a test \cite{kane_validation}. The relevant evidence depends on the claim. A benchmark intended to compare performance on a stated set of tasks need not establish performance on every task in a wider domain. A claim about human parity creates a different evidence requirement from a comparison among models. The rubric consequently allows inapplicability, with a reason, when a criterion does not arise for the stated use.
+
+\subsection{Software and documentation}
+BetterBench examines benchmark design, implementation, documentation and maintenance through 46 criteria \cite{reuel_betterbench}. It motivates attention to evaluation code, data descriptions, dependencies and reproduction instructions. The present rubric uses the numerical labels 0, 5, 10 and 15 but defines its own anchors for each criterion. It does not reproduce BetterBench, its aggregation procedure or its coverage. No overall benchmark score is calculated.
+
+The existence of a script does not show that it executes in a specified environment. Reading code can support a comparison with a formula, but it is not an execution test. Similarly, a README may describe how to reproduce results without establishing that another evaluator has done so. The evidence record preserves these differences.
+
+\subsection{Models as reviewers}
+Research on language models as judges identifies reasons to examine repeated judgments and the influence of presentation \cite{zheng_llm_judge_2023,shi_judging_judges_2025}. However, grading a generated response differs from auditing a benchmark. Our study evaluates neither the benchmark tasks themselves nor the coding ability of the reviewer. The reviewer examines evidence about the benchmark. Its outputs are observations about applying a proposed rubric, not independent certification of the benchmark.
+
+\section{The Audit Rubric}
+Table~\ref{tab:criteria} states the ten review concerns. The complete wording and anchors are retained with the study materials. Every response contains a status, a rating when supported, a reason, evidence locators, missing information, checks performed and limits. Ratings concern each criterion's defined requirement and must not be added or averaged.
+
+\begin{table*}[t]
+\caption{The ten audit criteria and their scope.}
+\label{tab:criteria}
+\small
+\begin{tabularx}{\textwidth}{@{}lp{0.19\textwidth}X@{}}
+\toprule
+ID & Criterion & Evidence sought \\
+\midrule
+A1 & Evaluation scripts & An evaluation entry point, inspectable implementation and evidence of execution for the relevant edition. \\
+A2 & Scoring implementation & A comparison of the implemented rule with its description, and checks of behavior and relevant edge cases. \\
+A3 & Dataset documentation & Instance format, partitions, provenance and relevant metadata. \\
+A4 & Permissions and dependencies & Reuse terms for the supplied data and code, plus software requirements and version constraints. \\
+A5 & Reproduction instructions & Steps for obtaining data, setup, execution and interpretation of output. \\
+B1 & Construct definition & The target ability, its operational definition and the limits of interpretation. \\
+B2 & Answer checking & Checking procedures for tasks and reference answers, their coverage, findings and limits. \\
+B3 & Score reliability & Variation and uncertainty relevant to the intended comparison. \\
+B4 & Human comparisons & Sampling, tasks, conditions and scoring when human performance supports a claim. \\
+B5 & Training exposure & Assessment of prior exposure risk, safeguards, checks and remaining limits. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Ratings and evidence states}
+The anchors are specific to the criterion. For A1, a claim that code exists can support 5, inspectable implementation without established execution can support 10, and implementation with documented execution for the edition and environment can support 15. For A5, the highest anchor concerns complete instructions, not demonstrated reproduction. These meanings are deliberately distinct.
+
+For B2, documented checking may support the highest anchor even when errors were found, provided procedure, coverage, findings and limits are stated. A low rating must not stand in for missing information. When none of the anchors is supported, the response is \emph{insufficient evidence} with a null rating. \emph{Not applicable} also has a null rating and requires a reason tied to the intended claim. An unanswered criterion is distinct from both states.
+
+These choices avoid treating every absence as a defect, but they introduce judgment about sufficiency. For example, describing a review procedure does not establish that its coverage was enough for every intended use. The study records reasons and alternatives rather than interpreting a number as a measurement of quality with equal intervals.
+
+\subsection{Revision and omissions}
+The earlier questionnaire addressed description, development, scoring, consistency, meaning, fairness and use through 25 questions. The ten criteria combine some of those concerns and omit others. They do not separately preserve all checks on score aggregation, shortcuts unrelated to prior exposure, training and submission rules, comparisons across systems, release changes or the scope of public claims. A supporting correspondence map records overlap rather than claiming equivalent coverage or a recovered history of adaptation.
+
+The rubric therefore addresses selected benchmark audit concerns. It is not a complete test review model or a comprehensive construct validity assessment. The software and measurement groups organize reporting; they are not two validated scales. Some evidence, such as a scoring defect, can matter to both groups. No endorsement by the federation or validation through earlier MESA work is implied.
+
+\section{Study Method}
+\subsection{Benchmarks and source snapshots}
+We select HumanEval, TruthfulQA and DesignQA to include programming tasks, truthfulness questions and engineering documentation \cite{human_eval_repository,truthfulqa_repository,doris_designqa_2024}. Selection reflects scope and resource constraints rather than a representative sample. Each benchmark has a frozen repository commit, a retrieved paper PDF and extracted text. The source manifest records retrieval times, hashes and file inventories.
+
+The paper and repository need not describe the same edition. HumanEval's retrieved README marks the repository as unmaintained. TruthfulQA's README describes a multiple choice revision from 2025 in addition to the original tasks. These differences are evidence to be reported, not silently reconciled. The review concerns interpretations in the supplied paper, bounded by its reported tasks, with discrepancies noted.
+
+Both conditions receive the complete extracted paper text and top level README. The repository condition additionally exposes file listing and text reading for the frozen repository. It cannot execute code, write files, browse externally or inspect other study files. Binary files, including dataset images, are retained in the snapshot but unavailable through the text reader. This limits review of DesignQA's visual materials. Paper extraction can also lose layout and figure information.
+
+\subsection{Conditions and execution}
+The study has two batches. The first requested reviewer is GPT-6 Luna at medium reasoning effort through Codex. The second, run after the first had completed, is Claude Fable 5.1 at medium reasoning effort through Claude Code. In each batch, three benchmarks, two conditions and two repetitions yield twelve main sessions, and a fictional fixture is used for two development pilot sessions. Each batch has its own attempt cap of sixteen, including pilots and any permitted infrastructure retries. There are no study imposed per session token, output, tool call or time ceilings. Account limits still apply.
+
+Every session starts in an empty temporary directory. The Codex runner disables inherited project instructions, host skills, memory, shell tools, image tools, browsers, plugins and additional agents. The Claude Code runner replaces the default system prompt with the study instruction, loads no user or project settings, disables skills and every built in tool, accepts only the command line supplied tool server, denies any permission prompt and requests structured output against the response schema. The repository condition receives only a file server confined to its snapshot. Path checks reject traversal and symlink escapes. Source content is treated as data rather than instructions. Both conditions and both batches use the same rubric, fictional teaching example, prompts and response schema; the prompt files are byte identical across batches.
+
+Order is randomized within two repetition blocks and recorded before execution, with separate seeds for each batch. Sessions run sequentially within a batch, and the Claude batch ran after the Codex batch had completed. Repetitions are neither independent people nor additional models. The access contrast estimates the effect of adding repository evidence and a way to inspect it together; it does not isolate a tool effect from an information effect. The two batches differ in provider, model, command line tool and harness at the same time, and they were not jointly randomized. Their comparison is therefore descriptive agreement between two configurations, not an estimate of a model or tool effect.
+
+\subsection{Pilots and protocol freeze}
+Both pilot sessions produced structurally valid responses. The repository pilot attempted a file listing that was refused because the tool required approval. It was retained as a condition delivery failure and was not replaced. The main runner then specified automatic approval for the two confined read only tools. A separate ignored image tool setting was corrected before freezing. The pilot runner and outputs are retained.
+
+Offline fixture checks verify permitted reads, rejection of paths outside the snapshot and response validation. No additional model pilot was added after the corrections. The first main repository session provides evidence about whether source delivery succeeded. A failed delivery is excluded from the access contrast and retained in execution accounting. The rubric was not changed in response to pilot judgments.
+
+The Claude batch had its own pilots and freeze. Its first documents pilot attempt failed before any model request because Claude Code rejected the schema declaration key in the frozen response schema. The runner was changed to omit only that key from the command line argument; the frozen file and validation rules are unchanged, and the failed attempt is retained. The second documents pilot and the repository pilot then completed, and the repository pilot read files through the tool server under the tool names that Claude Code assigns, although the prompt names them in the Codex form. The prompts were therefore left unchanged. Claude Code also made an auxiliary call to a smaller model in every session; its purpose and inputs are not exposed in the event records, and the review content comes from messages attributed to the requested model. This is recorded as a harness difference.
+
+\subsection{References and analysis}
+Sixty assistant reference proposals, one for each benchmark, criterion and condition, were prepared before main execution. They contain source excerpts, reasons and alternatives. None was independently checked, and every proposal is provisional or contested. They do not constitute a human expert baseline. Consequently, the study does not estimate accuracy against experts or treat assistant reference agreement as correctness.
+
+The analysis checks response structure, allowed source paths, quotation matches and resolvable locators. These mechanical checks are separate from whether an excerpt supports a rating. Exact and whitespace normalized quotation matches are reported separately. A failed text match can reflect paraphrase, ellipses, punctuation or extraction, so it is not automatically classified as fabrication.
+
+Repeat agreement requires the same status and rating for a criterion in both repetitions. Access comparisons pair the two conditions within each benchmark and repetition. Only structurally usable responses with delivered conditions enter those comparisons. Denominators, invalid responses and unstarted jobs remain visible. No significance test treats the 120 planned judgments as independent observations. Selected examples use repetition one for every benchmark and condition, without substituting cases to fit a narrative.
+
+\section{Observed Outputs}
+\subsection{Codex batch}
+Table~\ref{tab:execution-codex} gives the execution accounting for the Codex batch.
+\input{v3/study/analysis/results.tex}
+\input{v3/study/analysis/interpretation.tex}
+
+\subsection{Claude batch}
+Table~\ref{tab:execution-claude} gives the execution accounting for the later Claude batch. The pilot attempts include the retained schema failure described above.
+\input{v3/study/claude/analysis/results.tex}
+\input{v3/study/claude/analysis/interpretation.tex}
+
+\subsection{Agreement between the batches}
+Table~\ref{tab:cross-batch} pairs each Claude judgment with the Codex judgment for the same benchmark, access condition, repetition and criterion.
+\input{v3/study/claude/analysis/cross-batch.tex}
+
+\section{Discussion and Limits}
+Repository evidence can change what is inspectable without settling what that evidence means. A reviewer may move from a claim that code exists to a description of an entry point. That transition is not proof that the code executes correctly or that the benchmark supports a wider capability claim. Conversely, retaining an uncertainty status can be appropriate when added files do not address the missing evidence.
+
+In both batches, repository access changed software and documentation judgments far more than measurement judgments, and in the Claude batch it changed only those. Agreement between the batches was also higher in the repository condition than in the documents condition. One reading is that inspectable files narrow the room for interpretation about scripts, scoring and documentation, while the measurement criteria depend on the same paper text in both conditions. The repository sessions also recorded discrepancies between code and documentation that neither paper mentions. Such findings are the kind of evidence a benchmark audit can add, but recording a discrepancy is not the same as judging its consequence for reported scores, and the responses rated the affected criteria differently from one another on that question.
+
+The ratings combine documentation and evidence requirements according to their anchors. They do not measure a single quantity. A fuller account of answer checking can earn a higher rating while revealing more defects, which is why interpreting higher ratings as uniformly better underlying benchmarks would be mistaken. Reporting reasons and missing evidence remains essential.
+
+The reference proposals, the Codex batch materials and the Codex interpretation were prepared by an OpenAI Codex assistant, and the Codex reviewer is also an OpenAI model. The Claude batch harness, its analysis and its interpretation were prepared by Claude Fable 5.1, which is the same model as the Claude reviewer. In both batches the analyst and the reviewer are therefore related, and in the second they are identical. The reference proposals were prepared before either batch and were not changed for the Claude batch. These relationships, shared source selection and prior benchmark knowledge can affect the analysis. No independent human coding, reconciliation or agreement statistic is claimed. Mechanical reproducibility of counts does not make the interpretation independent.
+
+Three selected benchmarks, two repetitions and two model configurations constrain generalization. Agreement between the batches on a judgment does not make that judgment correct, and disagreement does not identify which configuration is wrong. Model weights and a generation seed are unavailable, and a requested model identifier does not prove the backend snapshot. Source versions differ, extracted papers omit visual detail, and repository access is restricted to text. A source file being available does not establish that it was read. A read being logged does not establish that the agent understood it. The pilot failure is part of the record, and any remaining failures must remain in the denominators.
+
+The present procedure supports investigation of agent reviews, not deployment as an automatic benchmark certification process. Assigning work between agents and people remains a design proposal until outcomes justify it. A later human study may examine the rubric, its explanations and its evidence records. Such work belongs in a possible requirements engineering extension and does not use the existing questionnaire survey as validation of this revision.
+
+\section{Conclusion}
+The revised MESA rubric makes ten benchmark audit concerns explicit while separating unsupported judgments from documented defects. Two sequential batches, with Codex and with Claude Code, examine the evidence recorded under two source access conditions and repeated sessions. Their outputs reveal interpretation difficulties, changes with source access that concentrate on the software criteria, and repository discrepancies that the papers do not mention. They do not establish an overall benchmark quality score, human usability, expert correctness or a ranking of the two configurations.
+
+\section*{Materials and Disclosure}
+The source manifest, rubric, prompts, protocols, references, raw responses, failure records and analysis scripts for both batches are under \texttt{v3/study/} in the existing project repository, with the Claude batch under its \texttt{claude/} folder: \url{https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai}. The local study guide identifies the status of these artifacts; no claim is made that this branch has been published. Earlier study records remain separate. A Codex assistant prepared the materials, source snapshots, Codex execution software, reference proposals, Codex analysis and the first manuscript draft. Claude Fable 5.1 prepared the Claude execution software, the Claude analysis and the manuscript revisions that report it. Human survey results are absent. LaTeX was not compiled; layout and page length are unchecked.
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}

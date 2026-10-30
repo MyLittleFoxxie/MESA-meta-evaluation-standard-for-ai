@@ -69,30 +69,28 @@ All **30 conversations completed**, through **32 physical attempts** including t
 
 Only MESA receives a completed example, so differences concern the complete supplied materials. The model outputs do not establish easier human use or effects on collaboration. Section VI-B discusses how engineers could compare reasons about score variation, repeated testing and reuse rules, without treating either No or Not sure as automatic rejection.
 
-A human author checked an earlier six-review set, including the four comparison-method reviews used here. That check does not cover the two MESA reviews in the reporting selection and does not establish independent coding or correctness. OpenAI Codex prepared the current analysis; Claude Opus 5.5 assisted with the comparison batches and their initial analysis, from the same model family as reviewer Claude Sonnet 5.5.
+A human author checked an earlier six-review set, including the four comparison-method reviews used here. The author reviewed the two MESA responses against the supplied passages, checked their interpretation, and reviewed the expected answers, including the disputed P6B label. These author checks do not constitute independent validation. OpenAI Codex prepared the current analysis; Claude Opus 5.5 assisted with the comparison batches and their initial analysis, from the same model family as reviewer Claude Sonnet 5.5.
 
 See the [study guide](CHASE-study.md), [reporting selection](surveys/colleague-review/mesa-study/chase-report/selection.json), [results](surveys/colleague-review/mesa-study/chase-report/summary.json), and [selected-review audit](surveys/colleague-review/mesa-study/chase-report/selected-reviews.md).
 
 ## Sources and supporting records
 
-EFPA provides the conceptual source for the adaptation. BetterBench informs questions about benchmark implementation, documentation, and maintenance. Measurement research informs questions about whether tasks and scores support the intended claims. The proposed correspondences and omissions are documented in the [adaptation map](surveys/colleague-review/simulation-study/analyst/adaptation-map.md); they do not imply EFPA endorsement or equivalent coverage.
+EFPA provides the conceptual source for the adaptation. BetterBench informs questions about benchmark implementation, documentation, and maintenance. Measurement research informs questions about whether tasks and scores support the intended claims. The proposed correspondences and omissions are documented in the [adaptation map](supporting/adaptation/adaptation-map.md); they do not imply EFPA endorsement or equivalent coverage.
 
 | Location | Contents |
 | --- | --- |
-| [Papers/](Papers/) | Original PDF source library |
-| [literature/](literature/) | Source transcriptions, including the EFPA model and benchmark literature |
-| [references.bib](references.bib) | Manuscript bibliography |
-| [reviews/](reviews/) | Supporting benchmark-review records |
-| [MESA EFPA template official.md](MESA%20EFPA%20template%20official.md) | Detailed adaptation working document |
-| [MESA scorecard.md](MESA%20scorecard.md) | Supporting scorecard document |
+| [literature/](literature/README.md) | Source index, thematic reading guide, [original PDFs](literature/pdfs/), [extracted transcriptions](literature/transcriptions/), and [benchmark documentation notes](literature/notes/benchmark_official_documentation_inventory.md) |
+| [references.bib](references.bib) | Shared manuscript bibliography |
+| [supporting/adaptation/](supporting/adaptation/adaptation-map.md) | EFPA–MESA correspondence map and [ACM SIGSOFT empirical standards assessment](supporting/adaptation/standards-assessment.md) |
+| [supporting/retrai-paper/](supporting/retrai-paper/thesis/README.md) | Supporting RETRAI manuscript records: [detailed adaptation template](supporting/retrai-paper/MESA%20EFPA%20template%20official.md), [scorecard](supporting/retrai-paper/MESA%20scorecard.md), [pilot reviews](supporting/retrai-paper/reviews/), and [thesis notes](supporting/retrai-paper/thesis/) |
+| [supporting/editorial/](supporting/editorial/CHASE-review-response.md) | CHASE review response and editorial notes |
 | [paper_refsq.tex](paper_refsq.tex) | REFSQ submission, planned as the CHASE paper with human evaluation added |
-| [paper.tex](paper.tex) | Preserved original manuscript |
-| [thesis/](thesis/) | Thesis research notes and revision records |
-| [tools/](tools/) | Validation and utility scripts |
+| [paper.tex](paper.tex) and [paper_old.tex](paper_old.tex) | Preserved RETRAI submission manuscript and preserved older manuscript |
+| [tools/](tools/) | Scorecard and thesis verification scripts |
 | [CHASE reporting records](surveys/colleague-review/mesa-study/chase-report/README.md) | Current selection, results, source links and traceability |
-| [Earlier model studies](CHASE-study.md#archived-records) | Archived series, not pooled with the current study |
+| [Earlier model studies](CHASE-study.md#archived-records) and [archive index](provenance/archive-index.md) | Archived series and relocated-file provenance, not pooled with the current study |
 
-The source survey, benchmark reviews, and original manuscripts remain available. Questionnaire choices should not be converted into the numerical ratings used in supporting review documents.
+The source survey, benchmark reviews, and preserved manuscripts remain available. Questionnaire choices should not be converted into the numerical ratings used in supporting review documents.
 
 ## Reproduce the study analysis
 

@@ -1,3 +1,0 @@
-# Checklist scope clarification
-
-The twelve checklist points were copied unchanged from the earlier checklist. Its historical `selected` and `scope` metadata still mention four methods and eight reviews. For this series, the frozen protocol and 180-job manifest define three methods and six selected reviews: neutral repetition 1 for MESA, EFPA-TRM and general instructions, each covering ARC-AGI-2 and DesignQA. That selection was fixed before execution. The copied checklist's historical metadata does not add another condition or another sample. The frozen source file remains unchanged; this note records the inconsistency rather than rewriting it after testing. No checklist point, expected answer, selection rule, or reviewer input changes.

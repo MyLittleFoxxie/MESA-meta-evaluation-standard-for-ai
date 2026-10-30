@@ -1,0 +1,4234 @@
+
+=== PDF PAGE 1 ===
+arXiv:2506.10378v1  [cs.LG]  12 Jun 2025
+Discovering Hierarchical Latent Capabilities of
+Language Models via Causal Representation Learning
+Jikai Jin1, Vasilis Syrgkanis1, Sham M. Kakade2, and Hanlin Zhang2
+1Stanford University
+2Harvard University
+Abstract
+Faithful evaluation of language model capabilities is crucial for deriving actionable insights that can inform
+model development. However, rigorous causal evaluations in this domain face significant methodological
+challenges, including complex confounding effects and prohibitive computational costs associated with exten-
+sive retraining. To tackle these challenges, we propose a causal representation learning framework wherein
+observed benchmark performance is modeled as a linear transformation of a few latent capability factors.
+Crucially, these latent factors are identified as causally interrelated after appropriately controlling for the base
+model as a common confounder. Applying this approach to a comprehensive dataset encompassing over 1500
+models evaluated across six benchmarks from the Open LLM Leaderboard, we identify a concise three-node
+linear causal structure that reliably explains the observed performance variations. Further interpretation of
+this causal structure provides substantial scientific insights beyond simple numerical rankings: specifically,
+we reveal a clear causal direction starting from general problem-solving capabilities, advancing through
+instruction-following proficiency, and culminating in mathematical reasoning ability. Our results underscore
+the essential role of carefully controlling base model variations during evaluation, a step critical to accurately
+uncovering the underlying causal relationships among latent model capabilities.1
+1 Introduction
+State-of-the-art large language models (LMs) have exhibited exceptional proficiency across a wide
+spectrum of intricate natural language processing tasks, encompassing text generation, summa-
+rization, question answering, and creative language synthesis (BMR+20, AAA+23, GDJ+24, Ant24,
+AAA+24, YYZ+24, GYZ+25). These billion-parameter models are often pre-trained extensively on
+diverse web corpora and undergoes various post-training stages including supervised fine-tuning
+(SFT), reinforcement learning with human feedback (RLHF) ( OWJ+22, BJN+22) to enable down-
+stream model deployment. These complicated system engineerings make it hard to evaluate how
+models acquire capabilities and derive scientific claims thereafter.
+In particular, rigorous evaluation of post-training presents notable difficulties: (i) Costs and het-
+erogenity in pre-training: implementation details such as data mixture, model architecture, etc,
+are often proprietary and vary greatly across institutions. For example, models might be subject to
+contamination on benchmark data (GS23); the heterogeneity of base models leads to evidence that
+the benefits of post-training on reasoning abilities can differ substantially even between models of
+comparable size (GCS+25, ZMK+25, HBU+25). Even with transparent pre-training recipes, training
+from scratch to control for these confounders through rigorous controlled studies implies prohibitive
+1Blog post: https://hanlin-zhang.com/causal-capabilities.
+1
+
+=== PDF PAGE 2 ===
+costs (CRF+24, QNA+25). (ii) Intricate interdependencies among distinct capabilities — such as
+reasoning, few-shot learning, and instruction-following further complicates evaluation. For exam-
+ple, fine-tuning on instruction data might not improve knowledge-intensive question answering
+capabilities (GEK+24, GWS+23). Although various capabilities often seem to co-emerge or interact
+synergistically as model scale increases (OWJ+22, ZCY+25, CSDC25, LBS+25), rigorous theoretical
+frameworks can aid in understanding which capability to target in post-training.
+Our research pioneers a novel approach to these persistent challenges by introducing the first
+framework for modeling capability factors through an explicit structured representation. The
+cornerstone of our methodology rests on a crucial insight: the heterogeneity observed across diverse
+domains ( HZZ+20, JS24, ZXNZ24) – rather than being merely an obstacle – actually provides
+valuable "multi-view" perspectives into the shared latent capability structures across different base
+models. This lens enables us to identify and characterize these underlying structures with strong
+guarantees.
+To establish the theoretical foundation for our investigation, we propose two hypotheses:
+1. Capability-Performance Invariance: A small, distinguishable set of latent capability factors gov-
+erns benchmark performance, maintaining consistent relationships across diverse base models.
+2. Hierarchical Capability Structure: Within any individual base model, these capabilities organize
+themselves into a hierarchical framework representable as a directed acyclic graph (DAG) (Pea95).
+In this structure, an edge A → B signifies that interventions targeting capability A can propagate
+through the model’s internal mechanisms to influence capabilityB, revealing causal pathways of
+skill development.
+Base Model
+CapabilityA CapabilityB CapabilityCFine-tuning(Intervention)
+Benchmark 1Benchmark 2Benchmark 3
+Pretraining EffectCapability A EffectCapability B EffectDirect Fine-tuningIndirect Fine-tuningCapability→Benchmark
+Hierarchical Structure of Model Capabilities
+Sourcevariable 1Sourcevariable 2Sourcevariable 3
+CapabilityA CapabilityB CapabilityC
+Figure 1: Example of a Hierarchical model of capa-
+bilities influencing benchmark performance (top)
+and hypothesized mechanism (bottom).
+While the first hypothesis has been explored
+in a series of recent studies ( RMH24, RBK+25,
+PSC+24), the second represents a novel contri-
+bution to the literature, although the hierarchi-
+cal structure of human capabilities has been an
+active and influential research area in philoso-
+phy (Sim12), cognitive science ( Car93, And96,
+ABB+04, KCB09, TKGG11) and neuroscience
+(KOK03, BD07). To illustrate this idea, consider
+a language model fine-tuned on instruction-
+following data: such tuning may indirectly im-
+prove its ability to solve mathematical problems,
+since successful solutions often require adher-
+ing to precise formatting and logical sequenc-
+ing—skills closely tied to instruction-following.
+This hypothesis formalizes a common intuition:
+some capabilities, like instruction-following,
+serve as foundational building blocks, while oth-
+ers, such as math problem-solving, emerge as
+higher-level skills that depend on these core abilities. In this context, it is essential to control for the
+base model being used, as it influences all downstream capabilities.
+We formalize this hierarchical capability structure within Pearl’s structural causal model framework
+(Pea95), treating the base model as a shared latent parent that influences all capability factors and
+fine-tuning as an intervention on these latent factors, as illustrated in Figure 1. Under this structural
+hypothesis, existing unstructured factorization approaches (such as PCA) for analyzing latent capa-
+2
+
+=== PDF PAGE 3 ===
+bilities (RMH24, RBK+25, PSC+24) may fail to disentangle hierarchical latent factors due to their lack
+of causal constraints. Probabilistic latent-variable approaches, such as Item Response Theory (IRT)
+models (TTL+25) and Bayesian latent factor models (PN22), require full likelihood specifications
+and hand-crafted modeling assumptions. Moreover, all these approaches fail to account for the
+base model’s overarching influence on all latent capabilities. Drawing inspiration from the causal
+representation learning (CRL) literature, we propose Hierarchical Component Analysis (HCA) that
+exploits heterogeneity across base models to recover hierarchical latent capabilities with provable
+identifiability guarantees under mild conditions.
+We apply HCA to the open LLM leaderboard data 2 and show that models fine-tuned from four
+base models: Qwen2.5-7B, Qwen2.5-14B, Llama-3-8B, and Llama-3.1-8B can be well-explained by
+a linear SCM. We further assign meaningful semantic interpretations to these factors, allowing
+practitioners a clear understanding of which capabilities to target during fine-tuning. Indeed,
+establishing explicit alignments between learned latent factors and human-interpretable concepts
+has remained both a significant and underexplored area within the CRL literature. To address this
+gap, we systematically explore correlations between latent factors, established benchmarks, and
+the effectiveness of prevalent leaderboard interventions. Moreover, performance on the general-
+reasoning parent node—encompassing benchmarks such as MMLU ( HBB+20) and BIG-Bench-Hard
+(SSS+22)—correlates more strongly with base-model FLOPs, underscoring the importance of scaling
+up pre-training compute for downstream problem solving.
+The remaining sections are organized as follows. In Section 1.1, we introduce necessary notations
+for subsequent sections. In Section 2, we revisit existing PCA approaches and discuss the ignored
+heterogeneity caused by the base model being used. We show that this finding can help us impute
+missing model performance data with a higher accuracy then the naive matrix completion performed
+on the whole leaderboard. In Section 3, we present our key hypothesis and formulate the capability
+discovery task as an instance of causal representation learning, and introduce the HCA algorithm
+with theoretically optimal identifiability guarantee. In Section 4, we present experimental results
+by applying our algorithm to the leaderboard data, and discuss hypothetical interpretations of the
+capabilities factors that we learn.
+1.1 Notation
+Most analysis of this work is based on the open LLM leaderboard, which contains the accuracy of
+N0 = 4576 LMs on d = 6 benchmarks. The leaderboard does not directly provide information on
+base model,3 so we develop a principled approach to determine the base model from information
+in other columns. In this way, we get a subset of models on the original leaderboard that contains
+N = 3360 LMs with known base models, which we denote by Θ. The eight most frequently-used
+base models includes Llama-3-8B, LLama-3.1-8B, (GDJ+24), Qwen2.5-0.5/7/14B (YYZ+24), Qwen2-
+7B (YYZ+24), Mistral-7B ( JSM+23) and Gemma-2-9B ( TRP+24). Some parts of our analysis also
+include other base models into study, which we will explicitly describe. We will denote these eight
+base models by θ∗
+1, θ∗
+2, · · · , θ∗
+8. We let Θk = {θ1,k, · · · , θNk,k} ⊆ Θ be the set of models using θ∗
+k as
+base model.
+For any LM θ and benchmark B, we use xθ,B to denote the accuracy of θ on B, if observed. In our
+setting, we observe xθi,k,Bj for all k ∈ [K], i ∈ [Nk] and j ∈ [d], and we will simply denote this by
+x(k,i)
+j . Then x(k,i) =
+ 
+x(k,i)
+j
+d
+j=1 is the observed performance vector for model θi,k. The set of all data,
+x(k,i) : k ∈ [K], i ∈ [Nk]
+	
+, is denoted by X. We also define X(k) =
+
+x(k,i) : i ∈ [Nk]
+	
+. In what
+2https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard#/
+3There is a column named ’Base model’ in the leaderboard, but usually that base model is itself a fine-tuned version of,
+say, Llama-3-8B.
+3
+
+=== PDF PAGE 4 ===
+follows, we will sometimes abuse notation and view X ′ ⊆ X as a |X ′| × d matrix, where each row
+is a performance vector xj ∈ X ′.
+2 The Latent Capability Hypothesis
+Recently, a line of works developed observational scaling laws (RMH24, RBK+25, PSC+24). The key
+hypothesis that make their analyses possible is that the observed benchmark performance is some
+linear transformation of low-dimensional latent capability vectors.
+Hypothesis 0. There exists some latent capability vector z ∈ Rd0, d0 < d and some matrix G ∈ Rd×d0,
+such that x = Gz.
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+3 components
+0.76
+0.15
+0.06
+0.01 0.01
+Cumulative Explained Variance
+95% Explained Variance Threshold
+(a) Low-rank structure of the leader-
+board data.
+0.00 0.02 0.04 0.06 0.08 0.10 0.12 0.14 0.16 0.18 0.20
+Ratio of Residual Length to Original Length
+0
+5
+10
+15
+20
+25Probability Density
+All Data
+Qwen2.5
+Qwen2.5 Mean: 0.0753
+Qwen2.5-14B
+Qwen2.5-14B Mean: 0.0521
+All Data Mean: 0.0865
+Sample Sizes: All Data = 4,576  |  Qwen2.5 = 796  |  Qwen2.5-14B = 332
+(b) Distance distributions of domain data to the
+principal component subspace.
+Figure 2: PCA analysis showing low-rank structure and domain hetero-
+geneity in leaderboard data.
+Principal component
+analysis (PCA) pro-
+vides a systematic
+approach to validate
+this hypothesis by
+examining whether
+the model-accuracy
+matrix exhibits an
+approximate low-rank
+structure. Applying
+PCA to the leaderboard
+data, we find that the
+performance matrix is
+approximately rank- 3
+(as shown in Figure 2a),
+aligning closely with previous findings reported by existing works.
+qwen2.5-7bllama-3-8bqwen2-7b
+qwen2.5-14bllama-3.1-8bgemma-2-9bmistral-7b
+qwen2.5-0.5b
+qwen2.5-7b
+llama-3-8b
+qwen2-7b
+qwen2.5-14b
+llama-3.1-8b
+gemma-2-9b
+mistral-7b
+qwen2.5-0.5b
+-0.00 0.02 0.01 0.02 0.01 0.27 0.31 0.31
+0.02 -0.00 0.01 0.02 0.01 0.23 0.32 0.32
+0.01 0.01 -0.00 0.03 0.00 0.24 0.33 0.32
+0.02 0.02 0.03 -0.00 0.03 0.23 0.36 0.28
+0.01 0.01 0.00 0.03 0.00 0.24 0.34 0.33
+0.27 0.23 0.24 0.23 0.24 -0.00 0.05 0.33
+0.31 0.32 0.33 0.36 0.34 0.05 0.00 0.42
+0.31 0.32 0.32 0.28 0.33 0.33 0.42 0.00
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+0.30
+0.35
+0.40
+Figure 3: Principal component sub-
+space similarity across domains.
+We next examine whether these patterns persist when we vary
+the model subset used for PCA. To this end, we isolate all
+Qwen2.5 variants (across scales) and, separately, the Qwen2.5-
+14B model. As shown in Figure 2b, the distributions of their
+distances from the full-leaderboard rank-3 PC subspace diverge
+substantially. This divergence implies that a one-size-fits-all
+PCA—applied indiscriminately to every model—can obscure
+meaningful heterogeneity unique to particular model families.
+To further examine this heterogeneity, we choose the eight most
+commonly used base models on the leaderboard as listed in Sec-
+tion 1.1, and examine the PC subspaces of their corresponding
+domains. Specifically, for each k = 1, 2, · · · , 12, we apply PCA
+to the domain data Xk to obtain the rank-3 principal compo-
+nent subspace, and then measure the cosine distances between
+these subspaces. The similarity matrix is shown in Figure 3,
+revealing a striking pattern: five domains (with base models Llama-3-8B, Llama-3.1-8B, Qwen2-7B,
+Qwen2.5-7/14B) have roughly the same PC subspaces, whereas the other three lie distinctly apart.
+We define Sinv = {1, 2, 4, 5, 6} to be the index set of these seven models and Xinv = ∪k∈SinvXk to be
+the corresponding benchmark performance data. Notably, this heterogeneity persists under ICA
+(HHH+09), another popular factor analysis method, since PCA and ICA span the same component
+4
+
+=== PDF PAGE 5 ===
+subspace, differing only in how they parametrize the independent sources within it. Overall, we
+have found that:
+• Performance data exhibit distinct heterogeneity among models fine-tuned from different base
+models. This underscores the necessity of controlling for base models when interpreting statistical
+results from benchmark evaluations.
+• A particular subset of base models emerges, wherein their fine-tuned derivatives consistently
+reveal similar latent performance patterns across benchmarks.
+In what follows, we build on these observations and introduce a novel latent factor model for LM
+capabilities.
+Observed Missing
+10% 20% 30% 40% 50% 60% 70% 80% 90%
+Overall Percentage of Hidden Entries
+5
+10
+15
+20
+25
+30
+35
+40
+45RMSE
+Comparison of Global and Local MC-NNR
+Global RMSE
+Local RMSE
+Observed Missing
+10% 20% 30% 40% 50% 60% 70% 80% 90%
+Percentage of Rows Hidden
+0
+10
+20
+30
+40
+50RMSE
+Comparison of Global and Local MC-NNR
+Global RMSE
+Local RMSE
+(a). Random missing pattern. (b). Block missing pattern.
+Figure 4: RMSE of global and local matrix completion approaches for two types of missing patterns.
+Remark 1. As a brief detour, we show how our findings can help us more accurately impute missing
+benchmark performance in the leaderboard. We focus on two distinct missing patterns, illustrated in Figure 4,
+and we are interested in the missing performances of models fine-tuned on Qwen2.5-14B. Motivated by the
+heterogeneity we observed in the PC subspaces, we apply matrix completion with nuclear norm regularization
+(MC-NNR) both within the Qwen2.5-14B domain and across the entire leaderboard. We find that the former
+approach yields notably lower reconstruction error. Additional details are provided in Figure 16.
+2.1 A Refined Hypothesis
+In view of the limitation of Hypothesis 0, we propose the following modification, restricting it to
+domains with identical PC subspaces the we identify in Figure 3:
+Hypothesis 1. The observed benchmark performance xi ∈ Xinv is governed by a set of latent capability
+factors zi ∈ Rd0, where d0 ≤ d. Moreover, there exists a linear and injective relationship between zi and xi,
+meaning that there exists some matrix G ∈ Rd×d0 with full column rank such that xi ≈ Gzi, ∀i ∈ Xinv.
+In the remainder of this work, we will focus on the base models in Sinv and their corresponding
+benchmark performance data Xinv.
+3 Learning Hierarchical Language Model Capabilities
+In this section, built upon the initial observations in Section 2, we introduce a new approach to
+capture invariant laws underlying different domains. Our approach leverages a latent hierarchical
+structure among different capability components in zi. To formally describe this latent structure, we
+introduce the following definition of linear structural causal models (SCMs) (Pea95).
+Definition 1. Given a directed acyclic graph (DAG) G = (V, E) with node set V = [d0] and edge set E, a
+linear SCM is a data-generating process of d0 random variables z1, z2, · · · , zd0 with zi =P
+j∈paG(i) wjizj +
+5
+
+=== PDF PAGE 6 ===
+σ1/2
+i ϵi, i ∈ [d] with independent source variables ϵi wuth unit variance, where wij ∈ R are weights and
+paG(i) is the parent set of i in G.
+z1
+z2
+z3
+ε1
+ε2
+ε3
+(a) A standard SCM with zi’s
+being the causal factors.
+z1
+z2
+z3
+ε1
+ε2
+ε3
+(b) An inexact SCM where the
+ϵi’s can be dependent.
+Figure 5: Illustration of
+Definition 1.
+Intuitively, latent factors earlier in the topological ordering of the DAG
+are primitive, while later factors are progressively less primitive, as they
+inherits the variability in their ancestors.
+In practice, assuming exact SCMs is often too restrictive. We define
+inexact SCMs below, which allows the source variables to be entangled
+with each other:
+Definition 2. A linear α-inexact SCM is a data generating process of
+z1, z2, · · · , zd0 with ˆϵ = U ϵ, zi = P
+j∈paG(i) wjizj + σ1/2
+i ˆϵi, i ∈ [d0] for
+some independent source variables ϵi wuth unit variance and some matrix
+U = [u1, · · · , ud0]⊤ ∈ Rd0×d0 with ∥ui∥2 = 1 and 1
+d0
+Pd0
+i̸=j u2
+ij ≤ α. Finally,
+for a collection C of αi-inexact linear SCMs sharing the same causal graph G,
+we define α = maxi αi to be the maximum inexactness coefficient (MIC) of C.
+When α = 0, an α-inexact SCM becomes an exact SCM. Hence, the MIC
+measures the extent of violating the independence assumption on the
+source variables. Given this definition, we are ready to state our second
+hypothesis. A graphical illustration of exact and inexact SCMs is given
+in Figure 5.
+Hypothesis 2. There exists a subset of domain indices in S ⊆ Sinv, such
+that for all k ∈ S, the capability factors z(k,i) associated with x(k,i) ∈ Xk are
+generated from linear inexact SCMs with some small MIC, and the causal graph
+G is invariant across all k’s, while the weights and errors can be domain specific and denoted withw(k)
+ij and
+ˆϵ(k)
+i .
+Different from all existing works that are restricted to correlation-based analysis, Hypothesis 2
+characterizes a causal generative mechanism underlying an LM’s capabilities. Specifically, given a
+base model Bk, each independent factor ϵi directly influences exactly one capability zi, while other
+capabilities are either unaffected by ϵi or affected only indirectly through zi.
+Since Hypothesis 1 and Hypothesis 2 need not hold for every data distribution, it is necessary to
+develop a diagnostic that empirically tests their validity in our context. Once this is done, we pursue
+two objectives: (1) recover the latent capability factors that drive observed benchmark performance,
+and (2) characterize precisely how those capabilities map to performance outcomes.
+It turns out that these questions are closely related to recent advances in multi-domain causal
+representation learning (CRL) (JS24, ZXNZ24). In that setting, one assumes K domains E = {Ek :
+k ∈ [K]} and a dataset X(k) = {x(k,i)}Nk
+i=1 associated with the k-th domain generated from the
+structural equations
+z(k,i) = Akz(k,i) + Ω1/2
+k ϵ(k,i), x(k,i) = Gz(k,i), k ∈ [K], (1)
+where (Ak)ij = w(k)
+ij if there exists a direct causal edge zj → zi in the latent graph G and otherwise it
+is zero, Ωk is a diagonal matrix encoding the variances of source variables. G is the shared mixing
+matrix. For convenience, we assume that the nodes of G is sorted in a topological order, i.e., zj → zi
+implies j < i . CRL seeks to uncover both the causal graph G and the mixing map G. Table 1
+6
+
+=== PDF PAGE 7 ===
+x ε
+M 1
+M 2
+M 3
+(a) ICA mapping x to source
+variables ε.
+Mk = Bk · H
+Common unmixing matrix
+(b) Decomposition of Mk that we
+need to recover.
+ε z x
+B−1
+1
+B−1
+2
+B−1
+3
+G
+(c) The whole data generating process, where G =
+H ⊤(HH ⊤)−1 is the mixing matrix.
+M1
+ M2
+ M3
+ Ortho-
+gonalized
+h1
+Principal
+Component
+h2
+ h3
+(d) Finding orthogonalized matrices and extracting principal components.
+Figure 6: Illustration of our setting and the key row-residual extraction step in our algorithm
+summarizes the parallels and distinctions between this CRL framework and our LM capability
+model.
+Causal representation learning Our context: learning latent LM capabilities
+Domain set E Each domain Ek ∈ E is defined by a base model Mk and the ob-
+served dataset Xk that contains the performance of all LM{θi,k}Nk
+i=1
+that use θ∗
+k as base model.
+Observed dataset X (k) = {x(k,i)}Nk
+i=1, k ∈ [K] x(k,i) ∈ Rd contains the known benchmark accuracies of the θi,k.
+Causal factors Z (k) = {z(k,i)}Nk
+i=1, k ∈ [K] z(k,i) is the unobserved d0-dimensional capability vector of θi,k
+that possesses some causal structure. We assume that d0 ≤ d.
+Mixing matrix G (invariant across different do-
+mains)
+The observed benchmark performance is a linear transformation of
+the underlying capability factors. This linear dependency does not
+change no matter what base model is chosen.
+Identification of exact causal models We define the notion of inexact causal models, and the objective is
+to minimize the inexactness.
+Table 1: A comparison between linear CRL and some key elements in our context.
+Prior work of ( JS24) showed that for exact linear SCMs, assuming that the domains Ek satisfy a
+richness assumption, the latent causal factors are identifiable up to a benign ambiguity set, which
+for instance implies that one can recover the mixing matrix G up to a left multiplication of lower-
+triangular matrix for the causal model in Figure 5. However, the identification algorithm presented
+in (JS24) is sensitive to the exactness assumption. We propose a novel identification algorithm, which
+we call Hierarchical Component Analysis (HCA), that is more robust to the inexactness of the SCM.
+The main ideas of HCA are discussed in Section 3.1, and more details can be found in Appendix C.
+7
+
+=== PDF PAGE 8 ===
+3.1 Hierarchical Component Analysis (HCA)
+In this section, we introduce the main ideas behind HCA, an algorithm for recovering hierarchical
+latent factors.
+1. ICA-based unmixing. As a first step, we apply Independent Component Analysis (ICA,
+(HHH+09)) separately to each domain k ∈ [K] to obtain an unmixing matrix Mk that maps inde-
+pendent source variables to observed benchmark data x, as shown in Figure 6a. Under standard
+non-Gaussian assumptions in the ICA literature, these source varisbles are uniquely identified as
+ϵ(k) up to permutations, implying that Mk = Pk Bk H, where Pk is an unknown permutation
+matrix, Bk = Ω−1/2
+k (I − Ak) is lower-triangular, and H = (G⊤G)−1G⊤ is the right inverse of G.
+Our goal is to recover the matrices Bk and H from Mk, as they allow us to recover the whole DGP
+as shown in Figure 6c. In partcular, the latent factors are recovered via z = Hx.
+2. Row-residual extraction. For any matrices Mk, k ∈ [K], we derive a testable equivalent
+condition for admitting the decomposition Mk = BkH. specifically, for each component index
+i ∈ [d0], we can compute the residual rk,i of projecting the i-th row of M ∗
+k onto the span of its first
+(i − 1) rows. Then such decomposition exists if and only if [rk,i]K
+k=1 is rank 1 for all i, and hi can be
+recovered (up to scale) as its principal singular vector. This process is visualized in Figure 6d.
+3. Permutation alignment and factor refinement. Since each M ∗
+k is known only up to row
+permutation, we search over all permutations of the rows of Mk. For each case, we apply the
+previous step to obtain an estimate of H, and then refine each domain’s weight matrix by solving
+minBk lower-triangular ∥Mk − Bk H∥2
+F , thereby fitting the best hierarchical structure to the observed
+unmixing matrices. Finally, we choose the set of permutations that induces minimal MIC.
+The full description HCA appears in Algorithm 2, and Appendix C.2 proves that, under an exact
+SCM, HCA is guaranteed to identify the underlying causal factors up to some benign ambiguities.
+Specifically, for the causal graph in Figure 5, H is recovered up to a left multiplication of lower-
+triangular matrix. Equivalently, each identified latent causal factor for zi is a mixture of zj, 1 ≤ j ≤ i.
+As shown in ( JS24), this ambiguity is not a limitation but rather an intrinsic property reflecting
+equivalent models that generate identical distributional outcomes.
+When the SCM is inexact, HCA recovers a data generating process
+z(k,i) = ˆB−1
+k ˆϵ(k,i), x(k,i) = ˆGz(k,i), k ∈ [K],
+so that ˆϵ(k,i) = ˆBk ˆHx(k,i). On the other hand, the ICA recovers ϵ(k,i) = Mkx(k,i) with independent
+source components, so one can see that ˆϵ(k,i) = Jkϵ(k,i) where Jk = ˆBk ˆHM ⊤
+k (MkM ⊤
+k )−1. This
+provides a guarantee on the MIC (introduced in in Definition 2):
+Proposition 1. Suppose that the ICA step is exact, then HCA recovers a linear αk-inexact SCM for the k-th
+domain, where αk = 1
+d0
+P
+i̸=j( ˜Jk)2
+ij, ( ˜Jk)i = (Jk)i/∥(Jk)i∥2. It follows that α = maxk∈[K] αk is a valid
+MIC.
+Proposition 1 provides a quantitative measure of how well the recovered causal model can explain
+the variations in the observed benchmark data X(k), k ∈ [K].
+8
+
+=== PDF PAGE 9 ===
+ε1 ε2 ε3
+z1
+z2
+z3
+-5.69
++24
++4.08
++2.76
++0.06
++0.27
+(a) Llama-3-8B
+ε1 ε2 ε3
+z1
+z2
+z3
++6.10
++23
++5.98
++1.52
+-0.00
++0.31
+(b) Llama-3.1-8B
+ε1 ε2 ε3
+z1
+z2
+z3
++7.04
++18
+-6.97
++2.00
+-0.20
++0.59
+(c) Qwen2.5-7B
+ε1 ε2 ε3
+z1
+z2
+z3
++6.00
+-16
++6.18
++1.70
+-0.22
++0.54
+(d) Qwen2.5-14B
+Figure 7: The causal graphs that we recover for each domain. The numbers represent the weights of
+each causal edge. For instance, in the Llama-3-8B domain, z2 = 2.76z1 + 24ϵ2.
+4 Experimental Results
+4.1 Recovery of the Data Generating Process
+Given its theoretical justification in the previous section, we now use HCA to recover a causal model
+with d0 = 3 nodes that explains the observed benchmark performance of models within domains in
+Sinv. We observe that running our algorithm on the subset of {1, 2, 4, 5}, with Qwen2-7B excluded,
+achieves a minimal MIC of 0.04. This likely indicates that Qwen2-7B may deviate from the shared
+causal pattern of the other four base models (Llama-3-8B, Llama-3.1-8B, Qwen2.5-7B, Qwen2.5-14B).
+Moreover, in view of the ambiguity discussed in Section 3.1, we run an OLSzi ≈P
+j<i ajzj +γBxB+c
+where xB represents the performance on benchmark B. For each i, we pick B that maximizes the R2
+and replace zi with zi −P
+j<i ajzj to attain best-possible alignment between the recovered latent
+factors and their most indicative benchmarks.
+IFEval BBH MATH Lvl 5 GPQA MUSR MMLU-PRO
+Benchmark Accuracies
+z1
+z2
+z3
+Latent Factors
+-0.04
+0.93
+0.00
+0.42
+-0.24
+0.00
+0.12
+0.77
+1.00
+0.16
+-0.19
+0.04
+0.21
+-0.26
+-0.02
+0.40
+-0.27
+-0.01
+0.0
+0.2
+0.4
+0.6
+0.8
+Coefficient Value
+(a) Adjusted unmixing matrix.
+0 10 20 30 40 50 60 70 80
+BBH accuracy
+0
+10
+20
+30
+40
+50
+60
+Latent Factor z1
+In sample R2 = 0.94
+OLS Regression Fit for BBH
+In-sample data
+Gemma-2-9B
+Mistral-7B
+Qwen2.5-0.5B
+Qwen2.5-3B
+Llama-2-7B
+Llama-2-13B
+Llama-3.2-1B
+OLS Fit (b) Regressing z1 on BBH.
+0 20 40 60 80
+IFEval accuracy
+20
+0
+20
+40
+60
+80
+Latent Factor z2
+In sample R2 = 0.90
+OLS Regression Fit for IFEval
+In-sample data
+Gemma-2-9B
+Mistral-7B
+Qwen2.5-0.5B
+Qwen2.5-3B
+Llama-2-7B
+Llama-2-13B
+Llama-3.2-1B
+OLS Fit (c) Regressing z2 on IFEval.
+0 10 20 30 40 50 60
+MATH Lvl 5 accuracy
+0
+10
+20
+30
+40
+50
+60
+Latent Factor z3
+In sample R2 = 1.00
+OLS Regression Fit for MATH Lvl 5
+In-sample data
+Gemma-2-9B
+Mistral-7B
+Qwen2.5-0.5B
+Qwen2.5-3B
+Llama-2-7B
+Llama-2-13B
+Llama-3.2-1B
+OLS Fit (d) Regressing z3 on MATH.
+Figure 8: The unmixing matrix and the alignment between benchmarks and capabilities via OLS.
+We also compare the fitted OLS with the latent factor values of other base models.
+The causal graphs that we recover are shown in Figure 7. The source factors ϵi’s are normalized
+to have unit variance. In Figure 8a, we present the unmixing matrix ( i.e., linear mapping from
+benchmarks to latent capabilities), from which interesting patterns can be observed: z1 is a mixture
+of all five benchmarks except IFEval with BBH and MMLU-Pro contributing the most, z2 is a
+mixture of IFEval and MATH Lvl 5, and z3 is almost identical to MATH Lvl 5. We will revisit these
+observations in the next subsection. Figure 8 further shows the results of OLS, where z1, z2, z3 are
+observed to correlate strongly with BBH, IFEval and MATH Lvl 5, respectively. It is also important
+to notice that the causal conclusions we draw only apply to the four base models being considered:
+Figure 8 shows that the fitted OLS can have poor performance on some other base models.
+4.2 Towards a Causal Hierarchy of Interpretable Capabilities
+In the previous subsection, we explored the correlation between benchmark performance and
+the inferred latent factors. However, practically interpreting what a causal intervention entails
+within this framework remains unclear. The broader challenge of interpreting and intervening on
+9
+
+=== PDF PAGE 10 ===
+latent factors is a longstanding and unresolved issue within causal representation learning, with no
+universal methodology currently available. By further analyzing the Llama-3 and Qwen2.5 models
+included in leaderboards, we propose hypotheses regarding these latent capabilities, supported by
+reliable empirical evidence.
+4
+ 2
+ 0 2 4 6 8 10
+log(Pretraining Compute Estimate)
+0
+10
+20
+30
+40
+50BBH Score
+R2
+overall = 0.572
+Model  (coeff c) = -1.710
+BBH vs. log(Compute) (Fine-tuning)
+Pretrained (T=0)
+Fine-tuned (T=1)
+Fit (T=0)
+Fit (T=1, =-1.710)
+Figure 9: Sigmoid scaling law for
+BBH performance.
+Interpreting z1 (Foundational General Capability). As a root
+node in the causal graph, z1 a root node in our causal graph,
+likely represents a foundational, generalized capability. This
+interpretation is supported by its positive influence across
+nearly all benchmarks (see mixing matrix in Figure 8a), con-
+sistent with the expectation that enhancing a general capabil-
+ity should broadly improve downstream task performance.
+Interestingly, we find that model performances on bench-
+marks well-aligned with general capabilities, such as BBH,
+roughly follows a sigmoid scaling law described by: Y ≈
+L/(1 + exp(−k(log C − log C0)) + τ T + b, where L, k, C0, b, τ
+are unknown parameters, C is the pretraining compute and T
+is a binary variable distinguishing fine-tuned models (T = 1)
+from from pretrained-only models ( T = 0 ) as shown in Sec-
+tion 4.2. This relationship suggests that LMs’ general capabilities are predominantly determined
+by pretraining compute resources and experience comparatively modest enhancements during
+subsequent post-training procedures.
+Interpreting z2 (Instruction Following). z2 strongly correlates with IFEval, suggesting it embodies
+instruction-following capability. We extract instruction-tuned models from the Open LLM leader-
+board, excluding those specific for math reasoning, which act as proxies of intervention on z2. These
+models show minimal changes on BBH, MMLU-Pro, GPQA and MUSR for the first three base
+models, aligning with its mixing pattern shown in Figure 8a. We also conduct supervised fine-tuning
+(SFT) directly on IFEval and observe similar patterns.
+Model Config BBH IFEval MATH GPQA MUSR MMLU-PRO
+Llama-3-8B
+Base 0.46 0.12 0.05 0.33 0.37 0.33
+IFEval SFT 0.49 0.50 0.05 0.32 0.38 0.33
+Instruct 0.51 0.53 0.11 0.30 0.40 0.35
+Qwen2.5-7B
+Base 0.54 0.33 0.23 0.32 0.44 0.44
+IFEval SFT 0.55 0.50 0.28 0.33 0.43 0.44
+Instruct 0.52 0.61 0.33 0.30 0.42 0.43
+Qwen2.5-14B
+Base 0.61 0.36 0.29 0.40 0.45 0.53
+IFEval SFT 0.63 0.55 0.32 0.36 0.43 0.52
+Instruct 0.64 0.82 0.55 0.32 0.41 0.49
+Gemma-2-9B
+Base 0.53 0.16 0.13 0.36 0.44 0.41
+IFEval SFT 0.52 0.63 0.12 0.33 0.42 0.40
+Instruct 0.59 0.57 0.17 0.34 0.42 0.41
+Table 2: Performance comparison of language models before and after
+fine-tuning with IFEval SFT. BASE and INSTRUCT model results are
+sourced from the open LM leaderboard. Reported values represent
+averaged performance across all INSTRUCT models, excluding special-
+ized math reasoning variants.
+Interpreting z3 (Advanced
+Mathematical Reasoning).
+z3 highly correlates with the
+MATH Lvl 5 benchmark,
+suggesting it represents ad-
+vanced mathematical rea-
+soning capability. Isolat-
+ing this capability through
+fine-tuning is challenging;
+targeted mathematical fine-
+tuning often causes catas-
+trophic forgetting (ZTL+23),
+reducing performance on
+other tasks and likely af-
+fecting z1 and z2. Iden-
+tifying fine-tuning strate-
+gies that selectively enhance
+mathematical reasoning (z3)
+without negatively impact-
+ing other core capabilities
+10
+
+=== PDF PAGE 11 ===
+(z1, z2) remains a critical open question. Furthermore, both observational instruct model per-
+formance and interventional SFT demonstrate substantial improvement on MATH, supporting
+the hypothesized causal link from z2 (instruction-following) to z3 (mathematical reasoning). This
+influence likely occurs because mathematical tasks demand precise adherence to instructions for
+correct formatting and problem interpretation, where misunderstandings severely impact accuracy.
+Additionally, the causal effect ofz2 on z3 is larger for Qwen models than for Llama models, consistent
+with the weights of the causal graphs shown in Figure 7.
+5 Discussions
+In this work, we initiate the study of causal relationships between LM capabilities. We conclude this
+work with a few takeaways and remarks that may be useful to practitioners.
+For post-training evaluation: Our results demonstrate that the impact of any fine -tuning inter-
+vention can differ substantially across base models. Evaluation studies therefore are expected to
+specify exactly which pre -trained checkpoints their methodology applies to. To quantify these
+heterogeneous effects, one can employ standard causal -inference tools – such as estimating the
+conditional average treatment effect (CATE) – to measure, with statistical rigor, how fine-tuning
+impacts performance on each base models.
+For model developers: The directed, hierarchical structure of capabilities we uncover suggests
+a clear development priority: given sufficient compute budget, one can focus on scaling up pre-
+training FLOPs which are more correlated with upstream parent node z1 performance and can,
+and gains there cascade to more specialized abilities. That said, not every capability is equally
+malleable. Some – like instruction -following – correlate less with model scale (i.e., FLOPs) and
+exhibit large noise-factor variances (the z2 node in Figure 7), indicating they respond more readily
+to post-training. On the other hand, given limited budgets or for small models, our noise-weight
+estimates suggest that we may need other interventions like instruction tuning to further improve
+downstream performance.
+For model evaluators: Due to the inherent hierarchical structure of evaluation suites, it is important
+to examine fine-grained performance beyond aggregate numerical scores. For example, gains on
+the MATH benchmark may partly stem from improved instruction-following, which, while related
+to, is not equivalent to the mathematical reasoning the benchmark aims to evaluate. Secondly,
+as specialized abilities are causally affected by upstream ones, evaluators can therefore prioritize
+designing benchmarks that evaluate general, foundational capabilities, such as BBH and MMLU-Pro.
+These benchmarks reflect more substantive improvements rather than artifacts of limited domain
+adaptation.
+We leave as future work the use of a tapestry of tools in causal inference, such as matching (Stu10),
+stratification (FR02), doubly robust estimation (BR05), etc, to derive more scientific insights from
+observational language model benchmark data.
+Acknowledgement
+VS acknowledges the support from the NSF Award IIS-2337916. SK acknowledges the support from
+the National Science Foundation Grant under award IIS 2229881; SK and HZ acknowledge the Chan
+Zuckerberg Initiative Foundation for establishing the Kempner Institute for the Study of Natural
+and Artificial Intelligence.
+11
+
+=== PDF PAGE 12 ===
+References
+[AAA+23] Josh Achiam, Steven Adler, Sandhini Agarwal, Lama Ahmad, Ilge Akkaya, Floren-
+cia Leoni Aleman, Diogo Almeida, Janko Altenschmidt, Sam Altman, Shyamal Anadkat,
+et al. Gpt-4 technical report. arXiv preprint arXiv:2303.08774, 2023.
+[AAA+24] Marah Abdin, Jyoti Aneja, Hany Awadalla, Ahmed Awadallah, Ammar Ahmad Awan,
+Nguyen Bach, Amit Bahree, Arash Bakhtiari, Jianmin Bao, Harkirat Behl, et al. Phi-3
+technical report: A highly capable language model locally on your phone.arXiv preprint
+arXiv:2404.14219, 2024.
+[ABB+04] John R Anderson, Daniel Bothell, Michael D Byrne, Scott Douglass, Christian Lebiere,
+and Yulin Qin. An integrated theory of the mind. Psychological review, 111(4):1036, 2004.
+[ABGLP19] Martin Arjovsky, Léon Bottou, Ishaan Gulrajani, and David Lopez-Paz. Invariant risk
+minimization. arXiv preprint arXiv:1907.02893, 2019.
+[AG23] Sanjeev Arora and Anirudh Goyal. A theory for emergence of complex skills in
+language models. arXiv preprint arXiv:2307.15936, 2023.
+[And96] John R Anderson. Act: A simple theory of complex cognition. American psychologist,
+51(4):355, 1996.
+[Ant24] Anthropic. Claude 3.5 sonnet. https://www.anthropic.com/news/
+claude-3-5-sonnet , 2024.
+[ASR+21] Kartik Ahuja, Shiori Sagawa, Harikrishnan Ramaswamy, Edward Kung, Yair Carmon,
+David Krüger, Amy Zhang, and Percy Liang. Invariant risk minimization games. In
+38th International Conference on Machine Learning (ICML), volume 139 of Proceedings of
+Machine Learning Research, pages 145–159, 2021.
+[AVST24] Emre Acartürk, Burak Varıcı, Karthikeyan Shanmugam, and Ali Tajer. Sample com-
+plexity of interventional causal representation learning. Advances in Neural Information
+Processing Systems, 37:39350–39385, 2024.
+[Bar24] Matthew Barnett. An empirical study of scaling laws for transfer. arXiv preprint
+arXiv:2408.16947, 2024.
+[BCE+23] Sébastien Bubeck, Varun Chadrasekaran, Ronen Eldan, Johannes Gehrke, Eric Horvitz,
+Ece Kamar, Peter Lee, Yin Tat Lee, Yuanzhi Li, Scott Lundberg, et al. Sparks of artificial
+general intelligence: Early experiments with gpt-4, 2023.
+[BD07] David Badre and Mark D’Esposito. Functional magnetic resonance imaging evidence
+for a hierarchical organization of the prefrontal cortex. Journal of cognitive neuroscience,
+19(12):2082–2099, 2007.
+[BdHLC22] Johann Brehmer, Pim de Haan, Phillip Lippe, and Taco S. Cohen. Weakly supervised
+causal representation learning. In Advances in Neural Information Processing Systems 35
+(NeurIPS), pages 17066–17079, 2022.
+[BJN+22] Yuntao Bai, Andy Jones, Kamal Ndousse, Amanda Askell, Anna Chen, Nova DasSarma,
+Dawn Drain, Stanislav Fort, Deep Ganguli, Tom Henighan, et al. Training a helpful and
+harmless assistant with reinforcement learning from human feedback. arXiv preprint
+arXiv:2204.05862, 2022.
+12
+
+=== PDF PAGE 13 ===
+[BMR+20] Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla
+Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al.
+Language models are few-shot learners.Advances in neural information processing systems,
+33:1877–1901, 2020.
+[BR05] Heejung Bang and James M Robins. Doubly robust estimation in missing data and
+causal inference models. Biometrics, 61(4):962–973, 2005.
+[BRR+23] Simon Buchholz, Goutham Rajendran, Elan Rosenfeld, Bryon Aragam, Bernhard
+Schölkopf, and Pradeep Ravikumar. Learning linear causal representations from
+interventions under general nonlinear mixing. Advances in Neural Information Processing
+Systems, 36:45419–45462, 2023.
+[BSB+23] Ryan Burnell, Wout Schellaert, John Burden, Tomer D Ullman, Fernando Martinez-
+Plumed, Joshua B Tenenbaum, Danaja Rutar, Lucy G Cheke, Jascha Sohl-Dickstein,
+Melanie Mitchell, et al. Rethink reporting of evaluation results in ai. Science,
+380(6641):136–138, 2023.
+[Car93] John Bissell Carroll. Human cognitive abilities: A survey of factor-analytic studies . Cam-
+bridge university press, 1993.
+[CCZ16] Tianxi Cai, T Tony Cai, and Anru Zhang. Structured matrix completion with ap-
+plications to genomic data integration. Journal of the American Statistical Association ,
+111(514):621–633, 2016.
+[CHL+24] Hyung Won Chung, Le Hou, Shayne Longpre, Barret Zoph, Yi Tay, William Fedus,
+Yunxuan Li, Xuezhi Wang, Mostafa Dehghani, Siddhartha Brahma, et al. Scaling
+instruction-finetuned language models. Journal of Machine Learning Research, 25(70):1–
+53, 2024.
+[CPY+23] Jiaao Chen, Xiaoman Pan, Dian Yu, Kaiqiang Song, Xiaoyang Wang, Dong Yu, and Jian-
+shu Chen. Skills-in-context prompting: Unlocking compositionality in large language
+models. arXiv preprint arXiv:2308.00304, 2023.
+[CRF+24] Ben Cottier, Robi Rahman, Loredana Fattorini, Nestor Maslej, and David Owen. The
+rising costs of training frontier ai models, 2024.
+[CSDC25] Pin-Yu Chen, Han Shen, Payel Das, and Tianyi Chen. Fundamental safety-capability
+trade-offs in fine-tuning large language models. arXiv preprint arXiv:2503.20807, 2025.
+[DODH25] Ricardo Dominguez-Olmedo, Florian E. Dorner, and Moritz Hardt. Training on the test
+task confounds evaluation and emergence. In The Thirteenth International Conference on
+Learning Representations, 2025.
+[EK04] Jan Eriksson and Visa Koivunen. Identifiability, separability, and uniqueness of linear
+ica models. IEEE signal processing letters, 11(7):601–604, 2004.
+[FR02] Constantine E Frangakis and Donald B Rubin. Principal stratification in causal inference.
+Biometrics, 58(1):21–29, 2002.
+[GCS+25] Kanishk Gandhi, Ayush Chakravarthy, Anikait Singh, Nathan Lile, and Noah D Good-
+man. Cognitive behaviors that enable self-improving reasoners, or, four habits of highly
+effective stars. arXiv preprint arXiv:2503.01307, 2025.
+13
+
+=== PDF PAGE 14 ===
+[GDJ+24] Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Abhishek
+Kadian, Ahmad Al-Dahle, Aiesha Letman, Akhil Mathur, Alan Schelten, Alex Vaughan,
+et al. The llama 3 herd of models. arXiv preprint arXiv:2407.21783, 2024.
+[GEK+24] Sreyan Ghosh, Chandra Kiran Reddy Evuru, Sonal Kumar, Deepali Aneja, Zeyu Jin, Ra-
+mani Duraiswami, Dinesh Manocha, et al. A closer look at the limitations of instruction
+tuning. arXiv preprint arXiv:2402.05119, 2024.
+[GS23] Shahriar Golchin and Mihai Surdeanu. Time travel in llms: Tracing data contamination
+in large language models. arXiv preprint arXiv:2308.08493, 2023.
+[GWS+23] Arnav Gudibande, Eric Wallace, Charlie Snell, Xinyang Geng, Hao Liu, Pieter Abbeel,
+Sergey Levine, and Dawn Song. The false promise of imitating proprietary llms. arXiv
+preprint arXiv:2305.15717, 2023.
+[GYZ+25] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao
+Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al. Deepseek-r1: Incentivizing reasoning
+capability in llms via reinforcement learning. arXiv preprint arXiv:2501.12948, 2025.
+[HBB+20] Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song,
+and Jacob Steinhardt. Measuring massive multitask language understanding. arXiv
+preprint arXiv:2009.03300, 2020.
+[HBM+22] Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor
+Cai, Eliza Rutherford, Diego de Las Casas, Lisa Anne Hendricks, Johannes Welbl,
+Aidan Clark, et al. Training compute-optimal large language models. arXiv preprint
+arXiv:2203.15556, 2022.
+[HBU+25] Andreas Hochlehnert, Hardik Bhatnagar, Vishaal Udandarao, Samuel Albanie, Ameya
+Prabhu, and Matthias Bethge. A sober look at progress in language model reasoning:
+Pitfalls and paths to reproducibility. arXiv preprint arXiv:2504.07086, 2025.
+[HDN+24] Zhenyu Hou, Pengfan Du, Yilin Niu, Zhengxiao Du, Aohan Zeng, Xiao Liu, Minlie
+Huang, Hongning Wang, Jie Tang, and Yuxiao Dong. Does rlhf scale? exploring the
+impacts from data, model, and method. arXiv preprint arXiv:2412.06000, 2024.
+[HHH+09] Aapo Hyvärinen, Jarmo Hurri, Patrik O Hoyer, Aapo Hyvärinen, Jarmo Hurri, and
+Patrik O Hoyer. Independent component analysis. Springer, 2009.
+[HZZ+20] Biwei Huang, Kun Zhang, Jiji Zhang, Joseph Ramsey, Ruben Sanchez-Romero, Clark
+Glymour, and Bernhard Schölkopf. Causal discovery from heterogeneous/nonstation-
+ary data. Journal of Machine Learning Research, 21(89):1–53, 2020.
+[JS24] Jikai Jin and Vasilis Syrgkanis. Learning linear causal representations from general
+environments: Identifiability and intrinsic ambiguity. In The Thirty-eighth Annual
+Conference on Neural Information Processing Systems, 2024.
+[JSM+23] Albert Qiaochu Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford, Deven-
+dra Singh Chaplot, Diego de Las Casas, Florian Bressand, Gianna Lengyel, Guillaume
+Lample, Lucile Saulnier, L’elio Renard Lavaud, Marie-Anne Lachaux, Pierre Stock,
+Teven Le Scao, Thibaut Lavril, Thomas Wang, Timothée Lacroix, and William El Sayed.
+Mistral 7b. arXiv preprint arXiv:2310.06825, 2023.
+14
+
+=== PDF PAGE 15 ===
+[KCB09] James C Kaufman, Jason C Cole, and John Baer. The construct of creativity: Structural
+model for self-reported creativity ratings. The Journal of Creative Behavior, 43(2):119–134,
+2009.
+[KMH+20] Jared Kaplan, Sam McCandlish, Tom Henighan, Tom B Brown, Benjamin Chess, Rewon
+Child, Scott Gray, Alec Radford, Jeffrey Wu, and Dario Amodei. Scaling laws for neural
+language models. arXiv preprint arXiv:2001.08361, 2020.
+[KOK03] Etienne Koechlin, Chrystele Ody, and Frédérique Kouneiher. The architecture of
+cognitive control in the human prefrontal cortex. Science, 302(5648):1181–1185, 2003.
+[LAD+22] Aitor Lewkowycz, Anders Johan Andreassen, David Dohan, Ethan Dyer, Henryk
+Michalewski, Vinay Venkatesh Ramasesh, Ambrose Slone, Cem Anil, Imanol Schlag,
+Theo Gutman-Solo, Yuhuai Wu, Behnam Neyshabur, Guy Gur-Ari, and Vedant Misra.
+Solving quantitative reasoning problems with language models. In Alice H. Oh, Alekh
+Agarwal, Danielle Belgrave, and Kyunghyun Cho, editors, Advances in Neural Informa-
+tion Processing Systems, 2022.
+[LBL+23] Percy Liang, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihiro
+Yasunaga, Yian Zhang, Deepak Narayanan, Yuhuai Wu, Ananya Kumar, et al. Holistic
+evaluation of language models. Transactions on Machine Learning Research, 2023.
+[LBS+25] Emmy Liu, Amanda Bertsch, Lintang Sutawika, Lindia Tjuatja, Patrick Fernandes, Lara
+Marinov, Michael Chen, Shreya Singhal, Carolin Lawrence, Aditi Raghunathan, et al.
+Not-just-scaling laws: Towards a better understanding of the downstream impact of
+language model design decisions. arXiv preprint arXiv:2503.03862, 2025.
+[LPR+20] Francesco Locatello, Ben Poole, Gunnar Rätsch, Bernhard Schölkopf, Olivier Bachem,
+and Michael Tschannen. Weakly-supervised disentanglement without compromises.
+In 37th International Conference on Machine Learning (ICML), volume 119 of Proceedings of
+Machine Learning Research, pages 6348–6359, 2020.
+[MLH+22] Sewon Min, Xinxi Lyu, Ari Holtzman, Mikel Artetxe, Mike Lewis, Hannaneh Hajishirzi,
+and Luke Zettlemoyer. Rethinking the role of demonstrations: What makes in-context
+learning work? In Yoav Goldberg, Zornitsa Kozareva, and Yue Zhang, editors, Proceed-
+ings of the 2022 Conference on Empirical Methods in Natural Language Processing , pages
+11048–11064, Abu Dhabi, United Arab Emirates, December 2022. Association for Com-
+putational Linguistics.
+[MLP+23] Ian R. McKenzie, Alexander Lyzhov, Michael Martin Pieler, Alicia Parrish, Aaron
+Mueller, Ameya Prabhu, Euan McLean, Xudong Shen, Joe Cavanagh, Andrew George
+Gritsevskiy, Derik Kauffman, Aaron T. Kirtland, Zhengping Zhou, Yuhui Zhang, Sicong
+Huang, Daniel Wurgaft, Max Weiss, Alexis Ross, Gabriel Recchia, Alisa Liu, Jiacheng
+Liu, Tom Tseng, Tomasz Korbak, Najoung Kim, Samuel R. Bowman, and Ethan Perez.
+Inverse scaling: When bigger isn’t better. Transactions on Machine Learning Research,
+2023.
+[OWJ+22] Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll Wainwright, Pamela
+Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et al. Training
+language models to follow instructions with human feedback. Advances in neural
+information processing systems, 35:27730–27744, 2022.
+15
+
+=== PDF PAGE 16 ===
+[Pea95] Judea Pearl. Causal diagrams for empirical research. Biometrika, 82(4):669–688, 1995.
+[PN22] Panagiotis Papastamoulis and Ioannis Ntzoufras. On the identifiability of bayesian
+factor analytic models. Statistics and Computing, 32(2):23, 2022.
+[PSC+24] Felipe Maia Polo, Seamus Somerstep, Leshem Choshen, Yuekai Sun, and Mikhail
+Yurochkin. Sloth: scaling laws for llm skills to predict multi-benchmark performance
+across families. arXiv preprint arXiv:2412.06540, 2024.
+[QNA+25] Zhenting Qi, Fan Nie, Alexandre Alahi, James Zou, Himabindu Lakkaraju, Yilun Du,
+Eric Xing, Sham Kakade, and Hanlin Zhang. Evolm: In search of lost language model
+training dynamics, 2025. Manuscript.
+[RBK+25] Richard Ren, Steven Basart, Adam Khoja, Alice Gatti, Long Phan, Xuwang Yin, Mantas
+Mazeika, Alexander Pan, Gabriel Mukobi, Ryan Kim, et al. Safetywashing: Do ai safety
+benchmarks actually measure safety progress? Advances in Neural Information Processing
+Systems, 37:68559–68594, 2025.
+[Rec11] Benjamin Recht. A simpler approach to matrix completion. Journal of Machine Learning
+Research, 12(12), 2011.
+[RMH24] Yangjun Ruan, Chris J. Maddison, and Tatsunori Hashimoto. Observational scaling
+laws and the predictability of langauge model performance. In The Thirty-eighth Annual
+Conference on Neural Information Processing Systems, 2024.
+[Sim12] Herbert A Simon. The architecture of complexity. InThe Roots of Logistics, pages 335–361.
+Springer, 2012.
+[SLB+21] Bernhard Schölkopf, Francesco Locatello, Stefan Bauer, Nan Rosemary Ke, Nal Kalch-
+brenner, Anirudh Goyal, and Yoshua Bengio. Toward causal representation learning.
+Proceedings of the IEEE, 109(5):612–634, 2021.
+[SMK23] Rylan Schaeffer, Brando Miranda, and Sanmi Koyejo. Are emergent abilities of large
+language models a mirage? Advances in Neural Information Processing Systems, 36:55565–
+55581, 2023.
+[SSBU23] Chandler Squires, Anna Seigal, Salil S Bhate, and Caroline Uhler. Linear causal dis-
+entanglement via interventions. In International conference on machine learning, pages
+32540–32560. PMLR, 2023.
+[SSS+22] Mirac Suzgun, Nathan Scales, Nathanael Schärli, Sebastian Gehrmann, Yi Tay,
+Hyung Won Chung, Aakanksha Chowdhery, Quoc V Le, Ed H Chi, Denny Zhou,
+et al. Challenging big-bench tasks and whether chain-of-thought can solve them. arXiv
+preprint arXiv:2210.09261, 2022.
+[Stu10] Elizabeth A Stuart. Matching methods for causal inference: A review and a look
+forward. Statistical science: a review journal of the Institute of Mathematical Statistics ,
+25(1):1, 2010.
+[SWR+22] Victor Sanh, Albert Webson, Colin Raffel, Stephen Bach, Lintang Sutawika, Zaid
+Alyafeai, Antoine Chaffin, Arnaud Stiegler, Arun Raja, Manan Dey, M Saiful Bari,
+Canwen Xu, Urmish Thakker, Shanya Sharma Sharma, Eliza Szczechla, Taewoon Kim,
+Gunjan Chhablani, Nihal Nayak, Debajyoti Datta, Jonathan Chang, Mike Tian-Jian
+16
+
+=== PDF PAGE 17 ===
+Jiang, Han Wang, Matteo Manica, Sheng Shen, Zheng Xin Yong, Harshit Pandey, Rachel
+Bawden, Thomas Wang, Trishala Neeraj, Jos Rozen, Abheesht Sharma, Andrea Santilli,
+Thibault Fevry, Jason Alan Fries, Ryan Teehan, Teven Le Scao, Stella Biderman, Leo Gao,
+Thomas Wolf, and Alexander M Rush. Multitask prompted training enables zero-shot
+task generalization. In International Conference on Learning Representations, 2022.
+[TKGG11] Joshua B Tenenbaum, Charles Kemp, Thomas L Griffiths, and Noah D Goodman. How
+to grow a mind: Statistics, structure, and abstraction. science, 331(6022):1279–1285, 2011.
+[TRP+24] Gemma Team, Morgane Riviere, Shreya Pathak, Pier Giuseppe Sessa, Cassidy Hardin,
+Surya Bhupatiraju, Léonard Hussenot, Thomas Mesnard, Bobak Shahriari, Alexandre
+Ramé, et al. Gemma 2: Improving open language models at a practical size. arXiv
+preprint arXiv:2408.00118, 2024.
+[TTL+25] Sang Truong, Yuheng Tu, Percy Liang, Bo Li, and Sanmi Koyejo. Reliable and efficient
+amortized model-based evaluation. arXiv preprint arXiv:2503.13335, 2025.
+[vKBW+23] Julius von Kügelgen, Michel Besserve, Liang Wendong, Luigi Gresele, Armin Keki´ c,
+Elias Bareinboim, David Blei, and Bernhard Schölkopf. Nonparametric identifiability
+of causal representations from unknown interventions. Advances in Neural Information
+Processing Systems, 36:48603–48638, 2023.
+[WJ22] Yixin Wang and Michael I. Jordan. Desiderata for representation learning: A causal
+perspective. arXiv, 2022.
+[WTB+22] Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud,
+Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, et al. Emergent abilities
+of large language models. arXiv preprint arXiv:2206.07682, 2022.
+[YKG+23] Dingli Yu, Simran Kaur, Arushi Gupta, Jonah Brown-Cohen, Anirudh Goyal, and
+Sanjeev Arora. Skill-mix: A flexible and expandable family of evaluations for ai models.
+arXiv preprint arXiv:2310.17567, 2023.
+[YYZ+24] An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu,
+Chengyuan Li, Dayiheng Liu, Fei Huang, Haoran Wei, et al. Qwen2. 5 technical
+report. arXiv preprint arXiv:2412.15115, 2024.
+[ZCY+25] Xinlu Zhang, Zhiyu Zoey Chen, Xi Ye, Xianjun Yang, Lichang Chen, William Yang
+Wang, and Linda Ruth Petzold. Unveiling the impact of coding data instruction fine-
+tuning on large language models reasoning. In Proceedings of the AAAI Conference on
+Artificial Intelligence, volume 39, pages 25949–25957, 2025.
+[ZGS+23] Jiaqi Zhang, Kristjan Greenewald, Chandler Squires, Akash Srivastava, Karthikeyan
+Shanmugam, and Caroline Uhler. Identifiability guarantees for causal disentanglement
+from soft interventions. Advances in Neural Information Processing Systems, 36:50254–
+50292, 2023.
+[ZLCF24] Biao Zhang, Zhongtao Liu, Colin Cherry, and Orhan Firat. When scaling meets llm
+finetuning: The effect of data, model and finetuning method. In The Twelfth International
+Conference on Learning Representations, 2024.
+17
+
+=== PDF PAGE 18 ===
+[ZMK+25] Rosie Zhao, Alexandru Meterez, Sham Kakade, Cengiz Pehlevan, Samy Jelassi, and
+Eran Malach. Echo chamber: Rl post-training amplifies behaviors learned in pretraining.
+arXiv preprint arXiv:2504.07912, 2025.
+[ZTL+23] Yuexiang Zhai, Shengbang Tong, Xiao Li, Mu Cai, Qing Qu, Yong Jae Lee, and Yi Ma.
+Investigating the catastrophic forgetting in multimodal large language models. arXiv
+preprint arXiv:2309.10313, 2023.
+[ZXNZ24] Kun Zhang, Shaoan Xie, Ignavier Ng, and Yujia Zheng. Causal representation learning
+from multiple distributions: A general setting. In Forty-first International Conference on
+Machine Learning, 2024.
+18
+
+=== PDF PAGE 19 ===
+Appendices
+Table of Contents
+A Related Work 20
+B Implementation Details 21
+C Details of HCA and Its Theoretical Guarantee 22
+C.1 HCA: Hierarchical Component Analysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+C.2 Identifiability Guarantee for HCA . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+D Additional PCA Analyses 26
+E Scaling Laws and The Effect of Fine-tuning 28
+E.1 Heterogeneity of Fine-tuning Effects . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+F Details for Matrix Completion 30
+G Additional Experiment Results 31
+G.1 Details for the HCA Recovery in Section 4 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+G.2 Complementary Results for Section 4 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+G.3 Filtering Out "badly" Fine-tuned models . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34
+G.4 Using Open LM Leaderboard v1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+G.5 MMLU by Task Leaderboard . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+H Sensitivity Analysis of Causal Graph Recovery 39
+19
+
+=== PDF PAGE 20 ===
+A Related Work
+Benchmark-driven LM capability studies. Benchmarks give researchers a shared scoreboard, letting
+everyone check claims about better language models instead of relying on hype. Early scaling-law
+studies showed that test loss falls in a smooth power curve as model size, data, and compute grow,
+setting a baseline for how capability should rise (KMH+20). Later work found many frontier models
+were under-trained for their size and mapped out a compute-efficient path that the Chinchilla model
+follows (HBM+22). Instead of running new model sweeps, (RMH24) proposed observational scaling
+laws involving latent capability factors, that depend on the model famility and are obtained by PCA.
+They showed that benchmark performances are inherently low-rank and 3 principal components
+are sufficient to obtain good fitting performance. This approach is also adopted by some follow-up
+works on new tasks (RBK+25) and larger sets of models (PSC+24). (DODH25) further proposed an
+adjustment of the scaling law based on the model release time, given the fact that later models are
+more likely to be "trained on test tasks".
+While pretrained LMs exhibit predictable scaling laws post-training presents a more complex picture
+regarding such predictive capabilities. For fine-tuning, performance generally scales with model
+size and fine-tuning data (as suggested by (ZLCF24)), but the "transfer gap" between pre-training
+and downstream tasks is a key variable ( Bar24), and pre-training metrics aren’t always reliable
+predictors of post-tuning success. Instruction tuning demonstrates clear benefits from scaling model
+size and the number/diversity of instructional tasks, as shown by work on FLAN ( WTB+22), T0
+(SWR+22), and FLAN-PaLM (CHL+24). RLHF, crucial for aligning models with human preferences
+(OWJ+22), shows performance gains with larger models and more feedback. However, recent work
+(HDN+24) indicates RLHF might scale less efficiently than pre-training, with potential diminishing
+returns from increased data or reward model size under fixed conditions.
+Recently, evaluation of post-training has been shown to be unreliable (BSB+23, HBU+25). While the
+Open LLM Leaderboard provides truthful evaluation of models across different benchmarks, the
+contamination issue may still prevent us to obtain a reliable assessment of model capabilities.
+Connections between LM capabilities. Research increasingly shows that LM capabilities are not
+isolated but form a complex, interconnected system. Studies reveal strong synergies, such as the
+bidirectional enhancement between coding and reasoning abilities ( ZCY+25, BCE+23), and how
+strong reasoning underpins mathematical problem-solving (LAD+22). Complex skills often arise
+from compositionality, where LMs combine simpler, foundational skills in novel ways (YKG+23,
+AG23, CPY+23).
+Evidence also points towards latent abilities or general factors influencing performance across
+diverse tasks (LBL+23, PSC+24). The nature of emergent abilities – skills appearing in larger models
+– is debated, with some questioning if they are genuinely novel or byproducts of other mechanisms
+(WTB+22, SMK23).
+Also, there are significant trade-offs: efforts to enhance safety can sometimes reduce raw capability
+(CSDC25), and fine-tuning for one skill can lead to catastrophic forgetting of others ( ZTL+23).
+Phenomena like inverse scaling further highlight these complex interactions ( MLP+23). Finally,
+successful task transfer and in-context learning demonstrate that LMs leverage shared underlying
+mechanisms and representations across different tasks (MLH+22, BMR+20), underscoring the deep
+interrelations among their varied skills.
+Causal representation learning. Causal representation learning (CRL) aims to recover latent
+variables and mechanisms that remain stable under interventions and distribution shifts, thereby
+enabling robust prediction, reasoning, and control. Foundational position papers argue that learning
+20
+
+=== PDF PAGE 21 ===
+disentangled causal factors is essential for machine intelligence rather than merely desirable for inter-
+pretability (SLB+21, WJ22). Most existing works are devoted to establishing identifiability of causal
+representations in realistic scenarios. Weakly supervised disentanglement shows that paired samples
+before/after unknown interventions are sufficient to identify factors without compromising down-
+stream utility (LPR+20, BdHLC22). (vKBW+23) showed that a pair of single-nodehard interventions
+on each latent factor is sufficient for full identifiability of the latent causal factors. Subsequent works
+generalize this to the case of single-node soft interventions (ZGS+23, SSBU23, BRR+23). Recently,
+there has been a surge of interest in studying identifiability under multi-node interventions, which
+is much more practical (JS24, ZXNZ24). Closely related to CRL, invariant Risk Minimization (IRM)
+and its game-theoretic variants formalize how multiple training environments can pin down causal
+predictors (ABGLP19, ASR+21).
+B Implementation Details
+We release our code at https://github.com/hlzhang109/causal-eval.
+Supervised Fine-tuning. We use lm-eval-hardness to evaluate models before and after fine-tuning.
+We first test base model performance and observe that it can match the performance in Open LM
+Leaderboard. We train all models with standard hyper-parameters for SFT - 3 epochs, learning
+rate 2e-5. Moreover, noticing that the IFEval dataset lacks ground truth responses followed by
+the instructions, we query GPT-4 to generate responses with the prompt "You are a helpful assistant
+evaluating instruction-following ability. For each prompt, provide ONLY a direct response to the specific
+instruction, prefixed with ’Response: ’. Keep your response concise, clear, and strictly follow the instruction
+without adding explanations or unnecessary information. Your response (excluding the ’Response: ’ prefix)
+should strictly satisfy the length requirement." Moreover, we also SFT on z1 BBH. But we observe a
+marginal improvement over the same BBH test sets. We hypothesize that parent nodes like z1 are
+more dependent on base model FLOPs thus maybe hard to improve through fine-tuning alone.
+Matching models on the leaderboard with the base models. Our algorithm for mapping LLMs
+to their pretraining token counts implements a hierarchical, multi-layered identification strategy
+with progressively decreasing confidence levels. The approach consists of four distinct identification
+layers:
+1. Explicit Base Model Detection: We first parse the model name for explicit references to base
+models with size specifications (e.g., Llama-3.1-8B). This is implemented through specialized
+regular expression patterns tailored to each model family’s naming conventions. For instance,
+Gemma-2-9B is unambiguously matched to the Gemma-2-9B model trained on 8 trillion tokens.
+2. Model Name Pattern Inference: For models lacking explicit base references, we perform broader
+pattern matching on model names, scanning for family indicators (e.g., “mistral”, “qwen2.5”)
+and version numbers. This layer identifies the model family but may not precisely determine the
+variant, necessitating parameter-based disambiguation in some cases. For example, detecting
+“llama-3” in the name identifies the family but requires parameter count verification to distinguish
+between 8B and 70B variants.
+3. Architecture-based Attribution: Lastly, we leverage architecture information combined with
+parameter counts. This approach varies by model family:
+• For Llama models, we employ stringent parameter matching (e.g., 7.8-8.3B for Llama-3-8B) to
+prevent false positives, as many models adopt the Llama architecture without using Llama
+weights.
+21
+
+=== PDF PAGE 22 ===
+• For other architectures (e.g., Mistral, Qwen), we implement more generous parameter ranges
+and higher confidence attribution, as architecture adoption typically indicates weight inheri-
+tance.
+• Size-variant mapping is crucial for families like Gemma-2, where pretraining compute differs
+by size (2B: 2T tokens, 9B: 8T tokens, 27B: 13T tokens).
+The algorithm traverses these layers sequentially, defaulting to the highest-confidence identification
+available. When all layers fail to produce a sufficient confidence match, the algorithm returns null
+rather than making low-confidence attributions. This ensures precision over recall, maintaining
+the reliability of identified mappings. Upon successful model identification, we retrieve the corre-
+sponding pretraining token count from our comprehensive knowledge base, which consolidates
+information from research papers, technical reports, and official documentation. This multi-layered
+approach balances completeness with accuracy, addressing the inherent ambiguity in model naming
+and metadata across the diverse landscape of contemporary LLMs.
+C Details of HCA and Its Theoretical Guarantee
+C.1 HCA: Hierarchical Component Analysis
+In (JS24), the authors introduced the LiNGCReL algorithm identfiability guarantees in Theorem 1
+for exact SCMs. Here we introduce hierarchical Component Analysis (HCA) that is equivalent to
+LiNGCReL in the exact setting, but with several modifications to make it fit into our context.
+The first step, same as (JS24), is to apply linear ICA to each individual domain. Recall that ICA’s
+goal is to the independent signals; in our setting, it recovers the ICA unmixing matrix Mk that maps
+observed x to the source variables ϵ(k) defined in Equation (1). This shall be carefully distincted
+from H = (G⊤G)−1G⊤ which is the unmixing matrix for CRL. When the SCM is exact, we would
+have PkMk = BkH, where Pk is some permutation matrix. The main challenge of CRL is that we
+only know Mk = BkH, k ∈ [K] but each Pk is unknown.
+The second and main part of our algorithm is presented in Algorithm 2. The algorithm is motivated
+by the observation that, since the unmixing matrix H is the same across all domains, the structure
+of any row spaces of Bk, k ∈ [K], which are unknown, is captured by the row structures of the
+known ICA unmixing matrices BkH. Moreover, given an already-recovered subgraph G1 of G,
+one can discover some v /∈ G 1 such that paG(v) ⊆ G 1, if the corresponding rows in each Bk, after
+projecting onto the row spaces corresponding to the the orthogonal complement of the row space
+of already-recovered nodes, is rank-1. This is because this rank captures the "remaining degree of
+freedom" of v conditioned on G1, which equals one if and only if all its parents are in G1.
+While this idea is close to the original LiNGCReL, some key differences are worth-noticing:
+1. Compared with LiNGCReL, HCA only recovers a transitive closure ¯G of the true graph G4. It is
+still possible to infer whether each edge in ¯G indeed exists in G (see appendix). For simplicity and
+due to the fundamental inexactness of our model, we do not perform this step here. Equivalently,
+we are only imposing the constraint that each Bk is upper-triangular, without assuming that any
+other entries are also zero.
+2. The identifiability guarantee of LiNGCReL makes the restrictive assumption that the distribution
+ϵ(k) does not depend on k. This assumption is indeed unnecessary; the price to pay is a more
+4The transitive closure of a directed acyclic graph (DAG) G is obtained by drawing an edge i → j for any i and j such
+that i is an ancestor in j, i.e., there is a path i = i0 → i1 → · · · → ik = j in G.
+22
+
+=== PDF PAGE 23 ===
+complicated approach to identify the "correct matching" between the components of ϵ(k). This
+step could be computationally expensive, but works well in our context where d is small.
+3. We determine the matricesBk, k ∈ [K] by explicitly optimizing the distance between the recovered
+unmixing matrix and the target unmixing matrix. Compared with LiNGCReL that sets the entries
+of Bk’s as the projection coefficients in Algorithm 1, which is theoretically equivalent for exact
+causal models, this extra step provides additional flexibility that optimizes the fitting quality in
+the presence of inexactness.
+Algorithm 1: Ortho-proj(S, {Ak}K
+k=1)
+Input: Ordered set S = {s1, s2, . . . , sm} ⊆ [d], index i /∈ S, Ak ∈ Rd×n for k ∈ [K].
+Output: Residual matrices {Rk}K
+k=1.
+for k ← 1 to K do
+W ← span{(Ak)s : s ∈ S}; // (Ak)s is the s-th row of Ak
+Rk ← projW ⊥ (Ak);// Row-wise orthogonal projection
+end
+Algorithm 2: Hierarchical component analysis
+Input: Matrices Mk ∈ Rd×n, k ∈ [K].
+Output: The optimal unmixing matrix ˆH ∗ and weight matrices { ˆB∗
+k}K
+k=1.
+Let Sd be the set of all permutations of {1, 2, . . . , d}. min_mic_score ← ∞ ;
+ˆH ∗ ← null; { ˆB∗
+k}K
+k=1 ← null;
+for each permutation combination π = (π1, . . . , πK ) ∈ (Sd)K do
+// 1. Apply the current permutation to each matrix
+Let M ′
+k be the matrix Mk with rows permuted according to πk, for k = 1, . . . , K. ;
+// 2. Generate candidate ˆHπ based on permuted matrices
+for j ← 0 to d − 1 do
+Sortho ← {j + 1, j + 2, . . . , d};
+{R′
+k}K
+k=1 ← Ortho-proj(Sortho, {M ′
+k}K
+k=1);
+// Extract principal direction from the (j+1)-th rows of residuals
+˜R ← [(R′
+1)⊤
+j+1, . . . ,(R′
+K )⊤
+j+1]⊤; // Stack the (j+1)-th rows
+h′
+j+1 ← v1( ˜R); // Top right singular vector
+end
+ˆHπ ← [h′
+1, . . . ,h′
+d]⊤; // Construct candidate H. Optionally: Gram-Schmidt( h′
+1, . . . ,h′
+d)
+// 3. Compute optimal upper-triangular ˆBk,π
+Let T (d) be the set of d × d upper-triangular matrices. ;
+for k ← 1 to K do
+ˆBk,π ← arg minB∈T (d) ∥M ′
+k − B ˆHπ∥2
+F ; // Best upper-triangular estimate
+end
+// 4. Compute the MIC score for this permutation using Proposition 1
+current_mic_score ← ComputeMIC({M ′
+k}K
+k=1, { ˆBk,π}K
+k=1, ˆHπ) ;
+// 5. Update if this is the best score found so far
+if current_mic_score < min_mic_score then
+min_mic_score ← current_mic_score ;
+ˆH ∗, { ˆB∗
+k}K
+k=1 ← ˆHπ, { ˆBk,π}K
+k=1 ;
+end
+end
+return ˆH ∗, { ˆB∗
+k}K
+k=1
+23
+
+=== PDF PAGE 24 ===
+C.2 Identifiability Guarantee for HCA
+In this subsection, we provide our main identifiability result for HCA in the special case when the
+graph G is known to be a complate DAG with i → j for all i < j . Equivalently, this means that each
+Ak is lower-triangular.
+Assumption 1. (Node-level non-degeneracy, adapted from (JS24, Assumption 5)) We assume that the matri-
+ces {Bk}K
+k=1 are node-level non-degenerate, i.e., for all node i ∈ [d], we have dim span⟨(Bk)i : k ∈ [K]⟩ =paG(i)
+ + 1, where (Bk)i is the i-th row of Bk.
+As shown in (JS24), this assumption holds as long as theK weight vectors at nodei across K domains
+do not lie in a low-dimensional vector space, which generally holds. To ensure identifiability, we also
+require that the components of noise variables are non-Gaussian and have different distributions.
+Assumption 2. For all k ∈ [K], each component of ϵ(k) follows a different distribution, and all of them are
+non-Gaussian.
+Remark 2. With a more involved procedure, (JS24) showed that one can identify zi, i ∈ [d] up to a "sur-
+rounding node ambiguity" in the case when G is unknown. Specifically, this means that the G can be fully
+recovered and the identified factor z′
+i is some linear combination of zj’s withj ∈ surG(i) := {i} ∪ { i′ ∈
+paG(i) : chG(i) ⊆ chG(i′)}. Moreover, this ambiguity is intrinsic in this setting.
+Our main result is stated below:
+Theorem 1. Suppose that K ≥ d, then if the ICA step is exact, one can recover the mixing matrix G up to a
+left multiplication of lower-triangular matrix. Equivalently, it recovers latent factors z′
+1, · · · , z′
+d where z′
+i is a
+linear mixture of the true latent factors zj, j < i .
+The remaining part of this subsection is devoted to proving Theorem 1.
+By our assumption of the causal model, we know that in the k-th domain, the observations and
+the noise variables are related via ϵ(k) = BkHx. Since we assume that the ICA is exact, the
+uniqueness of ICA in the non-Gaussian setting (EK04) implies that the umixing matrix that leads
+to independent source variables must be unique up to row permutations. In other words, there
+exists some permutation matrix P ∗
+k , such that P ∗
+k Mk = BkH, ∀k ∈ [K]. Without loss of generality,
+we also assume that H is orthonormal, since otherwise one can always consider a QR factorization
+H = U ˜H where U is lower-triangular and ˜H is orthonormal, and one can treat BkU as the new
+Bk.
+Recall that our algorithm goes through all possibilities of permutations Pk, k ∈ [K] and pick one
+with the smallest MIC. To begin with, it is not hard to see the following fact:
+Proposition 2. Suppose that M ′
+k = P ∗
+k Mk, then running the subroutine in Algorithm 2 on M ′
+k, k ∈ [K]
+would give a zero MIC.
+Proof. Recall that M ′
+k = BkH. We will prove by induction that each row h′
+i of the recovered matrix
+ˆHπ in Algorithm 2 is parallel to hi (*).
+For i = 1, since Bk is lower-triangular, and its diagonal entriesΩ−1/2
+k are nonzero, so the last rows
+of BkH, k ∈ [K] is a nonzero multiple of h1. By definition, h′
+1 is the principal component of these
+rows, which is obviously parallel to h1.
+Suppose the conclusion holds for all j < j 0, we now prove it for j = j0. Since Bk is lower-triangular,
+the induction hypothesis implies that for each k ∈ [K], span⟨(M ′
+k)i : i < j ⟩ = span⟨hi : i < j ⟩. By
+24
+
+=== PDF PAGE 25 ===
+definition, (Rk)j is the orthogonal projection of (Mk)j onto this subspace. Notice that (Mk)j ∈
+span⟨hi : i ≤ j⟩, is then easy to see that this projection is nothing but a constant multiple of hj,
+since this is the unique direction in span⟨hi : i ≤ j⟩ that is orthogonal to span⟨hi : i ≤ j⟩. Hence by
+definition, we have h′
+j = αjhj for some scalar αj. This concludes the proof of (*).
+From (*), it is easy to see that the best lower-triangular estimate ˆBk,π is equal to B up to some
+row-wise scaling, and that ˆBk,π ˆHπ = M ′
+k. Hence the MIC is zero by definition.
+To complete the proof of Theorem 1, we need to show that any permutation that achieves a zero
+MIC successfully recovers the causal graph up to transitive closure. Specifically, suppose that some
+permutation matrices Pk, k ∈ [K] leads to a zero MIC, let Qk = PkP ∗
+k , then Mk = QkBkH. We
+show that
+1. Q1 = Q2 = · · · = Qd, and
+2. Suppose that the j-th row of Q1 is eij, then i1, i2, · · · , id is a topological ordering of the graph G,
+meaning that paG(ij) ⊆ {i1, · · · , ij−1}.
+We say that a row index j is "good" if the j-th row of Qk, k ∈ [K] are equal and the second condition
+above is satisfied up to j (i.e. i1, · · · , ij is an ancestral set of G), and is "bad" otherwise. Then it
+suffices to show that all j ∈ [d] are good.
+Suppose the contrary holds, let j = j0 be the smallest bad index. A zero MIC implies that k ∈ [K],
+" jX
+i=1
+( ˆBk)ji ˆhi
+#
+M ⊤
+k (MkM ⊤
+k )−1 = λkj ej.
+Hence," jX
+i=1
+( ˆBk)ji ˆhi − λkj(Mk)j
+#
+M ⊤
+k (MkM ⊤
+k )−1 = 0 ⇒
+jX
+i=1
+( ˆBk)ji ˆhi − λkj(Mk)j ∈ V ⊥, (2)
+where V is the row space of H. The last step holds since the row space of Mk is also V . However, by
+induction hypothesis, the first (j −1) rows of Mk are exactly the i1, i2, · · · , ij−1-th rows of BkH. The
+construction of ˆH and ˆBk imply that the s-th (s < j ) row of ˆH is equal to the is-th row of H, and
+the first (j − 1) rows of ˆBk are equal to the i1, i2, · · · , ij−1-th rows of Bk. Let Vi = span⟨ˆh1, · · · , ˆhi⟩,
+then we have that
+projV ⊥
+j−1
+ jX
+i=1
+( ˆBk)ji ˆhi − λkj(Mk)j
+!
+= projV ⊥
+j−1
+
+( ˆBk)jj ˆhj − λkj(Mk)j
+
+= ( ˆBk)jjprojV ⊥
+j−1
+(ˆhj) − λkjprojV ⊥
+j−1
+(Mk)j.
+(3)
+However, equation 2 implies that this quantity is equal to zero. As a result, we have
+rank
+D
+projV ⊥
+j−1
+(Mk)j : k ∈ [K]
+E
+= 1.
+Let the j-th row of Qk be ejk, k ∈ [K]. Then the above equation becomes
+rank
+D
+projV ⊥
+j−1
+(BkH)jk : k ∈ [K]
+E
+= 1. (4)
+In the following, we show that this property can only hold when j is good. Note that
+projV ⊥
+j−1
+(BkH)jk =
+X
+i∈ ¯ paG(jk)\{i1,··· ,ij−1}
+(Bk)jk,iprojV ⊥
+j−1
+(hi), (5)
+25
+
+=== PDF PAGE 26 ===
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+3 components0.87
+0.07 0.05
+0.01 0.00
+Cumulative Explained Variance
+95% Explained Variance Threshold
+(a) Qwen2-7B
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+2 components0.91
+0.06
+0.02 0.01 0.00
+Cumulative Explained Variance
+95% Explained Variance Threshold (b) Gemma-2-9B
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+4 components
+0.75
+0.15
+0.06 0.03 0.02
+Cumulative Explained Variance
+95% Explained Variance Threshold (c) Llama-3-8B
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+3 components
+0.66
+0.24
+0.06 0.02 0.01
+Cumulative Explained Variance
+95% Explained Variance Threshold (d) Mistral-7B
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+3 components
+0.75
+0.13 0.10
+0.02 0.00
+Cumulative Explained Variance
+95% Explained Variance Threshold
+(e) Qwen2.5-7B
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+4 components
+0.63
+0.19
+0.13
+0.04 0.01
+Cumulative Explained Variance
+95% Explained Variance Threshold (f) Qwen2.5-14B
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+3 components
+0.78
+0.11 0.08
+0.01 0.01
+Cumulative Explained Variance
+95% Explained Variance Threshold (g) Llama-3.1-8B
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+4 components
+0.71
+0.13
+0.06 0.05 0.03
+Cumulative Explained Variance
+95% Explained Variance Threshold (h) Qwen2.5-0.5B
+Figure 10: Results for running PCA on individual domains.
+where ¯ paG(i) = paG(i) ∪ {i}. For k ̸= l, equation 4 implies thatprojV ⊥
+j−1
+(BkH)jl and projV ⊥
+j−1
+(BkH)jl
+are colinear, but since H has full row rank, projV ⊥
+j−1
+(hi), i ∈ [d] \ {i1, · · · , ij−1} are independent,
+so we must have ¯ paG(jk) \ {i1, · · · , ij−1} = ¯ paG(jl) \ {i1, · · · , ij−1}. In particular, jk ∈ paG(jl) and
+jl ∈ paG(jk), so we must have jk = jl. Thus j1 = j2 = · · · = jK.
+By Assumption 2,
+rank ⟨(BkH)j1 : k ∈ [K]⟩ =
+paG(j1)
+ + 1,
+so that
+rank
+D
+projV ⊥
+j−1
+(BkH)jk : k ∈ [K]
+E
+≥
+paG(j1)
+ + 1 −
+paG(j1) ∩ {i1, · · · , ij−1}
+ .
+Hence it mus be the case that paG(j1) ⊆ ∩{i1, · · · , ij−1}, concluding the proof.
+D Additional PCA Analyses
+In this section, we examine different ways to choose the domains from the open LM leaderboard
+and discuss our findings.
+Domain-specific PCA. While Figure 2a indicates that the complete leaderboard dataset is approxi-
+mately low-rank, this global characteristic does not inherently imply a similar low-rank structure
+for benchmark performance data within individual domains. It is plausible that some domains
+possess full-rank data, but these higher-rank properties are obscured or averaged out when the
+entire leaderboard is considered. To investigate this, we performed PCA on the eight domains
+containing the largest number of model entries. As illustrated by the analysis of their leading
+principal components in Figure 10, all examined domains are effectively rank-3, with the exception
+of Gemma-2-9B, which exhibits an approximate rank of 2.
+PCA for more base models. We first provide an extended version of Figure 3 for 20 most frequently
+used base models of the open LM leaderboard.
+Mixture of Experts (MoE). We investigate the MoE architecture, which is used by Mixtral, and more
+recently, by Deepseek. The information of whether a model uses the MoE architecture is directly
+available from our leaderboard. In Figure 12a, we plot the principal component subspace distances
+26
+
+=== PDF PAGE 27 ===
+llama-3-8bqwen2.5-14bmistral-7bllama-3.1-8bqwen2-7b
+qwen2.5-0.5bqwen2.5-7bgemma-2-9bllama-3.2-3bllama-2-7bqwen2.5-3bllama-3.2-1bqwen2-1.5bqwen2-0.5bllama-3-70bllama-2-70bgemma-2-2bphi-3-14b
+llama-3.1-70bqwen2-72b
+llama-3-8b
+qwen2.5-14b
+mistral-7b
+llama-3.1-8b
+qwen2-7b
+qwen2.5-0.5b
+qwen2.5-7b
+gemma-2-9b
+llama-3.2-3b
+llama-2-7b
+qwen2.5-3b
+llama-3.2-1b
+qwen2-1.5b
+qwen2-0.5b
+llama-3-70b
+llama-2-70b
+gemma-2-2b
+phi-3-14b
+llama-3.1-70b
+qwen2-72b
+-0.00 0.02 0.32 0.01 0.01 0.32 0.02 0.23 0.02 0.24 0.01 0.28 0.33 0.17 0.22 0.03 0.28 0.01 0.06 0.04
+0.02 -0.00 0.36 0.03 0.03 0.28 0.02 0.23 0.04 0.26 0.03 0.30 0.31 0.22 0.21 0.07 0.28 0.02 0.07 0.04
+0.32 0.36 0.00 0.34 0.33 0.42 0.31 0.05 0.27 0.05 0.33 0.23 0.04 0.12 0.34 0.32 0.02 0.32 0.22 0.32
+0.01 0.03 0.34 0.00 0.00 0.33 0.01 0.24 0.01 0.25 0.00 0.20 0.31 0.17 0.26 0.06 0.28 0.02 0.08 0.02
+0.01 0.03 0.33 0.00 -0.00 0.32 0.01 0.24 0.01 0.25 0.00 0.24 0.32 0.17 0.23 0.05 0.28 0.01 0.06 0.02
+0.32 0.28 0.42 0.33 0.32 0.00 0.31 0.33 0.32 0.28 0.34 0.27 0.34 0.20 0.18 0.32 0.45 0.31 0.22 0.24
+0.02 0.02 0.31 0.01 0.01 0.31 -0.00 0.27 0.01 0.22 0.01 0.25 0.33 0.15 0.22 0.07 0.32 0.01 0.05 0.02
+0.23 0.23 0.05 0.24 0.24 0.33 0.27 -0.00 0.30 0.08 0.25 0.33 0.04 0.16 0.22 0.20 0.03 0.24 0.31 0.28
+0.02 0.04 0.27 0.01 0.01 0.32 0.01 0.30 0.00 0.20 0.01 0.25 0.31 0.13 0.22 0.07 0.32 0.01 0.04 0.03
+0.24 0.26 0.05 0.25 0.25 0.28 0.22 0.08 0.20 -0.00 0.24 0.30 0.04 0.05 0.36 0.29 0.08 0.24 0.19 0.25
+0.01 0.03 0.33 0.00 0.00 0.34 0.01 0.25 0.01 0.24 0.00 0.22 0.32 0.15 0.25 0.05 0.29 0.01 0.07 0.03
+0.28 0.30 0.23 0.20 0.24 0.27 0.25 0.33 0.25 0.30 0.22 -0.00 0.27 0.26 0.17 0.33 0.29 0.29 0.30 0.23
+0.33 0.31 0.04 0.31 0.32 0.34 0.33 0.04 0.31 0.04 0.32 0.27 -0.00 0.12 0.32 0.29 0.04 0.33 0.27 0.34
+0.17 0.22 0.12 0.17 0.17 0.20 0.15 0.16 0.13 0.05 0.15 0.26 0.12 -0.00 0.30 0.20 0.15 0.17 0.19 0.18
+0.22 0.21 0.34 0.26 0.23 0.18 0.22 0.22 0.22 0.36 0.25 0.17 0.32 0.30 -0.00 0.19 0.33 0.19 0.12 0.24
+0.03 0.07 0.32 0.06 0.05 0.32 0.07 0.20 0.07 0.29 0.05 0.33 0.29 0.20 0.19 0.00 0.25 0.03 0.09 0.08
+0.28 0.28 0.02 0.28 0.28 0.45 0.32 0.03 0.32 0.08 0.29 0.29 0.04 0.15 0.33 0.25 -0.00 0.30 0.29 0.35
+0.01 0.02 0.32 0.02 0.01 0.31 0.01 0.24 0.01 0.24 0.01 0.29 0.33 0.17 0.19 0.03 0.30 0.00 0.05 0.04
+0.06 0.07 0.22 0.08 0.06 0.22 0.05 0.31 0.04 0.19 0.07 0.30 0.27 0.19 0.12 0.09 0.29 0.05 -0.00 0.05
+0.04 0.04 0.32 0.02 0.02 0.24 0.02 0.28 0.03 0.25 0.03 0.23 0.34 0.18 0.24 0.08 0.35 0.04 0.05 -0.00
+0.0
+0.1
+0.2
+0.3
+0.4
+Figure 11: Pairwise cosine distance matrix for 20 base models.
+between MoE models and non-MoE models. We also include two architectures upon which a vast
+majority of MoE models are built. We can see that there is little difference in the principal component
+subspaces.
+Different relative sizes of N and D. While the pretraining compute C ≈ 6N D is well-known to
+directly affect the model performance, the precise roles of N and D remain unclear. Our PCA results
+in Figure 12b considers four domains of data that contain models with small N and large D, large N
+and small D, small N and small D, large N and large D respectively. The finding is intriguing – it
+shows that the small N, large D domain has a principal component subspace that is quite different
+from the other domains. Further investigation by controlling for base models show that this is just a
+coincidence, as shown in Figure 12c. In this figure, we consider domains corresponding to the two
+most frequent base models for each domain used in Figure 12b. We find that while three principal
+component subspaces in Figure 12b look similar, they are actually the mixture of domains with very
+different principal component subspaces. This further hightlights the importance of controlling for
+the base model in causal analysis, as in the approach of our main work.
+27
+
+=== PDF PAGE 28 ===
+MoE modelsQwen2MoE
+Mixtral
+non-MoE models
+MoE models
+Qwen2MoE
+Mixtral
+non-MoE models
+0.00 0.02 0.01 0.00
+0.02 0.00 0.05 0.03
+0.01 0.05 0.00 0.01
+0.00 0.03 0.01 -0.00
+0.00
+0.01
+0.02
+0.03
+0.04
+(a) MoE v.s. non-MoE.
+N
+3,D
+15
+N
+50,D
+3
+N
+3,D
+3
+N
+50,D
+15
+All data
+N 3, D 15
+N 50, D 3
+N 3, D 3
+N 50, D 15
+All data
+0.00 0.21 0.17 0.12 0.15
+0.21 0.00 0.02 0.02 0.02
+0.17 0.02 -0.00 0.02 0.01
+0.12 0.02 0.02 -0.00 0.01
+0.15 0.02 0.01 0.01 0.00
+0.000
+0.025
+0.050
+0.075
+0.100
+0.125
+0.150
+0.175
+0.200 (b) Different N’s andD’s.
+qwen2.5-0.5bllama-3.2-1bllama-2-70bmixtral-22bgemma-2-2b
+phi-2-2b
+llama-3-70bllama-3.1-70b
+qwen2.5-0.5b
+llama-3.2-1b
+llama-2-70b
+mixtral-22b
+gemma-2-2b
+phi-2-2b
+llama-3-70b
+llama-3.1-70b
+0.00 0.27 0.32 0.14 0.45 0.37 0.18 0.22
+0.27 -0.00 0.32 0.35 0.30 0.33 0.17 0.30
+0.32 0.32 0.00 0.35 0.25 0.27 0.19 0.09
+0.14 0.35 0.35 0.00 0.29 0.23 0.23 0.25
+0.45 0.30 0.25 0.29 0.00 0.03 0.33 0.29
+0.37 0.33 0.27 0.23 0.03 -0.00 0.23 0.34
+0.18 0.17 0.19 0.23 0.33 0.23 -0.00 0.12
+0.22 0.30 0.09 0.25 0.29 0.34 0.12 -0.00
+0.0
+0.1
+0.2
+0.3
+0.4 (c) Different model types.
+2022 2023 2024 2025
+2022
+2023
+2024
+2025
+0.00 0.04 0.33 0.34
+0.04 -0.00 0.26 0.27
+0.33 0.26 0.00 0.00
+0.34 0.27 0.00 0.00
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+0.30
+(d) Model uploaded
+time.
+Figure 12: PCA Results comparing principal component subspaces for different criteria.
+Different uploaded time. Lastly, we define domains according to which year the model is uploaded.
+In Figure 12d, we find that there is a clear watershed between 2023 and 2024. Similar findings are
+also made in (DODH25), where the authors argue that after November 2023, "training on test task"
+becomes more prevalent.
+It should be noticed that similarity of PC subspaces is a necessary but not sufficient conditions for
+our causal analysis. Domains with similar PC subspaces may not be explained by a linear causal
+model. Moreover, we apply causal analysis to domains defined by base models primarily because
+this helps us remove all confounders related to the pretraining stage. On this other hand, difference
+in PC subspaces likely indicate some heterogeneous causal patterns. We leave the analyses of these
+patterns to future work.
+E Scaling Laws and The Effect of Fine-tuning
+Existing predictive models for language model performances are typically restricted to pretrained
+models. This is not unexpected, since it is hard to characterize the performance gains in post
+training in terms of the relevant factors. In this section, we point out some of the key challenges in
+understanding the effect of fine-tuning.
+Figure 13: The average benchmark performance of fine-tuned models on the open LM leaderboard
+with three base models in different sizes.
+As illustrated in Figure 13, models fine-tuned on more powerful base models tend to exhibit
+uniformly better performance across all benchmarks. In other words, base model is a common
+confounder of all benchmark performances. We observe that base model also confounds the amount
+of improvment one can achieve on all benchmarks. To illustrate this point, we estimate the average
+treatment effect (ATE) of T on all six benchmarks of the open LM leaderboard using the backdoor
+adjustment formula E[Y | do(T )] =
+R
+E[Y | T, X = x]pX(x)dx, where X = log( C) is the log
+28
+
+=== PDF PAGE 29 ===
+pretraining compute and pX(·) its density. As illustrated in Figure 14, fine-tuning yields substantial
+gains on math reasoning and instruction-following benchmarks, while producing little to negative
+change on general reasoning and QA-based tasks. Examining Llama- versus Qwen-based variants
+separately, we observe that Qwen models gain more from fine-tuning on math reasoning and
+instruction-following, yet incur larger drops on general reasoning.
+Remark 3. Caution is warranted when interpreting the causal implications of the estimates presented
+in Figure 14. These values represent true Average Treatment Effects (ATEs) only when the conditional
+ignorability assumption—fundamental to causal inference—is satisfied. In our context, this assumption
+requires that different base models experience equivalent "distributions of interventions" across tasks. For
+example, if Qwen demonstrates superior performance gains compared to Llama on mathematics-related tasks,
+conditional ignorability would be violated if researchers strategically selected Qwen models more frequently
+for mathematical applications to maximize performance outcomes. We contend that this assumption is difficult
+to substantiate in practice. An important open research question remains: how might we circumvent this
+methodological challenge when limited to observational performance data? Developing robust approaches that
+account for such selection biases represents a significant opportunity for future work in this domain.
+IFEval
+MMLU-PRO MATH Lvl 5
+GPQA MUSR BBH
+Benchmark
+5
+0
+5
+10
+15
+Estimated ATE
+13.941
+-4.394
+3.659
+-2.247
+1.588
+-0.903
+Comparison of Estimated ATE across Benchmarks
+Positive ATE
+Negative ATE
+Figure 14: Estimates of the average effect of fine-tuning.
+E.1 Heterogeneity of Fine-tuning Effects
+Scaling law ( KMH+20) has been widely adopted to predict the benchmark performance from
+pretraining compute. Later, ( RMH24, RBK+25) used sigmoid scaling laws to fit the principal
+components of performance data from multiple benchmarks. Could scaling law alone explain the
+leaderboard data? To investigate this question, we let C ≈ 6 · N · D be the pretraining compute,
+and fit a sigmoid regression equation Y ≈ L
+1+exp(−k(log C−log C0) + τ T + b, where L, k, C0, b, τ are
+unknown parameters, and T is a binary treatment variable indicating whether a model is fine-tuned
+or pretrained.
+We fitted a sigmoid curve to the benchmark results of all officially released models on the leaderboard
+(see Figure 15). Our findings indicate that scaling laws more faithfully describe trends on BBH,
+MMLU-Pro and GPQA—than the remaining benchmarks. Our conjecture is that the former three
+benchmarks are more "knowledge-driven", in the sense that many questions in these benchmarks
+merely test whether the model possesses cetain knowledge. As a result, fine-tuning, mainly focusing
+on reasoning and alignment, can being negligible effect. By contrast, performances on tasks requiring
+other proficiencies (e.g. instruction following in IFEval, mathematical reasoning in MATH or multi-
+step soft reasoning in MUSR) are much easier to improve by fine-tuning.
+29
+
+=== PDF PAGE 30 ===
+2
+ 0 2 4 6 8
+log(Pretraining Compute Estimate)
+10
+20
+30
+40
+50
+60
+70
+80IFEval Score
+R2 = 0.36
+IFEval vs. log(Compute)
+Pretrained (T=0)
+Fine-tuned (T=1)
+Fit (T=0, Pretrained)
+Fit (T=1, Fine-tuned, =12.76)
+2
+ 0 2 4 6 8
+log(Pretraining Compute Estimate)
+0
+10
+20
+30
+40
+50BBH Score
+R2 = 0.57
+BBH vs. log(Compute)
+Pretrained (T=0)
+Fine-tuned (T=1)
+Fit (T=0, Pretrained)
+Fit (T=1, Fine-tuned, =-1.71)
+2
+ 0 2 4 6 8
+log(Pretraining Compute Estimate)
+0
+10
+20
+30
+40
+50
+60MATH Lvl 5 Score
+R2 = 0.41
+MATH Lvl 5 vs. log(Compute)
+Pretrained (T=0)
+Fine-tuned (T=1)
+Fit (T=0, Pretrained)
+Fit (T=1, Fine-tuned, =0.74)
+2
+ 0 2 4 6 8
+log(Pretraining Compute Estimate)
+0
+5
+10
+15
+20GPQA Score
+R2 = 0.48
+GPQA vs. log(Compute)
+Pretrained (T=0)
+Fine-tuned (T=1)
+Fit (T=0, Pretrained)
+Fit (T=1, Fine-tuned, =-2.20)
+2
+ 0 2 4 6 8
+log(Pretraining Compute Estimate)
+0
+5
+10
+15
+20
+25
+30MUSR Score
+R2 = 0.18
+MUSR vs. log(Compute)
+Pretrained (T=0)
+Fine-tuned (T=1)
+Fit (T=0, Pretrained)
+Fit (T=1, Fine-tuned, =1.72)
+2
+ 0 2 4 6 8
+log(Pretraining Compute Estimate)
+0
+10
+20
+30
+40
+50MMLU-PRO Score
+R2 = 0.60
+MMLU-PRO vs. log(Compute)
+Pretrained (T=0)
+Fine-tuned (T=1)
+Fit (T=0, Pretrained)
+Fit (T=1, Fine-tuned, =-4.10)
+Figure 15: Sigmoid scaling laws of benchmark accuracies for pretrained and fine-tuned models. Top
+row: all pretrained and fine-tuned models. Middle row: Llama-based models only. Bottom row:
+Qwen-based models only.
+F Details for Matrix Completion
+In this subsection, we provide a detailed description of the experimental setup in Remark 1. Specifi-
+cally, our goal is to show how to accurately impute missing leaderboard data when the benchmark
+performances of LMs are only partially observed. Indeed, this task can be naturally viewed as an
+instance of matrix completion, where X ∈ RN ×d is the performance matrix for N models and d = 6
+benchmarks, with missing entries.
+Restricting ourselves to the missing entries in one particular domain – the group of models fine-tuned
+on Qwen2.5-14B – we consider a "global" and a "local" approach to perform matrix completion. In
+the global approach, we apply nuclear norm regularization (NNR, (Rec11)) to the whole leaderboard
+data D ∈ RN ×d, while the local approach only runs NNR on the submatrix D2 that only contains
+rows in I2, following the notation in Section 1.1.
+We conduct synthetic experiments to simulate two different scenarios. First, for the case when
+the benchmark accuracies are missing at random, we remove each entry of X independently with
+probability p = 0.8, as visualized in Figure 4 (a). Second, we consider a "block" missing pattern as
+visualized in Figure 4 (b), where performance on two benchmarks are fully observed, while for the
+ramaining four benchmarks, the performance data for a p = 0.1, 0.2, · · · , 0.9 fraction of models is
+missing. We repeat the experiment 1000 times for the first case, and for all
+ 6
+3
+
+= 20 possible sets
+of fully observed benchmarks of size 3 for the second case. Since standard NNR does not perform
+well on block missing entries, we use structured matrix completion that is designed specifically for
+handling this case (CCZ16). The RMSEs of the global and local approaches for these two cases are
+plotted in Figure 4. We can see that for the first case, the local approach is significantly more accurate
+than the global approach, despite the fact that it relies on fewer rows. For the second case, the local
+approach also performs better on average.
+30
+
+=== PDF PAGE 31 ===
+In Figure 16 we further plot the RMSEs for all 20 possible choices of fully observed columns. The
+remaining 6 − 3 = 3 columns have rows that are missing with p = 0.5 probability. We observe that
+the local approach is always no worse than the global one, and in most cases, the local aproach leads
+to significant improvements.
+3.0 3.5 4.0 4.5 5.0 5.5
+RMSE
+0.0
+0.5
+1.0
+1.5Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 4.5325
+Local Mean: 4.2339
+(a) {1, 2, 3}
+6 8 10 12 14
+RMSE
+0.0
+0.2
+0.4
+0.6
+0.8Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 12.3973
+Local Mean: 7.0020 (b) {1, 2, 4}
+6 8 10 12 14
+RMSE
+0.0
+0.2
+0.4
+0.6
+0.8Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 12.2719
+Local Mean: 6.4513 (c) {1, 2, 5}
+6 8 10 12 14
+RMSE
+0.0
+0.2
+0.4
+0.6
+0.8Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 12.1543
+Local Mean: 6.6787 (d) {1, 2, 6}
+4 5 6 7 8
+RMSE
+0.00
+0.25
+0.50
+0.75Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 5.8118
+Local Mean: 5.7773
+(e) {1, 3, 4}
+3 4 5 6 7 8
+RMSE
+0.0
+0.2
+0.4
+0.6Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 5.3874
+Local Mean: 5.3658 (f) {1, 3, 5}
+3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5
+RMSE
+0.0
+0.5
+1.0Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 4.1651
+Local Mean: 4.2627 (g) {1, 3, 6}
+6 8 10 12 14
+RMSE
+0.0
+0.2
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 12.5859
+Local Mean: 7.7670 (h) {1, 4, 5}
+6 8 10 12 14
+RMSE
+0.0
+0.2
+0.4
+0.6
+0.8Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 11.9745
+Local Mean: 6.9607
+(i) {1, 4, 6}
+6 8 10 12 14
+RMSE
+0.0
+0.2
+0.4
+0.6
+0.8Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 11.4624
+Local Mean: 6.4210 (j) {1, 5, 6}
+8 10 12 14 16 18 20
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 16.4687
+Local Mean: 11.5942 (k) {2, 3, 4}
+8 10 12 14 16 18 20
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 16.3607
+Local Mean: 11.6556 (l) {2, 3, 5}
+8 10 12 14 16 18 20
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 15.8510
+Local Mean: 11.4645
+(m) {2, 3, 6}
+10.0 12.5 15.0 17.5 20.0 22.5 25.0
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 20.8195
+Local Mean: 14.1805 (n) {2, 4, 5}
+10 12 14 16 18 20 22 24
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 19.8662
+Local Mean: 14.0946 (o) {2, 4, 6}
+10.0 12.5 15.0 17.5 20.0 22.5 25.0
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 19.7705
+Local Mean: 13.8789 (p) {2, 5, 6}
+8 10 12 14 16 18 20 22
+RMSE
+0.0
+0.1
+0.2
+0.3Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 17.8915
+Local Mean: 13.2372
+(q) {3, 4, 5}
+8 10 12 14 16 18 20
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 16.5742
+Local Mean: 12.0991 (r) {3, 4, 6}
+7.5 10.0 12.5 15.0 17.5 20.0 22.5
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 16.4827
+Local Mean: 12.0792 (s) {3, 5, 6}
+10.0 12.5 15.0 17.5 20.0 22.5 25.0
+RMSE
+0.0
+0.1
+0.2
+0.3
+0.4Density
+Global MC-NNR
+Local MC-NNR
+Global Mean: 20.5700
+Local Mean: 14.6334 (t) {4, 5, 6}
+Figure 16: RMSEs of global v.s. local matrix completion for each possible set of fully observed
+columns. The caption below each figure indicates the columns that are fully observed. Each number
+representing a benchmark on the leaderboard, with 1, 2, · · · , 6 standing for IFEval, BBH, MATH Lvl
+5, GPQA, MUSR and MMLU-Pro respectively.
+G Additional Experiment Results
+G.1 Details for the HCA Recovery in Section 4
+In this subsection, we provide more details and results for the recovery of the causal model in
+Section 4. First, we provide the visualization of the full DGP recovered by HCA before the OLS
+adjustment in Figure 17.
+The OLS adjustment essentially operates on the columns of the mixing matrix in Figure 17 by
+subtracting from the i-th column some linear combination of the j, j < i columns. We report the
+R2 for aligning all six benchmarks with the three capability factors in Table 3a. The findings are
+31
+
+=== PDF PAGE 32 ===
+1
+ 2
+ 3
+1
+2
+3
+1.00 0.04 -0.02
+0.04 0.56 0.26
+-0.02 0.26 0.80
+llama-3-8b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+1
+ 2
+ 3
+1
+2
+3
+0.99 -0.06 0.16
+-0.06 0.81 0.31
+0.16 0.31 1.15
+llama-3.1-8b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+1
+ 2
+ 3
+1
+2
+3
+0.96 0.06 0.15
+0.06 1.07 0.25
+0.15 0.25 1.26
+qwen2.5-7b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+1.2
+1
+ 2
+ 3
+1
+2
+3
+1.06 0.28 0.10
+0.28 1.16 0.02
+0.10 0.02 0.78
+qwen2.5-14b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Correlation matrices
+of source variables
+0.03
+0.03
+0.01
+0.04
+Inexactness coefficient
+1
+2
+3
+1
+2
+3
+1
+2
+3
+1
+2
+3
+ Nearly independent
+source variables ϵ ∈ Rd
+1
+ 2
+ 3
+z1
+z2
+z3
+8.72 0.00 0.00
+-10.91 18.90 0.00
+6.89 -13.12 5.67
+Weight Matrix - llama-3-8b
+Inexactness coefficient: 0.0330
+0.0
+2.5
+5.0
+7.5
+10.0
+12.5
+15.0
+17.5
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+-9.36 -0.00 -0.00
+5.61 18.14 0.00
+-3.18 -11.41 -8.31
+Weight Matrix - llama-3.1-8b
+Inexactness coefficient: 0.0380
+0.0
+2.5
+5.0
+7.5
+10.0
+12.5
+15.0
+17.5
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+-10.80 -0.00 -0.00
+9.20 14.38 0.00
+-1.87 -2.10 -9.68
+Weight Matrix - qwen2.5-7b
+Inexactness coefficient: 0.0155
+0
+2
+4
+6
+8
+10
+12
+14
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+-9.20 -0.00 -0.00
+6.38 -12.82 -0.00
+-2.19 2.90 8.59
+Weight Matrix - qwen2.5-14b
+Inexactness coefficient: 0.0323
+0
+2
+4
+6
+8
+10
+12
+Weight Value
+Causal weights
+(I − Ak )Ω1/2
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+Latent causal factors
+z ∈ Rd
+z1 z2 z3
+Latent Factors
+IFEval
+BBH
+MATH Lvl 5
+GPQA
+MUSR
+MMLU-PRO
+Benchmark Accuracies
+0.06 0.73 -0.66
+-0.65 0.00 -0.16
+-0.18 0.67 0.72
+-0.25 -0.07 0.07
+-0.33 -0.11 -0.01
+-0.61 -0.04 -0.13
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+Coefficient Value
+Mixing matrix
+G ∈ Rn×d
+Benchmark accuracies
+x ∈ Rn5
+Figure 17: HCA’s recovery of the DGP , including the linear SCM (second column) and mixing
+matrix (fourth column) on four domains (base models): Llama-3-8B, Llama-3.1-8B, Qwen2.5-7B and
+Qwen2.5-14B. Here, we have n = 6 benchmarks, d = 3 latent factors and K = 6 domains.
+particularly interesting if we consider what each benchmark is supposed to measure. Specifically,
+BBH and MMLU-PRO both contain tasks across different domains and are both related to language
+understanding and general reasoning, which, intuitively, are more fundamental capabilities. IFEval
+tests a model’s ability of answering questions in correct formats, which is built on top of the
+language understanding ability. Finally, the MATH Lvl 5 benchmark requires models to answer
+math questions correctly and in the correct format, which is the most ad-hoc capability built on
+all the previous ones. These intuitions precisely align with the hierarchical structure of capability
+factors that we recover. More discussions can be found in Section 4.2. A caveat is that this causal
+structure is only guaranteed to hold for the four base models we consider. As shown in Table 3b, the
+fitted OLS model can have poor performance on other base models.
+IFEval BBH MATH GPQA MUSR MMLU-PRO
+z1 0.36 0.96 0.56 0 .73 0 .57 0.96
+z2 0.92 0.53 0.66 0 .57 0 .58 0 .54
+z3 1.00 0.43 1.00 0.18 0 .14 0 .16
+(a) The R2 of running OLS on zi using zj, j > i and the
+benchmark performance as controls.
+In Sample Gemma-2-9B Mistral-7B Qwen2.5-0.5B Qwen2.5-3B Llama-2-7B Llama-2-13B Llama-3.2-1B
+z1 0.96 0 .76 0 .71 −0.2 0 .89 0 .97 0 .66 −0.01
+z2 0.92 0 .94 0 .74 −1.18 0 .73 0 .98 0 .45 0 .9
+z3 1 1 1 0 .99 1 1 1 1
+(b) The R2 of the fitted OLS on out-of-sample performance data with different base models.
+Table 3: The precise alignment of underlying factors with established benchmarks, coupled with
+their ability to extend effectively across diverse model domains.
+32
+
+=== PDF PAGE 33 ===
+{1, 2, 7}{1, 4, 7}{1, 2, 4}{2, 4, 7}
+{1, 2, 4, 7}
+{2, 4, 5}{4, 5, 7}{1, 5, 7}{1, 4, 5}
+{2, 4, 5, 7}
+{2, 5, 7}{1, 2, 5}
+{1, 2, 4, 5}
+{1, 2, 4, 5, 7}
+{1, 4, 5, 7}{1, 2, 5, 7}
+Index set for the environments (base models)
+0.00
+0.02
+0.04
+0.06
+0.08
+0.10Maximum inexactness error
+0.02
+0.02
+0.04 0.04 0.04
+0.04
+0.05 0.05
+0.06 0.07
+0.08 0.08 0.08
+0.09
+0.10
+0.11
+Size 3 environment sets
+Size 4 environment sets
+Size 5 environment sets
+Figure 18: Overview of the MIC obtained by difference choices of domain indices. Here, as we
+indicated in Section 1.1, indices 1, 2, 4, 5, 7 correspond to base models Llama-3-8B, Qwen2.5-14B,
+Llama-3.1-8B, Qwen2-7B and Qwen2.5-7B respectively.
+G.2 Complementary Results for Section 4
+MIC for all other domain subsets. In Figure 18, we report the corresponding MIC for all possible
+choices of domains in Sinv. We observe that the four subsets with smallest MIC are achieved by
+excluding Qwen2-7B.
+Additional metrics for the recovery results. Note that one potential limitation of MIC is that it
+is insensitive to the orthogonal complement component of each row in ˆB − ˆH relative to Mk.
+Therefore, we present two additional metrics indicating how well our causal model fits the observed
+data, as shown in Table 4. We introduce these metrics since they directly measure how close ˆBk ˆH is
+to the true ICA mixing matrix Mk.
+Node z 1 z 2 z 3
+Rank- 1 error 0 .05 0 .13 0 .02
+(a) The amount of variation in ˜R
+defined in Algorithm 2 uncaptured
+by a rank-1 matrix in each iteration.
+Domain Llama-3-8B Llama-3.1-8B Qwen2.5-7B Qwen2.5-14B
+Unmixing error 0 .17 0 .20 0 .16 0 .23
+(b) The relative recovery error of the unmixing matrix of ICA for each domain,
+calculated from ∥Mk − BkH∥F /∥Mk∥F , where Mk is the ICA unmixing matrix
+of the k-th domain, Bk is the inverse of the recovered weight matrix, and H is the
+unmixing matrix of CRL.
+Table 4: Additional metrics on how good our causal model explains the observed data.
+Low-rank approximation error of our causal model. Recall that we hypothesize that the data is
+generated from a linear causal model with 3 nodes. This necessarily requires that the performance
+data across all 6 benchmarks is a matrix with rank at most 3. While we have seen in Figure 2a that
+33
+
+=== PDF PAGE 34 ===
+0 20 40 60 80
+Actual IFEval
+0
+20
+40
+60
+80
+Predicted IFEval
+R² = 0.9994
+MSE = 0.2222
+Actual vs. Predicted IFEval
+(a) IFEval
+0 10 20 30 40 50 60
+Actual BBH
+0
+10
+20
+30
+40
+50
+60
+70
+Predicted BBH
+R² = 0.9649
+MSE = 5.4106
+Actual vs. Predicted BBH (b) BBH
+0 10 20 30 40 50 60
+Actual MATH Lvl 5
+0
+10
+20
+30
+40
+50
+60
+Predicted MATH Lvl 5
+R² = 0.9991
+MSE = 0.1943
+Actual vs. Predicted MATH Lvl 5 (c) MATH Lvl 5
+0 5 10 15 20
+Actual GPQA
+0
+5
+10
+15
+20
+Predicted GPQA
+R² = 0.7849
+MSE = 4.5934
+Actual vs. Predicted GPQA
+(d) GPQA
+0 5 10 15 20 25 30 35 40
+Actual MUSR
+0
+5
+10
+15
+20
+25
+30
+35
+40
+Predicted MUSR
+R² = 0.6800
+MSE = 10.2562
+Actual vs. Predicted MUSR (e) MUSR
+0 10 20 30 40 50
+Actual MMLU-PRO
+0
+10
+20
+30
+40
+50
+60
+Predicted MMLU-PRO
+R² = 0.9532
+MSE = 6.7977
+Actual vs. Predicted MMLU-PRO (f) MMLU-Pro
+Figure 19: Approximation error of the low-rank latent factor space for the observed benchmark
+performances.
+this is approximately the case, here we revisit this assumption and see investigate the error induced
+by this assumption.
+In Figure 19, we plot the approximation errors of the subspace spanned by the values of three latent
+factors zi, i = 1, 2, 3 learned via our algorithm. One can see that the low rank subspace approximates
+4 out of 6 benchmarks nearly perfectly. The relatively poor fitting for the remaining two, namely
+GPQA and MUSR, is partially due to the fact that the model’s accuracies on them are systematically
+lower than the remaining ones. As a result, they would be ignored to some extent when picking the
+principle components. In terms of the MSE, the error of fitting GPQA is comparable to the remaining
+four, while that of MUSR is significantly higher.
+This highlights a limitation in our current methodology: although we introduce the notion of
+inexact causal graph for more flexibility, the assumption that each two latent factors have a causal
+relationship is still restrictive. For instance, it is possible that z1, z2 are correlated but there exists no
+causal relationship between them, and both of them causally affect z3. It will be an interesting future
+direction to investigate how to identify the latent factors in these cases.
+G.3 Filtering Out "badly" Fine-tuned models
+We notice that some models on the leaderboard are badly fine-tuned, so that their benhmark
+performances are even worse than the pretrained model. In this subsection, we provide results
+of our causal analysis with these bad models removed. Removing the bad models allow us to
+characterize the hierarchical relationship between capabilties that is restricted to "good" fine-tuning
+strategies. The recovered DGP is shown in Figure 20. After adjusting for the ambiguity as we did
+in Section 4, we obtain the causal graphs shown in Figure 21. Finally, in Figure 22, we plot the
+unmixing matrix after adjustment and the relationship between each latent factor and the most
+indicative benchmark.
+34
+
+=== PDF PAGE 35 ===
+The overall pattern that our algorithm discovers is the same as the unfiltered approach. However,
+we notice that in the filtered case, the MIC is much larger, indicating that the causal model is less
+well-fitted. This is likely due to the fact that after filtering, the variance of performances on BBH
+and MMLU-Pro becomes significantly smaller, so that the weights of GPQA and MUSR in z1 are
+larger compared with the unfiltered case (see Figure 8a). These two benchmarks are relatively not
+well-explained by our linear causal model, as we discussed in Appendix G.2.
+1
+ 2
+ 3
+1
+2
+3
+1.03 -0.03 -0.17
+-0.03 0.86 0.31
+-0.17 0.31 0.89
+llama-3-8b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+1
+ 2
+ 3
+1
+2
+3
+1.00 -0.24 0.03
+-0.24 0.79 0.04
+0.03 0.04 0.08
+llama-3.1-8b
+0.0
+0.2
+0.4
+0.6
+0.8
+1
+ 2
+ 3
+1
+2
+3
+0.99 -0.25 -0.06
+-0.25 0.94 -0.19
+-0.06 -0.19 0.22
+qwen2.5-7b
+0.0
+0.2
+0.4
+0.6
+0.8
+1
+ 2
+ 3
+1
+2
+3
+1.04 -0.00 -0.21
+-0.00 0.96 -0.38
+-0.21 -0.38 0.77
+qwen2.5-14b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Correlation matrices
+of source variables
+0.05
+0.07
+0.10
+0.13
+Inexactness coefficient
+1
+2
+3
+1
+2
+3
+1
+2
+3
+1
+2
+3
+ Nearly independent
+source variables ϵ ∈ Rd
+1
+ 2
+ 3
+z1
+z2
+z3
+7.59 0.00 0.00
+4.47 13.23 0.00
+0.72 -4.79 5.01
+Weight Matrix - llama-3-8b
+Inexactness coefficient: 0.0475
+0
+2
+4
+6
+8
+10
+12
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+24.82 0.00 0.00
+49.79 -13.78 -0.00
+-10.04 4.60 7.43
+Weight Matrix - llama-3.1-8b
+Inexactness coefficient: 0.1248
+0
+10
+20
+30
+40
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+10.93 0.00 0.00
+25.64 13.29 0.00
+9.53 4.26 7.97
+Weight Matrix - qwen2.5-7b
+Inexactness coefficient: 0.1026
+0
+5
+10
+15
+20
+25
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+5.22 0.00 0.00
+-0.94 -13.51 -0.00
+-2.70 -0.83 -8.50
+Weight Matrix - qwen2.5-14b
+Inexactness coefficient: 0.0833
+0
+2
+4
+6
+8
+10
+12
+Weight Value
+Causal weights
+(I − Ak )Ω1/2
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+Latent causal factors
+z ∈ Rd
+z1 z2 z3
+Latent Factors
+IFEval
+BBH
+MATH Lvl 5
+GPQA
+MUSR
+MMLU-PRO
+Benchmark Accuracies
+0.26 0.87 -0.39
+0.51 -0.16 -0.12
+0.20 0.33 0.91
+0.37 -0.02 0.06
+0.53 -0.12 -0.04
+0.47 -0.30 -0.05
+0.0
+0.2
+0.4
+0.6
+0.8
+Coefficient Value
+Mixing matrix
+G ∈ Rn×d
+Benchmark accuracies
+x ∈ Rn
+Figure 20: HCA’s recovery of the DGP after removing badly fine-tuned models that have average
+performance lower than the pretrained model.
+ε1 ε2 ε3
+z1
+z2
+z3
++7.59
++13
++5.01
++0.59
++0.31
+-0.36
+(a) Llama-3-8B
+ε1 ε2 ε3
+z1
+z2
+z3
++25
+-14
++7.43
++2.01
++0.27
+-0.33
+(b) Llama-3.1-8B
+ε1 ε2 ε3
+z1
+z2
+z3
++11
++13
++7.97
++2.35
++0.12
++0.32
+(c) Qwen2.5-7B
+ε1
+ε2 ε3
+z1
+z2
+z3
++5.22
+-14
+-8.50
+-0.18
+-0.51
++0.06
+(d) Qwen2.5-14B
+Figure 21: The causal graphs recovered for different models. The numbers represent the weights
+of each causal edge. For instance, in the Llama-3-8B model, z2 = 0.59z1 + 13ε2 (representing direct
+influences shown).
+IFEval BBH MATH Lvl 5 GPQA MUSR MMLU-PRO
+Benchmark Accuracies
+z1
+z2
+z3
+Latent Factors
+0.15
+0.98
+0.01
+0.30
+-0.10
+-0.04
+0.12
+0.39
+1.00
+0.22
+0.03
+0.14
+0.31
+-0.06
+0.05
+0.28
+-0.26
+-0.04
+0.0
+0.2
+0.4
+0.6
+0.8
+Coefficient Value
+(a) Adjusted unmixing ma-
+trix.
+0 10 20 30 40 50 60
+BBH accuracy
+0
+10
+20
+30
+40
+50
+60
+70
+Latent Factor z1
+In sample R2 = 0.92
+OLS Regression Fit for BBH
+In-sample data
+OLS Fit
+(b) Regressing z1 on BBH.
+0 20 40 60 80
+IFEval accuracy
+0
+20
+40
+60
+80
+Latent Factor z2
+In sample R2 = 0.95
+OLS Regression Fit for IFEval
+In-sample data
+OLS Fit (c) Regressing z2 on IFEval.
+0 10 20 30 40 50 60
+MATH Lvl 5 accuracy
+0
+10
+20
+30
+40
+50
+60
+Latent Factor z3
+In sample R2 = 1.00
+OLS Regression Fit for MATH Lvl 5
+In-sample data
+OLS Fit (d) Regressing z3 on MATH.
+Figure 22: The unmixing matrix and the alignment between benchmarks and capabilities via OLS.
+35
+
+=== PDF PAGE 36 ===
+G.4 Using Open LM Leaderboard v1
+We also apply our method to analyze the hierarchical structure underlying the six benchmarks
+used in the old version of open LM leaderboard. We choose the following six base models that are
+most commonly used there: Mistral-7B, Llama-2-13B, Llama-3-8B, Llama-2-7B, Llama-2-70B and
+Mixtral-8x7B. Similar to our previous case, we plot the pairwise cosine distance between domains
+in Figure 23b. We denote these models by M1, · · · , M6. We observe that except for Llama-2-7B,
+the principle component subspaces of all remaining domains are pretty close to each other, so that
+the invariant domain is Sinv = {1, 2, 3, 5, 6}. This is quite interesting, since Mixtral-8x7B uses MoE
+architecture, which is a fundamental difference compared with the other base models.
+We then run HCA on all subsets of Sinv of size ≥ 3 and plot the corresponding MIC in in Figure 23c.
+We observe that choosing all domains in Sinv would still lead to a small error. The corresponding
+recovered DGP is presented in Figure 24. We further adjust for the ambiguity as in Section 4,
+and obtain the causal graphs shown in Figure 25. Finally, the adjusted unmixing matrix and the
+alignment between latent factors and benchmarks are presented in Figure 26.
+From Figure 26, we can see a hierarchical relationship from truthfulness to general reasoning
+capability, and math reasoning capability. The hierarchical relationship between the latter two is
+consistent with our findings on the Open LLM Leaderboard v2. By looking at the causal graphs,
+one can observe that the weight of the edge z2 → z3 for the Llama-3-8B domain is much larger that
+that of the remaining ones, which indicates that models fine-tuned on Llama-3-8B could have more
+performance gains on math problem solving when fine-tuned to enhance general reasoning.
+1 2 3 4 5 6
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+3 components
+0.82
+0.12
+0.04 0.02 0.00
+Cumulative Explained Variance
+95% Explained Variance Threshold
+(a) Low-rankness of the old Open
+LM leaderboard data.
+mistral-7bllama-2-13bllama-3-8bllama-2-7bllama-2-70bmixtral-8x7b
+mistral-7b
+llama-2-13b
+llama-3-8b
+llama-2-7b
+llama-2-70b
+mixtral-8x7b
+0.00 0.01 0.01 0.12 0.02 0.01
+0.01 -0.00 0.02 0.07 0.01 0.02
+0.01 0.02 0.00 0.14 0.02 0.01
+0.12 0.07 0.14 -0.00 0.07 0.11
+0.02 0.01 0.02 0.07 0.00 0.02
+0.01 0.02 0.01 0.11 0.02 -0.00
+0.00
+0.02
+0.04
+0.06
+0.08
+0.10
+0.12
+(b) The PCA similarity matrix for
+Open LM leaderboard (old version).
+{1, 5, 6}{3, 5, 6}{1, 3, 5}{1, 2, 6}{1, 3, 6}
+{1, 3, 5, 6}{1, 2, 5, 6}
+{2, 5, 6}{1, 2, 5}{2, 3, 5}
+{2, 3, 5, 6}{1, 2, 3, 5}
+{1, 2, 3, 5, 6}
+{2, 3, 6}
+{1, 2, 3, 6}
+{1, 2, 3}
+Index set for the environments (base models)
+0.000
+0.005
+0.010
+0.015
+0.020
+0.025
+0.030Maximum inexactness error
+0.00
+0.01
+0.01 0.01
+0.01 0.01
+0.02 0.02
+0.02
+0.02
+0.02
+0.02 0.03
+0.03
+0.03
+0.03
+Size 3 environment sets
+Size 4 environment sets
+Size 5 environment sets
+(c) domains defined via pretraining compute.
+Figure 23: figures for our analysis of Open LLM leaderboard v1.
+36
+
+=== PDF PAGE 37 ===
+1
+ 2
+ 3
+1
+2
+3
+1.03 0.16 0.01
+0.16 1.16 -0.18
+0.01 -0.18 0.98
+mistral-7b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+1
+ 2
+ 3
+1
+2
+3
+0.91 -0.02 -0.01
+-0.02 0.94 -0.05
+-0.01 -0.05 1.01
+mixtral-8x7b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+1
+ 2
+ 3
+1
+2
+3
+1.02 -0.01 0.14
+-0.01 1.01 -0.19
+0.14 -0.19 0.86
+llama-2-13b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+1
+ 2
+ 3
+1
+2
+3
+0.98 -0.04 -0.10
+-0.04 0.97 -0.00
+-0.10 -0.00 0.87
+llama-2-70b
+0.0
+0.2
+0.4
+0.6
+0.8
+1
+ 2
+ 3
+1
+2
+3
+1.06 -0.08 -0.21
+-0.08 0.87 -0.06
+-0.21 -0.06 0.86
+llama-3-8b
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Correlation matrices
+of source variables
+0.01
+0.00
+0.03
+0.01
+0.02
+Inexactness coefficient
+1
+2
+3
+1
+2
+3
+1
+2
+3
+1
+2
+3
+1
+2
+3
+ Nearly independent
+source variables ϵ ∈ Rd
+1
+ 2
+ 3
+z1
+z2
+z3
+10.17 0.00 0.00
+-3.36 9.05 0.00
+-10.84 6.69 15.01
+Weight Matrix - mistral-7b
+Inexactness coefficient: 0.0117
+0
+2
+4
+6
+8
+10
+12
+14
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+7.50 0.00 0.00
+-2.36 22.53 0.00
+-3.69 16.60 17.45
+Weight Matrix - mixtral-8x7b
+Inexactness coefficient: 0.0011
+0
+5
+10
+15
+20
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+5.87 0.00 0.00
+-1.53 -13.63 -0.00
+1.42 -2.59 -9.24
+Weight Matrix - llama-2-13b
+Inexactness coefficient: 0.0252
+0
+2
+4
+6
+8
+10
+12
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+7.25 0.00 0.00
+-3.83 -8.70 -0.00
+-8.27 -4.19 -17.66
+Weight Matrix - llama-2-70b
+Inexactness coefficient: 0.0056
+0
+2
+4
+6
+8
+10
+12
+14
+16
+Weight Value
+1
+ 2
+ 3
+z1
+z2
+z3
+5.85 0.00 0.00
+-3.36 -8.03 -0.00
+-7.34 -10.17 -18.25
+Weight Matrix - llama-3-8b
+Inexactness coefficient: 0.0233
+0.0
+2.5
+5.0
+7.5
+10.0
+12.5
+15.0
+17.5
+Weight Value
+Causal weights
+(I − Ak )Ω1/2
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+z1
+z2
+$z_3
+Latent causal factors
+z ∈ Rd
+z1 z2 z3
+Latent Factors
+ARC
+HellaSwag
+MMLU
+TruthfulQA
+Winogrande
+GSM8K
+Benchmark Accuracies
+0.16 -0.46 -0.06
+-0.10 -0.62 0.02
+-0.09 -0.52 -0.13
+0.97 -0.06 -0.06
+-0.07 -0.36 -0.02
+-0.06 0.09 -0.99
+0.0
+0.2
+0.4
+0.6
+0.8
+Coefficient Value
+Mixing matrix
+G ∈ Rn×d
+Benchmark accuracies
+x ∈ Rn
+Figure 24: Results for applying our method to open LM leaderboard v1.
+ε1 ε2 ε3
+z1
+z2
+z3
++6.72
++7.57
++9.12
++0.31
+-0.36
++0.42
+(a) Llama-2-13B
+ε1 ε2 ε3
+z1
+z2
+z3
++8.30
++4.83
++17
++0.44
++0.56
++0.94
+(b) Llama-2-70B
+ε1 ε2 ε3
+z1
+z2
+z3
++6.70
++4.46
++18
++0.46
+-0.01
++2.34
+(c) Llama-3-8B
+ε1 ε2 ε3
+z1
+z2
+z3
++12
+-5.03
+-15
++0.34
++0.42
++1.40
+(d) Mistral-7B
+ε1 ε2 ε3
+z1
+z2
+z3
++8.59
+-13
+-17
++0.34
+-0.07
++1.39
+(e) Mixtral-8×7B
+Figure 25: The causal graphs recovered for different models. The numbers represent the weights of
+each causal edge. For instance, in the Llama-2-13B model, z2 = 0.31z1 + 7.57ε2 (representing direct
+influences shown).
+ARC HellaSwag MMLU TruthfulQAWinogrande GSM8K
+Benchmark Accuracies
+z1
+z2
+z3
+Latent Factors
+0.19
+0.28
+0.01
+-0.11
+0.33
+-0.07
+-0.11
+0.27
+0.09
+1.11
+0.21
+0.01
+-0.08
+0.18
+-0.00
+-0.07
+-0.06
+0.99
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Coefficient Value
+(a) Adjusted unmixing matrix.
+30 40 50 60 70 80
+TruthfulQA accuracy
+20
+30
+40
+50
+60
+70
+80
+Latent Factor z1
+In sample R2 = 0.97
+OLS Regression Fit for TruthfulQA
+In-sample data
+OLS Fit (b) Regressing z1 on TruthfulQA.
+20 30 40 50 60 70 80 90
+ARC accuracy
+40
+50
+60
+70
+80
+90
+100
+110
+Latent Factor z2
+In sample R2 = 0.93
+OLS Regression Fit for ARC
+In-sample data
+OLS Fit (c) Regressing z2 on ARC.
+0 20 40 60 80
+GSM8K accuracy
+0
+20
+40
+60
+80
+Latent Factor z3
+In sample R2 = 1.00
+OLS Regression Fit for GSM8K
+In-sample data
+OLS Fit (d) Regressing z3 on GSM8K.
+Figure 26: The unmixing matrix and the alignment between benchmarks and capabilities via OLS.
+37
+
+=== PDF PAGE 38 ===
+MMLU_abstract_algebra
+MMLU_anatomyMMLU_astronomy
+MMLU_business_ethics
+MMLU_clinical_knowledge
+MMLU_college_biologyMMLU_college_chemistry
+MMLU_college_computer_science
+MMLU_college_mathematics
+MMLU_college_medicineMMLU_college_physicsMMLU_computer_securityMMLU_conceptual_physics
+MMLU_econometrics
+MMLU_electrical_engineeringMMLU_elementary_mathematics
+MMLU_formal_logicMMLU_global_facts
+MMLU_high_school_biologyMMLU_high_school_chemistry
+MMLU_high_school_computer_scienceMMLU_high_school_european_history
+MMLU_high_school_geography
+MMLU_high_school_government_and_politics
+MMLU_high_school_macroeconomics
+MMLU_high_school_mathematics
+MMLU_high_school_microeconomics
+MMLU_high_school_physics
+MMLU_high_school_psychologyMMLU_high_school_statisticsMMLU_high_school_us_history
+MMLU_high_school_world_history
+MMLU_human_aging
+MMLU_human_sexualityMMLU_international_law
+MMLU_jurisprudenceMMLU_logical_fallaciesMMLU_machine_learning
+MMLU_managementMMLU_marketing
+MMLU_medical_geneticsMMLU_miscellaneousMMLU_moral_disputesMMLU_moral_scenarios
+MMLU_nutritionMMLU_philosophyMMLU_prehistory
+MMLU_professional_accounting
+MMLU_professional_law
+MMLU_professional_medicineMMLU_professional_psychology
+MMLU_public_relationsMMLU_security_studies
+MMLU_sociology
+MMLU_us_foreign_policy
+MMLU_virology
+MMLU_world_religions
+MMLU_abstract_algebra
+MMLU_anatomy
+MMLU_astronomy
+MMLU_business_ethics
+MMLU_clinical_knowledge
+MMLU_college_biology
+MMLU_college_chemistry
+MMLU_college_computer_science
+MMLU_college_mathematics
+MMLU_college_medicine
+MMLU_college_physics
+MMLU_computer_security
+MMLU_conceptual_physics
+MMLU_econometrics
+MMLU_electrical_engineering
+MMLU_elementary_mathematics
+MMLU_formal_logic
+MMLU_global_facts
+MMLU_high_school_biology
+MMLU_high_school_chemistry
+MMLU_high_school_computer_science
+MMLU_high_school_european_history
+MMLU_high_school_geography
+MMLU_high_school_government_and_politics
+MMLU_high_school_macroeconomics
+MMLU_high_school_mathematics
+MMLU_high_school_microeconomics
+MMLU_high_school_physics
+MMLU_high_school_psychology
+MMLU_high_school_statistics
+MMLU_high_school_us_history
+MMLU_high_school_world_history
+MMLU_human_aging
+MMLU_human_sexuality
+MMLU_international_law
+MMLU_jurisprudence
+MMLU_logical_fallacies
+MMLU_machine_learning
+MMLU_management
+MMLU_marketing
+MMLU_medical_genetics
+MMLU_miscellaneous
+MMLU_moral_disputes
+MMLU_moral_scenarios
+MMLU_nutrition
+MMLU_philosophy
+MMLU_prehistory
+MMLU_professional_accounting
+MMLU_professional_law
+MMLU_professional_medicine
+MMLU_professional_psychology
+MMLU_public_relations
+MMLU_security_studies
+MMLU_sociology
+MMLU_us_foreign_policy
+MMLU_virology
+MMLU_world_religions
+1.00 0.58 0.58 0.61 0.58 0.57 0.53 0.60 0.39 0.57 0.51 0.54 0.58 0.52 0.61 0.57 0.53 0.43 0.57 0.59 0.57 0.54 0.57 0.56 0.58 0.56 0.59 0.55 0.55 0.50 0.56 0.56 0.56 0.55 0.56 0.57 0.54 0.44 0.55 0.55 0.55 0.57 0.58 0.54 0.57 0.59 0.58 0.58 0.61 0.56 0.58 0.54 0.55 0.56 0.57 0.52 0.55
+0.58 1.00 0.93 0.87 0.94 0.94 0.86 0.88 0.38 0.94 0.78 0.90 0.90 0.86 0.86 0.77 0.82 0.48 0.93 0.89 0.91 0.90 0.92 0.92 0.93 0.72 0.92 0.65 0.92 0.77 0.91 0.90 0.89 0.94 0.89 0.91 0.91 0.73 0.88 0.89 0.92 0.93 0.94 0.66 0.94 0.93 0.94 0.91 0.90 0.92 0.94 0.87 0.91 0.90 0.89 0.91 0.91
+0.58 0.93 1.00 0.92 0.96 0.97 0.89 0.90 0.46 0.96 0.81 0.92 0.94 0.86 0.91 0.86 0.87 0.56 0.96 0.93 0.95 0.92 0.96 0.95 0.96 0.75 0.97 0.73 0.95 0.83 0.94 0.94 0.92 0.96 0.92 0.95 0.95 0.79 0.93 0.92 0.94 0.95 0.97 0.69 0.97 0.95 0.97 0.95 0.95 0.92 0.97 0.91 0.95 0.92 0.92 0.91 0.92
+0.61 0.87 0.92 1.00 0.91 0.91 0.82 0.87 0.51 0.90 0.73 0.88 0.91 0.78 0.90 0.83 0.83 0.58 0.91 0.88 0.90 0.89 0.92 0.91 0.91 0.72 0.91 0.74 0.91 0.75 0.90 0.92 0.91 0.91 0.90 0.90 0.89 0.76 0.89 0.90 0.89 0.91 0.93 0.69 0.91 0.92 0.92 0.91 0.93 0.85 0.93 0.88 0.90 0.89 0.89 0.86 0.88
+0.58 0.94 0.96 0.91 1.00 0.97 0.89 0.90 0.45 0.97 0.80 0.95 0.92 0.85 0.91 0.82 0.84 0.55 0.97 0.93 0.94 0.94 0.97 0.97 0.96 0.73 0.96 0.68 0.97 0.81 0.95 0.95 0.94 0.97 0.94 0.96 0.96 0.77 0.95 0.95 0.96 0.97 0.98 0.64 0.98 0.97 0.98 0.94 0.94 0.92 0.97 0.93 0.96 0.94 0.95 0.93 0.95
+0.57 0.94 0.97 0.91 0.97 1.00 0.90 0.90 0.41 0.97 0.82 0.92 0.94 0.88 0.89 0.84 0.88 0.51 0.97 0.93 0.95 0.92 0.95 0.95 0.97 0.74 0.97 0.69 0.95 0.83 0.95 0.93 0.93 0.97 0.91 0.95 0.96 0.79 0.92 0.91 0.95 0.95 0.97 0.68 0.97 0.95 0.97 0.95 0.95 0.93 0.98 0.90 0.95 0.93 0.91 0.93 0.93
+0.53 0.86 0.89 0.82 0.89 0.90 1.00 0.86 0.41 0.90 0.78 0.84 0.86 0.80 0.82 0.78 0.84 0.45 0.89 0.87 0.87 0.84 0.88 0.87 0.91 0.71 0.90 0.67 0.87 0.83 0.86 0.84 0.83 0.89 0.82 0.86 0.87 0.69 0.84 0.83 0.87 0.86 0.88 0.63 0.89 0.87 0.88 0.87 0.86 0.89 0.89 0.81 0.87 0.85 0.83 0.84 0.83
+0.60 0.88 0.90 0.87 0.90 0.90 0.86 1.00 0.46 0.90 0.77 0.85 0.87 0.82 0.86 0.80 0.83 0.48 0.89 0.87 0.89 0.86 0.89 0.88 0.91 0.73 0.90 0.72 0.87 0.81 0.88 0.87 0.85 0.89 0.84 0.87 0.87 0.72 0.85 0.85 0.88 0.87 0.90 0.69 0.90 0.88 0.90 0.88 0.89 0.89 0.90 0.83 0.88 0.86 0.85 0.84 0.85
+0.39 0.38 0.46 0.51 0.45 0.41 0.41 0.46 1.00 0.42 0.38 0.44 0.52 0.37 0.57 0.55 0.38 0.57 0.43 0.50 0.43 0.43 0.47 0.43 0.45 0.53 0.49 0.58 0.45 0.47 0.40 0.46 0.47 0.41 0.49 0.43 0.43 0.50 0.47 0.44 0.46 0.43 0.44 0.33 0.45 0.48 0.44 0.47 0.50 0.43 0.45 0.47 0.45 0.43 0.44 0.34 0.41
+0.57 0.94 0.96 0.90 0.97 0.97 0.90 0.90 0.42 1.00 0.83 0.92 0.93 0.87 0.89 0.84 0.88 0.50 0.96 0.93 0.95 0.91 0.95 0.95 0.97 0.76 0.96 0.68 0.95 0.83 0.93 0.92 0.91 0.96 0.91 0.94 0.95 0.78 0.92 0.91 0.95 0.94 0.96 0.66 0.96 0.94 0.96 0.93 0.93 0.92 0.96 0.90 0.95 0.93 0.91 0.92 0.91
+0.51 0.78 0.81 0.73 0.80 0.82 0.78 0.77 0.38 0.83 1.00 0.71 0.81 0.82 0.74 0.80 0.79 0.42 0.79 0.81 0.81 0.72 0.76 0.73 0.83 0.75 0.83 0.65 0.74 0.80 0.73 0.71 0.69 0.78 0.69 0.75 0.77 0.68 0.70 0.68 0.79 0.72 0.78 0.63 0.79 0.75 0.78 0.80 0.78 0.81 0.80 0.69 0.77 0.72 0.68 0.74 0.69
+0.54 0.90 0.92 0.88 0.95 0.92 0.84 0.85 0.44 0.92 0.71 1.00 0.87 0.77 0.89 0.76 0.79 0.52 0.94 0.88 0.92 0.93 0.96 0.96 0.91 0.68 0.91 0.61 0.96 0.72 0.93 0.95 0.93 0.94 0.95 0.95 0.95 0.74 0.95 0.97 0.94 0.97 0.96 0.56 0.95 0.96 0.94 0.89 0.89 0.85 0.93 0.94 0.94 0.95 0.96 0.91 0.95
+0.58 0.90 0.94 0.91 0.92 0.94 0.86 0.87 0.52 0.93 0.81 0.87 1.00 0.89 0.90 0.90 0.88 0.61 0.92 0.91 0.92 0.87 0.91 0.89 0.94 0.80 0.95 0.76 0.89 0.83 0.88 0.88 0.90 0.91 0.87 0.89 0.90 0.84 0.86 0.85 0.92 0.89 0.92 0.72 0.92 0.91 0.93 0.94 0.94 0.90 0.95 0.85 0.90 0.87 0.85 0.87 0.86
+0.52 0.86 0.86 0.78 0.85 0.88 0.80 0.82 0.37 0.87 0.82 0.77 0.89 1.00 0.78 0.82 0.84 0.44 0.84 0.85 0.85 0.77 0.80 0.79 0.87 0.73 0.86 0.64 0.79 0.79 0.78 0.76 0.77 0.84 0.74 0.79 0.81 0.78 0.75 0.74 0.85 0.78 0.83 0.62 0.85 0.81 0.85 0.85 0.83 0.86 0.87 0.72 0.81 0.78 0.74 0.81 0.75
+0.61 0.86 0.91 0.90 0.91 0.89 0.82 0.86 0.57 0.89 0.74 0.89 0.90 0.78 1.00 0.84 0.78 0.63 0.89 0.90 0.89 0.87 0.92 0.90 0.89 0.75 0.90 0.74 0.91 0.75 0.88 0.90 0.89 0.89 0.91 0.89 0.88 0.78 0.90 0.90 0.90 0.90 0.91 0.64 0.91 0.92 0.91 0.89 0.90 0.83 0.91 0.89 0.91 0.88 0.90 0.84 0.88
+0.57 0.77 0.86 0.83 0.82 0.84 0.78 0.80 0.55 0.84 0.80 0.76 0.90 0.82 0.84 1.00 0.82 0.59 0.82 0.87 0.85 0.75 0.82 0.77 0.86 0.82 0.87 0.78 0.78 0.81 0.75 0.77 0.78 0.80 0.76 0.78 0.80 0.79 0.76 0.74 0.82 0.76 0.82 0.68 0.82 0.80 0.82 0.86 0.85 0.79 0.84 0.74 0.80 0.75 0.73 0.74 0.71
+0.53 0.82 0.87 0.83 0.84 0.88 0.84 0.83 0.38 0.88 0.79 0.79 0.88 0.84 0.78 0.82 1.00 0.41 0.85 0.83 0.86 0.80 0.82 0.81 0.89 0.72 0.88 0.67 0.81 0.79 0.81 0.80 0.79 0.85 0.76 0.81 0.83 0.74 0.77 0.77 0.85 0.80 0.84 0.69 0.85 0.81 0.85 0.85 0.86 0.85 0.87 0.76 0.83 0.79 0.76 0.80 0.77
+0.43 0.48 0.56 0.58 0.55 0.51 0.45 0.48 0.57 0.50 0.42 0.52 0.61 0.44 0.63 0.59 0.41 1.00 0.52 0.58 0.51 0.52 0.56 0.52 0.53 0.53 0.57 0.61 0.54 0.49 0.51 0.55 0.58 0.50 0.58 0.53 0.52 0.55 0.55 0.52 0.51 0.54 0.54 0.47 0.54 0.58 0.56 0.60 0.60 0.49 0.56 0.56 0.53 0.50 0.53 0.44 0.51
+0.57 0.93 0.96 0.91 0.97 0.97 0.89 0.89 0.43 0.96 0.79 0.94 0.92 0.84 0.89 0.82 0.85 0.52 1.00 0.93 0.95 0.93 0.97 0.96 0.97 0.74 0.96 0.68 0.97 0.83 0.95 0.95 0.94 0.96 0.92 0.96 0.97 0.76 0.94 0.93 0.95 0.96 0.97 0.64 0.97 0.96 0.97 0.93 0.93 0.92 0.96 0.92 0.96 0.97 0.94 0.92 0.93
+0.59 0.89 0.93 0.88 0.93 0.93 0.87 0.87 0.50 0.93 0.81 0.88 0.91 0.85 0.90 0.87 0.83 0.58 0.93 1.00 0.92 0.87 0.92 0.90 0.93 0.79 0.94 0.75 0.90 0.85 0.89 0.88 0.88 0.91 0.88 0.90 0.91 0.77 0.88 0.86 0.91 0.89 0.92 0.66 0.93 0.92 0.93 0.92 0.92 0.89 0.93 0.86 0.91 0.88 0.87 0.86 0.86
+0.57 0.91 0.95 0.90 0.94 0.95 0.87 0.89 0.43 0.95 0.81 0.92 0.92 0.85 0.89 0.85 0.86 0.51 0.95 0.92 1.00 0.91 0.94 0.92 0.95 0.75 0.95 0.70 0.93 0.82 0.92 0.92 0.91 0.94 0.90 0.93 0.95 0.79 0.90 0.90 0.93 0.92 0.95 0.67 0.94 0.93 0.95 0.93 0.93 0.89 0.95 0.89 0.94 0.92 0.90 0.90 0.89
+0.54 0.90 0.92 0.89 0.94 0.92 0.84 0.86 0.43 0.91 0.72 0.93 0.87 0.77 0.87 0.75 0.80 0.52 0.93 0.87 0.91 1.00 0.95 0.95 0.92 0.68 0.92 0.63 0.95 0.75 0.97 0.96 0.93 0.94 0.93 0.94 0.94 0.72 0.93 0.94 0.93 0.96 0.95 0.59 0.94 0.95 0.94 0.90 0.91 0.88 0.94 0.92 0.94 0.93 0.94 0.90 0.94
+0.57 0.92 0.96 0.92 0.97 0.95 0.88 0.89 0.47 0.95 0.76 0.96 0.91 0.80 0.92 0.82 0.82 0.56 0.97 0.92 0.94 0.95 1.00 0.98 0.95 0.71 0.96 0.69 0.98 0.79 0.96 0.97 0.95 0.96 0.95 0.97 0.97 0.76 0.97 0.96 0.95 0.98 0.97 0.62 0.97 0.97 0.97 0.93 0.93 0.89 0.96 0.95 0.97 0.96 0.96 0.91 0.95
+0.56 0.92 0.95 0.91 0.97 0.95 0.87 0.88 0.43 0.95 0.73 0.96 0.89 0.79 0.90 0.77 0.81 0.52 0.96 0.90 0.92 0.95 0.98 1.00 0.95 0.68 0.94 0.65 0.99 0.77 0.97 0.97 0.95 0.96 0.96 0.97 0.97 0.73 0.97 0.97 0.95 0.99 0.97 0.60 0.97 0.98 0.97 0.91 0.92 0.90 0.96 0.95 0.96 0.96 0.97 0.92 0.97
+0.58 0.93 0.96 0.91 0.96 0.97 0.91 0.91 0.45 0.97 0.83 0.91 0.94 0.87 0.89 0.86 0.89 0.53 0.97 0.93 0.95 0.92 0.95 0.95 1.00 0.78 0.97 0.72 0.95 0.86 0.93 0.92 0.92 0.96 0.90 0.94 0.95 0.78 0.91 0.90 0.95 0.93 0.96 0.70 0.96 0.95 0.96 0.95 0.95 0.94 0.97 0.89 0.95 0.93 0.91 0.91 0.91
+0.56 0.72 0.75 0.72 0.73 0.74 0.71 0.73 0.53 0.76 0.75 0.68 0.80 0.73 0.75 0.82 0.72 0.53 0.74 0.79 0.75 0.68 0.71 0.68 0.78 1.00 0.78 0.69 0.69 0.76 0.68 0.68 0.69 0.71 0.68 0.70 0.71 0.68 0.67 0.65 0.74 0.68 0.73 0.62 0.74 0.72 0.73 0.77 0.76 0.74 0.75 0.66 0.71 0.68 0.65 0.66 0.64
+0.59 0.92 0.97 0.91 0.96 0.97 0.90 0.90 0.49 0.96 0.83 0.91 0.95 0.86 0.90 0.87 0.88 0.57 0.96 0.94 0.95 0.92 0.96 0.94 0.97 0.78 1.00 0.74 0.95 0.86 0.93 0.93 0.92 0.95 0.91 0.94 0.95 0.80 0.92 0.90 0.94 0.93 0.96 0.70 0.96 0.95 0.96 0.95 0.95 0.93 0.97 0.90 0.95 0.92 0.91 0.89 0.91
+0.55 0.65 0.73 0.74 0.68 0.69 0.67 0.72 0.58 0.68 0.65 0.61 0.76 0.64 0.74 0.78 0.67 0.61 0.68 0.75 0.70 0.63 0.69 0.65 0.72 0.69 0.74 1.00 0.66 0.73 0.65 0.66 0.66 0.66 0.64 0.65 0.65 0.62 0.63 0.61 0.65 0.64 0.68 0.67 0.67 0.69 0.69 0.74 0.77 0.69 0.71 0.63 0.68 0.63 0.61 0.58 0.60
+0.55 0.92 0.95 0.91 0.97 0.95 0.87 0.87 0.45 0.95 0.74 0.96 0.89 0.79 0.91 0.78 0.81 0.54 0.97 0.90 0.93 0.95 0.98 0.99 0.95 0.69 0.95 0.66 1.00 0.77 0.96 0.98 0.95 0.97 0.96 0.97 0.97 0.74 0.97 0.98 0.95 0.99 0.98 0.60 0.97 0.98 0.97 0.91 0.92 0.89 0.96 0.96 0.97 0.96 0.97 0.92 0.97
+0.50 0.77 0.83 0.75 0.81 0.83 0.83 0.81 0.47 0.83 0.80 0.72 0.83 0.79 0.75 0.81 0.79 0.49 0.83 0.85 0.82 0.75 0.79 0.77 0.86 0.76 0.86 0.73 0.77 1.00 0.77 0.74 0.75 0.79 0.71 0.77 0.79 0.67 0.73 0.69 0.79 0.74 0.79 0.67 0.81 0.78 0.81 0.83 0.83 0.86 0.83 0.70 0.79 0.74 0.71 0.72 0.70
+0.56 0.91 0.94 0.90 0.95 0.95 0.86 0.88 0.40 0.93 0.73 0.93 0.88 0.78 0.88 0.75 0.81 0.51 0.95 0.89 0.92 0.97 0.96 0.97 0.93 0.68 0.93 0.65 0.96 0.77 1.00 0.97 0.94 0.95 0.93 0.96 0.95 0.70 0.94 0.94 0.93 0.97 0.96 0.64 0.95 0.96 0.96 0.91 0.93 0.90 0.95 0.92 0.95 0.94 0.94 0.91 0.95
+0.56 0.90 0.94 0.92 0.95 0.93 0.84 0.87 0.46 0.92 0.71 0.95 0.88 0.76 0.90 0.77 0.80 0.55 0.95 0.88 0.92 0.96 0.97 0.97 0.92 0.68 0.93 0.66 0.98 0.74 0.97 1.00 0.96 0.95 0.96 0.96 0.96 0.74 0.96 0.97 0.93 0.98 0.97 0.61 0.95 0.97 0.96 0.91 0.93 0.87 0.95 0.95 0.95 0.95 0.97 0.90 0.96
+0.56 0.89 0.92 0.91 0.94 0.93 0.83 0.85 0.47 0.91 0.69 0.93 0.90 0.77 0.89 0.78 0.79 0.58 0.94 0.88 0.91 0.93 0.95 0.95 0.92 0.69 0.92 0.66 0.95 0.75 0.94 0.96 1.00 0.94 0.94 0.95 0.94 0.76 0.94 0.94 0.92 0.96 0.95 0.62 0.94 0.96 0.95 0.91 0.93 0.86 0.95 0.93 0.93 0.93 0.94 0.91 0.95
+0.55 0.94 0.96 0.91 0.97 0.97 0.89 0.89 0.41 0.96 0.78 0.94 0.91 0.84 0.89 0.80 0.85 0.50 0.96 0.91 0.94 0.94 0.96 0.96 0.96 0.71 0.95 0.66 0.97 0.79 0.95 0.95 0.94 1.00 0.93 0.96 0.97 0.77 0.94 0.94 0.95 0.96 0.98 0.64 0.97 0.96 0.97 0.94 0.93 0.92 0.97 0.92 0.96 0.95 0.94 0.94 0.94
+0.56 0.89 0.92 0.90 0.94 0.91 0.82 0.84 0.49 0.91 0.69 0.95 0.87 0.74 0.91 0.76 0.76 0.58 0.92 0.88 0.90 0.93 0.95 0.96 0.90 0.68 0.91 0.64 0.96 0.71 0.93 0.96 0.94 0.93 1.00 0.95 0.94 0.74 0.95 0.96 0.92 0.96 0.95 0.57 0.94 0.96 0.95 0.89 0.90 0.84 0.93 0.95 0.94 0.93 0.96 0.89 0.95
+0.57 0.91 0.95 0.90 0.96 0.95 0.86 0.87 0.43 0.94 0.75 0.95 0.89 0.79 0.89 0.78 0.81 0.53 0.96 0.90 0.93 0.94 0.97 0.97 0.94 0.70 0.94 0.65 0.97 0.77 0.96 0.96 0.95 0.96 0.95 1.00 0.97 0.74 0.95 0.95 0.94 0.97 0.97 0.61 0.96 0.96 0.97 0.92 0.92 0.88 0.96 0.94 0.95 0.95 0.95 0.92 0.95
+0.54 0.91 0.95 0.89 0.96 0.96 0.87 0.87 0.43 0.95 0.77 0.95 0.90 0.81 0.88 0.80 0.83 0.52 0.97 0.91 0.95 0.94 0.97 0.97 0.95 0.71 0.95 0.65 0.97 0.79 0.95 0.96 0.94 0.97 0.94 0.97 1.00 0.76 0.95 0.95 0.95 0.96 0.97 0.61 0.97 0.96 0.97 0.93 0.92 0.90 0.96 0.94 0.96 0.95 0.95 0.93 0.95
+0.44 0.73 0.79 0.76 0.77 0.79 0.69 0.72 0.50 0.78 0.68 0.74 0.84 0.78 0.78 0.79 0.74 0.55 0.76 0.77 0.79 0.72 0.76 0.73 0.78 0.68 0.80 0.62 0.74 0.67 0.70 0.74 0.76 0.77 0.74 0.74 0.76 1.00 0.72 0.72 0.80 0.73 0.77 0.55 0.78 0.76 0.77 0.79 0.79 0.73 0.80 0.72 0.76 0.73 0.71 0.73 0.70
+0.55 0.88 0.93 0.89 0.95 0.92 0.84 0.85 0.47 0.92 0.70 0.95 0.86 0.75 0.90 0.76 0.77 0.55 0.94 0.88 0.90 0.93 0.97 0.97 0.91 0.67 0.92 0.63 0.97 0.73 0.94 0.96 0.94 0.94 0.95 0.95 0.95 0.72 1.00 0.97 0.92 0.97 0.95 0.55 0.95 0.96 0.95 0.88 0.89 0.85 0.93 0.95 0.94 0.95 0.96 0.90 0.95
+0.55 0.89 0.92 0.90 0.95 0.91 0.83 0.85 0.44 0.91 0.68 0.97 0.85 0.74 0.90 0.74 0.77 0.52 0.93 0.86 0.90 0.94 0.96 0.97 0.90 0.65 0.90 0.61 0.98 0.69 0.94 0.97 0.94 0.94 0.96 0.95 0.95 0.72 0.97 1.00 0.93 0.98 0.95 0.54 0.95 0.96 0.94 0.88 0.88 0.83 0.92 0.96 0.94 0.95 0.97 0.91 0.97
+0.55 0.92 0.94 0.89 0.96 0.95 0.87 0.88 0.46 0.95 0.79 0.94 0.92 0.85 0.90 0.82 0.85 0.51 0.95 0.91 0.93 0.93 0.95 0.95 0.95 0.74 0.94 0.65 0.95 0.79 0.93 0.93 0.92 0.95 0.92 0.94 0.95 0.80 0.92 0.93 1.00 0.95 0.96 0.61 0.96 0.95 0.95 0.92 0.91 0.91 0.96 0.91 0.94 0.93 0.93 0.91 0.93
+0.57 0.93 0.95 0.91 0.97 0.95 0.86 0.87 0.43 0.94 0.72 0.97 0.89 0.78 0.90 0.76 0.80 0.54 0.96 0.89 0.92 0.96 0.98 0.99 0.93 0.68 0.93 0.64 0.99 0.74 0.97 0.98 0.96 0.96 0.96 0.97 0.96 0.73 0.97 0.98 0.95 1.00 0.97 0.60 0.97 0.98 0.97 0.91 0.92 0.89 0.96 0.95 0.95 0.96 0.98 0.92 0.98
+0.58 0.94 0.97 0.93 0.98 0.97 0.88 0.90 0.44 0.96 0.78 0.96 0.92 0.83 0.91 0.82 0.84 0.54 0.97 0.92 0.95 0.95 0.97 0.97 0.96 0.73 0.96 0.68 0.98 0.79 0.96 0.97 0.95 0.98 0.95 0.97 0.97 0.77 0.95 0.95 0.96 0.97 1.00 0.65 0.98 0.97 0.98 0.95 0.95 0.91 0.98 0.94 0.97 0.95 0.96 0.93 0.95
+0.54 0.66 0.69 0.69 0.64 0.68 0.63 0.69 0.33 0.66 0.63 0.56 0.72 0.62 0.64 0.68 0.69 0.47 0.64 0.66 0.67 0.59 0.62 0.60 0.70 0.62 0.70 0.67 0.60 0.67 0.64 0.61 0.62 0.64 0.57 0.61 0.61 0.55 0.55 0.54 0.61 0.60 0.65 1.00 0.63 0.63 0.67 0.72 0.73 0.68 0.69 0.57 0.62 0.57 0.57 0.59 0.57
+0.57 0.94 0.97 0.91 0.98 0.97 0.89 0.90 0.45 0.96 0.79 0.95 0.92 0.85 0.91 0.82 0.85 0.54 0.97 0.93 0.94 0.94 0.97 0.97 0.96 0.74 0.96 0.67 0.97 0.81 0.95 0.95 0.94 0.97 0.94 0.96 0.97 0.78 0.95 0.95 0.96 0.97 0.98 0.63 1.00 0.97 0.98 0.94 0.94 0.92 0.98 0.93 0.97 0.95 0.95 0.93 0.95
+0.59 0.93 0.95 0.92 0.97 0.95 0.87 0.88 0.48 0.94 0.75 0.96 0.91 0.81 0.92 0.80 0.81 0.58 0.96 0.92 0.93 0.95 0.97 0.98 0.95 0.72 0.95 0.69 0.98 0.78 0.96 0.97 0.96 0.96 0.96 0.96 0.96 0.76 0.96 0.96 0.95 0.98 0.97 0.63 0.97 1.00 0.98 0.93 0.94 0.91 0.97 0.95 0.95 0.95 0.96 0.91 0.96
+0.58 0.94 0.97 0.92 0.98 0.97 0.88 0.90 0.44 0.96 0.78 0.94 0.93 0.85 0.91 0.82 0.85 0.56 0.97 0.93 0.95 0.94 0.97 0.97 0.96 0.73 0.96 0.69 0.97 0.81 0.96 0.96 0.95 0.97 0.95 0.97 0.97 0.77 0.95 0.94 0.95 0.97 0.98 0.67 0.98 0.98 1.00 0.95 0.95 0.92 0.98 0.93 0.96 0.95 0.95 0.93 0.95
+0.58 0.91 0.95 0.91 0.94 0.95 0.87 0.88 0.47 0.93 0.80 0.89 0.94 0.85 0.89 0.86 0.85 0.60 0.93 0.92 0.93 0.90 0.93 0.91 0.95 0.77 0.95 0.74 0.91 0.83 0.91 0.91 0.91 0.94 0.89 0.92 0.93 0.79 0.88 0.88 0.92 0.91 0.95 0.72 0.94 0.93 0.95 1.00 0.96 0.91 0.96 0.87 0.92 0.89 0.88 0.89 0.89
+0.61 0.90 0.95 0.93 0.94 0.95 0.86 0.89 0.50 0.93 0.78 0.89 0.94 0.83 0.90 0.85 0.86 0.60 0.93 0.92 0.93 0.91 0.93 0.92 0.95 0.76 0.95 0.77 0.92 0.83 0.93 0.93 0.93 0.93 0.90 0.92 0.92 0.79 0.89 0.88 0.91 0.92 0.95 0.73 0.94 0.94 0.95 0.96 1.00 0.91 0.97 0.88 0.92 0.90 0.90 0.89 0.89
+0.56 0.92 0.92 0.85 0.92 0.93 0.89 0.89 0.43 0.92 0.81 0.85 0.90 0.86 0.83 0.79 0.85 0.49 0.92 0.89 0.89 0.88 0.89 0.90 0.94 0.74 0.93 0.69 0.89 0.86 0.90 0.87 0.86 0.92 0.84 0.88 0.90 0.73 0.85 0.83 0.91 0.89 0.91 0.68 0.92 0.91 0.92 0.91 0.91 1.00 0.93 0.82 0.89 0.87 0.84 0.86 0.87
+0.58 0.94 0.97 0.93 0.97 0.98 0.89 0.90 0.45 0.96 0.80 0.93 0.95 0.87 0.91 0.84 0.87 0.56 0.96 0.93 0.95 0.94 0.96 0.96 0.97 0.75 0.97 0.71 0.96 0.83 0.95 0.95 0.95 0.97 0.93 0.96 0.96 0.80 0.93 0.92 0.96 0.96 0.98 0.69 0.98 0.97 0.98 0.96 0.97 0.93 1.00 0.91 0.95 0.93 0.93 0.93 0.94
+0.54 0.87 0.91 0.88 0.93 0.90 0.81 0.83 0.47 0.90 0.69 0.94 0.85 0.72 0.89 0.74 0.76 0.56 0.92 0.86 0.89 0.92 0.95 0.95 0.89 0.66 0.90 0.63 0.96 0.70 0.92 0.95 0.93 0.92 0.95 0.94 0.94 0.72 0.95 0.96 0.91 0.95 0.94 0.57 0.93 0.95 0.93 0.87 0.88 0.82 0.91 1.00 0.93 0.93 0.95 0.89 0.94
+0.55 0.91 0.95 0.90 0.96 0.95 0.87 0.88 0.45 0.95 0.77 0.94 0.90 0.81 0.91 0.80 0.83 0.53 0.96 0.91 0.94 0.94 0.97 0.96 0.95 0.71 0.95 0.68 0.97 0.79 0.95 0.95 0.93 0.96 0.94 0.95 0.96 0.76 0.94 0.94 0.94 0.95 0.97 0.62 0.97 0.95 0.96 0.92 0.92 0.89 0.95 0.93 1.00 0.94 0.95 0.91 0.93
+0.56 0.90 0.92 0.89 0.94 0.93 0.85 0.86 0.43 0.93 0.72 0.95 0.87 0.78 0.88 0.75 0.79 0.50 0.97 0.88 0.92 0.93 0.96 0.96 0.93 0.68 0.92 0.63 0.96 0.74 0.94 0.95 0.93 0.95 0.93 0.95 0.95 0.73 0.95 0.95 0.93 0.96 0.95 0.57 0.95 0.95 0.95 0.89 0.90 0.87 0.93 0.93 0.94 1.00 0.95 0.91 0.94
+0.57 0.89 0.92 0.89 0.95 0.91 0.83 0.85 0.44 0.91 0.68 0.96 0.85 0.74 0.90 0.73 0.76 0.53 0.94 0.87 0.90 0.94 0.96 0.97 0.91 0.65 0.91 0.61 0.97 0.71 0.94 0.97 0.94 0.94 0.96 0.95 0.95 0.71 0.96 0.97 0.93 0.98 0.96 0.57 0.95 0.96 0.95 0.88 0.90 0.84 0.93 0.95 0.95 0.95 1.00 0.91 0.96
+0.52 0.91 0.91 0.86 0.93 0.93 0.84 0.84 0.34 0.92 0.74 0.91 0.87 0.81 0.84 0.74 0.80 0.44 0.92 0.86 0.90 0.90 0.91 0.92 0.91 0.66 0.89 0.58 0.92 0.72 0.91 0.90 0.91 0.94 0.89 0.92 0.93 0.73 0.90 0.91 0.91 0.92 0.93 0.59 0.93 0.91 0.93 0.89 0.89 0.86 0.93 0.89 0.91 0.91 0.91 1.00 0.91
+0.55 0.91 0.92 0.88 0.95 0.93 0.83 0.85 0.41 0.91 0.69 0.95 0.86 0.75 0.88 0.71 0.77 0.51 0.93 0.86 0.89 0.94 0.95 0.97 0.91 0.64 0.91 0.60 0.97 0.70 0.95 0.96 0.95 0.94 0.95 0.95 0.95 0.70 0.95 0.97 0.93 0.98 0.95 0.57 0.95 0.96 0.95 0.89 0.89 0.87 0.94 0.94 0.93 0.94 0.96 0.91 1.00
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0
+Figure 27: Correlation matrix for the tasks in the MMLU benchmark.
+G.5 MMLU by Task Leaderboard
+The MMLU benchmark has a total of 57 subtasks, each corresponding to a distinct subject. It
+therefore makes sense to apply our methodology to these subjects and investigate their latent causal
+structure. To begin with, we first investigate the correlation between the performance of different
+tasks in MMLU, which is plotted in Figure 27. We observe that a majority of tasks have highly-
+correlated performance, although they seemingly focus on unrelated fields. This is likely due to the
+fact that MMLU primarily contains knowledge-based tasks, and crucially depends on the quality of
+the training dataset. Larger datasets likely contain more data in all disciplines and can hence lead to
+improvement on all tasks. In terms of causality, this means that there exists a single "knowledge"
+node for the MMLU benchmark as a whole.
+Math-related subjects. We first select subjects that correspond to mathematics, including:
+MMLU_college_mathematics, MMLU_elementary_mathematics, MMLU_high_school_mathematics.
+In this setting, we choose the set of base models to be Mistral-7B, Llama-2-7B and Llama-2-70B, which
+induces a minimal MIC of 0.02. The result of HCA is summarized in Figure 28c. Counterintuitively,
+it shows that z1 is close to college math, while z2, z3 likely represent elementary and high-school
+math.
+38
+
+=== PDF PAGE 39 ===
+college
+elementaryhigh_school
+college
+elementary
+high_school
+1.00 0.55 0.53
+0.55 1.00 0.82
+0.53 0.82 1.00 0.6
+0.7
+0.8
+0.9
+1.0
+(a) Correlations of the performance
+of math-related subtasks.
+1 2 3
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+2 components
+0.79
+0.16
+0.05
+Cumulative Explained Variance
+95% Explained Variance Threshold
+(b) Low-rank structure of the sub-
+tasks performance data.
+z1 z2 z3
+Latent Factors
+college
+elementary
+high_schoolBenchmark Accuracies
+-0.88 0.45 0.13
+0.47 0.85 0.22
+-0.01 0.26 -0.97
+0.0
+0.2
+0.4
+0.6
+0.8
+Coefficient Value
+(c) The learned mixing matrix.
+Figure 28: HCA analysis of the MMLU by Task Leaderboard data of math-related subjects.
+Physics-related subjects. We conduct a similar analysis for Physics-related subjects. We choose
+the set of base models to be Mistral-7B, Mistral-8x7B, Llama-2-13B, Llama-2-70B, which induce a
+minimal MIC of 0.05 among all domain subsets with size ≥ 4. The result of HCA is summarized in
+Figure 29c. We can see that z1 is conceptual physics while z2 and z3 are both linear cominations of
+high-school and college physics.
+college
+conceptualhigh_school
+college
+conceptual
+high_school
+1.00 0.84 0.75
+0.84 1.00 0.80
+0.75 0.80 1.00 0.80
+0.85
+0.90
+0.95
+1.00
+(a) Correlations of the performance
+of physics-related subtasks.
+1 2 3
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+2 components0.90
+0.06 0.04
+Cumulative Explained Variance
+95% Explained Variance Threshold
+(b) Low-rank structure of the sub-
+tasks performance data.
+z1 z2 z3
+Latent Factors
+college
+conceptual
+high_schoolBenchmark Accuracies
+-0.04 0.80 0.60
+-0.97 -0.18 0.18
+-0.26 0.58 -0.78
+0.0
+0.2
+0.4
+0.6
+0.8
+Coefficient Value
+(c) The learned mixing matrix.
+Figure 29: HCA analysis of the MMLU by Task Leaderboard data of physics-related subjects.
+Cross-subject domains. It would also be interesting to explore how different sub-
+jects are related. We choose MMLU_college_mathematics, MMLU_college_physics and
+MMLU_college_electrical_engineering and run HCA on these subjects. We found the a hierarchical
+relationship exists in the order of math, electrical engineering and physics.
+H Sensitivity Analysis of Causal Graph Recovery
+While very few works in the literature study finite sample guarantees for causal representation
+learning (AVST24), the accuracy of the recovered causal graph is crucial for downstream scientific
+studies. In this section, we conduct a sensitivity analysis of the causal model we discover, and
+discuss its implications. Specifically,
+• The causal model could be sensitive to the choice of base models. We discuss possible reasons
+for this.
+• We find that the causal link between instruction following and math reasoning is stable.
+39
+
+=== PDF PAGE 40 ===
+electrical_engineering
+physics
+mathematics
+electrical_engineering
+physics
+mathematics
+1.00 0.79 0.68
+0.79 1.00 0.56
+0.68 0.56 1.00
+0.6
+0.7
+0.8
+0.9
+1.0
+(a) Correlations of the performance
+of tasks under different subjects.
+1 2 3
+Principal Component
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1.0Explained Variance Ratio
+3 components0.85
+0.08 0.06
+Cumulative Explained Variance
+95% Explained Variance Threshold
+(b) Low-rank structure of the sub-
+tasks performance data.
+z1 z2 z3
+Latent Factors
+electrical_engineering
+physics
+mathematics
+Benchmark Accuracies
+0.48 -0.84 -0.24
+-0.40 0.03 -0.92
+-0.78 -0.54 0.32
+0.0
+0.2
+0.4
+0.6
+0.8
+Coefficient Value
+(c) The learned mixing matrix.
+Figure 30: HCA analysis of the MMLU by Task Leaderboard data of three different subjects
+Adding Two Base Models. We add two more base models, Qwen2.5-3B and Llama-3.2-3B, into
+our causal analysis. From Figure 11 we can see that these two domains have roughly the same PC
+subspace as the four domains we previously used in the main paper. Therefore, Hypothesis 1 would
+not be violated. That said, one caveat is that these two domains only include 65 and 94 models
+respectively, while the four previously used domains all include more than150 models.
+We run the same algorithms on these six domains, and the results are summarized in Figure 32 and
+Figure 33. One can see that the pattern of the unmixing matrix, as shown in Figure 32a, is the same
+as Figure 8a in z2 (≈ IFEval) and z3 (≈ MATH Lvl 5) but different in z1. In particular, rather than
+being closely aligned with general reasoning benchmarks like BBH and MMLU-Pro, it represents
+some sort of tradeoff between general reasoning and specialized capabilities.
+Recall that given infinite samples, we show that the causal model is identifiable up to mixtures with
+ancestors, wich does not include the case of Figure 32a. Recall that for picking z1, the key idea was
+to find a combination of rows in Mk that are colinear. In the finite sample regime and/or our causal
+assumptions are not exact, the error induced by this step could be hard to control.
+In Figure 31 we present the ICA unmixing matrices Mk. We find that among the domains chosen to
+conduct the causal analysis, there are two notable patterns:
+1. There is a row that is approximately a weighted combination of BBH and MMLU-Pro, e.g. third
+row in the matrix of Llama-3-8B. Recall that these two benchmarks are highly correlated, so
+this is close to the general reasoning capability discovered in Figure 8a as z1.
+2. There is another row that has positive weights on BBH and MMLU-Pro and negative weights
+on IFEval and MATH (or vice versa), e.g. the second row of Llama-3-8B. This row is aligned
+with the z1 that we discover here in Figure 32a.
+These observations indicate that one possible cause for the sensitivity of causal graphs is the
+environment non-degeneracy assumption (Assumption 2). even when the data comes from an exact
+causal graph, in the finite sample case, when there exists two i’s such thatspan⟨(Bk)i, k ∈ [K]⟩ is
+approximately rank-1, the corresponding causal factor can be hard to identify.
+Note that for base models that are not used in our causal analysis, namely Mistral-7B, Qwen2-
+7B, Qwen2.5-0.5B, Gemma-2-9B, Llama-2-7B and Llama-3.2-1B, the unmixing matrices do not
+demonstrate these patterns. This is a paritcularly interesting observation that we left for future
+studies, since it likely reveals different latent knowledges learned by different base models.
+40
+
+=== PDF PAGE 41 ===
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+-0.02 -0.05 0.21 0.01 -0.02 -0.03
+0.06 -0.05 0.00 -0.02 -0.03 -0.03
+-0.01 -0.09 -0.01 -0.02 -0.04 -0.06
+llama-3-8b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+0.01 0.06 0.01 0.04 0.05 0.06
+-0.04 0.03 -0.06 0.03 0.03 0.04
+-0.06 -0.01 0.10 0.00 0.01 -0.01
+qwen2.5-14b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+-0.06 0.04 0.00 0.00 -0.20 0.09
+0.08 -0.06 -0.01 -0.01 -0.12 -0.00
+-0.03 -0.07 -0.02 -0.01 0.07 -0.08
+mistral-7b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+0.03 0.01 -0.14 0.00 0.01 0.04
+0.05 -0.02 0.02 -0.01 -0.01 -0.02
+-0.03 0.07 0.03 0.02 0.02 0.07
+llama-3.1-8b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+-0.07 -0.01 0.10 0.00 -0.00 -0.01
+0.04 -0.01 0.03 -0.00 -0.00 -0.01
+-0.06 0.06 -0.02 0.01 0.02 0.06
+qwen2-7b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+-0.08 -0.22 0.03 -0.76 0.17 0.24
+-0.29 0.14 0.36 0.14 -0.03 0.22
+-0.08 -0.07 -0.45 0.28 -0.03 -0.37
+qwen2.5-0.5b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+0.05 -0.04 0.04 -0.02 -0.03 -0.04
+0.06 0.01 -0.09 0.00 0.01 0.01
+-0.02 0.05 0.02 0.02 0.03 0.06
+qwen2.5-7b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+0.04 -0.02 0.00 -0.01 -0.01 -0.01
+0.02 0.06 -0.10 0.01 -0.27 -0.01
+-0.02 0.12 0.01 0.04 -0.01 0.08
+gemma-2-9b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+-0.03 0.12 -0.05 0.02 0.06 0.12
+0.08 -0.05 -0.01 -0.01 -0.02 -0.06
+0.05 0.06 -0.33 0.01 0.09 0.04
+llama-3.2-3b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+-0.02 0.00 -0.05 -0.04 0.22 -0.01
+-0.11 0.07 0.04 0.04 -0.06 0.07
+-0.01 0.03 0.02 0.00 0.03 0.03
+llama-2-7b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+0.12 0.02 -0.18 -0.01 0.01 0.04
+0.07 -0.05 0.02 -0.01 -0.03 -0.05
+-0.03 0.05 0.05 0.02 0.02 0.05
+qwen2.5-3b
+IFEval BBH
+MATH Lvl 5
+GPQA MUSR
+MMLU-PRO
+Benchmarks
+Source Variables
+0.09 0.00 -0.01 0.00 0.07 -0.41
+-0.01 0.07 0.05 0.00 0.01 -0.04
+0.00 0.01 0.01 0.00 -0.05 0.27
+llama-3.2-1b
+0.000
+0.025
+0.050
+0.075
+0.100
+0.125
+0.150
+0.175
+0.200
+0.00
+0.02
+0.04
+0.06
+0.08
+0.10
+0.000
+0.025
+0.050
+0.075
+0.100
+0.125
+0.150
+0.175
+0.00
+0.02
+0.04
+0.06
+0.08
+0.10
+0.12
+0.00
+0.02
+0.04
+0.06
+0.08
+0.10
+0.0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.00
+0.01
+0.02
+0.03
+0.04
+0.05
+0.06
+0.07
+0.08
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+0.30
+0.000
+0.025
+0.050
+0.075
+0.100
+0.125
+0.150
+0.175
+0.200
+0.000
+0.025
+0.050
+0.075
+0.100
+0.125
+0.150
+0.175
+0.00
+0.05
+0.10
+0.15
+0.20
+0.25
+0.30
+0.35
+0.40
+Figure 31: The unmixing matrices of ICA for individual domains.
+Since algorithm might pick either one of the above as z1, and the induced errors are comparable, it is
+hard to argure which one makes more sense. Nonetheless, we find that the subspace spanned by the
+first two rows of Figure 8a and Figure 32a are roughly the same, and IFEval approximately lies in
+this subspace. Moreover, z3 always represents math reasoning. So, the causal effect from instruction
+following to math reasoning is stable across different choices of domains. Moreover, viewing the
+weight of the causal edge z2 → z3 as the causal effect of fine-tuning on instruction following, we
+can see that this effect is generally much higher for Qwen models compared with Llama models, a
+phenomenon that we also observe in Figure 7. We also notice that the estimated effect is roughly the
+same for Qwen models in these two approaches, while for Llama models, the weights are smaller
+here compared with the ones in Figure 7. Overall, further investigating the effect of finite-sample
+error and violations of causal assumptions is an important direction for future research.
+(a) Adjusted unmixing matrix.
+0 20 40 60 80
+IFEval accuracy
+0
+20
+40
+60
+80
+Latent Factor z2
+In sample R2 = 0.89
+OLS Regression Fit for IFEval
+qwen2.5-14b
+llama-3-8b
+llama-3.1-8b
+qwen2.5-3b
+llama-3.2-3b
+qwen2.5-7b
+OLS Fit (b) Regressing z2 on IFEval.
+0 10 20 30 40 50 60
+MATH Lvl 5 accuracy
+0
+10
+20
+30
+40
+50
+60
+Latent Factor z3
+In sample R2 = 1.00
+OLS Regression Fit for MATH Lvl 5
+qwen2.5-14b
+llama-3-8b
+llama-3.1-8b
+qwen2.5-3b
+llama-3.2-3b
+qwen2.5-7b
+OLS Fit (c) Regressing z3 on MATH.
+Figure 32: The unmixing matrix and the alignment between benchmarks and capabilities via OLS.
+41
+
+=== PDF PAGE 42 ===
+ε1
+ε2 ε3
+z1
+z2
+z3
++24
++5.87
++4.48
++1.26
+-0.37
++0.12
+(a) Llama-3-8B
+ε1
+ε2 ε3
+z1
+z2
+z3
++33
++7.76
++6.64
++1.36
+-0.37
++0.14
+(b) Llama-3.1-8B
+ε1
+ε2 ε3
+z1
+z2
+z3
++19
++6.04
++2.74
++1.52
+-0.45
++0.19
+(c) Llama-3.2-3B
+ε1
+ε2 ε3
+z1
+z2
+z3
++24
++6.07
++7.58
++1.25
+-0.52
++0.41
+(d) Qwen2.5-14B
+ε1
+ε2 ε3
+z1
+z2
+z3
++23
++9.37
+-8.60
++1.39
+-0.64
++0.55
+(e) Qwen2.5-7B
+ε1
+ε2 ε3
+z1
+z2
+z3
++20
++9.52
++4.03
++1.36
+-0.68
+0.57
+(f) Qwen-2.5-3B
+Figure 33: Causal graphs recovered from each domain.
+42

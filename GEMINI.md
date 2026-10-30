@@ -1,121 +1,47 @@
-# MESA Supervising Editor Agent
+# Gemini Repository Guide
 
-## Role
+Read [`AGENTS.md`](AGENTS.md) first; it is the authoritative repository guide for research scope, manuscript targets, source boundaries, and verification rules. Then read [`README.md`](README.md), [`CHASE-study.md`](CHASE-study.md), and the relevant source files before editing.
 
-Act as the supervising editor for the MESA multi-LLM review pipeline. Your job is not to produce a fresh first-pass review. Your job is to reconcile two independently generated MESA reviews into one final, source-grounded MESA evaluation.
+## Project Scope and Manuscripts
 
-The two draft reviews were produced by separate reviewer LLMs using the same benchmark information sources, the same MESA template, and the same standardized review prompt. Treat both drafts as candidate analyses, not as authoritative sources.
+MESA is the **25-question questionnaire** for reviewing AI benchmarks, adapted from the EFPA Test Review Model 2025. It covers six domains and uses five categorical choices (`Yes`, `Partly`, `No`, `Not sure`, `Not applicable`) with no aggregate quality score. Keep descriptive benchmark facts (Questions 1–5) separate from evaluative judgments, and keep missing documentation (`Not sure`) separate from explicit negative findings (`No`). Distinguish whether a check occurred from whether its findings were favorable.
 
-## Survey reconciliation option
+- **`paper_chase.tex` (CHASE submission, IEEE format):** Reports the questionnaire adaptation and the 30-conversation Claude Sonnet 5.5 study (`surveys/colleague-review/mesa-study/chase-report/`). Human evaluation belongs in future work only.
+- **`paper_refsq.tex` (REFSQ submission):** Planned extension of the CHASE paper adding human evaluation. Retain the shared adaptation and model-study contribution and use explicit placeholders until real human records are collected.
+- **`paper.tex`:** Preserved RETRAI submission manuscript; do not replace its content without an explicit request.
+- **`paper_old.tex`:** Preserved older manuscript; do not replace its content.
+- **`references.bib`:** Shared bibliography for all four manuscripts; keep existing citation keys intact.
 
-The full-template workflow below applies to full MESA reviews. When the user requests survey editing or reconciliation, first read `surveys/colleague-review/agent-guide.md` and `packet.json`. Reconcile survey outputs using the same evidence discipline, while preserving the survey's 25 questions, six domains and categorical choices.
+## Repository Layout and Source Boundaries
 
-Confirm that candidate outputs use the same questions, benchmark edition, intended interpretation and source boundary. For passage-based responses, judge support against the supplied passage; do not silently add external facts to settle a response. For independent source-based examples, check the original benchmark sources. Record any passage error separately and revise it only within the authorized task.
+- [`literature/README.md`](literature/README.md): Source index and thematic reading guide pairing original PDFs (`literature/pdfs/`), extracted transcriptions (`literature/transcriptions/`), and benchmark documentation notes (`literature/notes/`). Original PDFs remain authoritative where extraction loses detail.
+- [`supporting/adaptation/`](supporting/adaptation/): Active EFPA correspondence map ([`adaptation-map.md`](supporting/adaptation/adaptation-map.md)) and ACM SIGSOFT empirical standards assessment ([`standards-assessment.md`](supporting/adaptation/standards-assessment.md)).
+- [`supporting/retrai-paper/`](supporting/retrai-paper/): Supporting records for the preserved RETRAI manuscript (`MESA EFPA template official.md`, generated `MESA scorecard.md`, `reviews/`, `thesis/`, and `provenance/`). Do not describe these as a second current MESA instrument in the CHASE or REFSQ papers, and do not hand-edit `MESA scorecard.md`.
+- [`supporting/editorial/`](supporting/editorial/): [`CHASE-review-response.md`](supporting/editorial/CHASE-review-response.md).
+- [`surveys/colleague-review/`](surveys/colleague-review/): Live participant survey bundle (`packet.json`, `template.html`, `survey.html`, `survey.md`, `build.py`, `verify.py`) and the CHASE model-study records (`mesa-study/chase-report/`, `mesa-study/claude-sonnet-5-5/`, `mesa-study/claude-sonnet-5-5-guidance-v2/`).
+- [`provenance/`](provenance/): [`archive-index.md`](provenance/archive-index.md), [`relocation-map.json`](provenance/relocation-map.json), and [`reorganization-plan.md`](provenance/reorganization-plan.md) documenting relocated paths and retrieval of archived historical studies from the `pre-reorganization-2026-10-22` Git snapshot.
 
-Compare question-by-question choices and comments, then compare their substantive conclusions with the corresponding full MESA review when requested. Do not average choices, convert EFPA ratings to survey answers, or force agreement where evidence leaves room for judgment. A separately requested reconciled example may contain selected answers and brief reasons; colleague forms must remain unanswered. Report unresolved differences and compression losses, and do not call agreement validation or an answer key. Existing full-review required inputs apply when full-review reconciliation is requested; survey tasks use the relevant packet and candidate survey outputs instead.
+## Guided Survey Workflow
 
-## Primary Objective
+For survey tasks, read [`surveys/colleague-review/agent-guide.md`](surveys/colleague-review/agent-guide.md), [`surveys/colleague-review/packet.json`](surveys/colleague-review/packet.json), and [`surveys/colleague-review/future-steps.md`](surveys/colleague-review/future-steps.md).
 
-Create a final MESA evaluation by comparing the two reviewer drafts against the original source packet and resolving discrepancies through evidence-based editorial judgment.
+- The guided sequence is: Introduction → three 1–5 familiarity self-reports → completed Humanity's Last Exam (HLE) teaching example → ARC-AGI-2 → DesignQA → combined review and submission → confirmation.
+- Leave both participant benchmarks (`ARC-AGI-2` and `DesignQA`) blank. Use Back and Continue navigation with contents restricted to the current stage and inline hover/focus/click definitions. Collect no names or respondent emails.
+- One final payload contains the three familiarity ratings, all 50 benchmark answers, **five separately stored required feedback ratings** (question clarity, distinguishing choices, manageable workload, understanding what to look for when reviewing a benchmark, and confidence using MESA, each with `Cannot judge` and no preselection), optional written feedback, and packet identifier/fingerprint metadata.
+- Report the five feedback items separately as perceptions, with explicit `Cannot judge` and optional-comment denominators; do not compute a composite usability score or subtract the opening score-interpretation confidence item from the closing MESA-confidence item.
+- Never send real survey submissions or test emails without explicit authorization; mock delivery during automated checks.
 
-The final review should preserve the strongest source-supported content from both drafts, correct unsupported or overconfident claims, retain legitimate uncertainty, and clearly mark unresolved evidence gaps.
+## Optional Review Reconciliation Role
 
-## Required Inputs
+When explicitly asked to reconcile candidate benchmark reviews or agent-completed survey examples:
+- Confirm that candidates share the same benchmark edition, intended interpretation, and source boundary.
+- For passage-based survey responses, judge support strictly against the supplied passage without silently adding external facts.
+- For supporting full-template RETRAI reviews in `supporting/retrai-paper/`, keep Part A descriptive and Part B evaluative and source-grounded; do not average Part B ratings mechanically or convert EFPA `0`–`4` ratings into 25-question MESA choices.
+- Do not reconcile independent model-study responses in `surveys/colleague-review/mesa-study/` into an answer key or call reviewer agreement validation.
 
-Before editing, inspect:
+## Verification
 
-1. The shared review prompt given to both reviewer LLMs.
-2. The benchmark source packet used by both reviewers.
-3. Reviewer 1's completed MESA draft.
-4. Reviewer 2's completed MESA draft.
-5. `MESA EFPA template official.md`.
-6. Relevant local literature in `literature/`, especially EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources when broad capability claims are involved.
-
-## Editorial Workflow
-
-1. Confirm that both reviewer drafts address the same reviewed benchmark entity, version, slice, leaderboard, harness, or evaluation implementation.
-2. Confirm that both reviewers were given the same prompt and source packet.
-3. Compare the two drafts section by section using the MESA template structure.
-4. Identify discrepancies in:
-   - factual claims,
-   - source use,
-   - missing or incomplete fields,
-   - Part A descriptive statements,
-   - Part B ratings,
-   - validity arguments,
-   - reliability or reproducibility judgments,
-   - contamination and lifecycle claims,
-   - interpretation cautions,
-   - broad claims about reasoning, AGI, general intelligence, agency, or autonomy.
-5. Resolve each discrepancy by checking the original source packet first, then the MESA guide and relevant literature.
-6. Prefer the wording or rating that is best supported by evidence, not the wording that appears in more drafts.
-7. Do not average Part B ratings mechanically. Use EFPA-style reviewer judgment and explain the evidence basis.
-8. If the evidence does not support a confident resolution, preserve the uncertainty as an evidence gap.
-9. Produce one final coherent MESA evaluation in the official template structure.
-10. Add an editor note summarizing major discrepancies resolved and any unresolved issues carried forward.
-
-## Part A Rules
-
-Part A must remain descriptive.
-
-- Record what the benchmark authors, maintainers, repositories, papers, datasets, leaderboards, or documentation state.
-- Attribute claims to their sources where possible.
-- Do not add ratings or global quality judgments in Part A.
-- Treat missing documentation as missing information, not as proof of poor benchmark quality.
-- Keep benchmark identity, scope, version, source instrument, hosted implementation, and review boundary precise.
-
-## Part B Rules
-
-Part B must remain evaluative and source-grounded.
-
-For each rating or evaluative judgment, include:
-
-- evidence,
-- missing evidence,
-- reviewer/editor rationale,
-- interpretation caution.
-
-Do not treat disagreement between the two reviewer drafts as proof that the benchmark is weak. Treat disagreement as a signal to re-check the source evidence.
-
-Do not mechanically average ratings. If one draft gives a `2` and the other gives a `4`, inspect the evidence and choose the rating that best reflects the benchmark's support for the intended interpretation.
-
-## Discrepancy Resolution Principles
-
-Use this priority order:
-
-1. Official benchmark paper, technical report, repository, dataset card, documentation, leaderboard, changelog, or maintainer statement.
-2. The source packet shared with both reviewer LLMs.
-3. The MESA official template.
-4. Local MESA literature, including EFPA, BetterBench, Measuring what Matters, and AGI/CHC sources.
-5. Independent critique only as context, never as a substitute for official benchmark facts.
-
-When resolving discrepancies:
-
-- Correct factual conflicts using source evidence.
-- Remove unsupported claims.
-- Keep cautious claims when evidence is partial.
-- Preserve useful reviewer cautions if they are source-grounded.
-- Flag unresolved disagreements as evidence gaps.
-- Keep final prose concise, academic, and audit-friendly.
-
-## Output Requirements
-
-Produce:
-
-1. A final reconciled MESA evaluation.
-2. A short editor reconciliation note.
-3. A discrepancy summary listing the main conflicts resolved.
-4. A list of unresolved evidence gaps, if any.
-5. Any cautions about interpretation, versioning, source limits, or benchmark scope.
-
-Do not overwrite templates, source materials, pilot reviews, or existing notes unless explicitly instructed.
-
-## Quality Standard
-
-The final review should read as a single coherent MESA evaluation, not as a stitched-together compromise. It should be stricter than either first-pass draft where evidence is weak, but it should not convert missing documentation into unsupported criticism.
-
-The editor's responsibility is to improve reliability, source grounding, and interpretive discipline across the two-reviewer pipeline.
-
-### Current guided survey flow
-
-The colleague survey now follows Introduction → three 1–5 familiarity questions → completed HLE example → ARC-AGI-2 → DesignQA → combined review/submission → confirmation. Use Back and Continue rather than benchmark tabs, with contents restricted to the current page. Leave both participant benchmarks blank, use inline hover/focus/click definitions instead of an opening glossary, and collect no names or respondent emails. One final payload contains familiarity and all 50 answers. Treat familiarity as self-report, not a knowledge test; do not load older named drafts or send real test emails during implementation checks. See the shared survey guide for details.
+- Run `python3 surveys/colleague-review/mesa-study/chase-report/analyze.py` and `python3 surveys/colleague-review/mesa-study/chase-report/verify.py` for CHASE study and manuscript checks.
+- Run `python3 surveys/colleague-review/verify.py` for guided survey checks.
+- Run `python3 tools/check-thesis.py` for supporting RETRAI manuscript and scorecard checks.
+- **Do not compile LaTeX or open an automatic PDF preview.** Report visual layout and page length as unchecked.

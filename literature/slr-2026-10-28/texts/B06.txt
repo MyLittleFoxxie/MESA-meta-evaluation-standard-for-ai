@@ -1,0 +1,1003 @@
+
+=== PDF PAGE 1 ===
+HiBayES
+A HIERARCHICAL BAYESIAN MODELING FRAMEWORK
+FOR AI E VALUATION STATISTICS
+Lennart Luettgau, Harry Coppock, Magda Dubois,
+Christopher Summerfield, Cozmin Ududec
+UK AI Security Institute, London, UK
+{firstname.lastname}@dsit.gov.uk
+ABSTRACT
+As Large Language Models (LLMs) and other AI systems evolve, robustly estimating their capabilities
+from inherently stochastic outputs while systematically quantifying uncertainty in these estimates
+becomes increasingly important. Further, advanced AI evaluations often have a nested hierarchical
+structure, exhibit high levels of complexity, and come with high costs in testing the most advanced AI
+systems. To address these challenges, we introduce HiBayES, a generalizable Hierarchical Bayesian
+modeling framework for AI Evaluation Statistics. HiBayES supports robust inferences in classical
+question-answer benchmarks and advanced agentic evaluations, particularly in low-data scenarios
+(e.g., < 20 data points per evaluation). Built on Generalized Linear Models (GLMs), Bayesian data
+analysis, and formal model comparison, HiBayES provides principled uncertainty quantification and
+robust parameter estimation. This paper offers a comprehensive introduction to HiBayES, including
+illustrative examples, comparisons to conventional statistical methods, and practical guidance for
+implementing multilevel Bayesian GLMs. Additionally, we provide a HiBayES software package [4]
+(Beta version) for out-of-the-box implementation.
+1 Introduction
+As the capabilities of AI models (including Large Language Models, or LLMs, and agentic systems) improve [10],
+researchers face the increasingly important challenge of making statistically sound, reliable, and nuanced claims about
+model capabilities based on the results of evaluations [7, 13, 2, 23, 27, 29]. Accurate assessment of model capabilities
+from evaluations, and the related prediction of their behavior in real-world use cases [24] or human uplift [1, 20], are
+not only crucial for driving further model development, but also to improve model safety and safeguards in deployment.
+However, the toolkit of conventional approaches to evaluation statistics currently available to AI researchers and
+practitioners severely limits their ability to draw robust conclusions, appropriately quantify uncertainty, and account for
+the complex hierarchical structure inherent in AI evaluation data.
+Three common evaluation scenarios illustrate the limitations of current approaches:
+Scenario 1: Estimating overall performance. Researchers often need to evaluate the overall performance of a model,
+which is typically a composite of multiple measures. This includes claims such as "Model A has attained human-level
+performance on reasoning tasks" or "Model B has surpassed the 80% safety threshold necessary for deployment".
+Conventional evaluation methods commonly report aggregated metrics, like 82% overall accuracy, neither considering
+differences in the number of samples that were drawn for specific measures that contribute to overall performance nor
+quantifying uncertainty surrounding these estimates in a principled way. This practice leaves unanswered whether a
+arXiv:2505.05602v3  [cs.AI]  13 Jul 2025
+
+=== PDF PAGE 2 ===
+HiBayES
+model has truly achieved the threshold or if the observed performance lies within the margin of error of the threshold [1,
+20].
+Scenario 2: Model comparison across domains. When comparing models across benchmarks covering distinct
+domains (e.g., reasoning, coding, cybersecurity), evaluations typically produce conclusions like "Model A outperforms
+Model B on reasoning tasks, while Model B excels at coding tasks". Such analyses often treat each domain independently,
+failing to account for the hierarchical structure of evaluation data and the correlations within (and between) domains,
+leading to overstated claims about domain-specific advantages of one model over another.
+Scenario 3: Capability elicitation in agentic benchmarks. When assessing model capabilities on tasks measuring, for
+example, reasoning or software engineering, performance often varies dramatically with task difficulty and the effort
+invested in reasoning and scaffold development (e.g., chain-of-thought steps, multiple attempts, tool improvements).
+Researchers might claim "Model A performs better when using more reasoning steps" based on limited samples across
+varying difficulty levels [17]. Current approaches typically aggregate results without accounting for how task difficulty
+interacts with reasoning effort, and fail to properly model the hierarchical structure where responses are nested within
+difficulty levels. In these complex evaluation settings and low data regimes, conventional statistical approaches become
+unreliable for making strong claims about capabilities.
+Current approaches predominantly follow the "highest-number-is-best approach" [18], where a model with the highest
+average performance metrics is considered the best model on a given benchmark, without rigorous statistical validation.
+These practices do not systematically quantify uncertainty, nor do they employ formal model comparisons, or account
+for the hierarchical nature of evaluation data – where responses are nested within items/questions, which are nested
+within subdomains (e.g., MBPP [29], DS-1000 [12], BoolQ [3], and RACE-H [11], which in turn cluster items into
+domains (see Figure 2). Statistical models that do not acknowledge similarity between data clusters (e.g., evaluation
+domains or subdomains) and therefore do not share (partially pool) estimates across levels of the data hierarchy are
+known as "flat models". Such approaches discard information on the hierarchical data structure and have been shown to
+overestimate true effect size, resulting in overconfident conclusions unlikely to generalize to future data [15, 14].
+Evaluation data typically also contain different sources of variation (i.e., within- and between-LLM variation and
+between-task variation) at different levels of the data hierarchy. Additional sources of variation may extend to comparing
+different LLM families (e.g., different developers or systems – we might expect LLMs with similar parameterizations
+to perform similarly), comparing prompts (e.g., providing context may lead to consistently higher scores, Chain-of-
+Thought prompting may produce higher scores on average, etc.), and question clusters (some question may be more
+similar to each other than others, e.g., about the same topic). Additionally, it is possible to explicitly estimate the
+effects of testing conditions, or elicitation of LLM capabilities (e.g., sandbagging vs no sandbagging, comparing
+different agent scaffolds [6]) or compare performance across repeated evaluation runs separated in time. Conventional
+statistical approaches (e.g., t-tests) struggle with explicitly separating these sources of variation and quantifying where
+the uncertainty in the inference about LLM capabilities comes from, forcing evaluators to make decisions about which
+variables of interest to focus on, while aggregating over other variables (that could be of interest as well).
+To overcome these issues, we introduce HiBayES – a flexible, principled and generalizable statistical framework for AI
+evaluations, based on hierarchical (multilevel) Bayesian Generalized Linear Models, Bayesian uncertainty quantification
+and formal GLM comparison using information criteria. We take inspiration from modern approaches to statistics and
+statistical best practices in the natural and social sciences [15, 14] to directly address the methodological shortcomings
+of conventional approaches by providing three key advantages: (1) principled uncertainty quantification, (2) explicit
+modeling of the hierarchical structure of evaluation data, and (3) robust inference for agent-based systems even in low
+data regimes, where conventional methods typically fail.
+The introduction of the HiBayES framework is particularly timely given the economic constraints that increasingly limit
+evaluation data collection for new agent-based systems or reasoning models – solving a single task in some benchmarks
+may easily amount to hundreds of US Dollars worth of tokens [9]. At the same time, agentic model capabilities and
+their evaluation substantially raise the stakes for accurate capability assessment [16]. By incorporating hierarchical
+modeling, appropriate treatment of data distributions, and formal model comparison through information criteria,
+HiBayES enables more reliable, nuanced, and scientifically sound evaluation of AI capabilities.
+After an introduction of the foundational concepts of HiBayES, we provide illustrative examples for the implementation
+of multilevel Bayesian GLMs and GLM comparisons. An extensive comparison ofHiBayES and conventional evaluation
+statistics is presented in Table 1, and a decision framework for selecting the appropriate statistical modeling approach is
+presented in Figure 1. In Section 5 (Appendix), we detail the steps for a workflow with HiBayES, guiding the reader to
+specify and fit their own multilevel Bayesian GLMs.
+2
+
+=== PDF PAGE 3 ===
+HiBayES
+No
+YesIs the output
+deterministic?  No need for
+statistics 
+YesIs the output
+continuous?
+GLMs
+Are samples
+normally
+distributed?
+Confounding
+factors in data to
+consider?
+Yes No Want to 
+incorporate prior
+knowledge? 
+No
+Hierarchical GLMs 
+t-tests
+No Yes
+Is there 
+hierarchy 
+in the data?
+Flat GLMs
+Frequentist
+t-tests
+Bayesian
+t-tests
+Want to 
+incorporate prior
+knowledge? 
+Want to 
+incorporate prior
+knowledge? 
+Frequentist
+Flat GLMs
+Bayesian
+Flat GLMs
+Frequentist
+Hierarchical GLMs
+Bayesian 
+Hierarchical GLMs
+(HiBayES)
+No Yes No Yes
+No Yes
+Yes
+No
+Eval
+Figure 1: Flowchart to determine which statistical approach to choose. More information on the differences between
+t-tests and GLMs can be found in Table 1 and in [15, 14].
+3
+
+=== PDF PAGE 4 ===
+HiBayES
+Table 1: Comparison of HiBayES and conventional evaluation statistics.
+Multilevel GLMs (HiBayES) Conventional Approach (e.g., t-tests)
+Dataset size Handles any dataset size
+Stable estimates even in low data regimes with
+nested data structures due to partial pooling of
+estimates
+Rule of thumb: ≥ 20-30 data points per data clus-
+ter/group
+Dependent-samples/pairwise comparisons: same
+number of data points per data cluster/group (need
+to pad smaller data vector with additional values
+or subsample at random from larger data vector)
+Strictly only valid with large quantities of data (sta-
+bility of estimates based on asymptotic assump-
+tions derived from central limit theorem)
+Assumptions
+about the data
+Data generated by distribution in exponential fam-
+ily (e.g., Normal, Binomial, Poisson)
+Hyperparameters of data distribution depend on a
+linear combination of independent variables (lin-
+ear model)
+Assumes approximately Gaussian data
+Real, continuous values range [−∞; +∞]
+Homogeneity of variance in data clusters/groups
+Pre-averaging No data pre-averaging needed, works on obtained
+raw item-level scores
+Preserve natural variation across levels of the
+nested data hierarchy
+Partial pooling of parameter estimates across data
+clusters and levels
+Data pre-averaging across repeats, evaluations or
+subdomains needed
+Degree of freedom: Requires decision on measure
+of central tendency (mean, median or mode) used
+for averaging
+Removes variance across repeats (and lower levels
+of the data hierarchy), prevents optimal propaga-
+tion of variance across levels
+Increased likelihood of obtaining overconfident,
+biased estimates that generalize poorly
+Repeated
+sampling and
+imbalances
+Parameter estimates adjusted for repeated sam-
+pling (e.g., if there is more than one observation
+from the same LLM)
+Parameter estimates adjusted for sampling imbal-
+ances (e.g., some evaluations, domains etc sam-
+pled more often than others)
+(Partial) pooling of information across data clus-
+ters and levels enhances precisions of parameter
+estimation
+Not explicitly accounted for, no principled ap-
+proach for correcting for such differences, may
+lead to varying precision in parameter estimation
+across data clusters/groups (pre-averaged data for
+evaluations or domains sampled more frequently
+will be more precise than for less sampled evalua-
+tions or domains)
+Problematic for assumption of homogeneity of
+variance in data clusters/groups
+Flexibility Can capture hierarchical data and data structures
+of (nearly) arbitrary complexity
+Limited to comparison of two data levels
+Prior specification Specification of prior distribution and choice of
+parameters required
+Degree of freedom, e.g., which distribution and
+which parameterization to use, informative vs non-
+informative priors
+Allows to explicitly and clearly express assump-
+tions and “state of ignorance” (continuum of more
+or less plausible, logically consistent specifica-
+tions)
+Not required
+(but: Maximum-likelihood estimation relies on
+hard-coded assumption of uniform distribution
+over posterior parameter values)
+Uncertainty
+quantification
+Principled and generalizable approach to uncer-
+tainty quantification across nested hierarchical lev-
+els of the data: Dispersion of posterior parame-
+ter distribution (posterior variance and Credible
+Interval (CI)/ Highest Posterior Density Interval
+(HPDI))
+Uncertainty of parameter estimates (point esti-
+mates) not quantified
+Requires (adjusted) variance estimators (e.g., clus-
+tered cluster-adjusted standard errors) to quantify
+uncertainty in data (no principled framework to
+capture uncertainty across nested hierarchical lev-
+els of the data simultaneously)
+4
+
+=== PDF PAGE 5 ===
+HiBayES
+Multilevel GLMs (HiBayES) Conventional Approach (e.g., t-tests)
+Inference Supports inferences about differences of parameter
+estimates (if no overlap of CI/HPDI) as well as
+equivalence (if full overlap of CI/HPDI)
+Null Hypothesis Significance Testing (NHST) only
+(what is the probability of obtaining the observed
+test static or more extreme values if the null hy-
+pothesis is true?):
+Degree of freedom: need to define significance
+level α (e.g., α = .05)
+Inferences about differences possible (if p < α ),
+but results inconclusive/unclear if p ≥ α
+Multiple
+comparisons
+correction
+No adjustment of estimates needed, all parameters
+are estimated simultaneously using a single GLM
+No straightforward generalization to scenar-
+ios involving more than two levels (e.g.,
+LLMs/evaluations/domains/subdomains)
+Need to adjust p-values for any scenario involving
+running multiple t-tests (e.g., using Family-wise
+Error or False-Discovery Rate Correction)
+Model comparison GLM predictive accuracy quantified using log-
+likelihood and information criteria (e.g., WAIC),
+statistical models can be compared to alternative
+models
+Supports generalization of parameters and infer-
+ences to future data
+Not provided, no generative model of the data,
+no statistical model comparison possible (lacks
+predictive accuracy)
+No generalization to future data possible
+Usage difficulty Implementation: - medium (need to specify GLM
+for respective use case, MCMC sampling using
+packages like NumPyro)
+Quality control: - high (need to go through a series
+of controls and checks to ascertain GLM conver-
+gence and validity of inference)
+Interpretation: - medium (learn how to interpret
+mean and variance of posterior distribution and
+how to use CI/HPDI for making inferences; advan-
+tage: one quantity for all inferences)
+Implementation: - low (one-liner, but need to man-
+ually specify clusters and pre-average data)
+Quality control: - high (will always converge, but
+no indicators of fit and appropriateness, difficult to
+ascertain test validity or violation of assumptions)
+Interpretation: - medium (learn how to interpret t-
+and p-values, how to adjust for multiple compar-
+isons, need to run a set of analyses if interested in
+more than one inference)
+2 Introducing HiBayES – A Hierarchical Bayesian Modeling Framework for AI Evaluation
+Statistics
+2.1 Multilevel (hierarchical) linear modeling using Generalized Linear Models
+Generalized Linear Models (GLMs [19]) are highly flexible statistical models used to analyze the relationships between
+outcome variables and one or more predictor variables when the outcome variable distribution is not necessarily
+Gaussian. They can represent various types of data such as binary, count, or continuous outcomes.
+GLMs extend linear regression by allowing the outcome variable to follow different distributions. They model a linear
+combination of input features, which is then transformed by a link function to match the scale of the outcome variable.
+The link function ensures that the model’s predictions align with the statistical properties of the chosen distribution.
+The outcome variable is assumed to be generated by a probability distribution in the exponential family (e.g., Normal,
+Binomial, or Poisson). The parameters of the outcome data distribution depend on a linear combination of independent
+variables (linear model).
+An example GLM with a Binomial likelihood function and linear model based on a linear combination of predictors X1
+to Xk and parameters βk is provided in multiple regression (distributional) notation in Equation (1).
+Yi ∼ Binomial(1, pi)
+logit(pi) = β0 + β1X1i + · · · + βkXki
+(1)
+5
+
+=== PDF PAGE 6 ===
+HiBayES
+where Yi denotes the number of successes in a binomial distribution. In the specific case where n = 1, Yi corresponds to a Bernoulli
+trial, resulting in a binary outcome. The success probability pi is linked to the linear predictor via the logit link function.
+Figure 2: Example hierarchically nested structure of evaluation data. Data in evaluation scenarios are typically
+acquired across different, hierarchically nested levels. These levels comprise multiple repeats (1...j), of items (1...i), of
+different subdomains (1...N), which result from different domains (1...K). Typically, several LLMs (1...M) are evaluated
+on the same set of tasks. This hierarchical data structure is often not accounted for in current evaluation statistical
+practices.
+Equation (1) represents a generic example of GLMs with a Binomial likelihood function, that does not explicitly
+account for a specific data acquisition context. However, evaluations are typically performed across different LLMs
+(e.g., comparing a SOTA LLM to one or more other LLMs), domains, subdomains, each comprising several items
+(questions/prompts), repeats (repeated attempts on a given domain/subdomain/item, see Figure 2)
+In practice, an important initial step is understanding the distribution of the outcome variable (data) and what kind of
+correlation structure is of interest to answer a research question. Typical evaluation scenarios (e.g., MMLU [7], MGSM
+[23] or InterCode CTF [27]) involve responses to a given item that can either be correct or incorrect (e.g., pass/fail tasks
+with 1/0 outcomes, i.e., a series of independent Bernoulli trials). An adequate model of the data generating process of
+such binary outcome evaluations needs to explicitly model (a series of independent) Bernoulli trials – i.e., by using
+a Binomial likelihood function to estimate the success of a model in a given attempt. This approach ensures that the
+obtained parameter estimates generalize to future evaluations of the same LLM.
+GLMs can be extended to capture hierarchically nested data structures, through multilevel/hierarchical linear models
+(MLM). MLMs were developed to estimate complex, nested hierarchically structured single response data – mirroring
+exactly the data acquisition context of typical evaluation scenarios. MLMs straightforwardly allow parameters to be
+nested across levels of the data hierarchy, i.e., to simultaneously estimate the success rate of different LLMs across
+evaluations, domains, subdomains, repeats, and to quantify the uncertainty around these estimates. MLMs excel in
+evaluations with varying available data quantities and maintain stable and valid parameter estimates in low data regimes
+(e.g., <20 data points), in situations where data are grouped or clustered, and where these clusters differ from each
+other across various levels [15, 14]. MLMs also allow to separate the above sources of variation, to (partially) pool
+information across data clusters, and compute errors/uncertainty for each cluster in the data hierarchy. This in turn
+enhances the precision of parameter estimation, allowing us to learn more from the data than with flat GLMs (e.g., a
+low score on one of the reasoning benchmarks will inform the score computed on another reasoning benchmark).
+6
+
+=== PDF PAGE 7 ===
+HiBayES
+2.2 Bayesian data analysis for uncertainty quantification
+The majority of current evaluation reports do not present metrics of uncertainty, but focus on reporting point estimates
+(central tendencies of distributions, e.g., means, or statistical estimates, e.g., t-values). Such an approach does not
+straightforwardly allow for rigorous quantification of uncertainty of the statistical quantities and does not support
+formalizing domain knowledge or prior experience to make rigorous statistical decisions. This lack of comprehensive
+uncertainty quantification can have severe consequences in under- or overestimating LLM capabilities both in testing
+environments and in production. This in turn may lead to overconfident or misleading interpretations of the capabilities
+of a LLM. AI Safety frameworks created by LLM developers, like the AI Safety Levels (ASL), introduced by Anthropic’s
+Responsible Scaling Policy focus on definitions of point values at which critical safety thresholds are surpassed. While
+such an approach promises objectivity and rigorous guidance in decision making, threshold-based frameworks in
+combination with statistical point estimates struggle to define principled decision criteria.
+To illustrate this point, let’s assume we specified a threshold of 25% correct responses on a given benchmark as a key
+metric at which we should be concerned about a given LLM’s capabilities. Aside from the challenge of choosing a
+(potentially arbitrary) threshold value in the bounds [0; 100], how and when do we decide that this threshold has been
+crossed? One might say that the threshold is crossed strictly at any performance value >25% correct responses. If a
+LLM achieves 75% correct responses, few people would argue that such levels of performance are concerning, relative
+to the defined threshold. However, it is much less clear how to decide at near-threshold values. Would we consider a
+performance level of 24.9% to be entirely harmless, whereas 25.1% as risky? Most people will agree that even minor
+deviations from the threshold could be equally concerning if they happen below or above the threshold value. Point
+estimates provide no guidance on how to decide in such “close call” scenarios, as they do not consider the uncertainty
+of the estimated statistical quantity. We argue that probabilistic judgment and decision criteria are needed to tackle
+these questions in a principled manner.
+Recent work [18] acknowledges the above intuitions and recommends the use of descriptive (e.g., error bars for
+uncertainty quantification) and inferential statistics for evaluations (e.g., t-tests and confidence interval comparisons
+for statistical inferences). While we agree that adding error bars to point estimates and performing t-tests to compare
+two LLMs’ performance levels on a given evaluation is a starting point for improving statistical practices, we caution
+that even adopting such practices will not fix the limitations of the conventional approach to evaluation statistics.
+This is because the suggested methods rely on a number of assumptions about the data and the data-generating
+process that are not met in typical evaluation scenarios (e.g., asymptotic assumptions, normality (of data/residuals),
+homogeneity of variance, etc.). Among these limitations, the most challenging one stems from the large amounts of
+data needed to satisfy asymptotic assumptions derived from the central limit theorem underlying the proposed approach
+for uncertainty quantification and the use of t-tests. These methods rely on assumptions of Normality of the data
+(i.e., real and continuous in range [−∞; +∞], drawn i.i.d. from a Gaussian distribution; approximately 20-30 data
+points per evaluation/domain/subdomain) and – in the case of t-tests – that data clusters/groups to be compared exhibit
+homogeneity of variance. Further, the increasing costs for generating data points in evaluating new agent-based AI
+systems will increasingly lead to situations where evaluation data is (due to economic constraints) extremely scarce
+(< 20-30 data points per evaluation). Relying on the proposed methods for uncertainty quantification and statistical
+inference in low-data regimes will likely result in imprecise estimation of statistical quantities, leading to misguided
+data-driven inferences on LLM capabilities.
+The proposed hierarchical Bayesian modeling framework naturally quantifies uncertainty across levels of the data
+hierarchy by using intervals of defined mass from the posterior parameter distribution (Credible Interval (CI) or Highest
+Posterior Density Interval (HPDI)).
+2.3 Formal GLM comparison using information criteria
+Finally, it is often not sufficient to compare mean performance estimates of two or more LLMs on a given evaluation
+(as done by t-tests or by comparing GLM parameter HPDIs). This is because there is not only uncertainty about the
+parameter estimates, but more importantly, there is uncertainty about which data-generating process is most adequate
+for explaining the observed data (i.e., does the GLM fit the data well?). Conventional statistical approaches do not
+support answering research questions regarding predictive accuracies of different statistical models that incorporate
+distinct hypotheses about the data-generating process. A fundamental objective of statistical modeling is to capture
+the underlying data-generating process to estimate a models’ fit to the data and its ability to generalize to future data,
+beyond the currently tested items and scenarios. This is at the heart of making inferences derived from evaluation
+results: We want to predict the performance of AI systems in real-world deployment contexts. Additionally, we are
+often interested in understanding how different variables (predictors) influence the predictions of our statistical model.
+GLM comparison formally tests various hypothesized data-generating processes and correlation structures, allowing for
+insights that t-tests and other non-generative modeling frameworks do not provide [15, 14] .
+7
+
+=== PDF PAGE 8 ===
+HiBayES
+3 Use cases
+3.1 Practical considerations for fitting GLMs using HiBayES
+To ensure reliable and robust inference, statistical modeling using HiBayES involves 5 aspects:
+1. GLM specification (and prior predictive checks).
+2. Data preparation and parameter estimation using MCMC sampling.
+3. Assessment of GLM convergence and quality control. GLM convergence is indicated by the following metrics:
+• There should be very little (ideally 0) divergences.
+• The Gelman–Rubin criterion ( ˆR or r_rhat) should be close to 1 (ideally 1.00) for each sampled
+parameter.
+• The number of effective samples (n_eff) is a statistical estimate of how many independent samples the
+dependent samples are equivalent to after accounting for autocorrelation. This number gives an indication
+of how well-defined the GLM is and how smoothly the sampling process proceeded. This should be ≥
+the number of MCMC samples drawn per chain (e.g., 4000). In general, a higher n_eff is indicative of a
+well-specified and efficient model that produces efficient sequential samples.
+• Trace plots should indicate noisy mixing of the MCMC chains – they should look like hairy caterpillars
+(e.g., see Figure 4)).
+• Additionally, GLM convergence can be assessed using posterior predictive checks (not covered here).
+4. Posterior sampling to quantify posterior mean estimates and uncertainty (intervals of defined mass, e.g., 95%
+HPDI).
+5. Depending on the research question at hand, formal GLM comparison using information criteria.
+In HiBayES, we define GLMs and estimate the posterior distribution of the GLM parameters, using NumPyro [21] for
+Markov Chain Monte Carlo sampling (using No-U-Turn-Sampler – NUTS – a variant of Hamiltonian Monte Carlo [8])
+(an alternative package for MCMC estimation is PyMC). As a reasonable default, we use 2000 warmup samples (which
+are used for optimization of the sampling process and not used for parameter estimation) and 2000-4000 inference
+samples (used for parameter estimation). To estimate reliable parameter distributions and to ensure GLM convergence,
+four separate Markov chains are selected and fit on four CPU cores in parallel. After sampling is completed, we print a
+summary table for the parameter estimates and trace plots that provide us with diagnostic checks to perform quality
+control and ensure convergence of the inference.
+Estimation in HiBayES is done directly using samples from the posterior parameter distribution. After obtaining
+samples from the posterior distribution, several metrics can be used to provide insights on the quantities of interest.
+First, it is useful to investigate the LLM’s average performance (e.g., posterior mean). Second, the posterior parameter
+distribution provides a natural and principled quantification of the uncertainty of the estimates. This is commonly done
+by computing the standard deviation or variance of the posterior distribution or by computing an interval of defined
+mass, e.g., the (95%) CI of the parameter estimate (range of values that contain the specified posterior mass), or the
+HPDI [5]), which is defined as the narrowest interval of parameter values that contains a specified proportion of the
+posterior density/mass (e.g., 95%) [15, 14]. The latter metric gives an indication of which parameter values are most
+consistent with the observed data. Both CIs and HPDIs are useful to determine overlap of the estimate with given
+threshold values (e.g., whether performance is higher/lower than random guessing/chance level, or higher than 0/lower
+than 1), whether it is different from a defined threshold value (e.g., 25%) or whether two LLMs perform differently on a
+given evaluation.
+We use information criteria, like the Widely Applicable Information Criterion (WAIC [26]) to compare differently
+parameterized GLMs to estimate which GLM explains the data better. WAIC weights the log-likelihood of the GLM
+with the number of effective parameters to compute an estimate of the predictive accuracy on new data, equivalent to
+cross-validation [26].
+A great advantage of the Bayesian statistical modeling framework and the use of intervals of defined mass is that these
+metrics not only provide evidence for differences by rejecting a null hypothesis (as in Null Hypothesis Significance
+Testing (NHST) frameworks), but can also provide evidence for equivalence. For instance, we might want to know if
+two LLMs perform equivalently on a given evaluation (evidence for no difference). If the HPDIs around both LLMs’
+performance estimates do not overlap, we can say the LLMs perform differently ( Figure 3C). If the HPDIs overlap
+partially, the result is inconclusive ( Figure 3B). However, if the HPDIs overlap completely (the narrower HPDI is fully
+contained in the wider HPDI, Figure 3A), we can say that LLM performance is equivalent [5]. In other words, these
+procedures provide support for the null hypothesis (that LLMs perform the same)! This is a great advantage over NHST,
+8
+
+=== PDF PAGE 9 ===
+HiBayES
+which precludes any conclusion in case p ≥ .05 (or whatever your significance level α may be) – rendering statistical
+decision making in such situations unclear.
+Figure 3: Highest posterior density intervals (HPDIs) used for hypothesis testing. Depicted are posterior probability
+distributions estimating two LLMs’ average performance and 95% HPDIs of these posterior distributions (both on
+probability scale) from simulated data fitted with a GLM. The HPDIs represent the interval of parameter values that is
+most consistent with the data – the range of parameter values that the true performance score is most likely to fall into.
+HPDIs in panel A overlap completely (>99% overlap), which suggests that LLM performance is equivalent (LLM A ==
+LLM B). In panel B, HPDIs overlap partially (∼88% overlap), hence the result is inconclusive (LLM B <> LLM A). In
+panel C, HPDIs do not overlap (0% overlap), so we can conclude that LLMs perform differently (LLM B > LLM A).
+A common criticism of Bayesian methods is that the choice of the prior is subjective and that it is not straightforward to
+know if the choice is reasonable or valid. Indeed, Bayesian statistics require specifying a prior distribution and choosing
+parameters, creating researcher degrees of freedom (e.g., which distribution to choose, which parameterization to use,
+do we use informative or non-informative priors?). However, since these choices are explicitly stated, it is possible
+to clearly express assumptions and the "state of ignorance" before running the analyses, such that other researchers
+may criticize and scrutinize these choices. Additionally, the choice of the prior lies on a continuum between more and
+less plausible, logically consistent and inconsistent specifications. Based on past experience (e.g., with LLMs from the
+same family or developer, or other previous evaluations in similar domains) we have a sense for how a given LLM
+might perform on a given evaluation – this enables us to make a reasonable guess about the range of values that the
+posterior parameter distribution or its mean may fall into. We also know that certain parameter values are more or less
+9
+
+=== PDF PAGE 10 ===
+HiBayES
+likely based on the difficulty of the evaluation. For example, an easy evaluation task will probably result in a higher
+percentage of correct answers than a difficult evaluation task, so if we got the opposite result we would probably be very
+suspicious and would not trust the result. Why not explicitly state this prior knowledge? A uniform/non-informative
+prior – incorporating the assumption that all possible performance levels are equally likely for the given evaluation
+– can often not be upheld as a reasonable choice. To prevent overly restrictive assumptions, a common practice is to
+specify mildly informative priors for the parameters – preventing overconfident GLM specifications that are difficult
+to overturn by data. As an additional level of control and to assess how reasonable the choice of our prior is, we
+recommend running prior predictive checks to verify that the GLM-implied parameter pattern makes sense.
+3.2 Datasets
+We prepared two LLM evaluation datasets using the UK AI Security Institute’s Inspect [25] evaluation framework.
+Dataset 1 contains two LLMs (GPT-4o [release date: 01/06/2024] and Claude-3.5-Sonnet [release date: 20/06/2024])
+performing four different benchmarks that are structured across two different domains, with each domain featuring two
+subdomains (see Figure 2 for schematic):
+1. Coding (Subdomains 1A: MBPP [29] (multiple repeats); 1B: DS-1000 [12] ),
+2. Reasoning (Subdomains 2A: BoolQ [3]; 2B: RACE-H [11] ).
+Dataset 2 contains data from several LLMs (o1, o3-mini, Claude-3.7-Sonnet and GPT-4.5-preview) in an agentic
+evaluation (GAIA [17]). This benchmark features several tasks at varying levels of difficulty. The LLMs were run at
+different levels of reasoning effort. Due to token costs for higher levels of reasoning, this evaluation is performed in a
+low data regime (10 repeats per task).
+In the next section, we use the above datasets to demonstrate examples of common use cases in evaluation statistics.
+3.3 Use case 1: One LLM evaluated on multiple domains (benchmarks) with varying numbers of items
+One of the most common AI evaluation scenarios is estimating whether a model has achieved a capability threshold.
+Current approaches typically report that a model achieves a certain % accuracy without quantifying uncertainty, leaving
+open the question of whether the model has truly crossed the threshold or whether the observed performance is within
+the margin of error of the threshold. Here, we focus on a use case to assess domain-specific LLM performance levels,
+as well as overall LLM performance, and quantify uncertainty around the performance estimates. We outline the
+performance of Claude 3.5 Sonnet on coding tasks (domain 1) and reasoning tasks (domain 2) – without explicitly
+considering the nested subdomains. For data efficiency purposes and in order to consider performance for unique items,
+we only include response for the first repeat of each evaluation in our analyses. For domain 1, we recorded N = 1257
+responses for unique items, and for domain 2, N = 6768 responses for unique items. Such item imbalances across
+evaluations are very common and complicate valid comparisons in conventional statistical approaches.
+To compare LLM performance on these evaluations, in a conventional approach researchers would typically conduct
+a dependent-samples t-test (repeated-measures t-test: the same LLM is tested repeatedly across different domains).
+In conventional statistics, we ask whether the t-value for the domain difference is statistically significant (p < 0.05).
+However, different sample sizes across domains pose a serious challenge for the validity of dependent-samplest-tests,
+as these require the two data vectors to have equal length. To perform the t-test, we must either pad the smaller vector
+with additional values or subsample randomly from the larger one. Both solutions are suboptimal, as they require us to
+either inflate the data or discard valid evaluation data. In either case, we risk overestimating the true difference between
+the two domains.
+Due to the large sample sizes in our dataset, standard errors of the mean (SEMs) are small and empirical means are
+estimated with a high degree of certainty. The resulting t-value is very large (t = 27.30, p < . 001), suggesting a large
+difference between domain 1 and domain 2. Even smaller differences between domain-specific performance levels
+would likely have been deemed significant under such small SEMs. When working with large datasets, decision criteria
+based on p-values from t-tests are not sensitive enough to meaningfully reflect effect magnitudes.
+To compare LLM performance using HiBayES, we specify a hierarchical GLM with partial pooling across domains
+(Equation (2))
+10
+
+=== PDF PAGE 11 ===
+HiBayES
+Correctj ∼ Binomial(nj, pj)
+logit(pj) = domainj
+domain ∼ Normal(¯µdomain, σdomain)
+¯µdomain = µoverall + σoverall · zoverall
+µoverall ∼ Normal(0, 1)
+σoverall ∼ HalfNormal(0.5)
+zoverall ∼ Normal(0, 1)
+σdomain ∼ HalfNormal(0.1).
+(2)
+Correctj denotes the number of correct answers for the j-th domain, and is distributed as the proportion of correct answers (pj)
+among nj trials. The variable domainj models average performance for domain j. The GLM assumes domain-specific parameters
+are drawn from a domain-level normal distribution, with mean ¯µdomain and standard deviation σdomain. The mean ¯µdomain is drawn
+from a reparameterized hyper-distribution governed by µoverall, σoverall, and zoverall, all using mildly informative priors.
+Figure 4: Trace plots used to assess convergence of the MCMC chains for use case 1. The left column shows
+the sampling distributions of the four Markov chains (on the logit scale). In the domain_effects parameter, colors
+(blue/orange) indicate the two tested domains. The right column displays the trace plots for the estimated parameters,
+which show well-mixed MCMC chains – indicating convergence of the GLM, alongside other diagnostics.
+Note that the GLM definition features a non-centered parameterization. This is a reparameterization technique that
+improves sampling efficiency and convergence by transforming latent variables into components of their mean and
+standard deviation, often using auxiliary variables. Specifically, ¯µdomain is defined as a combination of µoverall and the
+product of the standard deviation σoverall and the auxiliary variable zoverall (which is sampled from a standard Gaussian
+distribution). This decomposition avoids inefficiencies in the sampling process (as indicated by slow sampling and a
+high number of divergences) that sometimes occur if the shape of the posterior distribution is complex (as is often the
+case when using varying effects or hierarchical GLMs). GLMs can be specified with a centered parameterization as
+well, but a non-centered parameterization is often beneficial when fitting more complex GLMs.
+11
+
+=== PDF PAGE 12 ===
+HiBayES
+We use forest plots to display the posterior distributions and compare GLM estimated domain effects and the uncertainty
+of the estimates (HPDI) and overall mean parameter to empirical means (arithmetic means) and standard errors of the
+mean (SEM) for each domain and overall performance (Figure 5).
+Figure 5: Forest plot to display posterior means, posterior distributions, and 95% HPDI (on probability scale)
+for use case 1. Focusing on domain-specific and overall performance effects (blue), this plot indicates the uncertainty
+(vertical lines, 95% HPDI), around the posterior mean (dots) for the respective parameter estimates. Additionally, for
+comparison between HiBayES and conventional evaluation statistics approaches, we present empirical means and SEM
+per domain (orange) and for overall (red).
+While the HiBayES GLM estimated domain-specific effects and the empirical means per domain are similar, the empiri-
+cal SEMs are much narrower than the GLM estimated HPDIs. This may be misleading and produce overly confident
+interpretations of LLM capabilities, as the empirical SEM provides too narrow estimates of uncertainty. However, an
+even larger risk of overstated capability interpretations stems from the overestimation of overall performance levels
+using the empirical mean. Here, the estimate is influenced strongly by the larger number of datapoints from domain 2
+(N = 6768) vs domain 1 (N = 1257). While this could potentially be mitigated by averaging per domain first and then
+computing the overall performance, such an approach will not be reliable for estimating the SEM. Using HiBayES the
+overall performance is estimated exactly at the central point between Coding and Reasoning estimates (as one would
+intuitively expect) and the HPDI spans the width of both domain-specific HPDIs – the overall mean estimate regularizes
+the domain-specific estimates.
+Finally, for inferences about which domain-specific performance is higher, in HiBayES we investigate the (non)overlap
+of the HPDIs of the posterior parameter distributions as a means to infer statistically meaningful differences. This
+approach generalizes to all settings. Here, performance in domain 2 (posterior mean = .84, 95%-HPDI = [.83; .85]) is
+higher than in domain 1 (posterior mean = .47, 95%-HPDI = [.44; .49]), since the HPDIs for domain 1 and domain 2 do
+not overlap.
+Parameter estimates from HiBayES can be directly interpreted as effect sizes, and Bayesian data analysis ensures
+mathematically optimal handling of evidence (given the prior distribution). Consequently, statistical inference in
+HiBayES is far less sensitive to sample size imbalances than conventional statistical approaches.
+12
+
+=== PDF PAGE 13 ===
+HiBayES
+3.4 Use case 2: Compare two LLMs evaluated on multiple domains and subdomains with varying numbers of
+items.
+Another common AI evaluation scenario is comparing models across different evaluation benchmarks, investigating
+domain-, subdomain-specific, and overall performance level differences between two or more LLMs (e.g., new LLM
+vs current SOTA model) and quantifying uncertainty around performance estimates. In this illustrative example, we
+compare the performance of Claude 3.5 Sonnet and GPT-4o on domain 1: coding (subdomains 1A: MBPP and 1B:
+DS-1000) and domain 2: reasoning (subdomains 2A: BoolQ and 2B: RACE-H). For data efficiency purposes and in
+order to consider performance for unique items, we again only include responses for the first repeat of each evaluation
+in our analyses. For subdomain 1A and 1B, we recorded N = 257 and N = 1000, respectively, and for 2A and 2B,
+N = 3270 and N = 3498, respectively.
+To compare LLM performance on these benchmarks, conventional statistics would typically use two-
+sample/independent-sample t-tests. We find the conventional approach suggests GPT-4o performs better than Claude
+3.5 Sonnet in DS-1000 (t = 6.02, p < . 001) and BoolQ (t = 5.18, p < . 001).
+We additionally specified a hierarchical GLM with partial pooling across domains (Equation (3)).
+Correcti,j,k ∼ Binomial(ni,j,k, pi,j,k)
+logit(pi,j,k) = subdomaini,j,k
+modeli = µoverall + σmodel · zmodeli
+µoverall ∼ Normal(0, 1)
+σmodel ∼ HalfNormal(0.1)
+zmodeli ∼ Normal(0, 1)
+domaini,j = modeli + σdomain · zdomaini,j
+σdomain ∼ HalfNormal(0.1)
+zdomaini,j ∼ Normal(0, 1)
+subdomaini,j,k = domaini,j + σsubdomain · zsubdomaini,j,k
+σsubdomain ∼ HalfNormal(0.1)
+zsubdomaini,j,k ∼ Normal(0, 1)
+(3)
+Correcti,j,k denotes the number of correct answers for the i-th LLM, j-th domain, and k-th subdomain, distributed as the proportion
+of correct answers (proportion parameter p) among the number of trials (ni,j,k). The GLM assumes that the individual LLM-specific
+parameters are drawn from an LLM distribution. The individual domain-specific parameters are drawn from a domain distribution
+that is parameterized by the LLM-specific effects. The individual subdomain parameters are drawn from a subdomain distribution
+that is parameterized by the domain-specific effects.
+Figure 6 shows the posterior parameter estimates and compares estimated model (LLM), domain and subdomain
+effects and the uncertainty of the estimates (HPDI) to empirical means (arithmetic means) and standard errors of the
+mean (SEM) for each LLM, domain and subdomain separately (Figure 6). We observe that the empirical SEMs are
+consistently narrower than the GLM estimated HPDIs. Furthermore, the empirical means and GLM estimated parameter
+means are similar, but not identical. The latter phenomenon, called “shrinkage,” refers to partial pooling of parameters
+across nested data levels in hierarchical GLMs and a resulting contraction of lower-level parameter estimates (e.g.,
+subdomain means) towards higher-level estimates (e.g., domain means). This form of regularization imposed by the
+hierarchical data structure helps to produce less over-fitting and more stable estimates. In other words, the parameter
+estimates derived from hierarchical GLMs allow us to more confidently generalize the capability in question to new
+contexts beyond the specific evaluation – e.g., real-world deployment contexts.
+The HPDIs for the subdomains estimated in a hierarchical GLM suggest similar differences found using the conventional
+approach (95%-HPDI DS-1000 = [.34; .40] vs [.47; .53] and 95%-HPDI BoolQ = [.75; .78] vs [.80; .83]). Additionally,
+HPDIs allow to quantify the magnitude and uncertainty around these differences in a more nuanced and continuous
+way – supporting an inference that the performance difference observed for BoolQ is smaller than for DS-1000. The
+conventional approach only allows us to make the discrete inference that LLM performance levels differ significantly
+on both subdomains.
+An additional advantage of HiBayES is that GLMs like the one shown in Equation (3) straightforwardly extend to
+evaluation scenarios that cover more than two domains or more than two LLMs (e.g., comparing 3 LLMs) without
+adjusting the statistical inference process, correcting for multiple comparisons, or using another family of tests. Since
+13
+
+=== PDF PAGE 14 ===
+HiBayES
+Figure 6: Forest plot to display posterior means and 95% HPDI (on the probability scale) for use case 2. Focusing
+on model (LLM)-, domain- and subdomain-specific effects, this plot indicates the uncertainty (vertical lines, 95%
+HPDI), around the posterior mean (dots) for the respective parameter estimates. Additionally, for comparison between
+HiBayES and conventional evaluation statistics approaches, we present empirical means and SEM per LLM, domain,
+subdomain (orange).
+all estimated parameters are indexed, it is possible to add another number/index and estimate 3 (x3) LLM/domain
+parameters instead of 2 (x2) – we illustrate this below in use case 3.
+This straightforward generalization to more complex scenarios and setups, e.g., testing more than two LLMs or different
+levels of the data at the same time (which might often be desired), cannot be implemented within conventional statistical
+approaches (e.g., using t-tests) without resorting to a different family of tests. This is because a t-test can at maximum
+test differences between two samples or two repeated measures. Any additional samples or repeated measurements
+require an adjustment for multiple comparisons (using Family-wise Error or False-Discovery Rate Correction) – since
+the assumed Type I and II Error rates cannot be maintained reliably – or necessitate resorting to an entirely different
+family of tests (F-tests/ANOV As).
+3.5 Use case 3: Elicitation experiments with several LLMs evaluated on an agentic benchmark, with varying
+reasoning parameters, tasks at varying levels of difficulty, in low data regime
+Interest in how AI models behave in real-world, agentic settings has surged in recent years. To test these capabilities,
+more complex, challenging and extended benchmarks than QA benchmarks have been developed [17, 22]. Of particular
+interest in such evaluation scenarios is to identify setups (agent scaffolds [28]) that increase the success probability
+of models, and to make robust predictions for future behavior in deployment contexts. This extends to, for example,
+which tools LLMs have at their disposal, or under which level of reasoning effort they operate. The assessment of these
+effects has far-reaching financial implications, as token costs for advanced reasoning LLMs easily reach hundreds of
+US Dollars per task.
+In this illustrative example, we compare the performance of several LLMs (o1, o3-mini, Claude-3.7-Sonnet and
+GPT-4.5-preview) on an agentic evaluation (GAIA[17]). This benchmark features 165 unique tasks at varying levels of
+difficulty (1: easy, 2: mid, 3: hard). We tested o1 and o3-mini at different levels of reasoning effort (1: no reasoning, 2:
+low, 3: intermediate or 4: high), Claude-3.7-Sonnet and GPT-4.5-preview were only evaluated in no reasoning setting.
+14
+
+=== PDF PAGE 15 ===
+HiBayES
+Due to token costs stemming from higher levels of reasoning efforts, this evaluation results in a low data regime at the
+task level (10 repeats per task and model). The dataset amounts to a total of 11,650 observations, varying substantially
+across the different LLMs under consideration (o1: 4,632, o3-mini: 4,664, Claude-3.7-Sonnet: 1,565, GPT-4.5-preview:
+789 observations).
+Investigating the raw data per task, we observed an asymmetric bimodal success rate distribution across tasks (see
+Figure 7). This is a common finding in agentic evaluation settings – LLMs either pass or fail at all their attempts (success
+rate either 0 or 1) for most tasks, an intermediate level of success is rare. This suggests that such evaluation items are
+either saturated, or that they are too difficult, and therefore do not provide fine-grained diagnostic value to meaningfully
+differentiate LLM capabilities. Binomial GLMs struggle with over-dispersed bimodal outcome distributions (high
+prevalence of 0s and 1s), as success rates are assumed to be drawn from unimodal distributions. To account for such
+bimodal outcome data distributions, we can instead use Beta-Binomial GLMs, which assume that each task has its own
+task-specific success rate, drawn from a distribution shared across tasks.
+Figure 7: Success rate distribution in GAIA. The average success rates across repeats on different tasks (across all
+models, difficulty levels and reasoning efforts). GAIA success rate data is asymmetric and bimodal.
+The purpose of this experiment is to compare the influence of the reasoning effort parameter on LLM performance
+at various levels of task difficulty. We use GLM comparison 1) to show that a Beta-Binomial GLM outperforms a
+Binomial GLM on evaluation data with an asymmetric bimodal success rate distribution and 2) to formally provide
+evidence against a null hypothesis that reasoning effort does not affect model performance.
+First, to estimate model performance across the reasoning effort parameter and task difficulty levels, we specified
+a hierarchical Beta-Binomial GLM with partial pooling, estimating a success probability for each task separately
+(Equation (4)). While the results of this GLM give an indication for the respective improvements of LLM performance
+related to increased reasoning efforts, the aim of our statistical modeling approach is to decide between a conventional
+Binomial GLM that does not estimate a success probability for each task separately, but is otherwise structurally
+identical to the model above (Equation (5)).
+Second, we want to know whether the Reasoning Beta-Binomial GLM is a good explanation of the data, relative
+to alternative GLMs. Such inference about the underlying data generating process is not possible solely based on
+investigating the parameter estimates. To evaluate the question of whether reasoning effort improves the success rate of
+LLMs in GAIA, we need to employ a GLM comparison to formally test the null hypothesis that reasoning effort does
+not affect LLM performance. This null hypothesis is incorporated by a hierarchical Binomial GLM with partial pooling
+that does not feature information on reasoning efforts and task difficulty levels (Equation (6)).
+After estimating the posterior distribution for the Null GLM, we compare the predictive accuracy of all three GLMs
+(Equation (4) - Equation (6)) using WAIC. In general, a WAIC closer to 0 indicates better fit and better predictive
+accuracy (better explanation of the data than alternative GLMs). The GLM comparison based on W AIC indicates that
+the Reasoning Beta-Binomial GLM accounts for the data better than the Reasoning Binomial GLM and the Null GLM
+(Figure 8). This finding provides evidence that reasoning effort is a relevant aspect of the agentic setup.
+15
+
+=== PDF PAGE 16 ===
+HiBayES
+Correcti,j,k,d ∼ Binomial(ni,j,k,d, θi,j,k,d)
+θi,j,k,d ∼ Beta(αi,j,k,d, βi,j,k,d)
+logit(pi,j,k,d) = modmodeli + diffdifficultyd
++ γreasoningi,d · reasoningi,k,d + ηtaskj
+αi,j,k,d = pi,j,k,d · φ
+βi,j,k,d = (1 − pi,j,k,d) · φ
+φ ∼ Gamma(1, 0.1)
+¯µ = µoverall + σoverall · zoverall
+µoverall ∼ Normal(0, 1)
+σoverall ∼ HalfNormal(1)
+zoverall ∼ Normal(0, 1)
+modmodel = µmodel, overall + σmodel · zmodeli
+µmodel, overall ∼ Normal(¯µ, 1)
+σmodel ∼ HalfNormal(0.5)
+zmodel,i ∼ Normal(0, 1)
+diffdifficulty = µdifficulty, overall + σdifficulty · zdifficultyd
+µdifficulty, overall ∼ Normal(0, 1)
+σdifficulty ∼ HalfNormal(0.1)
+zdifficultyd ∼ Normal(0, 1)
+γreasoning = µreasoningi,d + σreasoning · zreasoningi,d
+µreasoningi,d ∼ Normal(0, 1)
+σreasoning ∼ HalfNormal(0.1)
+zreasoningi,d ∼ Normal(0, 1)
+ηtask = µtask, overall + σtask · ztaskj
+σtask ∼ HalfNormal(0.5)
+ztaskj ∼ Normal(0, 1).
+(4)
+Correcti,j,k,d denotes the number of correct answers for the
+i-th LLM, j-th task, k-th reasoning level, and d-th difficulty
+level, distributed as the proportion of correct answers separately
+per task (parameter θ drawn from a Beta distribution) among
+the number of trials (ni,j,k,d).
+Correcti,j,k,d ∼ Binomial(ni,j,k,d, pi,j,k,d)
+logit(pi,j,k,d) = modmodeli + diffdifficultyd
++ γreasoningi,d · reasoningi,k,d + ηtaskj
+¯µ = µoverall + σoverall · zoverall
+µoverall ∼ Normal(0, 1)
+σoverall ∼ HalfNormal(1)
+zoverall ∼ Normal(0, 1)
+modmodel = µmodel, overall + σmodel · zmodeli
+µmodel, overall ∼ Normal(¯µ, 1)
+σmodel ∼ HalfNormal(0.5)
+zmodel,i ∼ Normal(0, 1)
+diffdifficulty = µdifficulty, overall + σdifficulty · zdifficultyd
+µdifficulty, overall ∼ Normal(0, 1)
+σdifficulty ∼ HalfNormal(0.1)
+zdifficulty,d ∼ Normal(0, 1)
+γreasoning = µreasoningi,d + σreasoning · zreasoningi,d
+µreasoningi,d ∼ Normal(0, 1)
+σreasoning ∼ HalfNormal(0.1)
+zreasoningi,d ∼ Normal(0, 1)
+ηtask = µtask, overall + σtask · ztaskj
+σtask ∼ HalfNormal(0.5)
+ztaskj ∼ Normal(0, 1)
+(5)
+Correcti,j,k,d denotes the number of correct answers for the
+i-th LLM, j-th task, k-th reasoning level, and d-th difficulty
+level, distributed as the proportion of correct answers
+(proportion parameter p) among the number of trials
+(ni,j,k,d).
+Figure 8: GLM comparison using W AIC for use case 3.The plot shows the W AIC values for the three GLMs. Closer
+to 0 (higher) WAIC values indicate better model fit. The Reasoning Beta-Binomial GLM, incorporating model and
+difficulty level specific effects of reasoning efforts, provides a better account for the data than the Reasoning Binomial
+GLM (not accounting for task level variation in success probability) and the Null GLM (not incorporating model and
+difficulty level specific effects of reasoning efforts).
+16
+
+=== PDF PAGE 17 ===
+HiBayES
+Correcti,j,d ∼ Binomial(ni,j,d, pi,j,d)
+logit(pi,j,d) = modmodeli + diffdifficultyd + ηtaskj
+¯µ = µoverall + σoverall · zoverall
+µoverall ∼ Normal(0, 1)
+σoverall ∼ HalfNormal(1)
+zoverall ∼ Normal(0, 1)
+modmodel = µmodel, overall + σmodel · zmodeli
+µmodel, overall ∼ Normal(¯µ, 1)
+σmodel ∼ HalfNormal(1)
+zmodeli ∼ Normal(0, 1)
+diffdifficulty = µdifficulty, overall + σdifficulty · zdifficultyd
+µdifficulty, overall ∼ Normal(0, 1)
+σdifficulty ∼ HalfNormal(0.1)
+zdifficultyd ∼ Normal(0, 1)
+ηtask = µtask, overall + σtask · ztaskj
+σtask ∼ HalfNormal(0.5)
+ztaskj ∼ Normal(0, 1)
+(6)
+Correcti,j,d denotes the number of correct answers for the i-th LLM, j-th task, and d-th difficulty level, distributed as the proportion
+of correct answers (proportion parameter p) among the number of trials (ni,j,d).
+We next want to understand more about the specific effect of reasoning efforts and task difficulty on LLM performance.
+To this end, we extract parameter estimates of the Beta-Binomial GLM defined in Equation (4). The forest plot
+(Figure 9) displays the posterior distributions for estimated linear effects of reasoning effort (γreasoning) for each LLM at
+different levels of task difficulty and provides the uncertainty of these estimates. While the parameter estimates for
+o3-mini and o1 (except in hard tasks) are positive and non-zero (HPDI does not contain 0) across all levels of task
+difficulty, o3-mini seems to benefit slightly more from reasoning across task difficulty levels. For the two LLMs tested
+without variation of the reasoning effort (Claude-3.7-Sonnet and GPT-4.5-preview), these effects are not different from
+0 (consistent with the notion that these LLMs were only tested under non-reasoning settings).
+In combination, the GLM comparison and the parameter estimates indicate that reasoning improves performance across
+task difficulty. The findings suggest that high reasoning effort provide performance gains in o3-mini, especially on hard
+tasks – but the costs of high reasoning may be less justified for o1, where reasoning effort was equally effective on easy
+and mid-level tasks, but not effective on hard tasks.
+We also present formal evidence that Beta-Binomial GLMs provide substantially better fit to agentic evaluation data
+that are characterized by over-dispersion of 0s and 1s (i.e., models either failing or passing at all attempts).
+4 Conclusion
+This paper introduced HiBayES, a robust and flexible statistical modeling framework for conducting statistical analysis
+on evaluation results. HiBayES is centered around multilevel (hierarchical) Bayesian modeling using Generalized Linear
+Models, optimal uncertainty quantification across nested hierarchical levels of the data, and formal model comparison to
+infer AI system capabilities. Our approach overcomes fundamental limitations of common practices and conventional
+approaches to evaluation statistics, such as "highest number is best", based on point estimates and lacking uncertainty
+quantification, or "flat" statistical modeling (e.g., t-tests) using pre-averaged data, without conducting formal model
+comparisons. These practices affect researchers’ ability to make correct predictions about future model behavior in
+production and lead to an overconfident interpretation of the numerical performance differences between models.
+HiBayES can reliably be used across evaluations with varying data quantities and delivers robust estimates even in
+low-data regimes (fewer than 20 data points per evaluation). We anticipate that such scenarios will become increasingly
+prevalent when evaluating new agentic or reasoning model capabilities, where generating datasets can easily consume
+tokens worth hundreds of US Dollars per task. HiBayES therefore represents an efficient, economic alternative to
+approaches that rely on obtaining and pre-averaging large quantities of evaluation data in order to produce stable
+estimates. We present formal evidence that Beta-Binomial likelihood functions provide substantially better fit in agentic
+17
+
+=== PDF PAGE 18 ===
+HiBayES
+Figure 9: Forest plot for the effect of reasoning effort (none, low, intermediate, high) and task difficulty (easy,
+mid, hard) on performance of 4 different LLMs (use case 3). The plot displays posterior means and 95% HPDI
+(vertical lines) for the respective parameter estimates (on logit scale).
+evaluation settings, which are often characterized by over-dispersion of 0s and 1s (models either failing or passing at all
+attempts). We therefore recommend using Beta-Binomial GLMs for agentic evaluation data.
+HiBayES is a principled, highly flexible, and generalizable statistical framework that allows researchers and practitioners
+to robustly test and adapt to a multitude of evaluation scenarios with statistical rigor – e.g., comparing the performance
+of two or more models on a number of different domains, subdomains, or repeats. HiBayES can adequately capture
+correlation structures and mirror the hierarchical context in which evaluation data is acquired, enabling more precise
+estimation of model capabilities and prediction of future model behavior. Our hope is that the HiBayES framework will
+be adopted widely by the AI and evaluation research community, that it will have a positive impact on the statistical rigor
+and the quality of statistical inferences drawn in AI evaluations, and that it may help reduce the amount of evaluation
+data needed while still enabling valid conclusions about model capabilities.
+Potential extensions of the framework relate to creating adaptive evaluation systems that store and update posterior
+beliefs on general model capabilities in real time as models are evaluated on new benchmarks (serving as priors
+for new evaluations) – either privately within companies or openly accessible to other researchers. This principled
+scientific approach would enhance precision and may help reduce uncertainty over model capability estimates across
+time and with growing experience. Another promising avenue for multilevel Bayesian modeling in evaluation statistics
+is predictive evaluations: Improving methods for estimating correlations between related tasks and domains – for
+instance, is performance in the MMLU [7] subdomain college computer science more strongly associated with a
+model’s InterCode CTF [27] capability than MMLU [7]philosophy subdomain knowledge? Other predictive evaluation
+questions relate to generalizing results of automated evaluation tasks to red-teaming exercises or from automated
+evaluations to human uplift results, or using one model’s capabilities to predict expected capabilities of another model
+from the same developer or family, before the second model is tested.
+Such an approach would allow leveraging hierarchical evaluation data structures and data clusters to enhance predictive
+accuracy and generalization of evaluation statistics. Systematically decomposing evaluations by identifying their
+constituting parts and the associative structure relating abilities needed to solve one evaluation and to succeed at other
+18
+
+=== PDF PAGE 19 ===
+HiBayES
+evaluation domains and tasks may provide deep insights into the latent structure of model capabilities and may facilitate
+designing more efficient and adaptive evaluations.
+19
+
+=== PDF PAGE 20 ===
+HiBayES
+5 Appendix
+Define and fit HiBayES multilevel Bayesian GLMs in 8 steps. More detailed information can be found in [5] and [15,
+14].
+Step 1: Define GLM
+dependent variable and
+likelihood based on data
+Step 3: Prior
+predictive checks
+Step 4: Fitting 
+(e.g., using MCMC)
+Step 6: Specify
+different GLMs
+(increasing complexity)
+Step 7: Select 
+best fitting GLM
+Step 2: Specify a GLM
+Define covariates
+and hierarchical
+levels
+Define priors
+Step 5: Check model fit
+Fitting checks:
+divergences, 
+n_eff, r_hat
+Posterior predictive
+checks
+Step 8: Make inferences
+Plot effects to
+quantify them and
+their uncertainty
+Sample from
+posterior for
+predictions
+For each model
+As 
+expected
+No
+Yes
+As 
+expected
+No
+Yes
+20
+
+=== PDF PAGE 21 ===
+HiBayES
+Acknowledgments
+We thank Jake Pencharz, Hannah Kirk and Geoffrey Irving for helpful comments and discussions on earlier versions of
+the manuscript.
+21
+
+=== PDF PAGE 22 ===
+HiBayES
+References
+[1] Anthropic. The Claude 3 Model Family: Opus, Sonnet, Haiku Anthropic . Tech. rep. 2024. URL: https://docs.
+anthropic.com/.
+[2] Mark Chen et al. “Evaluating Large Language Models Trained on Code”. In: (July 2021). URL: http://arxiv.
+org/abs/2107.03374.
+[3] Christopher Clark et al. “BoolQ: Exploring the Surprising Difficulty of Natural Yes/No Questions”. In: (May
+2019). URL: http://arxiv.org/abs/1905.10044.
+[4] Harry Coppock et al. HiBayES: A Python package for analysing data from Inspect logs using statistical modeling
+techniques. https://github.com/UKGovernmentBEIS/hibayes. 2025.
+[5] Andrew Gelman et al. Bayesian Data Analysis. 3rd. 2013.
+[6] Tianyu Han et al. SWE-bench: Can Language Models Resolve Real-world GitHub Issues? https://github.
+com/SWE-bench. 2023.
+[7] Dan Hendrycks et al. “Measuring Massive Multitask Language Understanding”. In: (Sept. 2020).URL: http:
+//arxiv.org/abs/2009.03300.
+[8] Matthew D. Hoffman and Andrew Gelman. “The No-U-Turn Sampler: Adaptively Setting Path Lengths in
+Hamiltonian Monte Carlo”. In: (Nov. 2011). URL: http://arxiv.org/abs/1111.4246.
+[9] Greg Kamradt. Analyzing OpenAI’s o1-preview in Comparison with Claude 3 Opus and GPT-4 on ARC AGI
+Evaluation. 2025. URL: https : / / arcprize . org / blog / analyzing - o3 - with - arc - agi(visited on
+05/08/2025).
+[10] Thomas Kwa et al. “Measuring AI Ability to Complete Long Tasks”. In: (Mar. 2025).URL: https://arxiv.
+org/abs/2503.14499.
+[11] Guokun Lai et al. “RACE: Large-scale ReAding Comprehension Dataset From Examinations”. In: (Apr. 2017).
+URL: http://arxiv.org/abs/1704.04683.
+[12] Yuhang Lai et al. “DS-1000: A Natural and Reliable Benchmark for Data Science Code Generation”. In: (Nov.
+2022). URL: http://arxiv.org/abs/2211.11501.
+[13] Percy Liang et al. “Holistic Evaluation of Language Models”. In: (Nov. 2022).URL: http://arxiv.org/abs/
+2211.09110.
+[14] Richard McElreath. Statistical Rethinking. 2nd. CRC Press, 2020. DOI: 10.1080/09332480.2017.1302722.
+[15] Richard McElreath. Statistical Rethinking 2023 . https://github.com/rmcelreath/stat_rethinking_
+2023. 2023.
+[16] METR. METR’s GPT-4.5 pre-deployment evaluations. https://metr.org/blog/2025-02-27-gpt-4-5-
+evals/. Feb. 2025.
+[17] Grégoire Mialon et al. “GAIA: a benchmark for General AI Assistants”. In: (Nov. 2023).URL: http://arxiv.
+org/abs/2311.12983.
+[18] Evan Miller. “Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations”. In: (Nov.
+2024). URL: http://arxiv.org/abs/2411.00640.
+[19] John Ashworth Nelder and Robert William Maclagan Wedderburn. “Generalized Linear Models”. In:Source:
+Journal of the Royal Statistical Society. Series A (General) 135 (3 1972), pp. 370–384.
+[20] OpenAI et al. “GPT-4o System Card”. In: (Oct. 2024). URL: http://arxiv.org/abs/2410.21276.
+[21] Du Phan, Neeraj Pradhan, and Martin Jankowiak. “Composable Effects for Flexible and Accelerated Probabilistic
+Programming in NumPyro”. In: (Dec. 2019). URL: http://arxiv.org/abs/1912.11554.
+[22] David Rein et al. “HCAST: Human-Calibrated Autonomy Software Tasks”. In: (Mar. 2025). URL: https :
+//arxiv.org/abs/2503.17354.
+[23] Freda Shi et al. “Language Models are Multilingual Chain-of-Thought Reasoners”. In: (Oct. 2022). URL:
+http://arxiv.org/abs/2210.03057.
+[24] Alex Tamkin et al. “Clio: Privacy-Preserving Insights into Real-World AI Use”. In: (Dec. 2024).URL: http:
+//arxiv.org/abs/2412.13678.
+[25] UKGovernmentBEIS. inspect_ai: AI-assisted inspection policy development . https : / / github . com /
+UKGovernmentBEIS/inspect_ai. 2024.
+[26] Sumio Watanabe. “Asymptotic Equivalence of Bayes Cross Validation and Widely Applicable Information
+Criterion in Singular Learning Theory”. In: Journal of Machine Learning Research 11 (2010), pp. 3571–3594.
+[27] John Yang et al. “InterCode: Standardizing and Benchmarking Interactive Coding with Execution Feedback”. In:
+(June 2023). URL: http://arxiv.org/abs/2306.14898.
+22
+
+=== PDF PAGE 23 ===
+HiBayES
+[28] Shunyu Yao et al. “ReAct: Synergizing Reasoning and Acting in Language Models”. In: (Oct. 2022). URL:
+http://arxiv.org/abs/2210.03629.
+[29] Zhaojian Yu et al. “HumanEval Pro and MBPP Pro: Evaluating Large Language Models on Self-invoking Code
+Generation”. In: (Dec. 2024). URL: http://arxiv.org/abs/2412.21199.
+23
