@@ -14,7 +14,11 @@ Reproduce the offline analysis with `python3 v3/study/analyze.py` and `python3 v
 
 `python3 v3/study/run.py --phase main` and `python3 v3/study/claude/run.py --phase main` verify their freezes and skip every existing attempt. Neither replaces a response. Both batches are complete and need no further execution. The `claude` field in the frozen Codex `jobs.json` records the pending status at the Codex freeze; the Claude batch has its own `claude/jobs.json`.
 
-The existing survey is excluded. Human evaluation is outside CHASE and deferred. No LaTeX compilation or automatic PDF preview was performed; layout and page length are unchecked. Nothing has been committed, pushed or published by this execution.
+The existing survey is excluded. Human evaluation is outside CHASE and deferred. No LaTeX compilation or automatic PDF preview was performed; layout and page length are unchecked. The records of both batches are committed on `codex/mesa-v3` at `6032654`; nothing has been pushed or published.
+
+## Artifact availability
+
+The repository holds the protocols, materials, prompts, extracted paper text, repository text files, outputs, analysis and verification records. Kept local and excluded by `v3/.gitignore`: the retrieved paper PDFs, the repository archives, and binary files inside the snapshots (images, compressed data, PDFs). [sources.json](sources.json) records the repository commits, paper URLs, retrieval times and SHA-256 hashes of every excluded file; `fetch_sources.py` retrieves them again from those commits and URLs without executing benchmark code. The arXiv URLs are mutable, so reproducing the exact paper edition may depend on the retained PDF matching the recorded hash. The [discrepancy review](claude/analysis/discrepancy-review.md) records an offline reading of the repository discrepancies reported by the Claude batch; it has not been checked by a human author.
 
 ## Verification
 

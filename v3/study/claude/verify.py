@@ -53,7 +53,8 @@ def main():
  x=json.loads((C/'analysis/cross-batch.json').read_text());check(x['paired_judgments']==120 and x['matches']==92 and x['status_matches']==115,'cross batch counts')
  check((C/'analysis/selected-reviews.md').read_text().count('Reason recorded by reviewer:')==60,'sixty selected judgments')
  check('same model as the reviewer' in (C/'analysis/selected-reviews.md').read_text(),'analyst disclosure')
- for p in [C/'protocol.md',R/'claude-pending.md']:
+ check((C/'analysis/discrepancy-review.md').exists() and 'not been checked by a human author' in (R/'README.md').read_text(),'discrepancy review linked with disclosure')
+ for p in [C/'protocol.md',R/'claude-pending.md',C/'analysis/discrepancy-review.md']:
   for target in re.findall(r'\]\(([^)]+)\)',p.read_text()):
    if not target.startswith(('https://','http://','#')):check((p.parent/target.split('#')[0]).exists(),'markdown link '+target)
  outputs=[p for p in (C/'outputs').rglob('*') if p.is_file()]

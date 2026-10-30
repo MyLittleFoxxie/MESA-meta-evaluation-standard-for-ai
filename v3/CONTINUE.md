@@ -1,6 +1,6 @@
 # Context and continuation plan for version three
 
-Updated 30 October 2026, after the Claude batch. This document replaces the earlier handoff, which listed the Claude batch as pending. Read it before continuing in a new chat. It is a handoff, not authorization to launch more experiments.
+Updated 30 October 2026, after the Claude batch, its commit and a first external feedback round. This document replaces the earlier handoff, which listed the Claude batch as pending. Read it before continuing in a new chat. It is a handoff, not authorization to launch more experiments.
 
 ## Start here
 
@@ -37,6 +37,8 @@ The user supplied `/Users/mylittlefoxxie/Downloads/paper_plan_auditing_ai_benchm
 7. The existing survey is ignored for v3. Leave its files and records untouched.
 8. CHASE cannot contain human survey results. Any later human evaluation belongs only in a REFSQ extension and is deferred.
 9. Prompts, materials, sources and analyst references are byte identical across batches. The Claude batch is a later, sequential batch. It is not jointly randomized with Codex, and no difference may be attributed to the command line tool alone.
+10. The user asked to commit the working tree; commit `6032654` on `codex/mesa-v3` holds the v3 work and the earlier repository reorganization. Temporary chart, presentation and output build folders were left untracked. Nothing is pushed.
+11. The user supplied feedback from another model on the manuscript. Responses made on 30 October 2026: a design decisions subsection explaining the ten criteria and anchors as a research design choice; explicit statements that every session used MESA, so the study cannot show that MESA improves reviews; bounded wording about restricted text inspection in abstract, introduction and discussion; an offline [discrepancy review](study/claude/analysis/discrepancy-review.md) of the repository findings with scope and consequence; artifact availability notes; and corrected commit status text. Still open from that feedback: human author checking of the discrepancy review, and layout and page count, which stay unchecked because compilation is prohibited.
 
 ## What v3 contains
 
@@ -85,9 +87,9 @@ The semantic audits cover the repetition one responses of each batch, six respon
 
 ## Remaining steps
 
-1. **Review the manuscript and analyses using saved records.** Execution and structural checks are complete. The manuscript has been read end to end once by the preparing assistant after the second batch, but not by a human author. Check whether each interpretation follows from the cited source and the exact response. Do not calculate a semantic error rate unless a defined review procedure supports it. Quote mismatches have not been inspected exhaustively for either batch.
+1. **Review the manuscript and analyses using saved records.** Execution and structural checks are complete. The manuscript has been read end to end by the preparing assistant after the second batch and revised once after external feedback, but not by a human author. The [discrepancy review](study/claude/analysis/discrepancy-review.md) is assistant reading of the frozen snapshots and needs an author check before its consequences are stated more strongly. Check whether each interpretation follows from the cited source and the exact response. Do not calculate a semantic error rate unless a defined review procedure supports it. Quote mismatches have not been inspected exhaustively for either batch.
 2. **Verify after any edits** with the commands below. Keep generated counts and authored interpretation separate. A freeze mismatch is a preservation issue, not something to fix by replacing the saved hash. Do not compile LaTeX unless the user changes that instruction.
-3. **Human work and publication remain deferred.** If a REFSQ extension is requested, plan human evaluation of the ten criterion rubric as its own study. If the user asks for a commit, inspect Git status first: `v3/`, `paper_mesa_v3.tex` and `literature/README.md` are untracked and many unrelated edits and deletions from earlier work remain in the checkout. Stage only the intended files. Local source archives and binary datasets are not automatically available to repository readers. No publishing action is authorized by this handoff.
+3. **Human work and publication remain deferred.** If a REFSQ extension is requested, plan human evaluation of the ten criterion rubric as its own study. The v3 work is committed at `6032654`; pushing, artifact packaging for readers (local binary sources are listed in the study guide's artifact availability section) and any submission step need the user's instruction. No publishing action is authorized by this handoff.
 
 ## Offline commands
 
