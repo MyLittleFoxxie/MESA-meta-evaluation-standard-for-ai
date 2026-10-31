@@ -43,6 +43,7 @@ def main():
  for name in re.findall(r'\\input\{([^}]+)\}',text):
   p=PROJECT/name;check(p.exists(),'tex input '+name);expanded+='\n'+p.read_text()
  check(not re.search(r'(?i)claude (?:experiment |batch )?remains pending',expanded),'manuscript no longer pending')
+ for g in re.findall(r'\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}',expanded):check((PROJECT/g).exists(),'graphic '+g)
  keys=set(re.findall(r'@\w+\s*\{\s*([^,]+),',(PROJECT/'references.bib').read_text()))
  for cite in re.findall(r'\\cite\{([^}]+)\}',expanded):
   for key in cite.split(','):check(key in keys,'citation '+key)
@@ -54,13 +55,16 @@ def main():
   else:check(bool(stack) and stack.pop()==m[2],'environment '+m[2])
  check(not stack,'environments balanced')
  # Check each file independently: input fragments are balanced separately.
- for p in [tex,R/'analysis/results.tex',R/'analysis/interpretation.tex',R/'claude/analysis/results.tex',R/'claude/analysis/interpretation.tex',R/'claude/analysis/cross-batch.tex']:
+ for p in [tex]+[R/n for n in ['analysis/results.tex','analysis/rq-1.tex','analysis/rq-2.tex','analysis/ratings.tex','claude/analysis/results.tex','claude/analysis/rq-1.tex','claude/analysis/rq-2.tex','claude/analysis/rq-3.tex','claude/analysis/ratings.tex','claude/analysis/cross-batch.tex','claude/analysis/execution.tex']]:
   level=0
   for token in re.findall(r'(?<!\\)[{}]',re.sub(r'(?<!\\)%[^\n]*','',p.read_text())):
    level+=1 if token=='{' else -1;check(level>=0,'brace order '+p.name)
   check(level==0,'balanced braces '+p.name)
  title=re.search(r'\\title\{([^}]+)\}',text)[1]
  check(not re.search(r'\b(?:MESA|AI|CLI|EFPA)\b',title),'no acronyms in title')
+ for label in ['Background','Objective','Method','Results','Conclusion']:check('\\textbf{'+label+':}' in text,'structured abstract '+label)
+ for h in re.findall(r'\\(?:sub)?section\*?\{([^}]+)\}',text):check(not re.search(r'\b(?:AI|CLI|EFPA|OECD)\b',h),'heading acronym '+h)
+ for rq in ['RQ1','RQ2','RQ3']:check(text.count(rq)>=2,'research question stated and answered '+rq)
  check((R/'analysis/selected-reviews.md').read_text().count('Reason recorded by reviewer:')==60,'sixty selected judgments')
  for p in [R/'README.md',PROJECT/'v3/README.md',PROJECT/'v3/experiments.md',PROJECT/'v3/CONTINUE.md',R/'claude-pending.md']:
   for target in re.findall(r'\]\(([^)]+)\)',p.read_text()):

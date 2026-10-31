@@ -66,6 +66,10 @@ Use `gpt-6-luna` at medium reasoning effort for study generation. It is availabl
 | Legal compliance and standards claims | Omit unless needed and verified against sources; benchmarks alone do not establish compliance |
 | Fifteen pages in LNCS for both venues | Preserve IEEE for a CHASE manuscript; verify REFSQ requirements separately |
 
+## Candidate next rubric version (not built, not tested)
+
+Recorded 31 October 2026 as a design proposal, identifier `mesa-audit-11-v4-candidate`, so that it is not confused with the executed instrument `mesa-audit-10-v3`. It would add descriptive fields before the ten criteria that record OECD facet values the audit depends on (Judgeability, Reference, Variation, Capability, from Cohn and Hernández-Orallo 2023), adopt test-retest wording in B3 and norm-referenced wording in B4, state in B5 that the criterion concerns training exposure rather than the OECD specificity facet, and consider a Coverage criterion whose anchors would have to state what evidence counts. Nothing in the v3 study used these changes; any use needs a new protocol, pilot and freeze.
+
 ## Manuscript scope
 
 CHASE reports the instrument design and model experiments, without human survey methods or results. Human evaluation appears only as future work and is not required to complete the CHASE paper. This boundary applies to the selected rubric.

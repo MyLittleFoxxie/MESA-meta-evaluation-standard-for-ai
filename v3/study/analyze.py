@@ -125,12 +125,22 @@ def analyze(batch):
  latex='\\begin{table}[t]\n\\caption{'+batch['caption']+'}\n\\label{tab:execution-'+batch['name']+'}\n\\centering\\begin{tabular}{lr}\\toprule\nMeasure & Count \\\\\n\\midrule\n'
  for label,key in [('Planned main sessions','planned_main'),('Attempted main sessions','attempted_main'),('Completed main responses','completed_main'),('Structurally usable responses','valid_main'),('Access condition delivered','condition_delivered_main'),('Main criterion judgments','main_judgments'),('Pilot attempts','pilot_attempts'),('All physical attempts','physical_attempts')]:latex+=f'{label} & {summary[key]} \\\\\n'
  latex+='\\bottomrule\\end{tabular}\n\\end{table}\n'
- latex+=f"Across available pairs, {summary['repeat_matches']} of {summary['repeat_pairs_judgments']} repeated judgments matched in status and rating. Across access conditions, {summary['access_matches']} of {summary['access_pairs_judgments']} paired judgments matched. These denominators include only structurally valid responses with delivered conditions. They are descriptive counts, not independent trials or accuracy estimates.\n\n"
- latex+=f"The responses contained {summary['citations']} evidence citations; {summary['allowed_existing_sources']} named an existing source allowed in that condition. Exact quoted text was located for {summary['exact_quotes']} citations, and whitespace normalization located {summary['whitespace_quotes']}. A mechanically parsed locator resolved for {summary['locators_resolve']} citations. These checks do not establish whether the cited evidence supports a rating.\n"
+ latex+=f"Across available pairs, {summary['repeat_matches']} of {summary['repeat_pairs_judgments']} repeated judgments matched in status and rating. Across the two inputs, {summary['access_matches']} of {summary['access_pairs_judgments']} paired judgments matched. These denominators include only structurally valid responses with delivered inputs. They are descriptive counts, not independent trials or accuracy estimates.\n\n"
+ latex+=f"The responses contained {summary['citations']} evidence citations; {summary['allowed_existing_sources']} named an existing source allowed for that input. Exact quoted text was located for {summary['exact_quotes']} citations, and whitespace normalization located {summary['whitespace_quotes']}. A mechanically parsed locator resolved for {summary['locators_resolve']} citations. These checks do not establish whether the cited evidence supports a rating.\n"
  (A/'results.tex').write_text(latex)
+ # Rating distribution per criterion and input: counts of 0, 5, 10, 15, insufficient evidence (IE) and not applicable (NA) over usable main responses.
+ dist='\\begin{table}[t]\n\\caption{'+batch['ratings_caption']+'}\n\\label{tab:ratings-'+batch['name']+'}\n\\centering\\small\\begin{tabular}{llrrrrrr}\\toprule\nCriterion & Input & 0 & 5 & 10 & 15 & IE & NA \\\\\n\\midrule\n'
+ for i in [f'{g}{k}' for g in 'AB' for k in range(1,6)]:
+  for c,label in [('documents','1'),('repository','2')]:
+   rows=[a for a in ans if a['criterion']==i and a['condition']==c]
+   cnt={v:sum(1 for a in rows if a['status']=='rated' and a['rating']==v) for v in [0,5,10,15]}
+   ie=sum(1 for a in rows if a['status']=='insufficient_evidence');na=sum(1 for a in rows if a['status']=='not_applicable')
+   dist+=f"{i if label=='1' else ''} & {label} & {cnt[0]} & {cnt[5]} & {cnt[10]} & {cnt[15]} & {ie} & {na} \\\\\n"
+ dist+='\\bottomrule\\end{tabular}\n\\end{table}\n'
+ (A/'ratings.tex').write_text(dist)
  return summary,byjob,delivered
 def codex_batch():
- return {'name':'codex','jobs':json.loads((R/'jobs.json').read_text())['jobs'],'outputs':R/'outputs','analysis':R/'analysis','parse':parse_codex_events,'caption':'Codex batch execution accounting.','note':{'claude':'completed as a later batch; see claude/analysis'}}
+ return {'name':'codex','jobs':json.loads((R/'jobs.json').read_text())['jobs'],'outputs':R/'outputs','analysis':R/'analysis','parse':parse_codex_events,'caption':'Codex batch execution accounting.','ratings_caption':'Codex batch: judgments per criterion and input over six usable responses per input (IE: insufficient evidence; NA: not applicable).','note':{'claude':'completed as a later batch; see claude/analysis'}}
 def main():
  summary,_,_=analyze(codex_batch());print(json.dumps(summary))
 if __name__=='__main__':main()
