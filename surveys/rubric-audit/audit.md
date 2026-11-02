@@ -1,11 +1,11 @@
 # MESA Benchmark Review Audit & Verification Platform
 *Human Software Engineering Audit of Claude Sonnet 5.5's Review of HumanEval*
 
-**Audit ID:** `mesa-v4-humaneval-audit-v1` | **Version:** 1.0 | **Packet SHA-256:** `8241248c0d88986d`
+**Audit ID:** `mesa-v4-humaneval-audit-v1` | **Version:** 1.1 | **Packet SHA-256:** `d5807e62a94702d2`
 
 ## Benchmark Overview
 **Target:** HumanEval (commit `b9453e8f18`)
-Evaluation set of 164 original programming problems with docstrings and unit tests released by OpenAI to measure the functional correctness of Python code synthesis from docstrings.
+OpenAI's benchmark of 164 hand-crafted Python programming problems with docstrings and unit tests, created to measure the functional correctness of code generation models using pass@k.
 
 ---
 

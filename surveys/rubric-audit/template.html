@@ -49,77 +49,105 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; font-size: 15px; }
-header { background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 20px; position: sticky; top: 0; z-index: 50; }
+header { background: var(--surface); border-bottom: 1px solid var(--line); padding: 10px 20px; position: sticky; top: 0; z-index: 50; }
 .header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.header-title h1 { margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
-.header-title p { margin: 2px 0 0; font-size: 0.85rem; color: var(--muted); }
+.header-title h1 { margin: 0; font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+.header-title p { margin: 2px 0 0; font-size: 0.82rem; color: var(--muted); }
 .header-controls { display: flex; align-items: center; gap: 10px; }
-button { font-family: inherit; font-size: 0.9rem; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+button { font-family: inherit; font-size: 0.88rem; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
 button:hover { background: var(--primary-soft); border-color: var(--primary); }
 button.primary { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
 button.primary:hover { background: var(--primary-hover); }
-.theme-btn { border-radius: 50%; width: 36px; height: 36px; padding: 0; display: inline-grid; place-items: center; }
+.theme-btn { border-radius: 50%; width: 34px; height: 34px; padding: 0; display: inline-grid; place-items: center; }
 
 /* Workbench Layout */
-.workbench { display: grid; grid-template-columns: minmax(380px, 1fr) minmax(440px, 1.15fr); gap: 0; height: calc(100vh - 65px); }
-@media (max-width: 900px) {
+.workbench { display: grid; grid-template-columns: minmax(420px, 1fr) minmax(460px, 1.15fr); gap: 0; height: calc(100vh - 61px); }
+@media (max-width: 960px) {
   .workbench { display: flex; flex-direction: column; height: auto; }
 }
 
 /* Left Pane: Sources Inspector */
 .left-pane { border-right: 1px solid var(--line); display: flex; flex-direction: column; background: var(--surface); height: 100%; overflow: hidden; }
-.pane-header { padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--primary-soft); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.pane-header h2 { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; }
+.pane-header { padding: 8px 14px; border-bottom: 1px solid var(--line); background: var(--primary-soft); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pane-header h2 { margin: 0; font-size: 0.88rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; }
 .file-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 6px 12px; border-bottom: 1px solid var(--line); background: var(--surface); }
-.tab-btn { font-size: 0.82rem; padding: 5px 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; white-space: nowrap; }
+.tab-btn { font-size: 0.8rem; padding: 4px 9px; border-radius: 4px; border: 1px solid transparent; background: transparent; white-space: nowrap; }
 .tab-btn.active { background: var(--primary-soft); color: var(--primary); font-weight: 700; border-color: var(--line); }
-.file-search-bar { padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; }
-.search-input { width: 100%; font-family: inherit; font-size: 0.85rem; padding: 6px 10px; border-radius: 5px; border: 1px solid var(--line); background: var(--surface); color: var(--text); }
-.file-viewer { flex: 1; overflow-y: auto; padding: 12px; font-family: var(--font-mono); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
-.code-line { display: block; padding: 0 4px; border-radius: 2px; }
+.file-search-bar { padding: 6px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; }
+.search-input { width: 100%; font-family: inherit; font-size: 0.82rem; padding: 5px 8px; border-radius: 5px; border: 1px solid var(--line); background: var(--surface); color: var(--text); }
+.file-viewer { flex: 1; overflow-y: auto; padding: 10px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.code-line { display: block; padding: 1px 4px; border-radius: 2px; }
 .code-line.highlight { background: #fef08a !important; color: #854d0e !important; font-weight: 700; outline: 2px solid #eab308; }
 :root[data-theme="dark"] .code-line.highlight { background: #854d0e !important; color: #fef08a !important; }
 
 /* Right Pane: Audit Flow */
-.right-pane { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: var(--bg); padding: 20px 24px; }
+.right-pane { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: var(--bg); padding: 16px 20px; }
 .audit-container { max-width: 760px; margin: 0 auto; width: 100%; }
 
 /* Progress bar */
-.progress-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.progress-bar-wrap { flex: 1; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.progress-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.progress-bar-wrap { flex: 1; height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; }
 .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 0.2s ease; }
 
 /* Cards */
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-.badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+.badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #fff; }
 .badge.checked { background: var(--badge-checked); }
 .badge.shown { background: var(--badge-shown); }
 .badge.stated { background: var(--badge-stated); }
 .badge.contradicted { background: var(--badge-contra); }
-.badge.insufficient_evidence, .badge.not_applicable { background: var(--badge-undoc); }
+.badge.undoc, .badge.insufficient_evidence, .badge.not_applicable { background: var(--badge-undoc); }
 
-.claim-box { background: var(--primary-soft); border-left: 4px solid var(--primary); padding: 12px 14px; border-radius: 0 6px 6px 0; margin: 12px 0 16px; }
-.claim-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.claim-reason { font-size: 0.95rem; margin: 4px 0 0; }
+.claim-box { background: var(--primary-soft); border-left: 4px solid var(--primary); padding: 10px 12px; border-radius: 0 6px 6px 0; margin: 10px 0 14px; }
+.claim-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; font-size: 0.88rem; }
+.claim-reason { font-size: 0.9rem; margin: 3px 0 0; }
 
-.evidence-quote-box { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 8px 0; font-size: 0.88rem; }
-.evidence-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; font-weight: 600; color: var(--muted); }
-.quote-text { font-style: italic; color: var(--text); border-left: 2px solid var(--line); padding-left: 8px; margin: 4px 0; }
-.inspect-btn { font-size: 0.78rem; padding: 4px 8px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--line); font-weight: 600; }
+.evidence-quote-box { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 6px 0; font-size: 0.85rem; }
+.evidence-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; font-weight: 600; color: var(--muted); font-size: 0.82rem; }
+.quote-text { font-style: italic; color: var(--text); border-left: 2px solid var(--line); padding-left: 8px; margin: 3px 0; font-family: var(--font-mono); font-size: 0.82rem; }
+.inspect-btn { font-size: 0.75rem; padding: 3px 7px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--line); font-weight: 600; }
 
-.verdict-group { margin: 16px 0; display: grid; gap: 8px; }
-.verdict-option { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.verdict-group { margin: 12px 0; display: grid; gap: 6px; }
+.verdict-option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
 .verdict-option:hover { background: var(--primary-soft); }
 .verdict-option:has(input:checked) { background: var(--primary-soft); border-color: var(--primary); font-weight: 600; }
 .verdict-option input { margin-top: 3px; accent-color: var(--primary); }
 
-.details-drawer { margin-top: 14px; font-size: 0.85rem; color: var(--muted); }
-.details-drawer summary { cursor: pointer; font-weight: 600; margin-bottom: 6px; }
+.details-drawer { margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+.details-drawer summary { cursor: pointer; font-weight: 600; margin-bottom: 4px; }
 
-textarea.note-input { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 8px; font-family: inherit; font-size: 0.88rem; background: var(--surface); color: var(--text); margin-top: 6px; resize: vertical; min-height: 50px; }
+textarea.note-input { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 7px; font-family: inherit; font-size: 0.85rem; background: var(--surface); color: var(--text); margin-top: 4px; resize: vertical; min-height: 42px; }
 
-.nav-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
-.save-toast { font-size: 0.82rem; color: var(--muted); }
+.nav-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
+.save-toast { font-size: 0.8rem; color: var(--muted); }
+
+/* Steps and Levels vertical layout */
+.vertical-card-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.vertical-item { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; font-size: 0.86rem; }
+.vertical-item .num-badge { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem; flex: none; }
+
+/* Primer code preview */
+.code-preview-box { background: #1e293b; color: #f8fafc; border-radius: 6px; padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.5; overflow-x: auto; margin: 10px 0; }
+.code-preview-box .comment { color: #94a3b8; font-style: italic; }
+.code-preview-box .keyword { color: #38bdf8; font-weight: 600; }
+.code-preview-box .func { color: #fbbf24; }
+
+/* Familiarity radio scale */
+.familiarity-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+.familiarity-title { font-weight: 650; font-size: 0.92rem; margin-bottom: 2px; }
+.familiarity-help { font-size: 0.82rem; color: var(--muted); margin-bottom: 8px; }
+.familiarity-scale { display: grid; gap: 6px; }
+.familiarity-opt { display: flex; align-items: flex-start; gap: 8px; font-size: 0.85rem; padding: 6px 8px; border: 1px solid var(--line); border-radius: 5px; cursor: pointer; }
+.familiarity-opt:hover { background: var(--primary-soft); }
+.familiarity-opt:has(input:checked) { background: var(--primary-soft); border-color: var(--primary); font-weight: 600; }
+.familiarity-opt input { margin-top: 2px; accent-color: var(--primary); }
+
+/* Inline Hover Tooltip styles */
+.term { display: inline; font: inherit; font-weight: inherit; color: inherit; background: none; border: 0; border-bottom: 1px dotted var(--muted); border-radius: 0; padding: 0; min-height: 0; cursor: help; line-height: inherit; }
+.term-icon { display: inline-flex; align-items: center; justify-content: center; font-size: .62em; font-weight: 700; border: 1px solid currentColor; border-radius: 50%; width: 1.2em; height: 1.2em; vertical-align: super; margin-left: 2px; }
+.term-tip { position: fixed; inset: auto; margin: 0; padding: 12px 14px; max-width: min(340px, calc(100vw - 24px)); background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 5px 22px rgba(0,0,0,0.22); z-index: 1000; font-size: 0.88rem; line-height: 1.45; }
+.term-tip p { margin: 0; }
+.term-tip strong { display: block; margin-bottom: 4px; color: var(--primary); font-size: 0.92rem; }
 </style>
 </head>
 <body>
@@ -144,20 +172,33 @@ textarea.note-input { width: 100%; border: 1px solid var(--line); border-radius:
   <section class="left-pane" aria-label="Benchmark Sources Viewer">
     <div class="pane-header">
       <h2>Evidence Inspector</h2>
-      <span id="active-file-label" style="font-size: 0.8rem; font-weight: 600; color: var(--muted);">README.md</span>
+      <span id="active-file-label" style="font-size: 0.8rem; font-weight: 600; color: var(--muted);">Official PDF (Chen et al. 2021)</span>
     </div>
     <div class="file-tabs" id="file-tabs-container"></div>
-    <div class="file-search-bar">
+    
+    <!-- Code/Text Search Bar -->
+    <div class="file-search-bar" id="file-search-bar" style="display: none;">
       <input type="text" id="file-search" class="search-input" placeholder="Filter lines in current file..." aria-label="Search current file">
     </div>
-    <div class="file-viewer" id="file-viewer-content"></div>
+    
+    <!-- Code/Text Content Viewer -->
+    <div class="file-viewer" id="file-viewer-content" style="display: none;"></div>
+
+    <!-- Dual-Mode PDF Viewer Container -->
+    <div id="pdf-viewer-container" style="display: flex; flex-direction: column; flex: 1; height: 100%; position: relative;">
+      <div style="padding: 6px 12px; background: var(--primary-soft); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+        <span><strong>Official Research Paper</strong> (Chen et al., 2021, 35 pages)</span>
+        <a id="open-pdf-ext" href="paper.pdf" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 600; text-decoration: none;">↗ Open PDF in New Window</a>
+      </div>
+      <iframe id="pdf-frame" src="paper.pdf#page=1" style="width: 100%; flex: 1; border: none;" title="Official HumanEval Paper PDF"></iframe>
+    </div>
   </section>
 
   <!-- RIGHT PANE: Audit Question Flow -->
   <main class="right-pane" id="main-flow" aria-label="MESA Audit Questionnaire">
     <div class="audit-container">
       <div class="progress-card">
-        <span id="progress-text" style="font-weight: 600; font-size: 0.88rem;">Item 1 of 37</span>
+        <span id="progress-text" style="font-weight: 600; font-size: 0.86rem;">Item 1 of 40</span>
         <div class="progress-bar-wrap">
           <div class="progress-bar" id="progress-bar-fill"></div>
         </div>
@@ -173,6 +214,9 @@ textarea.note-input { width: 100%; border: 1px solid var(--line); border-radius:
   </main>
 </div>
 
+<!-- Floating Hover Popover -->
+<div id="term-tip" class="term-tip" popover="manual" role="tooltip"></div>
+
 <script id="packet-data" type="application/json">__PACKET_JSON__</script>
 
 <script>
@@ -182,11 +226,17 @@ const STORAGE_KEY = 'mesa_humaneval_audit_v1';
 
 // Auditor state
 let state = {
-  activeTab: 'README.md',
-  stepIndex: 0, // 0 = Intro, 1..8 = Part A, 9..37 = Part B, 38 = Feedback, 39 = Export
+  activeTab: 'Official PDF (Chen et al. 2021)',
+  stepIndex: 0, // 0 = Intro & Familiarity, 1..8 = Part A, 9..37 = Part B, 38 = Feedback, 39 = Export
+  familiarity: {
+    ai: null,
+    benchmarks: null,
+    python: null,
+    scores: null
+  },
   answers: {
-    part_a: {}, // facet -> { verdict, override, note }
-    part_b: {}, // qid -> { verdict, override, note }
+    part_a: {}, // facet -> { verdict, note }
+    part_b: {}, // qid -> { verdict, note }
   },
   feedback: {}, // id -> rating
   feedback_comment: ''
@@ -195,7 +245,11 @@ let state = {
 // Load draft
 try {
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) state = Object.assign(state, JSON.parse(saved));
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    state = Object.assign(state, parsed);
+    if (!state.familiarity) state.familiarity = {};
+  }
 } catch (e) {}
 
 function saveDraft() {
@@ -203,18 +257,144 @@ function saveDraft() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     const el = document.getElementById('save-notice');
     el.textContent = 'Draft auto-saved';
-    setTimeout(() => el.textContent = '', 2000);
+    setTimeout(() => el.textContent = 'Draft saved', 2000);
   } catch (e) {}
 }
 
-// Build file tabs
+// Inline Definitions and Tooltip Engine
+const aliases = new Map();
+if (packet.definitions) {
+  for (const d of packet.definitions) {
+    if (d.aliases) {
+      for (const a of d.aliases) aliases.set(a.toLowerCase(), d);
+    } else if (d.term) {
+      aliases.set(d.term.toLowerCase(), d);
+    }
+  }
+}
+const escapeRx = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const termRx = aliases.size > 0
+  ? new RegExp('\\b(' + Array.from(aliases.keys()).sort((a,b) => b.length - a.length).map(escapeRx).join('|') + ')\\b', 'gi')
+  : null;
+
+function annotate(root) {
+  if (!termRx) return;
+  for (const term of root.querySelectorAll('.term')) {
+    term.querySelector('.term-icon')?.remove();
+    term.replaceWith(document.createTextNode(term.textContent));
+  }
+  root.normalize();
+  const counts = new Map();
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => n.parentElement.closest('button,a,textarea,input,script,style,summary,.code-line,pre,code,.term-tip,.sr')
+      ? NodeFilter.FILTER_REJECT
+      : NodeFilter.FILTER_ACCEPT
+  });
+  const texts = [];
+  while (walker.nextNode()) texts.push(walker.currentNode);
+  for (const text of texts) {
+    termRx.lastIndex = 0;
+    const matches = [...text.textContent.matchAll(termRx)].filter(m => {
+      const d = aliases.get(m[0].toLowerCase());
+      const label = d.label || d.term;
+      const n = counts.get(label) || 0;
+      counts.set(label, n + 1);
+      return n % 2 === 0;
+    });
+    if (!matches.length) continue;
+    const frag = document.createDocumentFragment();
+    let offset = 0;
+    for (const m of matches) {
+      frag.append(document.createTextNode(text.textContent.slice(offset, m.index)));
+      const d = aliases.get(m[0].toLowerCase());
+      const label = d.label || d.term;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'term';
+      b.dataset.term = label;
+      b.setAttribute('aria-label', m[0] + ': show definition');
+      b.textContent = m[0];
+      const icon = document.createElement('span');
+      icon.className = 'term-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = '?';
+      b.append(icon);
+      frag.append(b);
+      offset = m.index + m[0].length;
+    }
+    frag.append(document.createTextNode(text.textContent.slice(offset)));
+    text.replaceWith(frag);
+  }
+}
+
+const tip = document.getElementById('term-tip');
+let tipButton = null, tipPinned = false, tipTimer;
+function hideTip() {
+  clearTimeout(tipTimer);
+  if (tip && tip.matches && tip.matches(':popover-open')) tip.hidePopover();
+  tipButton = null;
+  tipPinned = false;
+}
+function showTip(button, pinned = false) {
+  clearTimeout(tipTimer);
+  tipButton = button;
+  tipPinned = pinned;
+  const d = packet.definitions.find(d => (d.label || d.term) === button.dataset.term);
+  if (!d) return;
+  tip.innerHTML = `<strong>${d.label || d.term}</strong><p>${d.definition}</p>`;
+  if (tip.showPopover && !tip.matches(':popover-open')) {
+    tip.showPopover();
+  }
+  const r = button.getBoundingClientRect();
+  const t = tip.getBoundingClientRect();
+  tip.style.left = Math.max(12, Math.min(r.left, innerWidth - (t.width || 300) - 12)) + 'px';
+  tip.style.top = Math.max(12, Math.min(r.bottom + 8, innerHeight - (t.height || 120) - 12)) + 'px';
+}
+function laterHide() {
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => {
+    if (!tipPinned && (!tip.matches || !tip.matches(':hover')) && document.activeElement !== tipButton) hideTip();
+  }, 180);
+}
+document.addEventListener('pointerover', e => {
+  const b = e.target.closest('.term');
+  if (b && (!tipPinned || b === tipButton)) showTip(b, tipPinned);
+});
+document.addEventListener('pointerout', e => {
+  if (e.target.closest('.term')) laterHide();
+});
+if (tip) {
+  tip.addEventListener('pointerenter', () => clearTimeout(tipTimer));
+  tip.addEventListener('pointerleave', laterHide);
+}
+document.addEventListener('focusin', e => {
+  if (e.target.matches && e.target.matches('.term')) showTip(e.target);
+  else if (!tipPinned) hideTip();
+});
+document.addEventListener('focusout', e => {
+  if (e.target.matches && e.target.matches('.term')) laterHide();
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('.term');
+  if (b) showTip(b, true);
+  else if (!e.target.closest('#term-tip')) hideTip();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') hideTip();
+});
+window.addEventListener('resize', hideTip);
+
+// File Tabs and Dual-Mode Viewer
 const tabsContainer = document.getElementById('file-tabs-container');
 const fileViewer = document.getElementById('file-viewer-content');
+const fileSearchBar = document.getElementById('file-search-bar');
+const pdfContainer = document.getElementById('pdf-viewer-container');
+const pdfFrame = document.getElementById('pdf-frame');
 const activeFileLabel = document.getElementById('active-file-label');
 
 const allFiles = {
-  'Glossary': '__GLOSSARY__',
-  'Paper Summary': packet.benchmark.paper_text,
+  'Official PDF (Chen et al. 2021)': '__PDF__',
+  'Paper Text': packet.benchmark.paper_text,
   ...packet.benchmark.repo_files
 };
 
@@ -223,36 +403,38 @@ function renderTabs() {
   Object.keys(allFiles).forEach(fileName => {
     const btn = document.createElement('button');
     btn.className = 'tab-btn' + (state.activeTab === fileName ? ' active' : '');
-    btn.textContent = fileName.split('/').pop();
+    btn.textContent = fileName.startsWith('Official PDF') ? '📄 Official PDF' : (fileName === 'Paper Text' ? '📝 Paper Text' : fileName.split('/').pop());
     btn.title = fileName;
     btn.onclick = () => selectTab(fileName);
     tabsContainer.appendChild(btn);
   });
 }
 
-function selectTab(fileName, highlightText) {
+function selectTab(fileName, highlightQuote) {
   state.activeTab = fileName;
   activeFileLabel.textContent = fileName;
   renderTabs();
-  renderFileContent(highlightText);
+
+  if (fileName === 'Official PDF (Chen et al. 2021)') {
+    pdfContainer.style.display = 'flex';
+    fileSearchBar.style.display = 'none';
+    fileViewer.style.display = 'none';
+    // If quote mentions page number e.g. "page 4", jump iframe
+    if (highlightQuote) {
+      const pageMatch = highlightQuote.match(/page\s+(\d+)/i);
+      if (pageMatch) {
+        pdfFrame.src = 'paper.pdf#page=' + pageMatch[1];
+      }
+    }
+  } else {
+    pdfContainer.style.display = 'none';
+    fileSearchBar.style.display = 'flex';
+    fileViewer.style.display = 'block';
+    renderFileContent(highlightQuote);
+  }
 }
 
 function renderFileContent(highlightQuote) {
-  if (state.activeTab === 'Glossary') {
-    fileViewer.innerHTML = '';
-    const container = document.createElement('div');
-    container.style.cssText = 'padding: 16px; font-family: var(--font); line-height: 1.6;';
-    container.innerHTML = '<h3 style="margin-top:0; color: var(--primary);">Glossary of Technical Terms</h3><p style="color:var(--muted); font-size:0.85rem;">Reference definitions for AI benchmark metrology and HumanEval concepts.</p>';
-    (packet.definitions || []).forEach(d => {
-      const item = document.createElement('div');
-      item.style.cssText = 'margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line);';
-      item.innerHTML = `<strong style="font-size: 0.95rem; color: var(--primary); display:block; margin-bottom: 4px;">${d.term}</strong><div style="font-size: 0.88rem; color: var(--text);">${d.definition}</div>`;
-      container.appendChild(item);
-    });
-    fileViewer.appendChild(container);
-    return;
-  }
-
   const content = allFiles[state.activeTab] || '';
   const filter = (document.getElementById('file-search').value || '').toLowerCase();
   const lines = content.split('\n');
@@ -291,17 +473,18 @@ function renderFileContent(highlightQuote) {
 
 document.getElementById('file-search').oninput = () => renderFileContent();
 
-// Inspect helper
+// Inspect helper: automatically switches tab & highlights cited text
 window.inspectSource = (sourceFile, quote) => {
   let matchedFile = Object.keys(allFiles).find(f => f.endsWith(sourceFile) || sourceFile.endsWith(f));
   if (!matchedFile) {
-    matchedFile = sourceFile.includes('paper') ? 'Paper Summary' : 'README.md';
+    // If citing paper, prefer Paper Text for exact sentence highlight, or PDF
+    matchedFile = sourceFile.toLowerCase().includes('paper') ? 'Paper Text' : 'README.md';
   }
   selectTab(matchedFile, quote);
 };
 
 // Item flow & rendering
-const totalItems = 1 + packet.part_a.length + packet.part_b.length + 1 + 1; // Intro + A + B + Feedback + Export
+const totalItems = 1 + packet.part_a.length + packet.part_b.length + 1 + 1; // Intro + A (8) + B (29) + Feedback + Export = 40
 const cardMount = document.getElementById('card-mount');
 const progressText = document.getElementById('progress-text');
 const progressBar = document.getElementById('progress-bar-fill');
@@ -321,63 +504,138 @@ function renderCard() {
   if (idx === 0) {
     renderIntroCard();
   } else if (idx <= 8) {
-    renderPartACard(packet.part_a[idx - 1]);
+    const f = packet.part_a[idx - 1];
+    renderPartACard(f);
+    // Auto-highlight cited evidence
+    if (f.agent.evidence && f.agent.evidence.length > 0) {
+      inspectSource(f.agent.evidence[0].source, f.agent.evidence[0].quote);
+    }
   } else if (idx <= 37) {
-    renderPartBCard(packet.part_b[idx - 9]);
+    const q = packet.part_b[idx - 9];
+    renderPartBCard(q);
+    // Auto-highlight cited evidence
+    if (q.agent.evidence && q.agent.evidence.length > 0) {
+      inspectSource(q.agent.evidence[0].source, q.agent.evidence[0].quote);
+    }
   } else if (idx === 38) {
     renderFeedbackCard();
   } else {
     renderExportCard();
   }
+
+  // Annotate current card for hover tooltips
+  annotate(cardMount);
 }
 
 function renderIntroCard() {
   const div = document.createElement('div');
   div.className = 'card';
   div.innerHTML = `
-    <h2>Welcome to the MESA Human-in-the-Loop Benchmark Audit</h2>
-    <p>You are auditing an AI coding agent's review of the <strong>HumanEval</strong> benchmark (${packet.benchmark.overview}).</p>
+    <h2 style="margin-top:0; color: var(--primary);">Welcome to the HumanEval Benchmark Audit</h2>
+    <p>This audit tool lets you evaluate an AI agent's meta-evaluation review of the <strong>HumanEval</strong> coding benchmark (*Chen et al., OpenAI 2021*).</p>
+
     <div class="claim-box">
-      <strong>Your Role as Auditor:</strong>
-      <p style="margin: 4px 0 0;">An AI agent (Claude Sonnet 5.5) has reviewed HumanEval across 8 design facets (Part A) and 29 evaluative questions (Part B), providing citations and locators. Your task is to verify if the cited code and paper excerpts truly justify each rating.</p>
+      <strong>What is an AI Benchmark?</strong>
+      <p style="margin: 4px 0 0;">An AI benchmark is a standardized suite of tasks designed to evaluate and compare machine learning models under controlled conditions. Just as software needs integration tests, AI systems require rigorous benchmarks to establish what capabilities they truly possess.</p>
     </div>
 
-    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin: 16px 0;">
-      <strong style="color: var(--primary);">Evidence Anchor Ladder:</strong>
-      <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center;">
-        <span class="badge stated">STATED (Asserted in prose)</span> ➔
-        <span class="badge shown">SHOWN (Inspectable code/dataset)</span> ➔
-        <span class="badge checked">CHECKED (Exploit/boundary tests)</span>
+    <h3 style="margin: 16px 0 6px;">HumanEval at a Glance</h3>
+    <p style="font-size: 0.9rem; color: var(--text); margin-bottom: 8px;">
+      Created to evaluate the OpenAI Codex model, <strong>HumanEval</strong> contains <strong>164 hand-crafted Python programming problems</strong>. Each problem provides a function header and docstring prompt to an AI model, and tests its generated solution using functional unit tests to compute the pass rate (<code class="term" data-term="pass@k">pass@k</code>).
+    </p>
+
+    <div class="code-preview-box">
+      <span class="comment"># 1. Prompt given to AI Model (Function signature + docstring):</span><br>
+      <span class="keyword">def</span> <span class="func">has_close_elements</span>(numbers: List[<span class="keyword">float</span>], threshold: <span class="keyword">float</span>) -&gt; <span class="keyword">bool</span>:<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">""" Check if in given list of numbers, any two numbers are closer than threshold. """</span><br><br>
+      <span class="comment"># 2. Automated test executed in sandbox to evaluate correctness:</span><br>
+      <span class="keyword">def</span> <span class="func">check</span>(candidate):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">assert</span> candidate([1.0, 2.0, 3.9, 4.0, 5.0], 0.3) == <span class="keyword">True</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">assert</span> candidate([1.0, 2.0, 5.9, 4.0, 5.0], 0.95) == <span class="keyword">False</span>
+    </div>
+
+    <h3 style="margin: 18px 0 6px;">Your Prior Familiarity</h3>
+    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">Please rate your background experience across these 4 areas (1 = Complete beginner, 5 = Experienced):</p>
+
+    <div id="familiarity-container"></div>
+
+    <h3 style="margin: 20px 0 8px;">Evidence Levels (What to look for)</h3>
+    <div class="vertical-card-list">
+      <div class="vertical-item">
+        <span class="badge stated" style="min-width: 130px; justify-content: center;">Level 1: STATED</span>
+        <span>Prose claim asserted in paper or README without inspectable code or dataset verification.</span>
       </div>
-      <p style="font-size: 0.83rem; color: var(--muted); margin: 8px 0 0;">
-        Negative finding: <span class="badge contradicted">CONTRADICTED</span> (Defect or factual contradiction discovered in code/paper).
-      </p>
+      <div class="vertical-item">
+        <span class="badge shown" style="min-width: 130px; justify-content: center;">Level 2: SHOWN</span>
+        <span>Directly inspectable in the open-source repository, dataset tasks, or test harness code.</span>
+      </div>
+      <div class="vertical-item">
+        <span class="badge checked" style="min-width: 130px; justify-content: center;">Level 3: CHECKED</span>
+        <span>Empirically verified with exploit, leak, boundary, or metric sensitivity checks.</span>
+      </div>
+      <div class="vertical-item">
+        <span class="badge contradicted" style="min-width: 130px; justify-content: center;">Defect: CONTRADICTED</span>
+        <span>Evidence reveals an active flaw, security leak, broken unit test, or factual contradiction.</span>
+      </div>
     </div>
 
-    <h3>The 3-Step Decision Loop (Self-Paced, ~1–2 mins per item):</h3>
-    <ol style="padding-left: 20px; line-height: 1.8;">
-      <li><strong>Glance at the AI's Rating & Reason</strong>.</li>
-      <li><strong>Check the Evidence Snippet</strong> (click <code>[Inspect]</code> to jump directly to the code/paper line in the left pane, or check the <strong>Glossary</strong> tab for unfamiliar terms).</li>
-      <li><strong>Select ONE Verdict</strong>:
-        <ul style="margin: 4px 0;">
-          <li><code>Confirmed / Supported</code> — Evidence accurately proves the rating.</li>
-          <li><code>Overstated / Weaker</code> — AI exaggerated (evidence only supports a lower level).</li>
-          <li><code>Contradicted / Defect</code> — Evidence reveals an active defect or refutes the claim.</li>
-          <li><code>Absence Plausible</code> — The benchmark genuinely omits this information.</li>
-        </ul>
-      </li>
-    </ol>
+    <h3 style="margin: 20px 0 8px;">Direct 4-Step Audit Guide</h3>
+    <div class="vertical-card-list">
+      <div class="vertical-item">
+        <div class="num-badge">1</div>
+        <div><strong>Read Claim:</strong> Glance at the AI agent's rating and short justification.</div>
+      </div>
+      <div class="vertical-item">
+        <div class="num-badge">2</div>
+        <div><strong>Check Evidence:</strong> The cited paper sentence or code line is automatically highlighted in the left pane.</div>
+      </div>
+      <div class="vertical-item">
+        <div class="num-badge">3</div>
+        <div><strong>Select Verdict:</strong> Confirm if evidence supports the claim, overstates it, or reveals a defect.</div>
+      </div>
+      <div class="vertical-item">
+        <div class="num-badge">4</div>
+        <div><strong>Add Notes & Continue:</strong> Jot any quick observations and advance to the next item.</div>
+      </div>
+    </div>
   `;
+
+  // Render 4 Familiarity questions
+  const famContainer = div.querySelector('#familiarity-container');
+  (packet.familiarity || []).forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'familiarity-card';
+    card.innerHTML = `
+      <div class="familiarity-title">${f.question}</div>
+      <div class="familiarity-help">${f.help}</div>
+      <div class="familiarity-scale">
+        ${f.labels.map((lbl, idx) => `
+          <label class="familiarity-opt">
+            <input type="radio" name="fam_${f.id}" value="${idx + 1}" ${state.familiarity[f.id] === (idx + 1) ? 'checked' : ''}>
+            <span>${lbl}</span>
+          </label>
+        `).join('')}
+      </div>
+    `;
+    card.querySelectorAll('input').forEach(r => {
+      r.onchange = () => {
+        state.familiarity[f.id] = parseInt(r.value, 10);
+        saveDraft();
+      };
+    });
+    famContainer.appendChild(card);
+  });
+
   cardMount.appendChild(div);
 }
 
 function renderPartACard(f) {
-  const currentVal = state.answers.part_a[f.facet] || { verdict: null, override: '', note: '' };
+  const currentVal = state.answers.part_a[f.facet] || { verdict: null, note: '' };
   const card = document.createElement('div');
   card.className = 'card';
   
   let evidenceHtml = '';
-  f.agent.evidence.forEach(ev => {
+  (f.agent.evidence || []).forEach(ev => {
     evidenceHtml += `
       <div class="evidence-quote-box">
         <div class="evidence-meta">
@@ -391,41 +649,41 @@ function renderPartACard(f) {
 
   card.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between;">
-      <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Part A: Design Facet</span>
-      ${f.decides ? `<span class="badge stated" title="${f.decides}">Gating Facet</span>` : ''}
+      <span style="font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Part A: Benchmark Design Fact</span>
+      <span class="badge stated">Fact Specification</span>
     </div>
-    <h2 style="margin: 6px 0 12px;">${f.facet}</h2>
+    <h2 style="margin: 6px 0 10px; font-size: 1.15rem;">${f.facet}</h2>
     
     <div class="claim-box">
       <div class="claim-header">
-        <span>AI Classification: <strong>[ ${f.agent.value} ]</strong></span>
+        <span>Agent Classification: <strong>[ ${f.agent.value} ]</strong></span>
       </div>
       <p class="claim-reason">"${f.agent.reason}"</p>
     </div>
 
-    <h4>Cited Evidence:</h4>
-    ${evidenceHtml || '<p style="font-style: italic; color: var(--muted);">No specific citation offered.</p>'}
+    <h4 style="margin: 12px 0 4px; font-size: 0.88rem;">Cited Evidence:</h4>
+    ${evidenceHtml || '<p style="font-style: italic; color: var(--muted); font-size: 0.85rem;">No specific citation offered.</p>'}
 
-    <h4 style="margin-top: 18px;">Your Audit Verdict:</h4>
+    <h4 style="margin: 14px 0 4px; font-size: 0.88rem;">Your Audit Verdict:</h4>
     <div class="verdict-group">
       ${packet.verdict_options.filter(o => o.value !== 'absence_plausible').map(opt => `
         <label class="verdict-option">
           <input type="radio" name="verdict_a" value="${opt.value}" ${currentVal.verdict === opt.value ? 'checked' : ''}>
           <div>
-            <div>${opt.label}</div>
-            <div style="font-size: 0.78rem; color: var(--muted);">${opt.desc}</div>
+            <div style="font-size: 0.88rem;">${opt.label}</div>
+            <div style="font-size: 0.76rem; color: var(--muted);">${opt.desc}</div>
           </div>
         </label>
       `).join('')}
     </div>
 
-    <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-top: 12px;">Auditor Notes (optional):</label>
-    <textarea class="note-input" placeholder="Add any comments or observations...">${currentVal.note || ''}</textarea>
+    <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-top: 10px;">Auditor Notes (optional):</label>
+    <textarea class="note-input" placeholder="Observations on this facet...">${currentVal.note || ''}</textarea>
 
     <details class="details-drawer">
-      <summary>▸ OECD Facet Details & Gating Rule</summary>
+      <summary>▸ Allowed Values & Classification Scope</summary>
       <p>Allowed values: ${f.values.join(', ')}</p>
-      ${f.decides ? `<p><strong>Gating Rule:</strong> ${f.decides}</p>` : ''}
+      ${f.decides ? `<p><strong>Audit Scope:</strong> ${f.decides}</p>` : ''}
     </details>
   `;
 
@@ -447,12 +705,12 @@ function renderPartACard(f) {
 }
 
 function renderPartBCard(q) {
-  const currentVal = state.answers.part_b[q.id] || { verdict: null, override: '', note: '' };
+  const currentVal = state.answers.part_b[q.id] || { verdict: null, note: '' };
   const card = document.createElement('div');
   card.className = 'card';
   
   let evidenceHtml = '';
-  q.agent.evidence.forEach(ev => {
+  (q.agent.evidence || []).forEach(ev => {
     evidenceHtml += `
       <div class="evidence-quote-box">
         <div class="evidence-meta">
@@ -464,45 +722,45 @@ function renderPartBCard(q) {
     `;
   });
 
-  const anchorClass = q.agent.answer || 'undoc';
+  const levelClass = q.agent.answer || 'undoc';
 
   card.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between;">
-      <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Part B: Question ${q.id}</span>
-      <span class="badge ${anchorClass}">${q.agent.answer}</span>
+      <span style="font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Part B: Question ${q.id}</span>
+      <span class="badge ${levelClass}">${q.agent.answer}</span>
     </div>
-    <h2 style="margin: 6px 0 12px;">${q.question}</h2>
+    <h2 style="margin: 6px 0 10px; font-size: 1.15rem;">${q.question}</h2>
 
     <div class="claim-box">
       <div class="claim-header">
-        <span>AI Assigned Anchor: <strong>[ ${q.agent.answer.toUpperCase()} ]</strong></span>
-        <span style="font-size: 0.8rem; color: var(--muted);">Basis: ${q.agent.basis}</span>
+        <span>Assigned Level: <strong>[ ${q.agent.answer.toUpperCase()} ]</strong></span>
+        <span style="font-size: 0.78rem; color: var(--muted);">Basis: ${q.agent.basis}</span>
       </div>
       <p class="claim-reason">"${q.agent.reason}"</p>
-      ${q.agent.missing ? `<p style="font-size: 0.83rem; color: var(--muted); margin: 6px 0 0;"><strong>Missing for higher anchor:</strong> ${q.agent.missing}</p>` : ''}
+      ${q.agent.missing ? `<p style="font-size: 0.8rem; color: var(--muted); margin: 5px 0 0;"><strong>Missing for higher level:</strong> ${q.agent.missing}</p>` : ''}
     </div>
 
-    <h4>Evidence Cited by AI:</h4>
-    ${evidenceHtml || '<p style="font-style: italic; color: var(--muted);">No inspectable artifact cited (absence claim).</p>'}
+    <h4 style="margin: 12px 0 4px; font-size: 0.88rem;">Evidence Cited by Agent:</h4>
+    ${evidenceHtml || '<p style="font-style: italic; color: var(--muted); font-size: 0.85rem;">No inspectable artifact cited (absence claim).</p>'}
 
-    <h4 style="margin-top: 18px;">Your Audit Verdict:</h4>
+    <h4 style="margin: 14px 0 4px; font-size: 0.88rem;">Your Audit Verdict:</h4>
     <div class="verdict-group">
       ${packet.verdict_options.map(opt => `
         <label class="verdict-option">
           <input type="radio" name="verdict_b" value="${opt.value}" ${currentVal.verdict === opt.value ? 'checked' : ''}>
           <div>
-            <div>${opt.label}</div>
-            <div style="font-size: 0.78rem; color: var(--muted);">${opt.desc}</div>
+            <div style="font-size: 0.88rem;">${opt.label}</div>
+            <div style="font-size: 0.76rem; color: var(--muted);">${opt.desc}</div>
           </div>
         </label>
       `).join('')}
     </div>
 
-    <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-top: 12px;">Auditor Notes (optional):</label>
-    <textarea class="note-input" placeholder="Add any comments or observations...">${currentVal.note || ''}</textarea>
+    <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-top: 10px;">Auditor Notes (optional):</label>
+    <textarea class="note-input" placeholder="Observations or nuances on this rating...">${currentVal.note || ''}</textarea>
 
     <details class="details-drawer">
-      <summary>▸ Rubric Anchor Thresholds</summary>
+      <summary>▸ Rubric Level Criteria</summary>
       <p><strong>What counts as Shown:</strong> ${q.shown}</p>
       <p><strong>What counts as Checked:</strong> ${q.checked}</p>
       <p><strong>Applies when:</strong> ${q.applies_when}</p>
@@ -530,22 +788,22 @@ function renderFeedbackCard() {
   const card = document.createElement('div');
   card.className = 'card';
   card.innerHTML = `
-    <h2>Your Experience with this Audit</h2>
-    <p>Please rate your perception of the audit workload, rubric clarity, and human-AI pairing.</p>
+    <h2 style="margin-top:0; color: var(--primary);">Audit Feedback & Experience</h2>
+    <p style="font-size: 0.9rem; color: var(--muted);">Please rate your experience auditing the agent's pre-extracted citations versus reading from scratch.</p>
     <div id="feedback-fields"></div>
-    <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-top: 16px;">Optional Written Feedback:</label>
-    <textarea id="feedback-comment-input" class="note-input" style="min-height: 80px;" placeholder="Any observations on confusing terms, tool usability, or benchmark quality...">${state.feedback_comment || ''}</textarea>
+    <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-top: 14px;">Optional Written Comments:</label>
+    <textarea id="feedback-comment-input" class="note-input" style="min-height: 70px;" placeholder="Any observations on confusing criteria, workbench usability, or benchmark quality...">${state.feedback_comment || ''}</textarea>
   `;
 
   const container = card.querySelector('#feedback-fields');
-  packet.feedback.forEach(fb => {
+  (packet.feedback || []).forEach(fb => {
     const group = document.createElement('div');
-    group.style.margin = '16px 0';
+    group.style.margin = '14px 0';
     group.innerHTML = `
-      <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 6px;">${fb.question}</label>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <label style="font-weight: 600; font-size: 0.88rem; display: block; margin-bottom: 5px;">${fb.question}</label>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
         ${fb.labels.map(l => `
-          <label style="font-size: 0.85rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; cursor: pointer;">
+          <label style="font-size: 0.82rem; padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; cursor: pointer;">
             <input type="radio" name="fb_${fb.id}" value="${l}" ${state.feedback[fb.id] === l ? 'checked' : ''}> ${l}
           </label>
         `).join('')}
@@ -574,11 +832,11 @@ function renderExportCard() {
   
   const totalAudited = Object.keys(state.answers.part_a).length + Object.keys(state.answers.part_b).length;
   card.innerHTML = `
-    <h2>Audit Completed</h2>
+    <h2 style="margin-top:0; color: var(--primary);">Audit Completed!</h2>
     <p>You have audited <strong>${totalAudited} of 37</strong> benchmark judgments for HumanEval.</p>
     <div class="claim-box">
       <strong>Export Your Verification Findings:</strong>
-      <p style="margin: 4px 0 0;">Download your completed decisions as a JSON artifact or export the exact CSV formatted for the research paper (populating the missing <code>human_verdict</code> column).</p>
+      <p style="margin: 4px 0 0;">Download your completed decisions as a JSON payload or export the exact CSV formatted for the research paper (populating the missing <code>human_verdict</code> column).</p>
     </div>
     <div style="display: flex; gap: 12px; margin-top: 16px;">
       <button type="button" class="primary" onclick="exportCSV()">Export CSV for Paper</button>
@@ -625,6 +883,7 @@ window.exportJSON = () => {
   const payload = {
     audit_id: packet.audit_id,
     timestamp: new Date().toISOString(),
+    familiarity: state.familiarity,
     answers: state.answers,
     feedback: state.feedback,
     feedback_comment: state.feedback_comment
@@ -648,8 +907,8 @@ themeBtn.onclick = () => {
   themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
 };
 
-// Init
-selectTab('README.md');
+// Initialize
+selectTab('Official PDF (Chen et al. 2021)');
 renderCard();
 </script>
 </body>

@@ -19,13 +19,17 @@ def verify():
     assert len(packet["part_a"]) == 8, f"Expected 8 Part A facets, got {len(packet['part_a'])}"
     assert len(packet["part_b"]) == 29, f"Expected 29 Part B questions, got {len(packet['part_b'])}"
     assert len(packet["feedback"]) == 5, f"Expected 5 feedback questions, got {len(packet['feedback'])}"
+    assert len(packet["familiarity"]) == 4, f"Expected 4 familiarity questions, got {len(packet.get('familiarity', []))}"
+    assert len(packet["definitions"]) >= 75, f"Expected at least 75 definitions, got {len(packet.get('definitions', []))}"
     assert len(packet["verdict_options"]) == 5, "Expected 5 verdict options"
     
-    # 2. Check repo files
+    # 2. Check repo files & PDF
     repo_files = packet["benchmark"]["repo_files"]
     assert "README.md" in repo_files, "README.md missing from repo files"
     assert "human_eval/execution.py" in repo_files, "execution.py missing from repo files"
     assert len(packet["benchmark"]["paper_text"]) > 10000, "paper_text too small or missing"
+    assert (DIR / "paper.pdf").exists(), "paper.pdf missing"
+    assert (DIR / "paper.pdf").stat().st_size > 1000000, "paper.pdf incomplete"
     
     # 3. Check citations
     for f in packet["part_a"]:
@@ -43,6 +47,10 @@ def verify():
     assert "<!doctype html>" in html_content
     assert "mesa-v4-humaneval-audit-v1" in html_content
     assert "workbench" in html_content
+    assert "Official PDF" in html_content
+    assert "Paper Text" in html_content
+    assert "term-tip" in html_content
+    assert "annotate" in html_content
     assert "exportCSV" in html_content
     assert "exportJSON" in html_content
 
