@@ -1,0 +1,114 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "benchmark",
+  "framework",
+  "judgments",
+  "limits"
+ ],
+ "properties": {
+  "benchmark": {
+   "type": "string"
+  },
+  "framework": {
+   "type": "string",
+   "enum": [
+    "ECBD"
+   ]
+  },
+  "limits": {
+   "type": "string"
+  },
+  "judgments": {
+   "type": "array",
+   "minItems": 20,
+   "maxItems": 20,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "item_id",
+     "answer",
+     "basis",
+     "reason",
+     "evidence",
+     "missing",
+     "checks"
+    ],
+    "properties": {
+     "item_id": {
+      "type": "string",
+      "enum": [
+       "ECBD-Q1",
+       "ECBD-Q2",
+       "ECBD-Q3",
+       "ECBD-Q4",
+       "ECBD-Q5",
+       "ECBD-Q6",
+       "ECBD-Q7",
+       "ECBD-Q8",
+       "ECBD-Q9",
+       "ECBD-Q10",
+       "ECBD-Q11",
+       "ECBD-Q12",
+       "ECBD-Q13",
+       "ECBD-Q14",
+       "ECBD-Q15",
+       "ECBD-Q16",
+       "ECBD-Q17",
+       "ECBD-Q18",
+       "ECBD-Q19",
+       "ECBD-Q20"
+      ]
+     },
+     "answer": {
+      "type": "string"
+     },
+     "basis": {
+      "type": "string",
+      "enum": [
+       "evidence_found",
+       "absence_of_information",
+       "defect_found",
+       "not_applicable"
+      ]
+     },
+     "reason": {
+      "type": "string"
+     },
+     "missing": {
+      "type": "string"
+     },
+     "checks": {
+      "type": "string"
+     },
+     "evidence": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "source",
+        "locator",
+        "quote"
+       ],
+       "properties": {
+        "source": {
+         "type": "string"
+        },
+        "locator": {
+         "type": "string"
+        },
+        "quote": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

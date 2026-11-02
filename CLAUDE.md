@@ -1,19 +1,16 @@
 # MESA Repository Context for Claude
 
-Read [`AGENTS.md`](AGENTS.md) for current research instructions and source boundaries. [`README.md`](README.md) explains the questionnaire and repository layout; [`CHASE-study.md`](CHASE-study.md) links the model-study methods, records, findings, and offline analysis commands.
+Read [`AGENTS.md`](AGENTS.md) for repository rules and source boundaries, [`v4/README.md`](v4/README.md) for the v4 comparative standard and rubric study, and [`README.md`](README.md) and [`CHASE-study.md`](CHASE-study.md) for the earlier 25-question questionnaire study.
 
 ## Current Contribution and Manuscripts
 
-MESA is the **25-question AI benchmark review questionnaire** adapted from the EFPA Test Review Model 2025. It uses six domains and five categorical choices (`Yes`, `Partly`, `No`, `Not sure`, `Not applicable`), without an aggregate quality score. Keep descriptive benchmark facts (Questions 1–5) separate from review judgments, missing information separate from explicit negative findings, and evidence that a check occurred separate from whether its findings were favorable.
+The repository tracks both the **v4 MESA comparative standard and derived evidence rubric** ([`v4/`](v4/)) and the preserved earlier iterations of MESA:
 
-- **CHASE submission:** [`paper_chase.tex`](paper_chase.tex), covering the questionnaire adaptation and model experiments. Human evaluation belongs in future work.
-- **REFSQ submission:** [`paper_refsq.tex`](paper_refsq.tex), planned as the CHASE paper with human evaluation added. Preserve the shared conceptual and model-study contribution, then add the human method and real findings when available (using explicit placeholders until then).
-- **RETRAI submission manuscript:** [`paper.tex`](paper.tex), preserved unless the user explicitly requests changes.
-- **Older manuscript:** [`paper_old.tex`](paper_old.tex), preserved unless the user explicitly requests changes.
-
-The current CHASE and REFSQ papers share the title “MESA: Adapting the EFPA Test Review Model for AI Benchmark Review.” IEEE is confirmed for CHASE; empirical method standards ([`supporting/adaptation/standards-assessment.md`](supporting/adaptation/standards-assessment.md)) are separate from submission formatting. Do not assume REFSQ uses the CHASE format.
-
-The current reporting selection ([`surveys/colleague-review/mesa-study/chase-report/`](surveys/colleague-review/mesa-study/chase-report/), Claude Sonnet 5.5, 30 conversations: 10 MESA from `claude-sonnet-5-5-guidance-v2` and 20 EFPA-TRM/general-instruction from `claude-sonnet-5-5`, with 28 usable responses and 32 physical attempts) compares the questionnaire package with the original complete 90-page EFPA model and general review instructions. Easier human use is a design goal, not a measured result. Repeated model runs are not people, and role prompts are not validated human simulations. Disclose that Claude Opus 5.5 (same model family as reviewer Claude Sonnet 5.5) and OpenAI Codex assisted with the batches and analysis. Earlier development, reconciliation, and agreement are not validation evidence for the questionnaire.
+- **Current CHASE v4 submission (`paper_chase_v4.tex`) and full v4 manuscript (`paper_mesa_v4.tex`):** *A Common Standard for Comparing Reviews of Artificial Intelligence Benchmarks.* Maps 280 items across seven benchmark review frameworks (BetterBench, ECBD worksheet, Scorecard of AI Benchmark Quality, How2Bench, Agentic Benchmark Checklist, Benchmark Caliper, OECD facets) onto 30 shared concerns, recodes outcomes into *favorable*, *unfavorable*, and *unresolved* with *partial* and *unresolved by rule* markers, and evaluates a derived 8-facet, 29-question evidence rubric across HumanEval, TruthfulQA, Humanity's Last Exam, and $\tau$-bench using Claude Sonnet 5.5 (`v4/study/`). See [`v4/README.md`](v4/README.md) and [`v4/study/README.md`](v4/study/README.md) for file, snapshot, export, and packaging details.
+- **Preserved v3 audit rubric manuscript:** [`paper_mesa_v3.tex`](paper_mesa_v3.tex) ([`v3/`](v3/)).
+- **Preserved 25-question EFPA questionnaire manuscripts:** [`paper_chase.tex`](paper_chase.tex) and [`paper_refsq.tex`](paper_refsq.tex) (*MESA: Adapting the EFPA Test Review Model for AI Benchmark Review*), covering the 25-question questionnaire adapted from the EFPA Test Review Model 2025 (`surveys/colleague-review/mesa-study/chase-report/`, Claude Sonnet 5.5, 30 conversations).
+- **Preserved RETRAI submission manuscript:** [`paper.tex`](paper.tex), preserved unless the user explicitly requests changes.
+- **Preserved older manuscript:** [`paper_old.tex`](paper_old.tex), preserved unless the user explicitly requests changes.
 
 ## Repository Structure and Working Rules
 
@@ -29,7 +26,8 @@ For survey tasks, read [`surveys/colleague-review/agent-guide.md`](surveys/colle
 
 ## Verification
 
-- CHASE study & manuscript: `python3 surveys/colleague-review/mesa-study/chase-report/analyze.py` and `python3 surveys/colleague-review/mesa-study/chase-report/verify.py`
+- v4 mapping & study harness: `python3 v4/mapping/check.py` and `python3 v4/study/test_harness.py`
+- Earlier CHASE questionnaire study & manuscript: `python3 surveys/colleague-review/mesa-study/chase-report/analyze.py` and `python3 surveys/colleague-review/mesa-study/chase-report/verify.py`
 - Guided survey: `python3 surveys/colleague-review/verify.py`
 - Supporting RETRAI bundle: `python3 tools/check-thesis.py`
 - **Do not compile LaTeX or open an automatic PDF preview.** Use static checks and report layout and page length as unchecked.

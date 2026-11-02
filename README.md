@@ -8,12 +8,15 @@ One possible application is for an evaluator to prepare a review, colleagues to 
 
 ## Start here
 
+- [Current v4 comparative standard and rubric study (`v4/README.md`)](v4/README.md): mapping 280 items across seven benchmark review frameworks to 30 shared concerns, Study 1 (18 framework sessions + 2 amendment sessions across HumanEval, TruthfulQA, HLE, and τ-bench), Study 2 (8 derived rubric sessions with 296 source-checked ratings), and full file/snapshot/package documentation.
+- [Current CHASE v4 manuscript (`paper_chase_v4.tex`)](paper_chase_v4.tex) and [full v4 manuscript (`paper_mesa_v4.tex`)](paper_mesa_v4.tex): *A Common Standard for Comparing Reviews of Artificial Intelligence Benchmarks* (10-page IEEE CHASE adaptation and full version).
+- [v3 audit rubric manuscript (`paper_mesa_v3.tex`)](paper_mesa_v3.tex) and [v3 study records (`v3/README.md`)](v3/README.md): *Auditing Artificial Intelligence Benchmarks with Coding Agents*.
 - [MESA study materials](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/materials/mesa.txt): the 25 questions, explanations, answer guidance, and completed teaching example used by the reported MESA sessions; human ease of use has not been evaluated.
 - [Guided questionnaire](surveys/colleague-review/survey.html): the participant survey, including a completed teaching example and two benchmarks to review.
 - [Questionnaire and reading passages in Markdown](surveys/colleague-review/survey.md).
 - [CHASE study guide](CHASE-study.md): experimental methods, results, exact prompts, raw responses, failed runs, and analysis commands.
-- [CHASE manuscript](paper_chase.tex): IEEE manuscript for submission to CHASE.
-- [REFSQ manuscript](paper_refsq.tex): planned extension of the CHASE paper with human evaluation, for submission to REFSQ.
+- [Earlier CHASE questionnaire manuscript](paper_chase.tex): IEEE manuscript for the 25-question EFPA adaptation.
+- [REFSQ manuscript](paper_refsq.tex): planned extension of the questionnaire paper with human evaluation, for submission to REFSQ.
 
 ## The questionnaire
 
