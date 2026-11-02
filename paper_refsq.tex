@@ -27,13 +27,13 @@
 \begin{abstract}
 \textbf{Context and motivation:} In Requirements Engineering for Artificial Intelligence (RE4AI), benchmark scores are frequently cited as third-party verification evidence to justify selecting foundation models for software capabilities. Just as software supply chain governance mandates inspecting third-party open-source components via Software Bills of Materials (SBOMs), accepting an AI model requires auditing the benchmark serving as its requirement verification oracle.
 
-\textbf{Question/problem:} Existing benchmark review frameworks lack common criteria, use divergent scoring scales, and conflate missing documentation with system defects, penalizing unstated practices over ten times more often than confirmed flaws. Furthermore, automated LLM audits can hallucinate verification checks or overlook active code execution vulnerabilities if not audited by human software engineers.
+\textbf{Question/problem:} Using benchmark scores as sound requirements evidence depends on \emph{construct validity}: whether benchmark tasks, scoring implementations, and documentation validly operationalize the capability required by the software system. Existing review frameworks lack common criteria, use divergent scoring scales, and conflate missing documentation with system defects, penalizing unstated practices over ten times more often than confirmed flaws. Furthermore, automated LLM audits can hallucinate verification checks or overlook active code execution vulnerabilities if not audited by human software engineers.
 
-\textbf{Principal ideas/results:} We introduce MESA (Meta-Evaluation Standard for AI), a comparative standard mapping 280 items from seven review frameworks onto 30 shared criteria, decoupling unstated practices from verified defects. We formalize benchmark audit evidence within a Requirements Traceability Matrix (RTM) 4-tuple and an explicit acceptance decision rule. We evaluate MESA across 28 coding agent review sessions and design an interactive, split-screen audit workbench where engineers inspect agent ratings against live repository code. In verification, auditors caught critical LLM hallucinations---including an active, unsandboxed code execution call (\texttt{exec}) that the agent claimed was commented out.
+\textbf{Principal ideas/results:} We introduce MESA (Meta-Evaluation Standard for AI), a comparative standard mapping 280 items from seven review frameworks onto 30 shared criteria grounded in construct validity and the EFPA/OECD measurement tradition. MESA separates instrument description into 8 OECD design facets (Part~A) from evaluative construct verification across 29 questions (Part~B), decoupling unstated practices from verified defects. We formalize benchmark audit evidence within a Requirements Traceability Matrix (RTM) 4-tuple and an explicit acceptance decision rule. We evaluate MESA across 28 coding agent sessions and design an interactive audit workbench where engineers inspect agent ratings against live repository code. In verification, auditors caught critical LLM hallucinations---including an active, unsandboxed code execution call (\texttt{exec}) that the agent claimed was commented out.
 
 \textbf{Contribution:} MESA provides an empirical requirements metrology framework, formal RTM calculus, and human-in-the-loop audit protocol for verifying AI benchmark evidence, ensuring valid acceptance criteria for AI-enabled software systems.
 
-\keywords{Requirements Engineering for AI \and AI Benchmarks \and Acceptance Testing \and Construct Validity \and Software Supply Chain \and Human-in-the-Loop Audit.}
+\keywords{Requirements Engineering for AI \and AI Benchmarks \and Acceptance Testing \and Construct Validity \and OECD Facets \and Software Supply Chain \and Human-in-the-Loop Audit.}
 \end{abstract}
 
 \section{Introduction}
@@ -41,20 +41,20 @@
 
 Software engineering teams specifying requirements for artificial intelligence (AI) systems face an acute evidential gap: when selecting a commercial or open-weight foundation model to satisfy functional requirements (such as automated code completion, natural language SQL synthesis, or customer support triage), teams routinely rely on published benchmark scores as verification evidence \cite{habiba_re4ai_maturity_2024}. A high score on a public leaderboard (e.g. HumanEval pass@1 or LMSYS Chatbot Arena), however, does not establish that an AI component satisfies system deployment requirements. Benchmark scores depend heavily on task construction, execution environments, scoring heuristics, and baseline comparisons. Leaderboard positions often encourage sweeping generalizations that exceed the underlying empirical evidence \cite{singh_leaderboard_illusion,alonso_church_sigir}. 
 
-In modern software supply chain governance, teams do not import unverified third-party libraries without inspecting their Software Bill of Materials (SBOM), test suites, and licensing boundaries. In Requirements Engineering (RE), an analogous discipline is required for AI components: when a benchmark score serves as an acceptance testing oracle, rigorous verification demands auditing the benchmark itself \cite{bean_measuring_what_matters,iso_iec_25059_2023}. Do its evaluation tasks validly operationalize the required capability? Does its execution harness run generated code in a secure, hermetic sandbox? And does its scoring rule prevent trivial gaming exploits?
+In modern software supply chain governance, teams do not import unverified third-party libraries without inspecting their Software Bill of Materials (SBOM), test suites, and licensing boundaries. In Requirements Engineering (RE), an analogous discipline is required for AI components: when a benchmark score serves as an acceptance testing oracle, rigorous verification demands auditing the benchmark instrument itself \cite{bean_measuring_what_matters,iso_iec_25059_2023}. Rigorous acceptance verification requires establishing \textbf{construct validity}: do its evaluation tasks genuinely exercise the specified capability rather than superficial syntactic cues? And do its operational design properties---formalized through the \textbf{OECD AI evaluation facets} \cite{cohn_hernandez_orallo_oecd_2023}---match the deployment environment, ensuring hermetic sandboxing and exploit-resistant test oracles?
 
 Since 2023, at least seven frameworks have been proposed to review AI benchmarks as measurement instruments \cite{reuel_betterbench,liu_ecbd_2024,san_joaquin_scorecard_2026,cao_how2bench_2025,zhu_agentic_benchmark_checklist_2025,corona_benchmark_caliper_2026,cohn_hernandez_orallo_oecd_2023}. When requirements engineers attempt to apply them, they encounter an immediate obstacle: existing frameworks lack common criteria, use incompatible scoring scales, and enforce conflicting rules for unstated information. For example, when a benchmark paper omits contamination safeguards, BetterBench scores 0, the Scorecard marks the requirement unsatisfied, and ECBD records the absence in text without a penalty. An engineer comparing reviews cannot distinguish whether a low score reflects a confirmed defect or merely divergent scoring conventions. Furthermore, negative scores for unstated details outnumber documented defects by over ten to one, penalizing incomplete reporting rather than empirical failure.
 
-To bridge this gap, we introduce \textbf{MESA (Meta-Evaluation Standard for AI)}, a translation layer and audit standard for benchmark reviews. MESA establishes:
+To bridge this gap, we introduce \textbf{MESA (Meta-Evaluation Standard for AI)}, a translation layer and audit standard for benchmark reviews. Grounded in psychometric construct validity \cite{kane_validation} and the European Federation of Psychologists' Associations (EFPA) Test Review Model \cite{efpa_test_review_model_2025}, MESA establishes:
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{30 Shared Criteria} mapping 280 items from seven published frameworks onto a unified software requirements metrology;
+    \item \textbf{30 Shared Criteria} mapping 280 items from seven published frameworks onto a unified metrology, structured from construct validity (C01--C04, C16) to operational and governance checks;
     \item \textbf{A Three-Tier Verdict Architecture} decoupling rubric evidence anchors, cross-framework harmonized verdicts, and human audit verification decisions, with qualifiers isolating missing documentation (\emph{undocumented}) from confirmed defects;
-    \item \textbf{The Derived MESA Rubric}, comprising 8 descriptive facets (Part~A) and 29 evaluative questions (Part~B) with a six-anchor evidence scale;
-    \item \textbf{A Requirements Traceability Matrix (RTM) Formalism}, mathematically linking high-level system requirements to audited benchmark evidence;
+    \item \textbf{The Derived MESA Rubric}, separating instrument description across \textbf{8 OECD Design Facets (Part~A)} from evaluative evidence verification across \textbf{29 Construct Validity Questions (Part~B)} with a six-anchor evidence scale;
+    \item \textbf{A Requirements Traceability Matrix (RTM) Formalism}, mathematically linking high-level system requirements to construct definitions and audited benchmark evidence;
     \item \textbf{A Human-in-the-Loop Audit Workbench}, enabling software engineering teams to audit LLM-generated benchmark reviews, trace claims directly to repository code via deep locators, and catch automated reasoning flaws.
 \end{enumerate}
 
-We evaluate MESA through three empirical studies: (1) a cross-framework comparison applying six frameworks to four benchmarks (HumanEval, TruthfulQA, Humanity's Last Exam, and $\tau$-bench) using coding agents; (2) a repeatability study of the derived MESA rubric across two runs; and (3) an empirical human-in-the-loop audit study with software engineers auditing HumanEval using our interactive workbench.
+We evaluate MESA through three empirical studies: (1) a cross-framework comparison applying six frameworks (including the OECD framework) to four benchmarks (HumanEval, TruthfulQA, Humanity's Last Exam, and $\tau$-bench) using coding agents; (2) a repeatability study of the derived MESA rubric across two runs; and (3) an empirical human-in-the-loop audit study with software engineers auditing HumanEval using our interactive workbench.
 
 \section{Background and Motivation}
 \label{sec:background}
@@ -68,16 +68,27 @@ where $G_{\text{AI}}$ represents the functional AI requirement, $E$ is the opera
 
 This evidential chain breaks when the benchmark oracle itself is compromised. If tasks $T$ test superficial syntax rather than semantic correctness (weak construct representation), if the training set overlaps with $T$ (data contamination), or if the harness $H$ allows generated programs to inspect test inputs via runtime introspection, the benchmark score $O_{\text{bench}}$ provides spurious acceptance evidence \cite{jo_wilson_what_does_your_benchmark_measure,line_goes_up}. Auditing the benchmark instrument is therefore a foundational requirement for AI quality assurance.
 
-\subsection{Bridging Psychometrics and Software Engineering}
-In educational and psychological measurement, validity is defined as the degree to which theory and empirical evidence support the interpretation of test scores for a specified use \cite{kane_validation,aera_apa_ncme_standards_2014}. The European Federation of Psychologists' Associations (EFPA) Test Review Model 2025 operationalizes this by separating neutral instrument description (Part~A) from evidence evaluation (Part~B) \cite{efpa_test_review_model_2025}. Cohn and Hern\'andez-Orallo adapted this taxonomic approach to AI evaluation across 18 design facets \cite{cohn_hernandez_orallo_oecd_2023}. 
+\subsection{Construct Validity and Score Meaning in AI Benchmarks}
+In psychological and educational measurement, \textbf{validity} is defined as the degree to which theory and empirical evidence support the interpretation and use of test scores for a specified purpose \cite{kane_validation,aera_apa_ncme_standards_2014}. Under Kane's argument-based validity framework, validation requires constructing an explicit interpretive argument tracing observed task responses to test scores, and test scores to generalized capability claims \cite{kane_validation}. The 2025 version of the European Federation of Psychologists' Associations (EFPA) Test Review Model operationalizes this by separating neutral instrument description (Part~A: purpose, administration, scoring mode, and reference group) from anchored ratings of \textbf{construct representation}, reliability, and validity support (Part~B) that keep missing documentation distinct from negative empirical evidence \cite{efpa_test_review_model_2025}.
 
-To make these psychometric concepts actionable for software engineers, MESA maps them directly to core software engineering equivalents:
+In requirements engineering terms, \textbf{construct validity} represents the \emph{specification coverage and requirement-to-test alignment}: asking whether the benchmark's tasks faithfully exercise the capability defined in the functional specification, or whether scores are inflated by construct underrepresentation or construct-irrelevant variance \cite{kane_validation,aera_apa_ncme_standards_2014}. Kane's interpretive argument functions as a \emph{test assurance case}, ensuring an evidential chain of custody between unit test assertions and deployment claims.
+
+
+\subsection{The OECD AI Evaluation Facets}
+Cohn and Hern\'andez-Orallo adapted this measurement tradition to artificial intelligence across \textbf{18 categorical facets} structured under validity, consistency, and fairness \cite{cohn_categorising_2022,cohn_hernandez_orallo_oecd_2023}. In the 2023 OECD study, when four independent raters classified 20 AI evaluation instruments, an essential empirical pattern emerged: raters agreed consistently on observable design facets describing the instrument's operational profile---such as \emph{Judgeability} (manual, automated, or mixed scoring) and \emph{Purpose} (research vs. conformity)---but disagreed on a third to half of instruments on evaluative facets such as \emph{Coverage} and \emph{Specificity} \cite{cohn_hernandez_orallo_oecd_2023}.
+
+MESA builds directly on this finding by operationalizing the eight observable OECD design facets into Part~A to establish the benchmark's architectural envelope:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Construct Validity $\longleftrightarrow$ Requirement-to-Test Alignment / Specification Coverage:} Assessing whether benchmark tasks genuinely exercise the functional capability defined in the requirements specification (e.g. multi-step algorithm synthesis) or merely test superficial syntactic completions.
-    \item \textbf{Kane's Argument-Based Validity $\longleftrightarrow$ Evidential Chain of Custody / Test Assurance Case:} A documented audit trail demonstrating that test executions, assertion checks, and scoring heuristics logically justify the deployment claim.
-    \item \textbf{EFPA Part~A vs. Part~B $\longleftrightarrow$ SBOM / API Specification vs. QA Acceptance Audit:} Part~A provides a neutral structural manifest of the benchmark's properties; Part~B provides an evaluative, evidence-backed quality assessment.
-    \item \textbf{OECD AI Facets $\longleftrightarrow$ Architectural Design Properties:} \emph{Judgeability} maps to the \textbf{Test Oracle Type} (deterministic assertions vs. LLM-as-a-judge heuristics); \emph{Containedness} maps to \textbf{Hermetic Sandboxing / Environment Isolation}; \emph{Autonomy} maps to the \textbf{Interaction Paradigm} (stateless RPC vs. multi-turn agentic loop); and \emph{Progression} maps to \textbf{Fixture Adaptivity} (static test fixtures vs. dynamic difficulty scaling).
+    \item \textbf{Purpose:} Distinguishing research benchmarks from conformity/procurement benchmarks;
+    \item \textbf{Judgeability:} Classifying the \textbf{Test Oracle Type} (deterministic assertions, LLM-as-a-judge, or human evaluation), which formally gates scoring verification (B07);
+    \item \textbf{Reference:} Establishing whether scores are absolute or relative to baselines, which formally gates comparative evaluation (B09);
+    \item \textbf{Containedness:} Specifying \textbf{Environment Isolation} (fully contained sandbox vs. network/system interference);
+    \item \textbf{Objectivity:} Distinguishing standardized test sets from customized/prompt-sensitive fixtures;
+    \item \textbf{Autonomy:} Classifying the \textbf{Interaction Paradigm} (stateless single-turn RPC vs. multi-turn autonomous agent loop);
+    \item \textbf{Progression:} Indicating \textbf{Fixture Adaptivity} (static test fixtures vs. dynamic difficulty scaling);
+    \item \textbf{Variation:} Classifying test release stability (fixed test sets vs. altered/procedural generation), which formally gates version maintenance (B20).
 \end{itemize}
+The ten remaining evaluative facets map directly to the 29 construct validity criteria in Part~B.
 
 \subsection{Existing Benchmark Review Frameworks}
 We examine seven review frameworks: \textbf{BetterBench (BB)} \cite{reuel_betterbench} (47 lifecycle items), \textbf{ECBD} \cite{liu_ecbd_2024} (20 design questions), the \textbf{Scorecard (SC)} \cite{san_joaquin_scorecard_2026} (68 validity items), \textbf{How2Bench (H2B)} \cite{cao_how2bench_2025} (55 checklist items for code benchmarks), the \textbf{Agentic Benchmark Checklist (ABC)} \cite{zhu_agentic_benchmark_checklist_2025} (44 items), \textbf{Benchmark Caliper (CAL)} \cite{corona_benchmark_caliper_2026} (28 transfer items), and the \textbf{OECD facets} \cite{cohn_hernandez_orallo_oecd_2023} (18 facets). As shown in Table~\ref{tab:frameworks}, each framework addresses overlapping concerns with incompatible scoring conventions.
@@ -109,7 +120,9 @@ OECD & OECD \cite{cohn_hernandez_orallo_oecd_2023} & 18 & All AI & N/A allowed o
 \label{sec:mesa_standard}
 
 \subsection{Shared Review Criteria}
-All 280 unique items across the seven frameworks were transcribed and mapped bottom-up onto \textbf{30 shared criteria} (C01 to C30). Table~\ref{tab:coverage} lists the criteria and framework item allocations. Note that compound items in source frameworks (e.g. Scorecard items checking both reference answers and execution harnesses) yield 373 total criterion allocations across the 280 unique items. Framework coverage varies dramatically: Caliper concentrates all 28 items on cultural transfer (C23), whereas BetterBench, Scorecard, and How2Bench distribute items broadly across lifecycle and validity concerns.
+All 280 unique items across the seven frameworks were transcribed and mapped bottom-up onto \textbf{30 shared criteria} (C01 to C30). Table~\ref{tab:coverage} lists the criteria and framework item allocations. Criteria C01--C04 and C16 represent core \textbf{Construct Validity} (construct definition, task selection justification, construct representation/coverage, and construct extrapolation/generalization); C05--C15 cover test administration, scoring, and defect resistance; C17--C29 address maintenance, replication, and governance; and C30 captures descriptive OECD instrument classification.
+
+Note that compound items in source frameworks (e.g. Scorecard items checking both reference answers and execution harnesses) yield 373 total criterion allocations across the 280 unique items. Framework coverage varies dramatically: Caliper concentrates all 28 items on cultural transfer (C23), whereas BetterBench, Scorecard, and How2Bench distribute items broadly across lifecycle and validity concerns.
 
 \begin{table}[t]
 \caption{The 30 shared review criteria and framework item allocations (RQ1).}
@@ -121,10 +134,10 @@ All 280 unique items across the seven frameworks were transcribed and mapped bot
 \toprule
 \textbf{Id} & \textbf{Shared Review Criterion} & \textbf{BB} & \textbf{ECBD} & \textbf{SC} & \textbf{H2B} & \textbf{ABC} & \textbf{CAL} & \textbf{OECD} & \textbf{Fwks} \\
 \midrule
-C01 & Ability under test is stated and concrete & 2 & 2 & 3 & 2 & 1 & 0 & 1 & 6 \\
+C01 & Ability under test is stated and concrete (Construct Def) & 2 & 2 & 3 & 2 & 1 & 0 & 1 & 6 \\
 C02 & Intended use, users and real-world relevance & 2 & 3 & 1 & 1 & 1 & 0 & 2 & 6 \\
-C03 & Task selection justified for claimed ability & 4 & 3 & 5 & 2 & 1 & 0 & 0 & 5 \\
-C04 & Task set covers the ability representatively & 2 & 5 & 4 & 5 & 0 & 5 & 1 & 6 \\
+C03 & Task selection justified for claimed ability (Relevance) & 4 & 3 & 5 & 2 & 1 & 0 & 0 & 5 \\
+C04 & Task set covers the ability representatively (Coverage) & 2 & 5 & 4 & 5 & 0 & 5 & 1 & 6 \\
 C05 & Tasks and reference answers were checked & 1 & 0 & 10 & 7 & 12 & 3 & 0 & 5 \\
 C06 & Scoring rule is described & 3 & 2 & 4 & 4 & 3 & 0 & 1 & 6 \\
 C07 & Scoring implementation checked / cannot be gamed & 1 & 1 & 8 & 1 & 18 & 0 & 0 & 5 \\
@@ -136,7 +149,7 @@ C12 & Uncertainty and statistical support reported & 1 & 2 & 3 & 1 & 2 & 0 & 0 &
 C13 & Shortcuts, confounds and chance investigated & 0 & 1 & 12 & 1 & 6 & 2 & 1 & 6 \\
 C14 & Training data contamination assessed & 2 & 0 & 1 & 1 & 2 & 0 & 0 & 4 \\
 C15 & Rules for test training / repeat submissions & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 2 \\
-C16 & Claims beyond test supported (generalization) & 1 & 1 & 6 & 1 & 0 & 1 & 2 & 6 \\
+C16 & Claims beyond test supported (Construct Extrapolation) & 1 & 1 & 6 & 1 & 0 & 1 & 2 & 6 \\
 C17 & Fairness across systems and conditions & 0 & 1 & 1 & 0 & 0 & 1 & 2 & 4 \\
 C18 & Materials and replication instructions provided & 10 & 0 & 3 & 11 & 3 & 0 & 1 & 5 \\
 C19 & Terms of access and license stated & 1 & 0 & 0 & 2 & 0 & 0 & 0 & 2 \\
@@ -150,7 +163,7 @@ C26 & Results presented and explained & 0 & 0 & 0 & 6 & 0 & 0 & 0 & 1 \\
 C27 & Data provenance and collection documented & 7 & 1 & 4 & 5 & 0 & 1 & 2 & 6 \\
 C28 & Execution environment isolated and controlled & 0 & 0 & 3 & 0 & 7 & 0 & 1 & 3 \\
 C29 & Domain experts / users involved in review & 1 & 1 & 2 & 0 & 0 & 2 & 0 & 4 \\
-C30 & Benchmark instrument descriptive classification & 0 & 0 & 0 & 0 & 0 & 0 & 10 & 1 \\
+C30 & Benchmark instrument descriptive classification (OECD) & 0 & 0 & 0 & 0 & 0 & 0 & 10 & 1 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -166,8 +179,8 @@ To eliminate confusion across evaluation levels, MESA defines three distinct ver
 \subsection{The Derived MESA Rubric}
 Derived directly from the 30 criteria, the MESA rubric has two parts:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Part~A (8 OECD Facets):} Structural classification (Purpose, Judgeability, Reference, Containedness, Objectivity, Autonomy, Progression, Variation). Three facets formally gate Part~B (e.g. Judgeability gates Question B07).
-    \item \textbf{Part~B (29 Evaluative Questions):} Each question has an asymmetric six-anchor evidence scale: \emph{Claimed} (asserted without inspectable artifact), \emph{Documented} (inspectable artifact present), \emph{Verified} (systematic check reported with coverage/limits), \emph{Contradicted} (confirmed defect or contradiction), \emph{Undocumented} (insufficient evidence), and \emph{Not applicable}. Table~\ref{tab:rubric_summary} defines anchor thresholds for key criteria.
+    \item \textbf{Part~A (8 OECD Design Facets):} Neutral structural classification recording \emph{Purpose}, \emph{Judgeability}, \emph{Reference}, \emph{Containedness}, \emph{Objectivity}, \emph{Autonomy}, \emph{Progression}, and \emph{Variation}. Three facets formally gate Part~B applicability: \emph{Judgeability} gates Question B07 (scoring implementation checks apply when automated or mixed); \emph{Reference} gates B09 (baseline comparisons apply in full when relative); and \emph{Variation} gates B20 (release tracking applies in full when releases are altered/procedural).
+    \item \textbf{Part~B (29 Construct Validity and Evaluation Questions):} Each question evaluates evidential backing (B01--B29, corresponding to C01--C29; C30 is Part~A) using the six-anchor scale: \emph{Claimed} (asserted without inspectable artifact), \emph{Documented} (inspectable artifact present), \emph{Verified} (systematic check reported with coverage/limits), \emph{Contradicted} (confirmed defect or contradiction), \emph{Undocumented} (insufficient evidence), and \emph{Not applicable}. Table~\ref{tab:rubric_summary} defines anchor thresholds for key criteria.
 \end{itemize}
 
 \begin{table}[t]
@@ -180,9 +193,9 @@ Derived directly from the 30 criteria, the MESA rubric has two parts:
 \toprule
 \textbf{Id} & \textbf{Evaluation Question} & \textbf{What Counts as Shown (Documented)} & \textbf{What Counts as Checked (Verified)} & \textbf{Applies When} \\
 \midrule
-B01 & Ability under test stated & Operational form and scope defined & Definition compared with others or boundaries tested & Always \\
+B01 & Ability under test stated (Construct Def) & Operational form and scope defined & Definition compared with others or boundaries tested & Always \\
 B05 & Tasks and answers checked & Checking procedure described & Coverage, findings, and limits of check reported & Always \\
-B07 & Scoring implementation checked & Scoring code inspectable & Parser validated; exploit / anti-gaming tests reported & Automated / mixed \\
+B07 & Scoring implementation checked & Scoring code inspectable & Parser validated; exploit / anti-gaming tests reported & Gated by OECD Judgeability \\
 B12 & Uncertainty and statistics & Sample size and score uncertainty & Power or significance reasoning reported & Always \\
 B14 & Contamination assessed & Risk acknowledged; safeguard given & Contamination check / held-out procedure reported & Always \\
 B18 & Replication instructions & Code, data, environment present & Independent replication reported; dependencies locked & Always \\
@@ -203,10 +216,10 @@ Our empirical evaluation addresses four research questions:
 \end{itemize}
 
 \subsection{Study 1 \& 2: Model Studies Across Four Benchmarks}
-In Study 1, coding agents (Claude Sonnet 5.5 through Claude Code at medium effort) applied six frameworks across four frozen benchmarks: HumanEval \cite{human_eval_repository}, TruthfulQA \cite{truthfulqa_repository}, Humanity's Last Exam (HLE) \cite{phan_etal_hle_2025}, and $\tau$-bench \cite{tau_bench_repository}. In Study 2, agents applied the MESA rubric twice to all four benchmarks. All sessions were confined to read-only tools (\texttt{list\_files}, \texttt{read\_file}) over static snapshots.
+In Study 1, coding agents (Claude Sonnet 5.5 through Claude Code at medium effort) applied six frameworks (BetterBench, ECBD, Scorecard, How2Bench, ABC, and the OECD framework) across four frozen benchmarks: HumanEval \cite{human_eval_repository}, TruthfulQA \cite{truthfulqa_repository}, Humanity's Last Exam (HLE) \cite{phan_etal_hle_2025}, and $\tau$-bench \cite{tau_bench_repository}. In Study 2, agents applied the MESA rubric twice to all four benchmarks. All sessions were confined to read-only tools (\texttt{list\_files}, \texttt{read\_file}) over static snapshots.
 
 \subsection{Study 3: Human-in-the-Loop Audit Workbench}
-To answer RQ4, we developed an interactive, single-page audit platform (\texttt{surveys/rubric-audit/}). Software engineering participants inspect the 37 ratings produced by Claude Sonnet 5.5 on HumanEval. The workbench presents a dual-pane interface: the left pane embeds the full repository code (\texttt{human\_eval/execution.py}, \texttt{README.md}, etc.), while the right pane presents a progressive-disclosure audit flow (Glance $\to$ Evidence Quote $\to$ Verdict: \emph{Confirmed}, \emph{Overstated}, \emph{Absence Plausible}, or \emph{Contradicted}). Auditors can click locators to deep-link directly into code files at exact line numbers.
+To answer RQ4, we developed an interactive, single-page audit platform (\texttt{surveys/rubric-audit/}). Software engineering participants inspect the 37 ratings produced by Claude Sonnet 5.5 on HumanEval (8 Part~A OECD design facets and 29 Part~B construct validity questions). The workbench presents a dual-pane interface: the left pane embeds the full repository code (\texttt{human\_eval/execution.py}, \texttt{README.md}, etc.), while the right pane presents a progressive-disclosure audit flow (Glance $\to$ Evidence Quote $\to$ Verdict: \emph{Confirmed}, \emph{Overstated}, \emph{Absence Plausible}, or \emph{Contradicted}). Auditors can click locators to deep-link directly into code files at exact line numbers.
 
 \subsection{Experimental Controls and Statistical Metrology}
 To ensure rigorous empirical evaluation in Study 3, the experimental protocol incorporates three key controls:
@@ -220,10 +233,12 @@ To ensure rigorous empirical evaluation in Study 3, the experimental protocol in
 \label{sec:results}
 
 \subsection{Coverage and Disagreements (RQ1 \& RQ2)}
-No criterion is covered by all seven frameworks. Across 18 framework-benchmark sessions in Study 1, standardized verdicts agree on only 53\% of shared criteria. Across 143 pairwise disagreements, verified coding reveals that \textbf{92 of 143 discrepancies (64\%) stem from item granularity (50) or unstated-information rules (42)}, rather than conflicting interpretations of evidence. In contrast, same-framework repeats on HumanEval agreed on 19/21 (BetterBench) and 20/22 criteria (Scorecard), demonstrating that divergence reflects framework design rather than stochastic variation.
+No criterion is covered by all seven frameworks. Across 18 framework-benchmark sessions in Study 1, standardized verdicts agree on only 53\% of shared criteria (producing 711 item answers, where 52 descriptive OECD facet answers are descriptive and not standardized). Framework pairs agree on 17/19 comparisons on documentation and licensing (C18, C19), but diverge sharply on construct validity criteria (C01--C16, agreeing on 117/221 comparisons, 53\%). Across 143 pairwise disagreements, verified coding reveals that \textbf{92 of 143 discrepancies (64\%) stem from item granularity (50) or unstated-information rules (42)}, rather than conflicting interpretations of evidence. In contrast, same-framework repeats on HumanEval agreed on 19/21 (BetterBench) and 20/22 criteria (Scorecard), demonstrating that divergence reflects framework design rather than stochastic variation.
 
 \subsection{The 10:1 Ratio of Omissions to Defects (RQ3)}
 In Study 1 agent sessions, penalties for unstated information outnumbered confirmed defects by over ten to one: across 711 answers, frameworks recorded 199 answers with absent information (52 BB, 123 SC, 23 H2B, 12 ABC) and only 13 with contradicted evidence. Furthermore, 210 answers (30\%) carried the \emph{undocumented} qualifier. Five frameworks penalize omissions by design, leading to false-negative rejections of benchmarks whose only fault is concise documentation.
+
+In Study 2, the eight rubric sessions produced 64 OECD description facet values (Part~A) and 232 construct validity ratings (Part~B). Consistent with the EFPA model's design, of 29 rubric ratings whose evidence was undocumented, 20 were recorded as \emph{Undocumented} (open) and 9 as \emph{Claimed} (crediting stated principles), whereas all 199 such answers in BetterBench, Scorecard, and How2Bench were scored failing. Source verification confirmed 45/64 Part~A OECD design facets, with discrepancies concentrated on \emph{Objectivity} (7/8 rated \emph{customised} for fixed tests) and \emph{Variation} (5/8 rated \emph{altered} for later releases). Across repeated runs, 29/32 repeated OECD facet values (91\%) and 93/116 repeated construct ratings (80\%) were identical.
 
 \subsection{Human Audit Findings and Human-Agent Concordance (RQ4)}
 \noindent\textbf{Human evaluation results for Study 3:}
@@ -239,8 +254,8 @@ Table~\ref{tab:human_audit_results} summarizes human auditor verification of the
 \toprule
 \textbf{Audit Stage} & \textbf{Items} & \textbf{Confirmed} & \textbf{Overstated} & \textbf{Absence Plausible} & \textbf{Contradicted} \\
 \midrule
-Part A (OECD Facets) & 8 & \pending{N} & \pending{N} & --- & \pending{N} \\
-Part B (Rubric Questions) & 29 & \pending{N} & \pending{N} & \pending{N} & \pending{N} \\
+Part A (OECD Design Facets) & 8 & \pending{N} & \pending{N} & --- & \pending{N} \\
+Part B (Construct Validity Questions) & 29 & \pending{N} & \pending{N} & \pending{N} & \pending{N} \\
 \midrule
 \textbf{Total} & \textbf{37} & \pending{Total} & \pending{Total} & \pending{Total} & \pending{Total} \\
 \bottomrule
@@ -249,7 +264,7 @@ Part B (Rubric Questions) & 29 & \pending{N} & \pending{N} & \pending{N} & \pend
 
 \noindent\textbf{Defect Detection in Code:} In Question B18, the agent rated replication materials \emph{Shown} but erroneously asserted in its reasoning that \emph{``execution is commented out by default''}. When human auditors used the workbench's code viewer to inspect \texttt{human\_eval/execution.py} line 50, \pending{insert \% of human auditors} successfully caught the active \texttt{exec(check\_program, exec\_globals)} call and flagged the agent's reasoning as \emph{Contradicted}. Furthermore, code inspection revealed that HumanEval's execution harness lacks anti-gaming protections: generated code can break out of string wrappers via docstring delimiter injection (\texttt{"""}) or inspect unit test assertions directly via runtime call-stack introspection (\texttt{sys.\_getframe(1).f\_locals}).
 
-\noindent\textbf{Inter-Rater Agreement:} Chance-corrected agreement between human auditors and the agent achieved \pending{insert Krippendorff's alpha $\alpha_n = X.XX$}. Concordance was highest on clearly anchored criteria (B01, B06, B19) and lower on boundary distinctions (B02 user relevance vs model use). On seeded synthetic flaws, human auditors achieved a defect detection sensitivity of \pending{insert TPR, e.g. 84.6\%}.
+\noindent\textbf{Inter-Rater Agreement:} Chance-corrected agreement between human auditors and the agent achieved \pending{insert Krippendorff's alpha $\alpha_n = X.XX$}. Concordance was highest on clearly anchored construct validity criteria (B01, B06, B19) and lower on boundary distinctions (B02 user relevance vs model use). On seeded synthetic flaws, human auditors achieved a defect detection sensitivity of \pending{insert TPR, e.g. 84.6\%}.
 
 \subsection{Auditor Perceptions and Usability Feedback}
 The five perception feedback ratings demonstrated that human-agent pairing provides substantial practical benefits for requirements auditing:
@@ -265,8 +280,9 @@ The five perception feedback ratings demonstrated that human-agent pairing provi
 \subsection{Auditing AI Benchmarks for Acceptance Decisions}
 When software engineers specify that an AI model must achieve a target threshold on a benchmark to satisfy a system requirement, MESA provides the acceptance audit checklist:
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Construct Alignment (B01--B04):} Does the benchmark operationalize the specific ability required by the software feature?
-    \item \textbf{Execution Security (B07, B28):} Does the evaluation harness execute generated code safely without active exploits?
+    \item \textbf{Construct Validity (B01--B04, B16):} Does the benchmark validly operationalize the capability required by the software feature, or are high scores driven by construct underrepresentation or dataset shortcuts?
+    \item \textbf{OECD Operational Alignment (Part~A):} Does the benchmark's operational profile match the target system architecture (e.g. \emph{Judgeability} aligning with required test oracle automation; \emph{Containedness} matching sandbox security requirements)?
+    \item \textbf{Harness Security and Defect Resistance (B07, B13, B28):} Does the evaluation harness execute generated code safely without active exploits or call-stack introspection?
     \item \textbf{Uncertainty Bounds (B12):} Are scores backed by confidence intervals or power analyses to ensure differences between models are statistically discernible?
 \end{enumerate}
 
@@ -275,7 +291,7 @@ In classical requirements engineering, an RTM links high-level business goals to
 \[
 \mathcal{M}_{\text{RTM}} \subseteq \mathcal{R} \times \mathcal{C} \times \mathcal{T} \times \mathcal{E}
 \]
-where $\mathcal{R}$ is the set of system functional requirements, $\mathcal{C}$ is the construct definition (MESA B01--B04), $\mathcal{T}$ is the benchmark task suite, and $\mathcal{E}$ is the audited empirical evidence (MESA B05--B29). 
+where $\mathcal{R}$ is the set of system functional requirements, $\mathcal{C}$ is the construct validity specification (MESA B01--B04), $\mathcal{T}$ is the benchmark task suite, and $\mathcal{E}$ is the audited empirical evidence (MESA B05--B29, gated by Part~A OECD design facets). 
 
 Table~\ref{tab:rtm_example} illustrates an instantiated RTM entry for an IDE code-completion assistant. An AI component is formally accepted for requirement $r \in \mathcal{R}$ according to the following decision rule:
 \[
@@ -291,7 +307,7 @@ where $\tau_C(r)$ denotes the mapped MESA criteria, $v(c)$ is the standardized v
 \setlength{\tabcolsep}{3pt}
 \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.4cm}@{}}
 \toprule
-\textbf{System Req ($r$)} & \textbf{Construct Def ($\mathcal{C}$)} & \textbf{Benchmark Tasks ($\mathcal{T}$)} & \textbf{Audited MESA Evidence ($\mathcal{E}$)} & \textbf{Acceptance Verdict} \\
+\textbf{System Req ($r$)} & \textbf{Construct Validity ($\mathcal{C}$)} & \textbf{Benchmark Tasks ($\mathcal{T}$)} & \textbf{Audited MESA Evidence ($\mathcal{E}$)} & \textbf{Acceptance Verdict} \\
 \midrule
 R1: IDE Python docstring-to-code synthesis ($\ge 80\%$ pass@1) & Function-level Python synthesis from docstrings and unit assertions (B01: \emph{Verified}) & HumanEval: 164 hand-written standalone algorithmic functions (B03--B04: \emph{Documented}) & B07: \emph{Claimed} (no anti-gaming); B18: \emph{Verified} (code public); B28: \emph{Contradicted} (unsandboxed \texttt{exec}) & \textbf{Conditional Rejection}: Sandbox required before acceptance \\
 \bottomrule
@@ -308,7 +324,7 @@ In safety-critical procurement (e.g. EU AI Act conformity \cite{eu_ai_act_2024})
 \label{sec:threats}
 
 \subsection{Construct Validity}
-The 30 criteria represent interpretive syntheses of 280 framework items. While all mappings and reconciliation notes are published, alternative groupings are possible. Standardization rules were registered before sessions.
+The 30 criteria represent interpretive syntheses of 280 framework items. While all mappings and reconciliation notes are published, alternative groupings are possible. Standardization rules were registered before sessions. The operationalization of the eight OECD design facets in Part~A builds on demonstrated rater agreement in the 2023 OECD study, though rater variability on \emph{Objectivity} and \emph{Variation} remains an observed limitation.
 
 \subsection{Internal Validity}
 In Study 3, presenting pre-filled agent ratings introduces potential anchoring bias. We mitigate this through counterbalanced unassisted baseline blocks, synthetic flaw injection ($N=6\text{--}8$ seeded traps), and cognitive forcing functions requiring code inspection.
@@ -322,7 +338,7 @@ Automated validation scripts ensure all counts and tables are deterministic. For
 \section{Conclusion and Future Work}
 \label{sec:conclusion}
 
-MESA bridges the divide among existing benchmark review frameworks by establishing a shared vocabulary of 30 criteria, standardized verdicts that isolate missing documentation from verified defects, and an evidence-grounded rubric. Our empirical studies show that cross-framework disagreements stem overwhelmingly from scoring rules rather than evidence differences, and that negative scores penalize unstated practices ten times more often than confirmed defects. Through our human-in-the-loop audit platform, software engineers verified agent reviews in $\sim$32 minutes while catching code execution flaws that static inspection missed. Future work will expand the human audit platform across multimodal benchmarks and develop automated repair heuristics for benchmark harnesses.
+MESA bridges the divide among existing benchmark review frameworks by establishing a shared vocabulary of 30 criteria grounded in construct validity, standardized verdicts that isolate missing documentation from verified defects, and an evidence-grounded rubric. Our empirical studies show that cross-framework disagreements stem overwhelmingly from scoring rules rather than evidence differences, and that negative scores penalize unstated practices ten times more often than confirmed defects. Through our human-in-the-loop audit platform, software engineers verified agent reviews in $\sim$32 minutes while catching code execution flaws that static inspection missed. Future work will expand the human audit platform across multimodal benchmarks and develop automated repair heuristics for benchmark harnesses.
 
 \section*{Data Availability}
 Study materials, benchmark snapshots, the interactive audit application, and analysis scripts are available at an anonymous repository: \url{https://anonymous.4open.science/r/mesa-audit-placeholder}.
