@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MESA Benchmark Audit Workbench: HumanEval</title>
+<style>
+:root {
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --bg: #f4f7f9;
+  --surface: #ffffff;
+  --text: #1a2730;
+  --muted: #576d7d;
+  --line: #d1dde5;
+  --primary: #0a647d;
+  --primary-hover: #085064;
+  --primary-soft: #eaf4f7;
+  --accent: #d97706;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --badge-checked: #166534;
+  --badge-shown: #1e40af;
+  --badge-stated: #b45309;
+  --badge-contra: #991b1b;
+  --badge-undoc: #475569;
+}
+:root[data-theme="dark"] {
+  --bg: #0f171d;
+  --surface: #17232b;
+  --text: #e6eef3;
+  --muted: #95abb9;
+  --line: #2b3e4c;
+  --primary: #40a2be;
+  --primary-hover: #5ab6d1;
+  --primary-soft: #18333e;
+  --accent: #f59e0b;
+  --success: #22c55e;
+  --success-soft: #143822;
+  --danger: #ef4444;
+  --danger-soft: #451a1a;
+  --badge-checked: #22c55e;
+  --badge-shown: #60a5fa;
+  --badge-stated: #fbbf24;
+  --badge-contra: #f87171;
+  --badge-undoc: #94a3b8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; font-size: 15px; }
+header { background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 20px; position: sticky; top: 0; z-index: 50; }
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.header-title h1 { margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+.header-title p { margin: 2px 0 0; font-size: 0.85rem; color: var(--muted); }
+.header-controls { display: flex; align-items: center; gap: 10px; }
+button { font-family: inherit; font-size: 0.9rem; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+button:hover { background: var(--primary-soft); border-color: var(--primary); }
+button.primary { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
+button.primary:hover { background: var(--primary-hover); }
+.theme-btn { border-radius: 50%; width: 36px; height: 36px; padding: 0; display: inline-grid; place-items: center; }
+
+/* Workbench Layout */
+.workbench { display: grid; grid-template-columns: minmax(380px, 1fr) minmax(440px, 1.15fr); gap: 0; height: calc(100vh - 65px); }
+@media (max-width: 900px) {
+  .workbench { display: flex; flex-direction: column; height: auto; }
+}
+
+/* Left Pane: Sources Inspector */
+.left-pane { border-right: 1px solid var(--line); display: flex; flex-direction: column; background: var(--surface); height: 100%; overflow: hidden; }
+.pane-header { padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--primary-soft); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pane-header h2 { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; }
+.file-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 6px 12px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.tab-btn { font-size: 0.82rem; padding: 5px 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; white-space: nowrap; }
+.tab-btn.active { background: var(--primary-soft); color: var(--primary); font-weight: 700; border-color: var(--line); }
+.file-search-bar { padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; }
+.search-input { width: 100%; font-family: inherit; font-size: 0.85rem; padding: 6px 10px; border-radius: 5px; border: 1px solid var(--line); background: var(--surface); color: var(--text); }
+.file-viewer { flex: 1; overflow-y: auto; padding: 12px; font-family: var(--font-mono); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.code-line { display: block; padding: 0 4px; border-radius: 2px; }
+.code-line.highlight { background: #fef08a !important; color: #854d0e !important; font-weight: 700; outline: 2px solid #eab308; }
+:root[data-theme="dark"] .code-line.highlight { background: #854d0e !important; color: #fef08a !important; }
+
+/* Right Pane: Audit Flow */
+.right-pane { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: var(--bg); padding: 20px 24px; }
+.audit-container { max-width: 760px; margin: 0 auto; width: 100%; }
+
+/* Progress bar */
+.progress-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.progress-bar-wrap { flex: 1; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 0.2s ease; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+.badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; }
+.badge.checked { background: var(--badge-checked); }
+.badge.shown { background: var(--badge-shown); }
+.badge.stated { background: var(--badge-stated); }
+.badge.contradicted { background: var(--badge-contra); }
+.badge.insufficient_evidence, .badge.not_applicable { background: var(--badge-undoc); }
+
+.claim-box { background: var(--primary-soft); border-left: 4px solid var(--primary); padding: 12px 14px; border-radius: 0 6px 6px 0; margin: 12px 0 16px; }
+.claim-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.claim-reason { font-size: 0.95rem; margin: 4px 0 0; }
+
+.evidence-quote-box { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 8px 0; font-size: 0.88rem; }
+.evidence-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; font-weight: 600; color: var(--muted); }
+.quote-text { font-style: italic; color: var(--text); border-left: 2px solid var(--line); padding-left: 8px; margin: 4px 0; }
+.inspect-btn { font-size: 0.78rem; padding: 4px 8px; background: var(--primary-soft); color: var(--primary); border: 1px solid var(--line); font-weight: 600; }
+
+.verdict-group { margin: 16px 0; display: grid; gap: 8px; }
+.verdict-option { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.verdict-option:hover { background: var(--primary-soft); }
+.verdict-option:has(input:checked) { background: var(--primary-soft); border-color: var(--primary); font-weight: 600; }
+.verdict-option input { margin-top: 3px; accent-color: var(--primary); }
+
+.details-drawer { margin-top: 14px; font-size: 0.85rem; color: var(--muted); }
+.details-drawer summary { cursor: pointer; font-weight: 600; margin-bottom: 6px; }
+
+textarea.note-input { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 8px; font-family: inherit; font-size: 0.88rem; background: var(--surface); color: var(--text); margin-top: 6px; resize: vertical; min-height: 50px; }
+
+.nav-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+.save-toast { font-size: 0.82rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div class="header-title">
+      <h1>MESA Benchmark Audit: HumanEval (OpenAI Codex)</h1>
+      <p>Human Software Engineering Audit of Claude Sonnet 5.5's Meta-Evaluation Review</p>
+    </div>
+    <div class="header-controls">
+      <span id="save-notice" class="save-toast">Draft saved</span>
+      <button id="theme-toggle" type="button" class="theme-btn" aria-label="Toggle theme">🌙</button>
+      <button id="export-json-btn" type="button">Download JSON</button>
+      <button id="export-csv-btn" type="button" class="primary">Export CSV for Paper</button>
+    </div>
+  </div>
+</header>
+
+<div class="workbench">
+  <!-- LEFT PANE: Benchmark Sources & Code Viewer -->
+  <section class="left-pane" aria-label="Benchmark Sources Viewer">
+    <div class="pane-header">
+      <h2>Evidence Inspector</h2>
+      <span id="active-file-label" style="font-size: 0.8rem; font-weight: 600; color: var(--muted);">README.md</span>
+    </div>
+    <div class="file-tabs" id="file-tabs-container"></div>
+    <div class="file-search-bar">
+      <input type="text" id="file-search" class="search-input" placeholder="Filter lines in current file..." aria-label="Search current file">
+    </div>
+    <div class="file-viewer" id="file-viewer-content"></div>
+  </section>
+
+  <!-- RIGHT PANE: Audit Question Flow -->
+  <main class="right-pane" id="main-flow" aria-label="MESA Audit Questionnaire">
+    <div class="audit-container">
+      <div class="progress-card">
+        <span id="progress-text" style="font-weight: 600; font-size: 0.88rem;">Item 1 of 37</span>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <div id="card-mount"></div>
+
+      <div class="nav-row">
+        <button type="button" id="prev-btn">◀ Previous</button>
+        <button type="button" id="next-btn" class="primary">Next Item ▶</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script id="packet-data" type="application/json">__PACKET_JSON__</script>
+
+<script>
+'use strict';
+const packet = JSON.parse(document.getElementById('packet-data').textContent);
+const STORAGE_KEY = 'mesa_humaneval_audit_v1';
+
+// Auditor state
+let state = {
+  activeTab: 'README.md',
+  stepIndex: 0, // 0 = Intro, 1..8 = Part A, 9..37 = Part B, 38 = Feedback, 39 = Export
+  answers: {
+    part_a: {}, // facet -> { verdict, override, note }
+    part_b: {}, // qid -> { verdict, override, note }
+  },
+  feedback: {}, // id -> rating
+  feedback_comment: ''
+};
+
+// Load draft
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) state = Object.assign(state, JSON.parse(saved));
+} catch (e) {}
+
+function saveDraft() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const el = document.getElementById('save-notice');
+    el.textContent = 'Draft auto-saved';
+    setTimeout(() => el.textContent = '', 2000);
+  } catch (e) {}
+}
+
+// Build file tabs
+const tabsContainer = document.getElementById('file-tabs-container');
+const fileViewer = document.getElementById('file-viewer-content');
+const activeFileLabel = document.getElementById('active-file-label');
+
+const allFiles = {
+  'Glossary': '__GLOSSARY__',
+  'Paper Summary': packet.benchmark.paper_text,
+  ...packet.benchmark.repo_files
+};
+
+function renderTabs() {
+  tabsContainer.innerHTML = '';
+  Object.keys(allFiles).forEach(fileName => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (state.activeTab === fileName ? ' active' : '');
+    btn.textContent = fileName.split('/').pop();
+    btn.title = fileName;
+    btn.onclick = () => selectTab(fileName);
+    tabsContainer.appendChild(btn);
+  });
+}
+
+function selectTab(fileName, highlightText) {
+  state.activeTab = fileName;
+  activeFileLabel.textContent = fileName;
+  renderTabs();
+  renderFileContent(highlightText);
+}
+
+function renderFileContent(highlightQuote) {
+  if (state.activeTab === 'Glossary') {
+    fileViewer.innerHTML = '';
+    const container = document.createElement('div');
+    container.style.cssText = 'padding: 16px; font-family: var(--font); line-height: 1.6;';
+    container.innerHTML = '<h3 style="margin-top:0; color: var(--primary);">Glossary of Technical Terms</h3><p style="color:var(--muted); font-size:0.85rem;">Reference definitions for AI benchmark metrology and HumanEval concepts.</p>';
+    (packet.definitions || []).forEach(d => {
+      const item = document.createElement('div');
+      item.style.cssText = 'margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line);';
+      item.innerHTML = `<strong style="font-size: 0.95rem; color: var(--primary); display:block; margin-bottom: 4px;">${d.term}</strong><div style="font-size: 0.88rem; color: var(--text);">${d.definition}</div>`;
+      container.appendChild(item);
+    });
+    fileViewer.appendChild(container);
+    return;
+  }
+
+  const content = allFiles[state.activeTab] || '';
+  const filter = (document.getElementById('file-search').value || '').toLowerCase();
+  const lines = content.split('\n');
+  
+  fileViewer.innerHTML = '';
+  let targetLineEl = null;
+  let maxScore = 0;
+
+  const cleanWords = (highlightQuote || '').toLowerCase().replace(/[^a-z0-9_\s]/g, ' ').split(/\s+/).filter(w => w.length > 3);
+
+  lines.forEach((line, idx) => {
+    if (filter && !line.toLowerCase().includes(filter)) return;
+    const lineEl = document.createElement('span');
+    lineEl.className = 'code-line';
+    lineEl.textContent = (idx + 1).toString().padStart(4, ' ') + ': ' + line;
+    
+    if (cleanWords.length > 0) {
+      const lineLower = line.toLowerCase();
+      let score = 0;
+      cleanWords.forEach(w => { if (lineLower.includes(w)) score++; });
+      if (score >= Math.min(2, cleanWords.length)) {
+        lineEl.classList.add('highlight');
+        if (score > maxScore) {
+          maxScore = score;
+          targetLineEl = lineEl;
+        }
+      }
+    }
+    fileViewer.appendChild(lineEl);
+  });
+
+  if (targetLineEl) {
+    targetLineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+document.getElementById('file-search').oninput = () => renderFileContent();
+
+// Inspect helper
+window.inspectSource = (sourceFile, quote) => {
+  let matchedFile = Object.keys(allFiles).find(f => f.endsWith(sourceFile) || sourceFile.endsWith(f));
+  if (!matchedFile) {
+    matchedFile = sourceFile.includes('paper') ? 'Paper Summary' : 'README.md';
+  }
+  selectTab(matchedFile, quote);
+};
+
+// Item flow & rendering
+const totalItems = 1 + packet.part_a.length + packet.part_b.length + 1 + 1; // Intro + A + B + Feedback + Export
+const cardMount = document.getElementById('card-mount');
+const progressText = document.getElementById('progress-text');
+const progressBar = document.getElementById('progress-bar-fill');
+
+function updateProgress() {
+  const current = state.stepIndex;
+  const pct = Math.min(100, Math.round((current / (totalItems - 1)) * 100));
+  progressBar.style.width = pct + '%';
+  progressText.textContent = `Stage ${current + 1} of ${totalItems}`;
+}
+
+function renderCard() {
+  cardMount.innerHTML = '';
+  updateProgress();
+  const idx = state.stepIndex;
+
+  if (idx === 0) {
+    renderIntroCard();
+  } else if (idx <= 8) {
+    renderPartACard(packet.part_a[idx - 1]);
+  } else if (idx <= 37) {
+    renderPartBCard(packet.part_b[idx - 9]);
+  } else if (idx === 38) {
+    renderFeedbackCard();
+  } else {
+    renderExportCard();
+  }
+}
+
+function renderIntroCard() {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `
+    <h2>Welcome to the MESA Human-in-the-Loop Benchmark Audit</h2>
+    <p>You are auditing an AI coding agent's review of the <strong>HumanEval</strong> benchmark (${packet.benchmark.overview}).</p>
+    <div class="claim-box">
+      <strong>Your Role as Auditor:</strong>
+      <p style="margin: 4px 0 0;">An AI agent (Claude Sonnet 5.5) has reviewed HumanEval across 8 design facets (Part A) and 29 evaluative questions (Part B), providing citations and locators. Your task is to verify if the cited code and paper excerpts truly justify each rating.</p>
+    </div>
+
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin: 16px 0;">
+      <strong style="color: var(--primary);">Evidence Anchor Ladder:</strong>
+      <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center;">
+        <span class="badge stated">STATED (Asserted in prose)</span> ➔
+        <span class="badge shown">SHOWN (Inspectable code/dataset)</span> ➔
+        <span class="badge checked">CHECKED (Exploit/boundary tests)</span>
+      </div>
+      <p style="font-size: 0.83rem; color: var(--muted); margin: 8px 0 0;">
+        Negative finding: <span class="badge contradicted">CONTRADICTED</span> (Defect or factual contradiction discovered in code/paper).
+      </p>
+    </div>
+
+    <h3>The 3-Step Decision Loop (Self-Paced, ~1–2 mins per item):</h3>
+    <ol style="padding-left: 20px; line-height: 1.8;">
+      <li><strong>Glance at the AI's Rating & Reason</strong>.</li>
+      <li><strong>Check the Evidence Snippet</strong> (click <code>[Inspect]</code> to jump directly to the code/paper line in the left pane, or check the <strong>Glossary</strong> tab for unfamiliar terms).</li>
+      <li><strong>Select ONE Verdict</strong>:
+        <ul style="margin: 4px 0;">
+          <li><code>Confirmed / Supported</code> — Evidence accurately proves the rating.</li>
+          <li><code>Overstated / Weaker</code> — AI exaggerated (evidence only supports a lower level).</li>
+          <li><code>Contradicted / Defect</code> — Evidence reveals an active defect or refutes the claim.</li>
+          <li><code>Absence Plausible</code> — The benchmark genuinely omits this information.</li>
+        </ul>
+      </li>
+    </ol>
+  `;
+  cardMount.appendChild(div);
+}
+
+function renderPartACard(f) {
+  const currentVal = state.answers.part_a[f.facet] || { verdict: null, override: '', note: '' };
+  const card = document.createElement('div');
+  card.className = 'card';
+  
+  let evidenceHtml = '';
+  f.agent.evidence.forEach(ev => {
+    evidenceHtml += `
+      <div class="evidence-quote-box">
+        <div class="evidence-meta">
+          <span>${ev.source} (${ev.locator})</span>
+          <button type="button" class="inspect-btn" onclick="inspectSource('${ev.source}', '${ev.quote.replace(/'/g, "\\'")}')">🔍 Inspect in Left Pane</button>
+        </div>
+        <div class="quote-text">"${ev.quote}"</div>
+      </div>
+    `;
+  });
+
+  card.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Part A: Design Facet</span>
+      ${f.decides ? `<span class="badge stated" title="${f.decides}">Gating Facet</span>` : ''}
+    </div>
+    <h2 style="margin: 6px 0 12px;">${f.facet}</h2>
+    
+    <div class="claim-box">
+      <div class="claim-header">
+        <span>AI Classification: <strong>[ ${f.agent.value} ]</strong></span>
+      </div>
+      <p class="claim-reason">"${f.agent.reason}"</p>
+    </div>
+
+    <h4>Cited Evidence:</h4>
+    ${evidenceHtml || '<p style="font-style: italic; color: var(--muted);">No specific citation offered.</p>'}
+
+    <h4 style="margin-top: 18px;">Your Audit Verdict:</h4>
+    <div class="verdict-group">
+      ${packet.verdict_options.filter(o => o.value !== 'absence_plausible').map(opt => `
+        <label class="verdict-option">
+          <input type="radio" name="verdict_a" value="${opt.value}" ${currentVal.verdict === opt.value ? 'checked' : ''}>
+          <div>
+            <div>${opt.label}</div>
+            <div style="font-size: 0.78rem; color: var(--muted);">${opt.desc}</div>
+          </div>
+        </label>
+      `).join('')}
+    </div>
+
+    <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-top: 12px;">Auditor Notes (optional):</label>
+    <textarea class="note-input" placeholder="Add any comments or observations...">${currentVal.note || ''}</textarea>
+
+    <details class="details-drawer">
+      <summary>▸ OECD Facet Details & Gating Rule</summary>
+      <p>Allowed values: ${f.values.join(', ')}</p>
+      ${f.decides ? `<p><strong>Gating Rule:</strong> ${f.decides}</p>` : ''}
+    </details>
+  `;
+
+  // Bind inputs
+  card.querySelectorAll('input[name="verdict_a"]').forEach(r => {
+    r.onchange = () => {
+      currentVal.verdict = r.value;
+      state.answers.part_a[f.facet] = currentVal;
+      saveDraft();
+    };
+  });
+  card.querySelector('textarea').oninput = (e) => {
+    currentVal.note = e.target.value;
+    state.answers.part_a[f.facet] = currentVal;
+    saveDraft();
+  };
+
+  cardMount.appendChild(card);
+}
+
+function renderPartBCard(q) {
+  const currentVal = state.answers.part_b[q.id] || { verdict: null, override: '', note: '' };
+  const card = document.createElement('div');
+  card.className = 'card';
+  
+  let evidenceHtml = '';
+  q.agent.evidence.forEach(ev => {
+    evidenceHtml += `
+      <div class="evidence-quote-box">
+        <div class="evidence-meta">
+          <span>${ev.source} (${ev.locator})</span>
+          <button type="button" class="inspect-btn" onclick="inspectSource('${ev.source}', '${ev.quote.replace(/'/g, "\\'")}')">🔍 Inspect in Left Pane</button>
+        </div>
+        <div class="quote-text">"${ev.quote}"</div>
+      </div>
+    `;
+  });
+
+  const anchorClass = q.agent.answer || 'undoc';
+
+  card.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <span style="font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Part B: Question ${q.id}</span>
+      <span class="badge ${anchorClass}">${q.agent.answer}</span>
+    </div>
+    <h2 style="margin: 6px 0 12px;">${q.question}</h2>
+
+    <div class="claim-box">
+      <div class="claim-header">
+        <span>AI Assigned Anchor: <strong>[ ${q.agent.answer.toUpperCase()} ]</strong></span>
+        <span style="font-size: 0.8rem; color: var(--muted);">Basis: ${q.agent.basis}</span>
+      </div>
+      <p class="claim-reason">"${q.agent.reason}"</p>
+      ${q.agent.missing ? `<p style="font-size: 0.83rem; color: var(--muted); margin: 6px 0 0;"><strong>Missing for higher anchor:</strong> ${q.agent.missing}</p>` : ''}
+    </div>
+
+    <h4>Evidence Cited by AI:</h4>
+    ${evidenceHtml || '<p style="font-style: italic; color: var(--muted);">No inspectable artifact cited (absence claim).</p>'}
+
+    <h4 style="margin-top: 18px;">Your Audit Verdict:</h4>
+    <div class="verdict-group">
+      ${packet.verdict_options.map(opt => `
+        <label class="verdict-option">
+          <input type="radio" name="verdict_b" value="${opt.value}" ${currentVal.verdict === opt.value ? 'checked' : ''}>
+          <div>
+            <div>${opt.label}</div>
+            <div style="font-size: 0.78rem; color: var(--muted);">${opt.desc}</div>
+          </div>
+        </label>
+      `).join('')}
+    </div>
+
+    <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-top: 12px;">Auditor Notes (optional):</label>
+    <textarea class="note-input" placeholder="Add any comments or observations...">${currentVal.note || ''}</textarea>
+
+    <details class="details-drawer">
+      <summary>▸ Rubric Anchor Thresholds</summary>
+      <p><strong>What counts as Shown:</strong> ${q.shown}</p>
+      <p><strong>What counts as Checked:</strong> ${q.checked}</p>
+      <p><strong>Applies when:</strong> ${q.applies_when}</p>
+    </details>
+  `;
+
+  // Bind inputs
+  card.querySelectorAll('input[name="verdict_b"]').forEach(r => {
+    r.onchange = () => {
+      currentVal.verdict = r.value;
+      state.answers.part_b[q.id] = currentVal;
+      saveDraft();
+    };
+  });
+  card.querySelector('textarea').oninput = (e) => {
+    currentVal.note = e.target.value;
+    state.answers.part_b[q.id] = currentVal;
+    saveDraft();
+  };
+
+  cardMount.appendChild(card);
+}
+
+function renderFeedbackCard() {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <h2>Your Experience with this Audit</h2>
+    <p>Please rate your perception of the audit workload, rubric clarity, and human-AI pairing.</p>
+    <div id="feedback-fields"></div>
+    <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-top: 16px;">Optional Written Feedback:</label>
+    <textarea id="feedback-comment-input" class="note-input" style="min-height: 80px;" placeholder="Any observations on confusing terms, tool usability, or benchmark quality...">${state.feedback_comment || ''}</textarea>
+  `;
+
+  const container = card.querySelector('#feedback-fields');
+  packet.feedback.forEach(fb => {
+    const group = document.createElement('div');
+    group.style.margin = '16px 0';
+    group.innerHTML = `
+      <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 6px;">${fb.question}</label>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        ${fb.labels.map(l => `
+          <label style="font-size: 0.85rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; cursor: pointer;">
+            <input type="radio" name="fb_${fb.id}" value="${l}" ${state.feedback[fb.id] === l ? 'checked' : ''}> ${l}
+          </label>
+        `).join('')}
+      </div>
+    `;
+    group.querySelectorAll('input').forEach(r => {
+      r.onchange = () => {
+        state.feedback[fb.id] = r.value;
+        saveDraft();
+      };
+    });
+    container.appendChild(group);
+  });
+
+  card.querySelector('#feedback-comment-input').oninput = (e) => {
+    state.feedback_comment = e.target.value;
+    saveDraft();
+  };
+
+  cardMount.appendChild(card);
+}
+
+function renderExportCard() {
+  const card = document.createElement('div');
+  card.className = 'card';
+  
+  const totalAudited = Object.keys(state.answers.part_a).length + Object.keys(state.answers.part_b).length;
+  card.innerHTML = `
+    <h2>Audit Completed</h2>
+    <p>You have audited <strong>${totalAudited} of 37</strong> benchmark judgments for HumanEval.</p>
+    <div class="claim-box">
+      <strong>Export Your Verification Findings:</strong>
+      <p style="margin: 4px 0 0;">Download your completed decisions as a JSON artifact or export the exact CSV formatted for the research paper (populating the missing <code>human_verdict</code> column).</p>
+    </div>
+    <div style="display: flex; gap: 12px; margin-top: 16px;">
+      <button type="button" class="primary" onclick="exportCSV()">Export CSV for Paper</button>
+      <button type="button" onclick="exportJSON()">Download JSON Payload</button>
+    </div>
+  `;
+  cardMount.appendChild(card);
+}
+
+// Navigation
+document.getElementById('prev-btn').onclick = () => {
+  if (state.stepIndex > 0) {
+    state.stepIndex--;
+    renderCard();
+  }
+};
+document.getElementById('next-btn').onclick = () => {
+  if (state.stepIndex < totalItems - 1) {
+    state.stepIndex++;
+    renderCard();
+  }
+};
+
+// Export functions
+window.exportCSV = () => {
+  let csv = 'benchmark,repeat,part,item_id,agent_rating,human_verdict,human_notes\n';
+  packet.part_a.forEach(f => {
+    const a = state.answers.part_a[f.facet] || {};
+    csv += `humaneval,1,A,"${f.facet}","${f.agent.value}","${a.verdict || ''}","${(a.note || '').replace(/"/g, '""')}"\n`;
+  });
+  packet.part_b.forEach(q => {
+    const a = state.answers.part_b[q.id] || {};
+    csv += `humaneval,1,B,"${q.id}","${q.agent.answer}","${a.verdict || ''}","${(a.note || '').replace(/"/g, '""')}"\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'humaneval-human-audit.csv';
+  a.click();
+};
+
+window.exportJSON = () => {
+  const payload = {
+    audit_id: packet.audit_id,
+    timestamp: new Date().toISOString(),
+    answers: state.answers,
+    feedback: state.feedback,
+    feedback_comment: state.feedback_comment
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'humaneval-human-audit.json';
+  a.click();
+};
+
+document.getElementById('export-json-btn').onclick = exportJSON;
+document.getElementById('export-csv-btn').onclick = exportCSV;
+
+// Theme toggle
+const themeBtn = document.getElementById('theme-toggle');
+themeBtn.onclick = () => {
+  const current = document.documentElement.dataset.theme;
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+};
+
+// Init
+selectTab('README.md');
+renderCard();
+</script>
+</body>
+</html>

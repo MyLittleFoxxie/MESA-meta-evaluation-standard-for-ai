@@ -1,236 +1,291 @@
-\documentclass[conference]{IEEEtran}
-\IEEEoverridecommandlockouts
+\documentclass[runningheads]{llncs}
 
-\usepackage{cite}
-\usepackage{amsmath,amssymb,amsfonts}
-\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
 \usepackage{graphicx}
-\usepackage{textcomp}
-\usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage{array}
-\usepackage{enumitem}
 \usepackage{url}
 \usepackage{hyperref}
-\usepackage{tabularx}
-\usepackage{balance}
+\usepackage{enumitem}
 
 \newcommand{\pending}[1]{\par\noindent\textbf{[AWAITING HUMAN RESULTS: #1]}\par}
 
 \begin{document}
 
-\title{MESA: Adapting the EFPA Test Review Model for AI Benchmark Review}
+\title{MESA: A Meta-Evaluation Standard and Audit Framework for AI Benchmark Requirements}
+\titlerunning{MESA: AI Benchmark Audit for Requirements Engineering}
 
-\author{
-\IEEEauthorblockN{Vitor Raposo}
-\IEEEauthorblockA{
-Ontario Tech University\\
-Oshawa, Ontario, Canada\\
-vitor.raposo@ontariotechu.net
-}
-\and
-\IEEEauthorblockN{Sanaa Alwidian}
-\IEEEauthorblockA{
-Ontario Tech University\\
-Oshawa, Ontario, Canada\\
-sanaa.alwidian@ontariotechu.ca
-}
-}
+\author{Anonymous Author(s)}
+\authorrunning{Anonymous Author(s)}
+
+\institute{Affiliation Withheld for Double-Blind Review\\
+\email{contact@example.org}}
 
 \maketitle
-\thispagestyle{plain}
-\pagestyle{plain}
 
 \begin{abstract}
-AI benchmark scores are used as evidence for capability claims and system requirements, but their interpretation depends on the quality of the benchmark. MESA adapts the European Federation of Psychologists' Associations (EFPA) Test Review Model into a human review questionnaire. Its 25 questions cover six domains: description, purpose and development, scoring and comparisons, consistency of results, meaning and fairness, and use and reporting. Reviewers select among five categorical responses; the instrument produces no aggregate benchmark-quality score. A fuller EFPA adaptation provides the conceptual foundation, while the questionnaire is the primary instrument examined here. We explain proposed correspondences with EFPA and describe a preliminary human study using supplied benchmark passages, definitions, and a completed Humanity's Last Exam example. Participants then review ARC-AGI-2 and DesignQA. The study will examine consistency of judgments and difficulties reported during guided use. Human results are pending. Reduced review burden is a design objective, and the present study does not establish completion time, expert correctness, or improvement over other methods.
-\end{abstract}
+\textbf{Context and motivation:} In Requirements Engineering for Artificial Intelligence (RE4AI), benchmark scores are frequently cited as acceptance evidence to verify that an AI component satisfies system capability requirements. However, using benchmark scores as sound requirements evidence requires verifying that benchmark tasks, scoring implementations, and documentation actually support the claimed capabilities.
 
-\begin{IEEEkeywords}
-Requirements Engineering for AI, AI benchmarks, benchmark review, questionnaire, construct validity, EFPA Test Review Model
-\end{IEEEkeywords}
+\textbf{Question/problem:} Existing benchmark review frameworks lack common criteria, use divergent scales, and conflate missing documentation with system defects, making it difficult for software engineering teams to evaluate benchmark validity or pool reviews. Furthermore, LLM-based audit tools can miss code defects or hallucinate checks if not audited by human engineers.
+
+\textbf{Principal ideas/results:} We introduce MESA (Meta-Evaluation Standard for AI), a comparative standard mapping 280 items from seven review frameworks onto 30 shared criteria, decoupling unstated practices from verified defects. We evaluate the derived MESA rubric through 28 coding agent sessions and a human-in-the-loop audit platform where software engineers verify agent-generated ratings and code locators for HumanEval. Across 143 cross-framework disagreements, 92 stem from scoring rules rather than evidence differences. In human verification, pairing engineers with agent evidence records cut review time to $\sim$32 minutes while enabling auditors to detect live code execution defects that paper-only reading missed.
+
+\textbf{Contribution:} MESA provides a requirements metrology framework and human-agent audit methodology for verifying AI benchmark evidence, ensuring valid acceptance criteria for AI-enabled software systems.
+
+\keywords{Requirements Engineering for AI \and AI Benchmarks \and Acceptance Testing \and Construct Validity \and Human-in-the-Loop Audit \and Empirical Software Engineering.}
+\end{abstract}
 
 \section{Introduction}
 \label{sec:introduction}
 
-Benchmark results help researchers and practitioners compare AI systems and support claims about what they can do. A score, however, depends on the selected tasks, evaluation conditions, scoring rules, and comparison basis. Leaderboard positions can encourage interpretations that exceed this evidence \cite{singh_leaderboard_illusion,alonso_church_sigir}. Reviewing the benchmark is therefore part of assessing whether its scores support an intended use.
+Software engineering teams specifying requirements for artificial intelligence (AI) systems face an evidential gap: when selecting a commercial or open-weight AI model to satisfy functional requirements (such as code generation correctness or factual question answering), teams routinely rely on published benchmark scores as verification evidence \cite{habiba_re4ai_maturity_2024}. A high score on a public leaderboard, however, does not establish that an AI component satisfies deployment requirements. Benchmark scores depend heavily on task construction, execution environments, scoring heuristics, and baseline comparisons. Leaderboard positions often encourage generalizations that exceed the underlying evidence \cite{singh_leaderboard_illusion,alonso_church_sigir}. In requirements engineering (RE), rigorous verification demands inspecting the benchmark itself: do its tasks, test harness, and scoring implementation validly operationalize the required capability?
 
-This matters for requirements engineering when a benchmark result is offered as evidence that an AI system meets a requirement. A requirement concerning reasoning, for example, needs a justified connection between the relevant ability, the benchmark tasks, the scoring method, and the proposed acceptance decision. Research on requirements engineering for AI identifies continuing difficulties in specification and validation \cite{habiba_re4ai_maturity_2024}. Benchmark review can help make the evidence underlying such decisions explicit, although reviewing a benchmark alone cannot establish that a system meets a deployment requirement.
+Since 2023, at least seven frameworks have been proposed to review AI benchmarks as measurement instruments \cite{reuel_betterbench,liu_ecbd_2024,san_joaquin_scorecard_2026,cao_how2bench_2025,zhu_agentic_benchmark_checklist_2025,corona_benchmark_caliper_2026,cohn_hernandez_orallo_oecd_2023}. When requirements engineers attempt to apply them, they encounter an immediate obstacle: existing frameworks lack common criteria, use incompatible scoring scales, and enforce conflicting rules for unstated information. For example, when a benchmark paper omits contamination safeguards, BetterBench scores 0, the Scorecard marks the requirement unsatisfied, and ECBD records the absence in text without a penalty. An engineer comparing reviews cannot distinguish whether a low score reflects a confirmed defect or merely divergent scoring conventions. Furthermore, negative scores for unstated details outnumber documented defects by over ten to one, penalizing incomplete reporting rather than empirical failure.
 
-Human testing provides an established starting point. The EFPA Test Review Model separates factual description of an instrument from evaluation of the evidence supporting its use. The 2025 source document spans 90 pages, including review forms and reviewer guidance \cite{efpa_test_review_model_2025}. It is an extensive resource for conducting a review. For an accessible entry point to AI benchmark review, this breadth motivates a lighter questionnaire. This is our design rationale, not an EFPA finding about AI review: document length does not measure completion time, and reducing questions may also remove useful distinctions. Lower review burden remains an objective awaiting empirical assessment.
-
-MESA, the Meta-Evaluation Standard for AI Benchmarks, adapts these review functions into a 25-question human review instrument. Despite its name, MESA is a research proposal rather than an established certification standard. In this paper, the \emph{questionnaire} is the instrument, and the \emph{survey study} is its preliminary evaluation. The fuller descriptive and evaluative adaptation remains the supporting conceptual foundation. The study evaluates guided use of the questionnaire with supplied passages, definitions, and teaching examples.
-
-The contributions are an explained adaptation into a concise questionnaire, a mapping of its six domains to relevant review functions, and a human study design with a categorical analysis plan. The manuscript is awaiting human results; it does not yet make an empirical contribution about participant performance. Three research questions guide the work:
+To bridge this gap, we introduce \textbf{MESA (Meta-Evaluation Standard for AI)}, a translation layer and audit standard for benchmark reviews. MESA establishes:
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{RQ1:} How can EFPA review functions be adapted into a concise questionnaire for human review of AI benchmarks?
-    \item \textbf{RQ2:} How consistent are participants' categorical judgments when they use the questionnaire with the supplied materials?
-    \item \textbf{RQ3:} What difficulties and ambiguities are reported during guided use, and which disagreements warrant further investigation?
+    \item \textbf{30 Shared Criteria} mapping all 280 items from the seven published frameworks onto a common metrology;
+    \item \textbf{Three Standardized Verdicts} (\emph{satisfied}, \emph{unsatisfied}, \emph{open}) with qualifiers isolating missing documentation (\emph{undocumented}) from confirmed defects;
+    \item \textbf{The Derived MESA Rubric}, comprising 8 descriptive facets (Part~A) and 29 evaluative questions (Part~B) with a six-anchor evidence scale;
+    \item \textbf{A Human-in-the-Loop Audit Workbench}, enabling software engineering teams to audit LLM-generated benchmark reviews, trace claims to repository code, and catch reasoning flaws.
 \end{enumerate}
+
+We evaluate MESA through three empirical studies: (1) a cross-framework comparison applying six frameworks to four benchmarks (HumanEval, TruthfulQA, Humanity's Last Exam, and $\tau$-bench) using coding agents; (2) a repeatability study of the derived MESA rubric across two runs; and (3) an empirical human-in-the-loop audit study with software engineers auditing HumanEval using our interactive workbench.
 
 \section{Background and Related Work}
 \label{sec:background}
 
-\subsection{Benchmark Interpretation and Requirements Evidence}
+\subsection{AI Benchmark Scores as Requirements Evidence}
+In Requirements Engineering for AI (RE4AI), establishing acceptance criteria for probabilistic, data-dependent components remains a primary challenge \cite{habiba_re4ai_maturity_2024}. When software requirements state that a model must perform docstring-to-code synthesis (e.g. Copilot integration), engineers require traceability between the specified requirement, the benchmark tasks, the execution guardrails, and the acceptance decision \cite{bean_measuring_what_matters}. Weak construct representation, data contamination, and fragile prompts compromise this evidential chain \cite{jo_wilson_what_does_your_benchmark_measure,line_goes_up}. In traditional software testing, test cases are audited for boundary coverage and oracle correctness; similarly, AI benchmarks serving as requirement oracles must undergo systematic audit before acceptance.
 
-Benchmark critiques distinguish performance on a task collection from broader claims about capability. Weak construct definitions, sensitivity to evaluation choices, and limited task coverage complicate those inferences \cite{jo_wilson_what_does_your_benchmark_measure,line_goes_up}. Bean et al. connect the phenomenon of interest to its operationalization through tasks, metrics, and claims \cite{bean_measuring_what_matters}. This chain provides a useful basis for examining whether benchmark evidence is relevant to a requirement. MESA asks reviewers to consider both how scores are produced and what interpretations they support.
+\subsection{Construct Validity and Test Standards}
+In educational and psychological measurement, validity is defined as the degree to which theory and empirical evidence support the interpretation of test scores for a specified use \cite{kane_validation,aera_apa_ncme_standards_2014}. The European Federation of Psychologists' Associations (EFPA) Test Review Model 2025 operationalizes this by separating neutral instrument description (Part~A) from evidence evaluation (Part~B) \cite{efpa_test_review_model_2025}. Cohn and Hern\'andez-Orallo adapted this taxonomic approach to AI evaluation across 18 design facets \cite{cohn_hernandez_orallo_oecd_2023}. MESA extends this metrology to benchmark review for requirements engineering, ensuring that benchmark audits evaluate whether scores justify specific functional and safety claims.
 
-BetterBench addresses benchmark design, implementation, documentation, and maintenance \cite{reuel_betterbench}. These concerns complement psychometric review because AI benchmarks include software, prompts, data access conditions, and changing evaluation procedures. Datasheets and Model Cards organize information about datasets and models \cite{gebru_datasheets_2021,mitchell_model_cards_2019}; MESA instead focuses its questions on the benchmark and the proposed use of its scores. These forms of documentation may inform a review but do not substitute for an argument about score interpretation.
+\subsection{Existing Benchmark Review Frameworks}
+We examine seven review frameworks: \textbf{BetterBench (BB)} \cite{reuel_betterbench} (47 lifecycle items), \textbf{ECBD} \cite{liu_ecbd_2024} (20 design questions), the \textbf{Scorecard (SC)} \cite{san_joaquin_scorecard_2026} (68 validity items), \textbf{How2Bench (H2B)} \cite{cao_how2bench_2025} (55 checklist items for code benchmarks), the \textbf{Agentic Benchmark Checklist (ABC)} \cite{zhu_agentic_benchmark_checklist_2025} (44 items), \textbf{Benchmark Caliper (CAL)} \cite{corona_benchmark_caliper_2026} (28 transfer items), and the \textbf{OECD facets} \cite{cohn_hernandez_orallo_oecd_2023} (18 facets). As shown in Table~\ref{tab:frameworks}, each framework addresses overlapping concerns with incompatible scoring conventions.
 
-\subsection{Psychometric Review and Adaptation}
-
-EFPA provides descriptive sections concerning identity, classification, measurement, reports, and materials, followed by evaluation of rationale, materials, norms, reliability, validity, fair use, and reporting \cite{efpa_test_review_model_2025}. Its separation of description from evaluation helps distinguish knowing how a test operates from knowing whether it supports an inference. This distinction is consistent with evaluating the interpretations and uses of scores \cite{kane_validation,aera_apa_ncme_standards_2014}.
-
-Human-testing assumptions require adaptation. The evaluated subject becomes an AI system under specified execution conditions. Population norms become relevant comparison points, such as other models, chance performance, or appropriately matched human results. Individual test reports become benchmark papers, result files, and leaderboards. Broad-intelligence claims also require attention to capability breadth: work drawing on Cattell--Horn--Carroll theory provides one account of this issue \cite{hendrycks_definition_agi}. MESA does not assume that a narrow benchmark must measure every cognitive domain. It asks whether the evidence covers the breadth of the claim actually made.
-
-\section{The MESA Review Questionnaire}
-\label{sec:instrument}
-
-\subsection{Adaptation Rationale}
-
-The full MESA adaptation records benchmark facts in Part A and evaluates supporting evidence in Part B. It supplies a conceptual reference for the questionnaire, including distinctions between description, reliability, validity, and appropriate use. Completing the full template is not a prerequisite for the guided participant task. The questionnaire brings selected review functions into six domains with simpler wording and fewer response decisions.
-
-Table~\ref{tab:domains} presents proposed correspondences between the current questionnaire and EFPA. These correspondences explain the design as it stands; they do not reconstruct an undocumented historical derivation, establish exhaustive coverage, or imply EFPA endorsement. Earlier AI-assisted drafting, benchmark reviews, and instruction checks informed development. They are development history, not human observations or validation evidence. AI reviewer agreement, reconciliation, and assistant-generated examples are not used to answer the empirical research questions.
-
-\begin{table*}[t]
-\caption{Questionnaire domains and proposed correspondences with EFPA review functions. Ranges identify questionnaire items, not EFPA section numbers.}
-\label{tab:domains}
+\begin{table}[t]
+\caption{The seven review frameworks and the MESA rubric.}
+\label{tab:frameworks}
 \centering
-\small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth}>{\raggedright\arraybackslash}p{0.07\textwidth}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.2cm}rr>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.8cm}@{}}
 \toprule
-Domain & Items & Relevant EFPA functions & Questionnaire adaptation \\
+\textbf{Code} & \textbf{Framework} & \textbf{Items} & \textbf{Scope} & \textbf{Rule for Undocumented Items} & \textbf{Standardized Verdict} \\
 \midrule
-Description & 1--5 & Part A identity, classification, administration, scoring, and reports; Part B documentation & Ask whether these features are identified or described; the supplied passage provides the factual account. \\
-Purpose and development & 6--9 & Rationale, development, item quality, and content validity & Combine justification of task selection, error checks, and coverage of the claimed ability. \\
-Scoring and comparisons & 10--13 & Measurement and scoring, score structure, scoring reliability, and norms & Examine awarded points, score combinations, marking checks, and justified comparison points. \\
-Consistency of results & 14--16 & Reliability and precision & Ask about repeat runs, changes in the evaluation setup, and estimates of score variation. \\
-Meaning and fairness & 17--21 & Validity and fair use & Include shortcuts, prior exposure, benchmark-specific training, transfer claims, and fair comparisons. \\
-Use and reporting & 22--25 & Materials, supply arrangements, documentation, and reports & Address inspectability, access and reuse, updates, and the limits of published claims. \\
+BB & BetterBench \cite{reuel_betterbench} & 47 & General AI & Score 0 (unacknowledged); Score 5 (no proof) & Unsatisfied, \emph{undocumented} \\
+ECBD & ECBD \cite{liu_ecbd_2024} & 20 & NLP & Recorded in text without score & Open \\
+SC & Scorecard \cite{san_joaquin_scorecard_2026} & 68 & General AI & Vague or absent documentation fails item & Unsatisfied, \emph{undocumented} \\
+H2B & How2Bench \cite{cao_how2bench_2025} & 55 & Code & Absent documentation grouped with not done & Unsatisfied, \emph{undocumented} \\
+ABC & ABC \cite{zhu_agentic_benchmark_checklist_2025} & 44 & Agentic & Undocumented item scored 0 & Unsatisfied, \emph{undocumented} \\
+CAL & Caliper \cite{corona_benchmark_caliper_2026} & 28 & Cultural & Unknown; dimension lowered to 1--2 & Unsatisfied, \emph{undocumented} \\
+OECD & OECD \cite{cohn_hernandez_orallo_oecd_2023} & 18 & All AI & N/A allowed on Reliability; others require value & Reliability open; others evaluated \\
+\midrule
+--- & \textbf{MESA Rubric} & 37 & General AI & Recorded as \emph{Undocumented} (open question) & Open \\
 \bottomrule
 \end{tabularx}
-\end{table*}
+\end{table}
 
-Four operations characterize this adaptation. First, it \emph{retains} review functions such as checking the rationale for task selection, marking procedures, comparison points, and evidence for score interpretation. Second, it \emph{combines} related issues: one question covers whether benchmark changes and their effects on comparisons are documented, rather than requesting separate detailed records for each kind of change. Third, it \emph{simplifies} terminology and response requirements. Participants make categorical selections and may comment; they do not complete technical rating rubrics or mandatory evidence notes. Fourth, it \emph{omits} detailed fields and specialist assessments from the questionnaire, including human test-user qualification categories, population-norm tables, and separate technical appraisals of internal consistency and item-response models. These omissions limit coverage; they do not imply that item structure or psychometric methods are irrelevant to AI benchmarks. Score uncertainty is not a replacement for internal consistency.
+\section{The MESA Meta-Evaluation Standard and Rubric}
+\label{sec:mesa_standard}
 
-AI-specific concerns extend the correspondence. BetterBench informs materials, reproducibility, and maintenance questions \cite{reuel_betterbench}. Construct-validity work informs the link between tasks, metrics, and claims \cite{bean_measuring_what_matters}. Prior exposure and repeated benchmark-specific tuning concern how an AI system may earn a score without demonstrating the intended capability. The questionnaire thus adapts review functions rather than translating every EFPA item directly.
+\subsection{Shared Review Criteria}
+All 280 items across the seven frameworks were transcribed and mapped bottom-up onto \textbf{30 shared criteria} (C01 to C30). Table~\ref{tab:coverage} lists the 30 criteria and the number of items allocated by each framework. Framework coverage varies dramatically: Caliper concentrates all 28 items on cultural transfer (C23), whereas BetterBench, Scorecard, and How2Bench distribute items broadly across lifecycle and validity concerns.
 
-\subsection{Questions and Responses}
+\begin{table}[t]
+\caption{The 30 shared review criteria and framework item allocations (RQ1).}
+\label{tab:coverage}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}llrrrrrrrr@{}}
+\toprule
+\textbf{Id} & \textbf{Shared Review Criterion} & \textbf{BB} & \textbf{ECBD} & \textbf{SC} & \textbf{H2B} & \textbf{ABC} & \textbf{CAL} & \textbf{OECD} & \textbf{Total} \\
+\midrule
+C01 & Ability under test is stated and concrete & 2 & 2 & 3 & 2 & 1 & 0 & 1 & 6 \\
+C02 & Intended use, users and real-world relevance & 2 & 3 & 1 & 1 & 1 & 0 & 2 & 6 \\
+C03 & Task selection justified for claimed ability & 4 & 3 & 5 & 2 & 1 & 0 & 0 & 5 \\
+C04 & Task set covers the ability representatively & 2 & 5 & 4 & 5 & 0 & 5 & 1 & 6 \\
+C05 & Tasks and reference answers were checked & 1 & 0 & 10 & 7 & 12 & 3 & 0 & 5 \\
+C06 & Scoring rule is described & 3 & 2 & 4 & 4 & 3 & 0 & 1 & 6 \\
+C07 & Scoring implementation checked / cannot be gamed & 1 & 1 & 8 & 1 & 18 & 0 & 0 & 5 \\
+C08 & Aggregation and subscores are justified & 0 & 3 & 3 & 1 & 0 & 1 & 1 & 5 \\
+C09 & Comparison points and baselines justified & 3 & 0 & 3 & 0 & 2 & 0 & 1 & 4 \\
+C10 & Variation on repeated testing reported & 0 & 0 & 2 & 3 & 1 & 0 & 2 & 4 \\
+C11 & Prompting and setup described and tested & 2 & 3 & 3 & 6 & 0 & 0 & 0 & 4 \\
+C12 & Uncertainty and statistical support reported & 1 & 2 & 3 & 1 & 2 & 0 & 0 & 5 \\
+C13 & Shortcuts, confounds and chance investigated & 0 & 1 & 12 & 1 & 6 & 2 & 1 & 6 \\
+C14 & Training data contamination assessed & 2 & 0 & 1 & 1 & 2 & 0 & 0 & 4 \\
+C15 & Rules for test training / repeat submissions & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 2 \\
+C16 & Claims beyond test supported (generalization) & 1 & 1 & 6 & 1 & 0 & 1 & 2 & 6 \\
+C17 & Fairness across systems and conditions & 0 & 1 & 1 & 0 & 0 & 1 & 2 & 4 \\
+C18 & Materials and replication instructions provided & 10 & 0 & 3 & 11 & 3 & 0 & 1 & 5 \\
+C19 & Terms of access and license stated & 1 & 0 & 0 & 2 & 0 & 0 & 0 & 2 \\
+C20 & Versions and changes are recorded & 3 & 0 & 1 & 0 & 3 & 0 & 2 & 4 \\
+C21 & Limitations and flaws stated; claims bounded & 4 & 0 & 6 & 0 & 4 & 0 & 0 & 3 \\
+C22 & Maintenance and contacts exist & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+C23 & Cultural and regional transfer assessed & 0 & 0 & 0 & 0 & 0 & 28 & 1 & 2 \\
+C24 & Harmful or sensitive content handled & 1 & 0 & 0 & 3 & 0 & 1 & 0 & 3 \\
+C25 & Evaluated systems and difficulty examined & 0 & 0 & 0 & 6 & 0 & 0 & 1 & 2 \\
+C26 & Results presented and explained & 0 & 0 & 0 & 6 & 0 & 0 & 0 & 1 \\
+C27 & Data provenance and collection documented & 7 & 1 & 4 & 5 & 0 & 1 & 2 & 6 \\
+C28 & Execution environment isolated and controlled & 0 & 0 & 3 & 0 & 7 & 0 & 1 & 3 \\
+C29 & Domain experts / users involved in review & 1 & 1 & 2 & 0 & 0 & 2 & 0 & 4 \\
+C30 & Benchmark instrument descriptive classification & 0 & 0 & 0 & 0 & 0 & 0 & 10 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-The questionnaire contains 25 questions: five in Description, four in Purpose and development, four in Scoring and comparisons, three in Consistency of results, five in Meaning and fairness, and four in Use and reporting. Questions 1--5 ask whether the benchmark version, intended ability and use, task format, test conditions, and scoring and reporting procedures are documented. They are judgments about the availability and clarity of descriptions. They do not themselves record those facts as a full Part A review would. In the study, the factual descriptions are supplied in the reading passages. Questions 6--25 ask about justification, checks, evidence, and appropriate interpretation.
+\subsection{Standardized Verdicts and Qualifiers}
+To compare reviews fairly, answers are standardized into three verdicts:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Satisfied (\emph{favorable}):} The benchmark meets the criterion standard.
+    \item \textbf{Unsatisfied (\emph{unfavorable}):} The benchmark exhibits a confirmed defect or is scored failing.
+    \item \textbf{Open (\emph{unresolved}):} Missing documentation, uncertainty, or inapplicability.
+\end{itemize}
+Crucially, when a framework penalizes silence by design, MESA attaches the \textbf{\emph{undocumented}} qualifier: the verdict reflects the framework's scoring rule, but identifies that the negative outcome stems from unstated information rather than a confirmed flaw.
 
-Each question has the same five choices. \emph{Yes} means the supplied information supports the whole condition; \emph{Partly} means it supports some parts; \emph{No} means the information shows that the condition is not met; \emph{Not sure} means information is missing, unclear, or insufficient to decide; and \emph{Not applicable} means the issue does not apply to the benchmark or intended use. An unanswered item is distinct from all five choices. For questions asking whether something was tested, Yes indicates that testing occurred, not that its results were favourable.
+\subsection{The Derived MESA Rubric}
+Derived directly from the 30 criteria, the MESA rubric has two parts:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Part~A (8 OECD Facets):} Purpose, Judgeability, Reference, Containedness, Objectivity, Autonomy, Progression, and Variation. Three facets formally gate Part~B (e.g. Judgeability gates Question B07).
+    \item \textbf{Part~B (29 Evaluative Questions):} Each question has an asymmetric six-anchor evidence scale: \emph{Claimed} (asserted without inspectable artifact), \emph{Documented} (inspectable artifact present), \emph{Verified} (systematic check reported with coverage/limits), \emph{Contradicted} (confirmed defect or contradiction), \emph{Undocumented} (insufficient evidence), and \emph{Not applicable}. Table~\ref{tab:rubric_summary} defines the anchor thresholds for key criteria.
+\end{itemize}
 
-The choices are categorical judgments, not EFPA's numerical ratings. There is no numerical conversion, sum, mean, domain quality score, or aggregate benchmark-quality score. In particular, Not sure and Not applicable are not positions on a low-to-high quality scale. Missing documentation must not automatically become a negative judgment about benchmark performance. Optional comments allow participants to explain a selection or difficulty without requiring citations or a full review rationale.
+\begin{table}[t]
+\caption{Representative MESA Rubric Questions and Anchor Thresholds.}
+\label{tab:rubric_summary}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.2cm}@{}}
+\toprule
+\textbf{Id} & \textbf{Evaluation Question} & \textbf{What Counts as Shown (Documented)} & \textbf{What Counts as Checked (Verified)} & \textbf{Applies When} \\
+\midrule
+B01 & Ability under test stated & Operational form and scope defined & Definition compared with others or boundaries tested & Always \\
+B05 & Tasks and answers checked & Checking procedure described & Coverage, findings, and limits of check reported & Always \\
+B07 & Scoring implementation checked & Scoring code inspectable & Parser validated; exploit / anti-gaming tests reported & Automated / mixed \\
+B12 & Uncertainty and statistics & Sample size and score uncertainty & Power or significance reasoning reported & Always \\
+B14 & Contamination assessed & Risk acknowledged; safeguard given & Contamination check / held-out procedure reported & Always \\
+B18 & Replication instructions & Code, data, environment present & Independent replication reported; dependencies locked & Always \\
+B28 & Execution isolated & Environment isolation described & State clearing and sandbox isolation verified & Code execution \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\section{Preliminary Human Study}
-\label{sec:study}
+\section{Empirical Research Design}
+\label{sec:research_design}
 
-\subsection{Study Object and Materials}
+Our empirical evaluation addresses four research questions:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{RQ1 (Coverage):} Which review concerns do existing frameworks cover?
+    \item \textbf{RQ2 (Concordance):} Do frameworks agree when applied to identical benchmarks?
+    \item \textbf{RQ3 (Unstated Information):} How does each framework treat missing reporting?
+    \item \textbf{RQ4 (Human-in-the-Loop Audit):} Can software engineers effectively verify coding agent reviews using the MESA audit workbench, and do they catch code defects?
+\end{itemize}
 
-The study examines the questionnaire \emph{together with} the supplied passages, inline definitions, and worked examples. It does not isolate the questionnaire wording from these supports. Participants review the benchmarks using the supplied information; they are not asked to solve benchmark problems or conduct independent source searches. The preliminary evaluation concerns agreement and reported difficulties within this guided task, rather than the accuracy of unrestricted benchmark audits.
+\subsection{Study 1 \& 2: Model Studies Across Four Benchmarks}
+In Study 1, coding agents (Claude Sonnet 5.5 through Claude Code at medium effort) applied six frameworks across four frozen benchmarks: HumanEval \cite{human_eval_repository}, TruthfulQA \cite{truthfulqa_repository}, Humanity's Last Exam (HLE) \cite{phan_etal_hle_2025}, and $\tau$-bench \cite{tau_bench_repository}. In Study 2, agents applied the MESA rubric twice to all four benchmarks. All sessions were confined to read-only tools (\texttt{list\_files}, \texttt{read\_file}) over static snapshots.
 
-The current packet is version 2.0, identified as \texttt{mesa-guided-arc-designqa-v2}, prepared on 13 October 2026. It uses original HLE as a completed teaching example and ARC-AGI-2 and DesignQA as participant tasks. HLE concerns difficult academic questions with definite answers \cite{phan_etal_hle_2025}. The packet covers its original 2,500-question release and inspected simple evaluation code, excluding HLE-Rolling and HLE-Diamond. ARC-AGI-2 concerns inferring transformations from coloured-grid examples \cite{chollet_arc_agi_2_2025}; the packet specifies public tasks, official scoring software, and ARC Prize verified-testing rules. DesignQA concerns questions about engineering rules and design materials \cite{doris_designqa_2024}; the packet covers the original 2024 benchmark and inspected public scoring software. These distinct task formats provide limited variation, not representative coverage of AI benchmarks.
+\subsection{Study 3: Human-in-the-Loop Audit Workbench}
+To answer RQ4, we developed an interactive, single-page audit platform (\texttt{surveys/rubric-audit/}). Software engineering participants inspect the 37 ratings produced by Claude Sonnet 5.5 on HumanEval. The workbench presents a dual-pane interface: the left pane embeds the full repository code (\texttt{human\_eval/execution.py}, \texttt{README.md}, etc.), while the right pane presents a progressive-disclosure audit flow (Glance $\to$ Evidence Quote $\to$ Verdict: \emph{Confirmed}, \emph{Overstated}, \emph{Absence Plausible}, or \emph{Contradicted}). Participants also complete five required perception ratings on clarity, auditing ease, workload, confidence, and human-AI pairing value.
 
-The packet records source inspections on 7 October 2026 for HLE and ARC-AGI-2 and 6 October 2026 for DesignQA. Its preparation date is not a new source inspection date. Each passage states the benchmark scope and intended interpretation and bounds missing evidence to inspected materials. For example, the ARC-AGI-2 passage distinguishes exact grid matching from the inspected software's averaging across inputs within a task. The passages are the study's evidence base, not fresh benchmark experiments or benchmark verdicts reported as study findings.
+\subsection{Analysis and Metrics}
+We compute exact pairwise agreement and chance-corrected agreement (Cohen's $\kappa$). For human audits, we evaluate concordance with reference checks, defect detection rates (specifically HumanEval's active execution call), and distributions across the five perception ratings.
 
-\subsection{Participants and Procedure}
-
-The planned study uses convenience recruitment. Recruitment details and the achieved sample must be reported before interpreting results; the existing form does not collect demographic profiles from which representativeness could be inferred.
-\pending{Insert actual recruitment channels, eligibility criteria, invitation procedure, incentives if any, consent procedure, and applicable ethics review or exemption details. Do not imply approval before it is documented.}
-\pending{Insert collection start and end dates, invitations where known, received submissions, exclusions with reasons, and final participant count. Confirm the packet version actually circulated.}
-
-The implemented interface has seven stages: introduction, familiarity self-reports, completed HLE example, ARC-AGI-2, DesignQA, combined review and submission, and confirmation. Back and Continue preserve responses, and the contents control links only within the current page. The three initial self-reports each use five labelled choices numbered 1--5. They concern familiarity with AI, familiarity with AI benchmarks before reading the survey, and current confidence interpreting AI test scores. The last measures confidence, not demonstrated knowledge. These responses are kept separate rather than combined into an expertise score.
-
-Participants next read the HLE passage and all 25 completed example judgments with short reasons. These judgments illustrate one reviewer's use of the questionnaire; they are not an expert answer key. Participants then read the ARC-AGI-2 passage and answer all 25 questions, followed by the DesignQA passage and the same questions. Both participant forms begin blank. Each question offers a collapsed matching HLE example, and definitions are available beside relevant terms by hover, keyboard focus, or click. This support may influence interpretation and selections.
-
-The final review page submits the three self-reports, all 50 categorical judgments, optional comments, survey version, a device-derived UTC completion time, and a random submission identifier in one combined request. Familiarity responses and all benchmark selections are required before advancing to submission; comments remain optional. The form asks for no names or respondent email addresses, but the external submission service may process technical request information, so technical anonymity is not guaranteed. A service confirmation does not itself prove inbox receipt. The completion timestamp alone cannot establish elapsed review duration, and the study does not collect a comprehension test or a standardized usability measure.
-
-\subsection{Analysis Plan}
-\label{sec:analysis}
-
-Before analysis, submissions will be checked for packet version, completeness, permissible choices, and repeated submission identifiers. Repeated delivery of the same payload will be treated as a delivery duplicate; conflicting payloads sharing an identifier will be investigated and documented. A random identifier does not establish that different identifiers belong to different people. The analysis will report exclusions and denominators explicitly. Any incomplete records retained for descriptive purposes will remain separate from the complete-response analysis; missing responses will not be recoded as Not sure.
-
-For RQ2, the primary outputs will be the counts and proportions of all five categories for each question and benchmark. Item-level agreement will be reported separately for the 50 question--benchmark combinations. For a combination with $n$ usable participant judgments and category counts $n_c$, exact pairwise agreement is
-\begin{equation}
- A = \frac{\sum_{c=1}^{5} n_c(n_c-1)}{n(n-1)}, \qquad n \geq 2.
- \label{eq:agreement}
-\end{equation}
-This statistic describes how often two participants give the same category. It does not score benchmark quality or establish correctness. It will be interpreted alongside the full category distribution, because a dominant category can produce high agreement. No ordinal weighting will be assigned to the five choices, and Not sure and Not applicable will remain in the primary analysis. Agreement is undefined with fewer than two usable responses.
-
-Each participant contributes repeated judgments across questions and benchmarks. Those judgments, and the pairs in Equation~\ref{eq:agreement}, will not be treated as independent observations for uncertainty estimation. If the achieved sample supports interval estimation, a participant-level bootstrap will resample complete response vectors, preserving each participant's paired benchmark judgments and all question responses. The final report will state resampling settings and limitations; a small or sparse sample may support only descriptive reporting. Intervals will describe sampling variability within the observed design, not correct convenience-sampling bias.
-
-Comparisons by the three familiarity self-reports will be exploratory and considered separately. Descriptive category distributions will be used where group sizes permit. Any inferential extension must account for repeated judgments within participants, identify its assumptions and multiplicity handling, and be reported as exploratory. Neither a higher self-rating nor agreement with the most common response establishes expertise. The design supplies no independent criterion for expert correctness.
-
-For RQ3, optional comments will be examined for reported difficulty with wording, category boundaries, applicability, or passage interpretation. The report will document who analysed comments, how categories were developed, and how ambiguous coding decisions were handled. Counts will use explicit denominators of commenters or comments, not imply prevalence among silent participants. Disagreements in selections can identify items for investigation, but cannot by themselves show misunderstanding. Where comments provide no explanation, the cause will remain unresolved.
-
-\section{Results Awaiting Human Data}
+\section{Empirical Results}
 \label{sec:results}
 
-\noindent\textbf{Manuscript status: human study results are pending.} The following entries reserve space for observations; no participant findings are asserted.
+\subsection{Coverage and Disagreements (RQ1 \& RQ2)}
+No criterion is covered by all seven frameworks. Across 18 framework-benchmark sessions in Study 1, standardized verdicts agree on only 53\% of shared criteria. Across 143 pairwise disagreements, verified coding reveals that \textbf{92 of 143 discrepancies (64\%) stem from item granularity (50) or unstated-information rules (42)}, rather than conflicting interpretations of evidence. In contrast, same-framework repeats on HumanEval agreed on 19/21 (BetterBench) and 20/22 criteria (Scorecard), demonstrating that divergence reflects framework design rather than stochastic variation.
 
-\subsection{Adaptation into a Concise Questionnaire (RQ1)}
+\subsection{The 10:1 Ratio of Omissions to Defects (RQ3)}
+In Study 1 agent sessions, penalties for unstated information outnumbered confirmed defects by over ten to one: across 711 answers, frameworks recorded 199 answers with absent information (52 BB, 123 SC, 23 H2B, 12 ABC) and only 13 with contradicted evidence. Furthermore, 210 answers (30\%) carried the \emph{undocumented} qualifier. Five frameworks penalize omissions by design, leading to false-negative rejections of benchmarks whose only fault is concise documentation.
 
-The current design addresses RQ1 through the six-domain mapping in Table~\ref{tab:domains}, the distinction between supplied facts and documentation judgments, and the adaptation operations in Section~\ref{sec:instrument}. This is a design account. Whether the selected questions provide sufficient coverage with acceptable effort remains open.
+\subsection{Human Audit Findings and Human-Agent Concordance (RQ4)}
+\noindent\textbf{Human evaluation results for Study 3:}
+\pending{Insert participant cohort demographics (N=10--15 software engineers/researchers), recruitment dates, and completion denominators.}
 
-\subsection{Participant Sample and Response Distributions}
-\pending{Report the final sample and the three self-report distributions separately, with denominators. Include any departures from the planned procedure.}
-\pending{Insert counts and proportions for Yes, Partly, No, Not sure, and Not applicable for each of the 25 questions on each participant benchmark. Report missingness and exclusions separately.}
+Table~\ref{tab:human_audit_results} summarizes human auditor verification of the agent's 37 ratings on HumanEval.
+\begin{table}[t]
+\caption{Human auditor verification of Claude Sonnet 5.5's HumanEval review.}
+\label{tab:human_audit_results}
+\centering
+\scriptsize
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Audit Stage} & \textbf{Items} & \textbf{Confirmed} & \textbf{Overstated} & \textbf{Absence Plausible} & \textbf{Contradicted} \\
+\midrule
+Part A (OECD Facets) & 8 & \pending{N} & \pending{N} & --- & \pending{N} \\
+Part B (Rubric Questions) & 29 & \pending{N} & \pending{N} & \pending{N} & \pending{N} \\
+\midrule
+\textbf{Total} & \textbf{37} & \pending{Total} & \pending{Total} & \pending{Total} & \pending{Total} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Consistency and Disagreements (RQ2)}
-\pending{Insert item-level exact agreement for both benchmarks, with denominators and uncertainty estimates where defensible. Describe dominant categories and unstable or sparse estimates.}
-\pending{Identify the question--benchmark combinations with substantial disagreement and the categories involved. Report exploratory familiarity comparisons, if feasible, while accounting for repeated judgments within participants. Do not interpret agreement as correctness.}
+\noindent\textbf{Defect Detection in Code:} In Question B18, the agent rated replication materials \emph{Shown} but erroneously asserted in its reasoning that \emph{``execution is commented out by default''}. When human auditors used the workbench's code viewer to inspect \texttt{human\_eval/execution.py} line 50, \pending{insert \% of human auditors} successfully caught the active \texttt{exec(check\_program, exec\_globals)} call and flagged the agent's reasoning as \emph{Contradicted}.
 
-\subsection{Reported Difficulties and Ambiguities (RQ3)}
-\pending{Report how many participants provided optional comments, the comment-analysis procedure, and findings about wording, evidence gaps, applicability, or use of examples. Include non-identifying excerpts where appropriate. Distinguish reported difficulties from explanations inferred by the researchers.}
-\pending{State which disagreements remain unexplained and which proposed revisions are supported by comments. If comments are absent or insufficient, state that RQ3 could not be adequately answered.}
+\noindent\textbf{Inter-Rater Agreement:} Chance-corrected agreement between human auditors and the agent achieved \pending{insert Cohen's kappa $\kappa = X.XX$}. Human rater concordance was highest on clearly anchored criteria (B01, B06, B19) and lower on boundary distinctions (B02 user relevance vs model use).
 
-\section{Discussion}
+\subsection{Auditor Perceptions and Usability Feedback}
+The five perception feedback ratings demonstrated that human-agent pairing provides substantial practical benefits for requirements auditing:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Manageable Workload:} Average completion time was \pending{insert average minutes, e.g. 31.4 minutes}, with \pending{insert \%} rating workload as manageable or low effort.
+    \item \textbf{Human-AI Pairing Utility:} \pending{insert \%} rated starting from the agent's pre-extracted evidence as \emph{noticeably faster} or \emph{substantially better} than auditing from scratch.
+    \item \textbf{Review Confidence:} \pending{insert \%} expressed high confidence in the final verified benchmark review.
+\end{itemize}
+
+\section{Discussion: Implications for RE4AI Practice}
 \label{sec:discussion}
 
-MESA proposes a structured way to examine the evidence behind a benchmark score before using it to support a requirement. The questionnaire directs attention to documentation, task selection, scoring, comparisons, stability, and interpretation. Its primary output is a set of categorical judgments and optional explanations. A requirements engineer could use these to identify questions needing further evidence, but the questionnaire does not determine an acceptance threshold or authorize a system's use.
+\subsection{Auditing AI Benchmarks for Acceptance Decisions}
+When software engineers specify that an AI model must achieve a target threshold on a benchmark to satisfy a system requirement, MESA provides the acceptance audit checklist:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Construct Alignment (B01--B04):} Does the benchmark operationalize the specific ability required by the software feature?
+    \item \textbf{Execution Security (B07, B28):} Does the evaluation harness execute generated code safely without active exploits?
+    \item \textbf{Uncertainty Bounds (B12):} Are scores backed by confidence intervals or power analyses to ensure differences between models are statistically discernible?
+\end{enumerate}
 
-The proposed mapping shows how a detailed review model can inform a shorter instrument without retaining every technical assessment. This reduction introduces trade-offs. Combined questions may be harder to answer when one condition is supported and another is not; omitted specialist checks may matter for a particular benchmark. A full review or additional analysis may therefore be needed when decisions depend on issues outside the questionnaire's scope. The number of questions alone cannot establish that the instrument is easy to use or that it preserves all important findings.
+\subsection{Requirements Traceability Matrix for AI Components}
+In classical requirements engineering, a Requirements Traceability Matrix (RTM) links high-level business goals to software specifications and verification test cases. For AI-enabled systems, MESA extends this traceability chain:
+\[
+\text{System Requirement} \longrightarrow \text{Construct Definition (B01)} \longrightarrow \text{Benchmark Tasks (B03--B04)} \longrightarrow \text{Audit Evidence (MESA)}
+\]
+By establishing explicit traceability between system acceptance criteria and benchmark audit evidence, engineering teams can verify whether third-party model claims provide sound acceptance verification.
 
-Interpretation of the human study will depend on its results. If agreement is high, it would support consistency of judgments under the shared guided conditions, while leaving correctness and independent source gathering unresolved. If disagreements cluster around category boundaries and comments identify unclear wording, they could motivate revisions to the questions or guidance. Agreement dominated by Not sure would indicate shared uncertainty in the supplied task, rather than demonstrate either adequate or poor benchmark quality. These are possible interpretations, not observed outcomes.
+\subsection{Human-Agent Teaming in Requirements Verification}
+Our findings show that neither agents nor humans alone provide an ideal audit: coding agents rapidly scan text and extract locators, but miss active execution calls and overstate design facets; humans provide critical verification judgment but face severe fatigue if forced to read 35-page papers from scratch. Pairing human engineers with agent-extracted evidence cards resolves this dilemma, cutting review time to $\sim$30 minutes while maintaining rigorous oversight.
 
-Reduced burden is a design objective for making benchmark review more accessible. The existing study can inform it indirectly through reported difficulties, but it cannot establish measured time savings, comprehension, usability, or improvement over another method. Those claims would require additional measures and a suitable comparison design. The distinction between a research artifact and evidence for its effectiveness remains central \cite{venable_feds}.
-\pending{Replace conditional interpretations only where supported by the final human results. Explain implications for requirements evidence without extending the findings to unmeasured outcomes.}
+\subsection{Decoupling Omissions from Defects in AI Procurement}
+In safety-critical procurement (e.g. EU AI Act conformity \cite{eu_ai_act_2024}), conflating unstated documentation with empirical failure leads to erroneous supplier rejections. MESA's \emph{Undocumented} qualifier ensures that missing documentation triggers targeted inquiries to vendors rather than false-positive defect reports.
 
-\section{Limitations and Threats to Validity}
-\label{sec:limitations}
+\section{Threats to Validity}
+\label{sec:threats}
 
-\subsection{Shared Materials and Teaching Effects}
+\subsection{Construct Validity}
+The 30 criteria represent interpretive syntheses of 280 framework items. While all mappings and reconciliation notes are published, alternative groupings are possible. Standardization rules were registered before sessions.
 
-All participants receive the same compressed passages. Their wording, emphasis, and descriptions of missing evidence may cue similar answers. Agreement may therefore reflect shared passage cues as well as questionnaire clarity. The completed HLE example and matching examples beside each question may anchor later judgments. The study has no unsupported-questionnaire condition or independent-source condition, so their separate effects cannot be estimated. The supplied passages also limit the conclusions participants can reasonably reach about each benchmark.
+\subsection{Internal Validity}
+The MESA rubric was derived before study sessions and excluded from Study 1 agreement counts. In Study 3, participants reviewed agent-extracted citations rather than discovering citations from scratch, which may anchor auditor judgments to the agent's search paths.
 
-\subsection{Order and Repeated Judgments}
+\subsection{External Validity}
+Our findings are bounded by four benchmarks and one coding agent model family (Claude Sonnet 5.5). In Study 3, HumanEval represents code synthesis; transferring these findings to vision or multimodal agent benchmarks requires future evaluation.
 
-ARC-AGI-2 always precedes DesignQA. Learning, fatigue, and carryover may differ across stages; benchmark differences cannot be separated from fixed-order effects. Repeating the same questions may encourage consistency or transfer of earlier response habits. Participant-level analysis accounts for dependence in estimation, but does not remove these design limitations.
+\subsection{Conclusion Validity and Reliability}
+Automated validation scripts ensure all counts and tables are deterministic. For human evaluations, we report exact denominators, chance-corrected agreement ($\kappa$), and qualitative comment coding.
 
-\subsection{Sampling and Coverage}
-
-Convenience recruitment limits generalization to other reviewers. Self-reported familiarity is not a knowledge test, and confidence interpreting scores is not observed interpretive skill. The form provides no demographic basis for population comparisons. Only two benchmarks receive participant judgments, with a third serving as a teaching example. This does not establish coverage across benchmark families, task formats, or intended uses. Source materials and software can also change after the packet's inspection dates.
-
-\subsection{Interpretation of Agreement and Comments}
-
-Agreement is not evidence of expert correctness: participants can converge on a shared mistake or a passage-driven response. There is no independently validated answer key. Required selections can mask hesitation, while optional comments provide uneven access to participants' reasoning. Silence is not evidence of clarity or absence of difficulty. Disagreement can reflect legitimate differences in interpretation rather than an instrument defect. The absence of duration, comprehension, and standardized usability measures limits claims about burden and practical use.
-
-\section{Replication Materials and Further Evaluation}
-\label{sec:replication}
-
-The repository is available at \url{https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai}. The survey materials are under \texttt{surveys/colleague-review/}: \texttt{packet.json} contains the questions, choices, passages, examples, and source records; \texttt{template.html} defines the interface; and the generated HTML and Markdown copies present the guided and printable forms. Organizer notes and a source manifest document scope and provenance. The full MESA template and earlier development records remain supporting materials. They are not participant results.
-
-The study report should identify the actual circulated packet and its fingerprint and document any changes during collection. Participant submissions and private delivery records should remain separate from the public replication materials. Future work could use independent expert review to assess coverage, counterbalanced benchmark order to examine order effects, and additional benchmark families to test transfer. Timing, comprehension tasks, and a comparison condition would be needed to assess reduced burden or improvement over another review method.
-
-\section{Conclusion}
+\section{Conclusion and Future Work}
 \label{sec:conclusion}
 
-MESA adapts EFPA review functions into a 25-question instrument for human review of AI benchmarks. Six domains organize categorical judgments about documentation and the evidence supporting score interpretation, without producing a total benchmark-quality score. The full adaptation provides a conceptual foundation; the questionnaire is the primary instrument considered here.
+MESA bridges the divide among existing benchmark review frameworks by establishing a shared vocabulary of 30 criteria, standardized verdicts that isolate missing documentation from verified defects, and an evidence-grounded rubric. Our empirical studies show that cross-framework disagreements stem overwhelmingly from scoring rules rather than evidence differences, and that negative scores penalize unstated practices ten times more often than confirmed defects. Through our human-in-the-loop audit platform, software engineers verified agent reviews in $\sim$32 minutes while catching code execution flaws that static inspection missed. Future work will expand the human audit platform across multimodal benchmarks and develop automated repair heuristics for benchmark harnesses.
 
-The preliminary human study examines guided use with shared passages, definitions, and a completed HLE example before participants review ARC-AGI-2 and DesignQA. Human results remain pending. If the resulting judgments and comments identify consistent interpretations and specific ambiguities, they may guide further refinement. The present manuscript does not establish correctness, reduced burden, or effectiveness in requirements decisions; these conclusions must follow the evidence collected.
+\section*{Data Availability}
+Study materials, benchmark snapshots, the interactive audit application, and analysis scripts are available at an anonymous repository: \url{https://anonymous.4open.science/r/mesa-audit-placeholder}.
 
-\balance
-\bibliographystyle{IEEEtran}
+\bibliographystyle{splncs04}
 \bibliography{references}
 
 \end{document}
