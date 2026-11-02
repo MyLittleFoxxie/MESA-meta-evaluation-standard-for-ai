@@ -1,0 +1,208 @@
+\documentclass[runningheads]{llncs}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\begin{document}
+
+\title{Assisted Verification of AI Benchmark Evidence for Requirements Decisions: When Do Practitioners Detect Unsupported Review Judgments?}
+\titlerunning{Assisted Verification of AI Benchmark Evidence}
+
+\author{Anonymous Author(s)}
+\authorrunning{Anonymous Author(s)}
+
+\institute{Affiliation Withheld for Double-Blind Review\\
+\email{contact@example.org}}
+
+\maketitle
+
+\begin{abstract}
+\textbf{Context and motivation:} In Requirements Engineering for Artificial Intelligence (RE4AI), procuring third-party foundation models relies on published benchmarks as verification evidence ($W, E, O_{\text{bench}} \vdash_{\text{ind}} G_{\text{AI}}$). Because manual inspection of benchmark execution harnesses is labor-intensive, engineering teams increasingly deploy autonomous large language model (LLM) agents to audit benchmark quality.
+
+\textbf{Question/problem:} When software practitioners rely on an autonomous agent's benchmark audit to evaluate a requirement, which categories of unsupported claims do they reliably detect? While prior studies examine using agents to find benchmark bugs (EvalPlus, SWE-bench Verified, HarnessAudit) or developer overconfidence in code writing (Perry et al.), no empirical research examines how human engineers verify agent-supplied evidence when making requirements acceptance decisions.
+
+\textbf{Principal ideas/results:} We present an empirical problem formulation and a fortified task-based verification protocol:
+(1) Computational observations across four frozen benchmarks reveal recurring agent review divergences. In HumanEval, documentation claims of safe execution in \texttt{README.md} conflicted with synchronous, unshielded \texttt{exec()} calls in \texttt{execution.py}; the agent confirmed documentation, producing an authentic cross-modal discrepancy. We catalog five recurring categories of agent review divergences.
+(2) We formalize an asynchronous verification protocol using a $6 \times 6$ balanced Latin-square design across 84 software practitioners, counteracting presentation order and anchoring effects.
+(3) The protocol captures active viewport focus telemetry ($T_{\text{active}}$) and code scroll depth, formalizes the Rubber-Stamping Index ($RSI$), controls for low-level Python runtime familiarity, and formulates testable hypotheses H1--H3 with explicit power sizing.
+
+\textbf{Contribution:} A delineated research problem shifting benchmark auditing from defect hunting to human evidence verification; an empirical catalog of agent review divergences; and an experimentally controlled protocol for measuring developer verification behavior in AI-assisted requirements decisions.
+
+\keywords{Requirements Engineering for AI \and AI Benchmarks \and Acceptance Testing \and Human-AI Verification \and Automation Bias \and Behavioral Telemetry.}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+When software engineering teams specify functional capability requirements for artificial intelligence (AI) components---such as automated code completion, SQL generation, or customer support triage---they rarely train foundation models from scratch \cite{habiba_re4ai_maturity_2024}. Instead, engineering teams evaluate third-party foundation models against functional requirements using public AI benchmarks as third-party verification evidence \cite{bean_measuring_what_matters}. In safety-critical requirements engineering, methodologies such as AMLAS (\emph{Assurance of Machine Learning for Aerospace Systems}) mandate constructing explicit assurance arguments tracing system requirements through data verification, model verification, and operational deployment \cite{hawkins_amlas_2021}.
+
+When a benchmark score serves as an acceptance testing oracle ($W, E, O_{\text{bench}} \vdash_{\text{ind}} G_{\text{AI}}$), accepting that evidence requires verifying the benchmark instrument itself \cite{iso_iec_25059_2023}:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Construct Validity:} Do benchmark tasks faithfully operationalize the capability specified in the requirement, or are high scores driven by construct underrepresentation? \cite{kane_validation,bean_measuring_what_matters}
+    \item \textbf{Harness Isolation:} Does the execution harness execute untrusted candidate completions in an isolated environment matching system security assumptions? \cite{liu_evalplus_2023,liu_harnessaudit_2026}
+    \item \textbf{Scoring Integrity:} Are scoring oracles exploit-resistant, and are performance differences statistically discernible? \cite{singh_leaderboard_illusion,alonso_church_sigir}
+\end{itemize}
+
+Because manually auditing a benchmark's codebase, Dockerfiles, and technical papers requires hours of developer effort, engineering teams are turning to autonomous LLM coding agents equipped with file-reading tools to summarize and audit benchmark repositories \cite{guo_repoaudit_2025,reuel_betterbench}.
+
+\subsection{The Verification Problem in AI-Assisted Requirements Decisions}
+While autonomous agents can rapidly inspect repositories and extract evidence citations, delegating review to AI introduces a fundamental software quality challenge: \textbf{How do human practitioners verify the agent's review judgments?}
+
+Recent empirical studies by Perry et al. \cite{perry_users_2023} demonstrated that developers using interactive AI coding assistants exhibit unjustified overconfidence, producing insecure code while believing it is safe. In benchmark evidence verification, an analogous \textbf{Citation Illusion} emerges: when an autonomous agent generates a fluent review card citing specific file paths and line numbers (e.g., \texttt{execution.py\#L45-L60}), practitioners treat the presence of a technical citation as a cognitive surrogate for evidence, accepting unsupported compliance claims without opening the source file.
+
+\subsection{Research Questions}
+To investigate developer verification behavior in AI-assisted requirements decisions, this research preview formulates three questions:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{RQ1 (Detection Asymmetry):} When software practitioners use AI-generated review cards to make requirements acceptance decisions, which categories of unsupported claims (construct scope vs. harness security) do they reliably detect?
+    \item \textbf{RQ2 (The Citation Illusion \& Inspection Telemetry):} Does active code viewport inspection predict correct defect detection, and how does the presence of line citations affect acceptance rates?
+    \item \textbf{RQ3 (Verification Guidance \& Cognitive Workload):} How does requiring evidence inspection affect decision accuracy, review velocity, and subjective cognitive workload?
+\end{itemize}
+
+\section{Related Work and Research Gap Delineation}
+\label{sec:related_work}
+
+To establish our research gap, Table~\ref{tab:paper2_delineation} delineates this paper against prior literature.
+
+\begin{table}[t]
+\caption{Delineation of Paper 2 against prior benchmark auditing and developer trust literature.}
+\label{tab:paper2_delineation}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Work} & \textbf{Primary Focus} & \textbf{Unit of Analysis} & \textbf{Research Gap Delineation} \\
+\midrule
+EvalPlus \cite{liu_evalplus_2023} & Automated test fuzzing & Unit test assertions & Defect-hunting tool finding bugs in ground-truth code; does not study human verification. \\
+SWE-bench Audit \cite{openai_swebench_audit_2026} & Collaborative defect audit & GitHub issues \& unit tests & Engineering effort to prune benchmark tasks; does not evaluate requirements acceptance decisions. \\
+HarnessAudit \cite{liu_harnessaudit_2026} & Trajectory log auditing & Execution trace events & Dynamic policy enforcement on agent runtime logs; does not measure human-agent interaction. \\
+Evaluation Cards \cite{ghosh_evaluation_cards_2026} & Metadata schemas & Documentation records & Standardizes provenance schemas; does not audit benchmark execution code or verifier behavior. \\
+Perry et al. \cite{perry_users_2023} & Developer trust in code writing & Generated code \& surveys & Investigates developers writing code with autocomplete; does not study evidence verification in RE. \\
+\midrule
+\textbf{Paper 2 (This Work)} & \textbf{Human evidence verification} & \textbf{Requirements decisions \& telemetry} & \textbf{First empirical study of how engineers verify agent review cards for requirements acceptance decisions.} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Defect Hunting vs. Evidence Verification:} Prior benchmark studies (EvalPlus, SWE-bench Verified, HarnessAudit) focus on finding bugs in benchmark code. In contrast, Paper 2 investigates the \textbf{human requirements verification process}: how software engineers evaluate whether an agent's review validly supports a system capability requirement, and whether developers detect unsupported claims when reviewing code citations.
+
+\section{Computational Observations: Agent Review Divergences}
+\label{sec:observations}
+
+To construct authentic test instruments for human verification, we analyzed autonomous agent reviews across four canonical benchmarks: HumanEval \cite{human_eval_repository}, TruthfulQA \cite{truthfulqa_repository}, Humanity's Last Exam (HLE) \cite{phan_etal_hle_2025}, and $\tau$-bench \cite{tau_bench_repository}. The reviewing agent (Claude Sonnet 5.5 through Claude Code) was provided with read-only repository tools (\texttt{list\_files}, \texttt{read\_file}) and paper texts. Across 116 evaluative criteria evaluations, verified human audit identified 20 instances where the agent's rating diverged from ground truth.
+
+\subsection{The HumanEval Execution Harness Discrepancy}
+A critical divergence occurred in HumanEval (\texttt{b9453e8f18}) regarding execution isolation (Criterion B28). 
+In repository documentation, the \texttt{README.md} and docstrings state:
+\begin{quote}
+\small\texttt{\# WARNING: This program exists to execute untrusted model-generated code. Users should exercise extreme caution...}
+\end{quote}
+In the actual Python implementation (\texttt{human\_eval/execution.py}), candidate completions are executed directly on the host operating system via synchronous \texttt{exec()}:
+\begin{verbatim}
+def check_correctness(problem: Dict, completion: str, ...):
+    ...
+    exec(check_program, exec_globals)
+\end{verbatim}
+While \texttt{execution.py} installs Unix signal handlers to limit CPU time and memory, it provides \textbf{no process, container, or namespace isolation}.
+
+\textbf{Verbatim Agent Review Card:} The autonomous agent produced the following review:
+\begin{quote}
+\small\emph{``Review Verdict: Documented. Evidence: The execution harness in human\_eval/execution.py includes explicit safety handling for untrusted code execution (lines 45--60: \# WARNING: This program exists to execute untrusted model-generated code...). Resource constraints and timeouts are enforced via Unix signal handlers.''}
+\end{quote}
+The agent confirmed the documentation claim, missing the unshielded host \texttt{exec()} call. This represents an authentic, real-world \textbf{observed cross-modal discrepancy between documentation claims and runnable code}, providing an ideal test case for human verification studies without requiring synthetic defect injection.
+
+\subsection{Catalog of Agent Review Divergence Categories}
+Analyzing the 20 agent review discrepancies across the four benchmarks reveals five recurring categories (Table~\ref{tab:agent_discrepancies}):
+
+\begin{table}[t]
+\caption{Empirical catalog of agent review divergences across 116 evaluations.}
+\label{tab:agent_discrepancies}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}lrr>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.6cm}@{}}
+\toprule
+\textbf{Category} & \textbf{Count} & \textbf{Freq} & \textbf{Observed Divergence Description} & \textbf{Exemplar Benchmark} \\
+\midrule
+1. Comment-Code Discrepancy & 3 & 15\% & Agent confirms documentation claim, missing conflicting execution reality. & HumanEval (B28 Sandbox) \\
+2. Dynamic Process Invisibility & 5 & 25\% & Static code reading misses in-process reflection (e.g. \texttt{sys.\_getframe}) or piping. & HumanEval (B07 Oracles); $\tau$-bench (B27 Rollback) \\
+3. Statistical Estimator Confusion & 4 & 20\% & Conflating unbiased combinatorial estimators ($pass@k$) with empirical sampling. & HumanEval (B12 pass@k); TruthfulQA (B08 Scoring) \\
+4. Contamination Over-Claiming & 4 & 20\% & Treating generic paper statements as verified decontamination pipelines. & HLE (B14 Contamination); TruthfulQA (B14 Leakage) \\
+5. Licensing \& Artifact Omission & 4 & 20\% & Overlooking missing repository license files or unpinned dependency locks. & $\tau$-bench (B19 License); HLE (B18 Replication) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{The Fortified Task-Based Practitioner Verification Protocol}
+\label{sec:protocol}
+
+We design an asynchronous task-based verification study following the ACM SIGSOFT Empirical Standard for Survey and Task-Based Research.
+
+\subsection{The Curated 6-Card Verification Packet}
+Participants evaluate a curated 6-Card packet for HumanEval within an interactive split-screen workbench:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Card 1 (Construct Scope - Supported):} Agent cites docstring-to-code operationalization. $\to$ \emph{Ground Truth: Supported (Baseline).}
+    \item \textbf{Card 2 (Harness Sandbox - Unsupported):} Agent claims safe execution based on docstrings, missing host \texttt{exec()}. $\to$ \emph{Ground Truth: Unsupported / Contradicted (Critical Execution Defect).}
+    \item \textbf{Card 3 (pass@k Estimator - Supported):} Agent cites unbiased combinatorial estimator proof. $\to$ \emph{Ground Truth: Supported (Mathematical Control).}
+    \item \textbf{Card 4 (Attention Control):} Explicit directive check (\emph{``Select Disagree: Overstated and enter 'VERIFIED' in comments''}).
+    \item \textbf{Card 5 (Test Oracle Reflection - Unsupported):} Agent confirms unit assertions, missing caller frame inspection (\texttt{sys.\_getframe(1)}). $\to$ \emph{Ground Truth: Unsupported (Security Defect).}
+    \item \textbf{Card 6 (Contamination Claim - Overstated):} Agent cites paper text as proof of decontamination where text only acknowledges risk. $\to$ \emph{Ground Truth: Overstated.}
+\end{itemize}
+
+\subsection{Experimental Design and Controls}
+To eliminate confounding factors, the protocol incorporates three rigorous controls:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{$6 \times 6$ Balanced Latin Square Counterbalancing:} Participants are randomly assigned to six counterbalanced sequence groups ($S_1$ to $S_6$). The card sequence adheres to a Digram-Balanced Latin Square, completely eliminating presentation order effects, fatigue, and compliance momentum.
+    \item \textbf{Python Systems Programming Covariate:} To control for the cognitive complexity of low-level runtime code (e.g., \texttt{sys.\_getframe} in Card 5), participants complete a 4-item pre-task screening evaluating familiarity with Python execution internals (reflection, signal handlers, subprocess namespaces).
+    \item \textbf{Active Telemetry \& RSI Formalization:} Rather than unconstrained timestamps, telemetry records active browser tab focus time ($T_{\text{active}}$) via the HTML5 Visibility API. Speeders ($T_{\text{active}} < 45$s on code cards) and long-tail timeouts ($T_{\text{active}} > 15$min) are filtered. Telemetry logs code scroll depth ($\text{ScrollDepth} \ge 80\%$) and active viewport dwell time ($T_{\text{viewport}} \ge 15$s), formalizing the Rubber-Stamping Index ($RSI$):
+    \begin{equation}
+    \label{eq:rsi}
+    RSI_i(c) = \left( 1 - \min\left(1, \, \frac{T_{\text{active}, i}(c)}{\widetilde{T}_{\text{active}}(c)}\right) \right) \cdot \mathbb{I}(\text{Decision}_i(c) = \text{AgentVerdict}(c)) \cdot (1 - \text{Inspect}_i(c))
+    \end{equation}
+\end{enumerate}
+
+\subsection{Formal Hypotheses and Power Sizing}
+We formulate three testable hypotheses:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{H1 (Construct vs. Harness Detection Asymmetry):} Practitioners will detect unsupported construct validity claims (Card 6) significantly more frequently than unsupported execution harness flaws (Cards 2 and 5):
+    \begin{equation}
+    H_0: p_{\text{construct}} = p_{\text{harness}} \quad \text{vs.} \quad H_1: p_{\text{construct}} > p_{\text{harness}}
+    \end{equation}
+    tested via McNemar's paired test ($\chi^2$ with continuity correction).
+    \item \textbf{H2 (The Citation Illusion \& Code Inspection Effect):} Active code inspection significantly increases the likelihood of detecting unsupported claims:
+    \begin{equation}
+    \text{logit}(P(\text{Detect Flaw})) = \beta_0 + \beta_1 \cdot \text{CodeInspect} + \beta_2 \cdot \text{PythonExp} + \beta_3 \cdot T_{\text{active}} + \epsilon
+    \end{equation}
+    testing $H_0: \beta_1 = 0$ vs. $H_1: \beta_1 > 0$ via Wald $z$-test ($\text{Odds Ratio} = \exp(\beta_1)$).
+    \item \textbf{H3 (Cognitive Workload Calibration):} Requiring evidence inspection increases perceived cognitive workload (NASA-TLX) while calibrating subjective confidence with objective decision accuracy (Kendall's $\tau_b$).
+\end{itemize}
+
+\textbf{Statistical Power Analysis:} Sizing for McNemar's test (H1) with $\alpha = 0.05$, power $1 - \beta = 0.80$, and expected discordant proportions $p_{12} = 0.40$ vs. $p_{21} = 0.15$ yields $N = 72$. Sizing for logistic regression (H2) detecting an odds ratio $\text{OR} \ge 3.0$ with baseline detection $P_0 = 0.30$ requires $N = 78$. We fix total enrollment at \textbf{$N = 84$ practitioners} (exactly 14 participants per cell across the 6 Latin square sequences), guaranteeing statistical power $> 0.82$.
+
+\section{Discussion: Implications for RE4AI Practice}
+\label{sec:discussion}
+
+When requirements engineers specify that a foundation model must achieve a performance threshold on a public benchmark, accepting that score requires verifying the benchmark's chain of custody. If the test harness allows candidate programs to inspect test inputs via reflection or executes untrusted code unshielded, the benchmark fails as a verification oracle. Automated agents can assist in locating evidence, but human verifiers must be guided to scrutinize execution boundaries rather than accepting docstrings at face value.
+
+\section{Threats to Validity}
+\label{sec:threats}
+
+\textbf{Construct Validity:} Operationalizing benchmark quality through structured criteria may not capture domain-specific hardware or latency concerns.
+\textbf{Internal Validity:} In survey-based task evaluations, self-selection and participant fatigue represent potential threats; our Latin-square counterbalancing and attention filter mitigate these threats.
+\textbf{External Validity:} Test cases are drawn from HumanEval and Python harnesses; transferring findings to containerized agent environments (e.g. SWE-bench Lite) requires further study.
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+As foundation models become integral to software systems, requirements engineering must develop rigorous methods to verify the benchmark evidence used to select them. This research preview reframes benchmark auditing from finding bugs to the human verification of requirements evidence. We cataloged five recurring agent review divergence categories and presented a fortified task-based protocol to study developer verification behavior. Future work will deploy this protocol across software engineering practitioners to establish empirical baselines for AI-assisted requirements validation.
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\end{document}
