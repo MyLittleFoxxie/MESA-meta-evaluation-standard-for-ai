@@ -1,0 +1,91 @@
+{
+  "pilot_version": "2.0-executable",
+  "total_tasks": 6,
+  "description": "Six verified executable pilot tasks on constructed pipeline fixtures",
+  "tasks": [
+    {
+      "task_id": "pilot_requests_01",
+      "project": "psf/requests",
+      "repo_name": "requests",
+      "issue_number": 9101,
+      "problem_statement": "Response.json() fails with unhandled UnicodeDecodeError when encoding is None and body contains non-UTF-8 bytes. Catch UnicodeDecodeError and decode with apparent_encoding or latin-1.",
+      "file_to_edit": "requests/models.py",
+      "expected_test_name": "test_json_fallback_encoding",
+      "expected_failure_mode": "UnicodeDecodeError",
+      "expected_message_substring": "codec can't decode",
+      "base_code": "import json\n\nclass Response:\n    def __init__(self, content=b'', encoding=None):\n        self.content = content\n        self.encoding = encoding\n        self.apparent_encoding = 'latin-1'\n        self.text = ''\n\n    def json(self, **kwargs):\n        if not self.encoding and self.content:\n            return json.loads(self.content.decode('utf-8'), **kwargs)\n        return json.loads(self.text, **kwargs)\n",
+      "test_code": "from requests.models import Response\n\ndef test_json_fallback_encoding():\n    # latin-1 encoded text containing accent character\n    r = Response(content=b'{\"key\": \"\\xe9\"}', encoding=None)\n    res = r.json()\n    assert res == {\"key\": \"\\xe9\"}\n",
+      "maintainer_fix": "diff --git a/requests/models.py b/requests/models.py\nindex f388c4e..bef908c 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -9,5 +9,8 @@ class Response:\n \n     def json(self, **kwargs):\n         if not self.encoding and self.content:\n-            return json.loads(self.content.decode('utf-8'), **kwargs)\n+            try:\n+                return json.loads(self.content.decode('utf-8'), **kwargs)\n+            except UnicodeDecodeError:\n+                return json.loads(self.content.decode(self.apparent_encoding or 'latin-1'), **kwargs)\n         return json.loads(self.text, **kwargs)\n"
+    },
+    {
+      "task_id": "pilot_requests_02",
+      "project": "psf/requests",
+      "repo_name": "requests",
+      "issue_number": 9102,
+      "problem_statement": "prepare_url drops duplicate query parameter keys when params is passed as a list of tuples. Do not cast params to dict.",
+      "file_to_edit": "requests/models.py",
+      "expected_test_name": "test_prepare_url_multi_keys",
+      "expected_failure_mode": "AssertionError",
+      "expected_message_substring": "assert 'tag=python&tag=ai' in res",
+      "base_code": "def prepare_url(url, params):\n    if isinstance(params, dict):\n        params = list(params.items())\n    # Bug: converting list of tuples with repeated keys to dict drops duplicates\n    query = '&'.join(f'{k}={v}' for k, v in dict(params).items())\n    return f'{url}?{query}'\n",
+      "test_code": "from requests.models import prepare_url\n\ndef test_prepare_url_multi_keys():\n    params = [('tag', 'python'), ('tag', 'ai')]\n    res = prepare_url('http://example.com', params)\n    assert 'tag=python&tag=ai' in res\n",
+      "maintainer_fix": "diff --git a/requests/models.py b/requests/models.py\nindex 2b8772b..908e934 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -2,5 +2,5 @@ def prepare_url(url, params):\n     if isinstance(params, dict):\n         params = list(params.items())\n     # Bug: converting list of tuples with repeated keys to dict drops duplicates\n-    query = '&'.join(f'{k}={v}' for k, v in dict(params).items())\n+    query = '&'.join(f'{k}={v}' for k, v in params)\n     return f'{url}?{query}'\n"
+    },
+    {
+      "task_id": "pilot_flask_01",
+      "project": "pallets/flask",
+      "repo_name": "flask",
+      "issue_number": 9201,
+      "problem_statement": "Registering a blueprint with url_prefix containing a trailing slash produces double slashes when route also starts with a slash. Normalize slashes.",
+      "file_to_edit": "flask/blueprints.py",
+      "expected_test_name": "test_blueprint_trailing_slash_prefix",
+      "expected_failure_mode": "AssertionError",
+      "expected_message_substring": "assert res == '/api/v1/users'",
+      "base_code": "class Blueprint:\n    def __init__(self, name, url_prefix=None):\n        self.name = name\n        self.url_prefix = url_prefix\n\n    def add_url_rule(self, rule):\n        if self.url_prefix:\n            # Bug: creates double slash if url_prefix ends with slash and rule starts with slash\n            rule = self.url_prefix + rule\n        return rule\n",
+      "test_code": "from flask.blueprints import Blueprint\n\ndef test_blueprint_trailing_slash_prefix():\n    bp = Blueprint('api', url_prefix='/api/v1/')\n    res = bp.add_url_rule('/users')\n    assert res == '/api/v1/users'\n",
+      "maintainer_fix": "diff --git a/flask/blueprints.py b/flask/blueprints.py\nindex 8960246..cab11fd 100644\n--- a/flask/blueprints.py\n+++ b/flask/blueprints.py\n@@ -6,5 +6,5 @@ class Blueprint:\n     def add_url_rule(self, rule):\n         if self.url_prefix:\n             # Bug: creates double slash if url_prefix ends with slash and rule starts with slash\n-            rule = self.url_prefix + rule\n+            rule = f\"{self.url_prefix.rstrip('/')}/{rule.lstrip('/')}\"\n         return rule\n"
+    },
+    {
+      "task_id": "pilot_flask_02",
+      "project": "pallets/flask",
+      "repo_name": "flask",
+      "issue_number": 9202,
+      "problem_statement": "handle_user_exception pops the request context before dispatching to custom exception handlers. Preserve request context active flag.",
+      "file_to_edit": "flask/app.py",
+      "expected_test_name": "test_error_handler_preserves_context",
+      "expected_failure_mode": "AssertionError",
+      "expected_message_substring": "Request context must remain active",
+      "base_code": "class Flask:\n    def __init__(self):\n        self.context_active = True\n        self.error_handlers = {}\n\n    def handle_user_exception(self, e):\n        # Bug: deactivates context prematurely before dispatching to handler\n        self.context_active = False\n        handler = self.error_handlers.get(type(e))\n        if handler:\n            return handler(e)\n        raise e\n",
+      "test_code": "from flask.app import Flask\n\ndef test_error_handler_preserves_context():\n    app = Flask()\n    def handler(e):\n        assert app.context_active, 'Request context must remain active during handler execution'\n        return 'handled', 500\n    app.error_handlers[RuntimeError] = handler\n    res = app.handle_user_exception(RuntimeError())\n    assert res == ('handled', 500)\n",
+      "maintainer_fix": "diff --git a/flask/app.py b/flask/app.py\nindex 0b3c19f..c236ea9 100644\n--- a/flask/app.py\n+++ b/flask/app.py\n@@ -5,7 +5,6 @@ class Flask:\n \n     def handle_user_exception(self, e):\n         # Bug: deactivates context prematurely before dispatching to handler\n-        self.context_active = False\n         handler = self.error_handlers.get(type(e))\n         if handler:\n             return handler(e)\n"
+    },
+    {
+      "task_id": "pilot_sympy_01",
+      "project": "sympy/sympy",
+      "repo_name": "sympy",
+      "issue_number": 9301,
+      "problem_statement": "matrix_exp for a nilpotent 2x2 matrix fails to simplify to exact polynomial I + A when A**2 is zero matrix.",
+      "file_to_edit": "sympy/matrices/dense.py",
+      "expected_test_name": "test_nilpotent_matrix_exp",
+      "expected_failure_mode": "AssertionError",
+      "expected_message_substring": "assert res == 'I + A'",
+      "base_code": "class Matrix:\n    def __init__(self, data):\n        self.data = data\n        self.is_nilpotent = (data == [[0, 1], [0, 0]])\n\ndef matrix_exp(A):\n    # Bug: returns unsimplified string rather than polynomial I + A\n    return 'unsimplified_series'\n",
+      "test_code": "from sympy.matrices.dense import Matrix, matrix_exp\n\ndef test_nilpotent_matrix_exp():\n    A = Matrix([[0, 1], [0, 0]])\n    res = matrix_exp(A)\n    assert res == 'I + A'\n",
+      "maintainer_fix": "diff --git a/sympy/matrices/dense.py b/sympy/matrices/dense.py\nindex 17a6d4b..fe4aea0 100644\n--- a/sympy/matrices/dense.py\n+++ b/sympy/matrices/dense.py\n@@ -5,4 +5,6 @@ class Matrix:\n \n def matrix_exp(A):\n     # Bug: returns unsimplified string rather than polynomial I + A\n-    return 'unsimplified_series'\n+    if A.is_nilpotent:\n+        return 'I + A'\n+    return 'series'\n"
+    },
+    {
+      "task_id": "pilot_sympy_02",
+      "project": "sympy/sympy",
+      "repo_name": "sympy",
+      "issue_number": 9302,
+      "problem_statement": "Integral.doit() raises exception when upper bound is 'oo' because it uses direct subs instead of limit.",
+      "file_to_edit": "sympy/integrals/integrals.py",
+      "expected_test_name": "test_integral_subs_infinity_limits",
+      "expected_failure_mode": "ValueError",
+      "expected_message_substring": "Cannot substitute oo directly",
+      "base_code": "class Integral:\n    def __init__(self, expr, var, lower, upper):\n        self.expr = expr\n        self.var = var\n        self.lower = lower\n        self.upper = upper\n\n    def doit(self):\n        if self.upper == 'oo':\n            # Bug: fails on direct substitution with oo\n            raise ValueError('Cannot substitute oo directly; use limit()')\n        return f'integrated_{self.upper}'\n",
+      "test_code": "from sympy.integrals.integrals import Integral\n\ndef test_integral_subs_infinity_limits():\n    it = Integral('x', 'x', 0, 'oo')\n    res = it.doit()\n    assert res == 'evaluated_limit_oo'\n",
+      "maintainer_fix": "diff --git a/sympy/integrals/integrals.py b/sympy/integrals/integrals.py\nindex 85bd17b..5993817 100644\n--- a/sympy/integrals/integrals.py\n+++ b/sympy/integrals/integrals.py\n@@ -8,5 +8,5 @@ class Integral:\n     def doit(self):\n         if self.upper == 'oo':\n             # Bug: fails on direct substitution with oo\n-            raise ValueError('Cannot substitute oo directly; use limit()')\n+            return 'evaluated_limit_oo'\n         return f'integrated_{self.upper}'\n"
+    }
+  ]
+}

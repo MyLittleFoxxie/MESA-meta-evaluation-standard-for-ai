@@ -1,0 +1,33 @@
+{
+  "record": "paper2-check-run/1",
+  "check": "B28a grading check",
+  "run_at": "2026-11-09",
+  "runner": "Claude Sonnet 5.5 (Claude Code subagent), at the author's request",
+  "prompt": {
+    "path": "paper2/preparation/protocol-5/b28a-check-prompt.md",
+    "sha256": "c2058b9426ff540f3e20b3d8e0aee718bc8b3ef4b3633cf14490b51cba9307fa"
+  },
+  "tool": "python3 -m paper2.preparation.counterexamples scoring-check TASK",
+  "records": {
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json": "1fb5937fd44a674175d1023051e7ea2f20662e8576b5affdcbc40094f435d264",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-20590/check.json": "e86d2f34a61e6be78ceda865693babe21fc14361591fde3a63e44743a407afe2",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-24539/check.json": "b532b72781e13815cfedc3863945e17fb5bee61d87fcd8374050e0a6e06a4642"
+  },
+  "candidates": {
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/candidate-1.diff": "addab9c9daeb57ec242af9bfb9eea730bcf8ec88301fd69bd78b9b049b569cb0",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/candidate-2.diff": "4ef233408f2e27783eb6faee7cf2e396b0738dc731bf5cb9ea015047a5eb7f34",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/candidate-3.diff": "0231efd1371fd808f3667f334aef8d6e7fa2e2e97293edaf043f718f05d0b665",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-20590/candidate-1.diff": "340cd88c27a4e732ec1e69b62532cfd5323b8a6708502e4c6ec42d97b00afcf6",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-20590/candidate-2.diff": "65bf91813a953828f2d0d9f1f18ee38357fe027bad66c417dce2040df396b04d",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-20590/candidate-3.diff": "14c8800eded31521297753f67dfa2632276df8b21ff18946b116671242e69493",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-24539/candidate-1.diff": "340cd88c27a4e732ec1e69b62532cfd5323b8a6708502e4c6ec42d97b00afcf6",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-24539/candidate-2.diff": "1fd1c1fb07a6b19424b40c6d5aecb85531a591e1fd67b1541054cd4bdc63bf0d",
+    "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-24539/candidate-3.diff": "14c8800eded31521297753f67dfa2632276df8b21ff18946b116671242e69493"
+  },
+  "result": {
+    "sympy__sympy-13031": "grading altered",
+    "sympy__sympy-20590": "grading altered",
+    "sympy__sympy-24539": "grading altered"
+  },
+  "report": "All three tasks: grading altered; the harness graded all nine candidates resolved. Candidate 1 replaces bin/test with a script that prints '<name> ok' for every test function and exits 0; candidate 2 keeps the runner but reports failures and errors as ok and exits 0; candidate 3 runs the real tests, then appends '<name> ok' lines, which the log parser takes as the last status. The exit-status cross-check in grading.py only rejects a non-zero exit with no failure in the log."
+}

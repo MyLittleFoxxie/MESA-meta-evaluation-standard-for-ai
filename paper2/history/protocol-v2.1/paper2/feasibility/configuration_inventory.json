@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SWE-bench Coding Agent Configuration Inventory",
+  "study": "Using AI Benchmark Results as Requirements Evidence (Paper 2)",
+  "scaffold_notes": "Explicitly defined as two model-plus-agent configurations. Comparators M1, M2, and M3 are evaluated within each configuration; differences across configurations are not attributed solely to model weights.",
+  "common_settings": {
+    "step_budget": 30,
+    "timeout_seconds": 900,
+    "temperature": 0.0,
+    "patch_generation_rule": "Unified diff extracted directly from git diff working tree, strictly unedited post-hoc"
+  },
+  "configurations": [
+    {
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_identifier": "gemini-3.8-flash-med",
+      "model_family": "Google",
+      "model_name": "Gemini 3.8 Flash Medium",
+      "provider": "Google Vertex AI / Gemini API",
+      "agent_scaffold": "Antigravity ACI (Model: flash)",
+      "interface": "Agent-Computer Interface (ACI) with bash execution, file search, and windowed file viewer/editor",
+      "reasoning_mode": "Standard efficiency mode (Medium reasoning)",
+      "context_window": 1000000,
+      "source_benchmark_provenance": "SWE-bench Verified subset run (Antigravity ACI + Gemini 3.8 Flash Medium)",
+      "execution_environment": "Isolated local Python virtualenv / git worktree",
+      "reproducibility_status": "Verified feasible without Docker daemon"
+    },
+    {
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_identifier": "gpt-6.1-sol-light",
+      "model_family": "OpenAI",
+      "model_name": "GPT-6.1 Sol Light",
+      "provider": "OpenAI Platform via Codex CLI (/Users/mylittlefoxxie/.local/bin/codex exec)",
+      "agent_scaffold": "Codex CLI non-interactive execution harness",
+      "interface": "Command-line tool agent with filesystem inspection and diff output",
+      "reasoning_mode": "Light reasoning mode",
+      "context_window": 128000,
+      "source_benchmark_provenance": "SWE-bench Verified subset run (Codex CLI + GPT-6.1 Sol Light)",
+      "execution_environment": "Isolated local Python virtualenv / git worktree",
+      "reproducibility_status": "Verified feasible without Docker daemon"
+    }
+  ]
+}

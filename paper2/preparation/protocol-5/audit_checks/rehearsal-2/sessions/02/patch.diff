@@ -1,0 +1,29 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index 64d3207d09..4f6930f332 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -611,6 +611,8 @@ def convert_args(args):
+         return tex
+ 
+     def _print_Pow(self, expr):
++        from sympy.physics.secondquant import Creator
++
+         # Treat x**Rational(1,n) as special case
+         if expr.exp.is_Rational and abs(expr.exp.p) == 1 and expr.exp.q != 1 \
+                 and self._settings['root_notation']:
+@@ -628,6 +630,15 @@ def _print_Pow(self, expr):
+                 return r"\frac{1}{%s}" % tex
+             else:
+                 return tex
++        elif isinstance(expr.base, Creator):
++            # Group the dagger superscript before attaching another power.
++            base = self._print(expr.base)
++            if (self._settings['fold_frac_powers'] and expr.exp.is_Rational
++                    and expr.exp.q != 1):
++                exp = "%s/%s" % (expr.exp.p, expr.exp.q)
++            else:
++                exp = self._print(expr.exp)
++            return r"{%s}^{%s}" % (base, exp)
+         elif self._settings['fold_frac_powers'] \
+             and expr.exp.is_Rational \
+                 and expr.exp.q != 1:

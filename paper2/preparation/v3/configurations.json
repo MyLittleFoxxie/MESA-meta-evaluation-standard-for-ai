@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SWE-bench Coding Agent Configuration Inventory",
+  "study": "Using AI Benchmark Results as Requirements Evidence (Paper 2)",
+  "scaffold_notes": "Explicitly defined as two closed commercial configurations and one open-weight auditable configuration. Comparators M1, M2, and M3 are evaluated within each configuration; differences across configurations are not attributed solely to model weights.",
+  "common_settings": {
+    "step_budget": 30,
+    "timeout_seconds": 900,
+    "temperature": 0.0,
+    "patch_generation_rule": "Unified diff extracted directly from git diff working tree, strictly unedited post-hoc"
+  },
+  "configurations": [
+    {
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_family": "Google",
+      "model_name": "Gemini 3.8 Flash Medium",
+      "provider": "Google Vertex AI / Gemini API",
+      "agent_scaffold": "Antigravity ACI (Model: flash)",
+      "interface": "Agent-Computer Interface (ACI) with bash execution, file search, and windowed file viewer/editor",
+      "reasoning_mode": "Standard efficiency mode (Medium reasoning)",
+      "context_window": null,
+      "source_benchmark_provenance": "SWE-bench Verified subset run (Antigravity ACI + Gemini 3.8 Flash Medium)",
+      "execution_environment": "Isolated local Python virtualenv / git worktree",
+      "reproducibility_status": "Repository execution unverified; fixture invocation is not repository feasibility",
+      "requested_model_label": "Gemini 3.8 Flash Medium",
+      "observed_model_identifier": null,
+      "pretraining_disclosure": "Opaque: Proprietary web crawl data without public corpus access",
+      "capabilities": {
+        "observed_identity_verified": false,
+        "step_limit_enforced": false,
+        "timeout_enforced": false,
+        "oracle_access_denied": false,
+        "container_boundary_verified": false
+      },
+      "usage": null,
+      "historical_identifier": "gemini-3.8-flash-med",
+      "runtime_model_identifier": null
+    },
+    {
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_family": "OpenAI",
+      "model_name": "GPT-6.1 Sol Light",
+      "provider": "OpenAI Platform via Codex CLI (/Users/mylittlefoxxie/.local/bin/codex exec)",
+      "agent_scaffold": "Codex CLI non-interactive execution harness",
+      "interface": "Command-line tool agent with filesystem inspection and diff output",
+      "reasoning_mode": "Light reasoning mode",
+      "context_window": null,
+      "source_benchmark_provenance": "SWE-bench Verified subset run (Codex CLI + GPT-6.1 Sol Light)",
+      "execution_environment": "Isolated local Python virtualenv / git worktree",
+      "reproducibility_status": "Repository execution unverified; fixture invocation is not repository feasibility",
+      "requested_model_label": "GPT-6.1 Sol Light",
+      "observed_model_identifier": null,
+      "pretraining_disclosure": "Opaque: Proprietary web crawl data without public corpus access",
+      "capabilities": {
+        "observed_identity_verified": false,
+        "step_limit_enforced": false,
+        "timeout_enforced": false,
+        "oracle_access_denied": false,
+        "container_boundary_verified": false
+      },
+      "usage": null,
+      "historical_identifier": "gpt-6.1-sol-light",
+      "runtime_model_identifier": null
+    },
+    {
+      "config_id": "CONFIG_03_QWEN_CODER",
+      "model_family": "Alibaba Qwen",
+      "model_name": "Qwen 2.5 Coder 32B Instruct",
+      "provider": "Local vLLM / HuggingFace via SWE-agent scaffold",
+      "agent_scaffold": "SWE-agent open-source scaffold",
+      "interface": "Agent-Computer Interface (ACI) with bash execution and windowed editor",
+      "reasoning_mode": "Direct instruction inference",
+      "context_window": 32768,
+      "source_benchmark_provenance": "SWE-bench Verified subset run (SWE-agent + Qwen 2.5 Coder 32B)",
+      "execution_environment": "Isolated local container / git worktree",
+      "reproducibility_status": "Repository execution unverified; fixture invocation is not repository feasibility",
+      "requested_model_label": "Qwen 2.5 Coder 32B Instruct",
+      "observed_model_identifier": null,
+      "pretraining_disclosure": "Auditable: Open pre-training technical report, corpus documentation, and explicit temporal cutoff (Sep 2024)",
+      "capabilities": {
+        "observed_identity_verified": false,
+        "step_limit_enforced": false,
+        "timeout_enforced": false,
+        "oracle_access_denied": false,
+        "container_boundary_verified": false
+      },
+      "usage": null,
+      "historical_identifier": "qwen-2.5-coder-32b",
+      "runtime_model_identifier": null
+    }
+  ],
+  "version": 3,
+  "status": "preparation; runtime identity and safeguards unverified"
+}

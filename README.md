@@ -1,24 +1,21 @@
-# MESA: AI benchmark review questionnaire
+# MESA: benchmark review
 
-MESA draws on established guidance for reviewing psychological and educational tests and adapts it into a **25-question questionnaire** for AI benchmark review. It examines which concerns carry over, which change meaning, and which need additions for AI. The questions address what a benchmark claims to measure, how its scores are produced, what the available information supports, and what remains unknown. Accessibility is a design goal: 25 questions with explanations beside them, five plain answer choices and optional comments, instead of the complete 90-page EFPA Test Review Model. Easier human use has not yet been measured.
+The current manuscript is [mesa_paper.tex](mesa_paper.tex), **Unifying Benchmark Evaluation Protocols: A Meta-Evaluation Standard for Artificial Intelligence in Requirements Engineering**, intended for REFSQ in Springer LNCS format. It compares benchmark review frameworks, reports model sessions, and proposes a requirements traceability application. Human validation and effects on requirements decisions have not been established.
 
-The accompanying paper is **MESA: Adapting the EFPA Test Review Model for AI Benchmark Review.** Existing research already provides benchmark-quality checklists and guidance on interpreting scores. The CHASE paper examines a specific question: how can the EFPA Test Review Model (EFPA-TRM) be adapted to a test review model for AI benchmarks, and what changes or detail are lost? Its three deliverables are the questionnaire, an explanation of the adaptation decisions and trade-offs, and an initial examination using Claude Sonnet 5.5 reviews. The adaptation explanation is the central research contribution. The study illustrates practical limits; it does not establish better reviews or the same range of checks. Human evaluation is future work.
-
-One possible application is for an evaluator to prepare a review, colleagues to inspect its reasons and unresolved questions, and a team to consider whether benchmark results support a claim used to select an AI component. The wider purpose is to examine AI benchmarks using adapted human-test review guidance. Effects on collaboration and decisions have not been evaluated. Comments remain optional; colleagues may need to ask for a missing reason before relying on an important judgment. A recorded DesignQA example in the paper shows two exact questions and their saved model choices, rather than prescribing correct answers.
+Keep three research artifacts distinct: the earlier **25 question questionnaire**; the v4 mapping of **280 framework items to 30 comparison concerns**; and the derived rubric with **eight description fields and 29 evaluation questions**. The v4 study records remain under their existing paths. The manuscript rename does not change the instrument, records, or manuscript content.
 
 ## Start here
 
-- [Current v4 comparative standard and rubric study (`v4/README.md`)](v4/README.md): mapping 280 items across seven benchmark review frameworks to 30 shared concerns, Study 1 (18 framework sessions + 2 amendment sessions across HumanEval, TruthfulQA, HLE, and τ-bench), Study 2 (8 derived rubric sessions with 296 source-checked ratings), and full file/snapshot/package documentation.
-- [Current CHASE v4 manuscript (`paper_chase_v4.tex`)](paper_chase_v4.tex) and [full v4 manuscript (`paper_mesa_v4.tex`)](paper_mesa_v4.tex): *A Common Standard for Comparing Reviews of Artificial Intelligence Benchmarks* (10-page IEEE CHASE adaptation and full version).
-- [v3 audit rubric manuscript (`paper_mesa_v3.tex`)](paper_mesa_v3.tex) and [v3 study records (`v3/README.md`)](v3/README.md): *Auditing Artificial Intelligence Benchmarks with Coding Agents*.
-- [MESA study materials](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/materials/mesa.txt): the 25 questions, explanations, answer guidance, and completed teaching example used by the reported MESA sessions; human ease of use has not been evaluated.
-- [Guided questionnaire](surveys/colleague-review/survey.html): the participant survey, including a completed teaching example and two benchmarks to review.
-- [Questionnaire and reading passages in Markdown](surveys/colleague-review/survey.md).
-- [CHASE study guide](CHASE-study.md): experimental methods, results, exact prompts, raw responses, failed runs, and analysis commands.
-- [Earlier CHASE questionnaire manuscript](paper_chase.tex): IEEE manuscript for the 25-question EFPA adaptation.
-- [REFSQ manuscript](paper_refsq.tex): planned extension of the questionnaire paper with human evaluation, for submission to REFSQ.
+- [MESA manuscript](mesa_paper.tex): current REFSQ paper.
+- [v4 study guide](v4/README.md): framework mapping, 18 framework sessions, eight rubric sessions, and two amendment sessions across HumanEval, TruthfulQA, HLE, and τ-bench.
+- [Manuscript checker](verify_manuscripts.py): run `python3 verify_manuscripts.py` from the repository root to check MESA and `paper2_preview.tex` without compiling LaTeX.
+- [v3 manuscript](paper_mesa_v3.tex) and [v3 records](v3/README.md): preserved earlier work.
+- [Paper two preview](paper2_preview.tex): preserved companion manuscript.
+- [Earlier questionnaire materials](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/materials/mesa.txt), [participant survey](surveys/colleague-review/survey.html), and [reading passages](surveys/colleague-review/survey.md).
+- [Historical CHASE study guide](CHASE-study.md): earlier questionnaire experiments, separate from the v4 study.
+- [Manuscript consolidation record](provenance/manuscript-consolidation-2026-11-03.md): removed manuscripts, renamed files, and Git retrieval commands.
 
-## The questionnaire
+## Earlier questionnaire
 
 The questions cover six domains:
 
@@ -51,9 +48,9 @@ Introduction → three familiarity self-reports → completed Humanity's Last Ex
 
 The HLE example explains all 25 selections. ARC-AGI-2 and DesignQA are left for participants to answer. Familiarity is self-reported, and comments are optional. See the [survey guide](surveys/colleague-review/agent-guide.md) for maintenance instructions and [packet.json](surveys/colleague-review/packet.json) for the source content.
 
-## CHASE study and observed results
+## Historical CHASE study and observed results
 
-The paper is a design study of the EFPA adaptation, with an exploratory examination of model-generated reviews. The reporting selection contains **30 conversations**: ten MESA, ten EFPA-TRM, and ten general-instruction sessions. For each method, five conversations review ARC-AGI-2 and DesignQA, and five classify 49 claims in 24 constructed cases. Claude Sonnet 5.5 reads supplied descriptions; it does not execute the benchmarks.
+The historical CHASE paper is a design study of the EFPA adaptation, with an exploratory examination of model-generated reviews. The reporting selection contains **30 conversations**: ten MESA, ten EFPA-TRM, and ten general-instruction sessions. For each method, five conversations review ARC-AGI-2 and DesignQA, and five classify 49 claims in 24 constructed cases. Claude Sonnet 5.5 reads supplied descriptions; it does not execute the benchmarks.
 
 MESA guidance was finalized after development testing, and its sessions ran after the comparison-method sessions. The reporting selection was assembled after execution and includes all conversations from those batches. This is a comparison across sequential batches, not a jointly randomized or held-out experiment. Earlier development responses remain archived outside the reported results.
 
@@ -70,7 +67,7 @@ All **30 conversations completed**, through **32 physical attempts** including t
 - MESA supplied **250 choices**, with **12/50** question–benchmark pairs varying and **435/500** repeated-choice pairs matching. Five varying pairs included both No and Not sure. All DesignQA answers to questions 8 and 12 were Partly.
 - Six selected reviews use repetition 1 from each method. The selected MESA review answers DesignQA question 23 Not sure and question 24 Partly. Its missing reviewer-error counts also appear under documented problems, illustrating the difficulty of separating missing information from negative findings.
 
-Only MESA receives a completed example, so differences concern the complete supplied materials. The model outputs do not establish easier human use or effects on collaboration. Section VI-B discusses how engineers could compare reasons about score variation, repeated testing and reuse rules, without treating either No or Not sure as automatic rejection.
+Only MESA receives a completed example, so differences concern the complete supplied materials. The model outputs do not establish easier human use or effects on collaboration. Section VI-B of that manuscript discusses how engineers could compare reasons about score variation, repeated testing and reuse rules, without treating either No or Not sure as automatic rejection.
 
 A human author checked an earlier six-review set, including the four comparison-method reviews used here. The author reviewed the two MESA responses against the supplied passages, checked their interpretation, and reviewed the expected answers, including the disputed P6B label. These author checks do not constitute independent validation. OpenAI Codex prepared the current analysis; Claude Opus 5.5 assisted with the comparison batches and their initial analysis, from the same model family as reviewer Claude Sonnet 5.5.
 
@@ -87,15 +84,15 @@ EFPA provides the conceptual source for the adaptation. BetterBench informs ques
 | [supporting/adaptation/](supporting/adaptation/adaptation-map.md) | EFPA–MESA correspondence map and [ACM SIGSOFT empirical standards assessment](supporting/adaptation/standards-assessment.md) |
 | [supporting/retrai-paper/](supporting/retrai-paper/thesis/README.md) | Supporting RETRAI manuscript records: [detailed adaptation template](supporting/retrai-paper/MESA%20EFPA%20template%20official.md), [scorecard](supporting/retrai-paper/MESA%20scorecard.md), [pilot reviews](supporting/retrai-paper/reviews/), and [thesis notes](supporting/retrai-paper/thesis/) |
 | [supporting/editorial/](supporting/editorial/CHASE-review-response.md) | CHASE review response and editorial notes |
-| [paper_refsq.tex](paper_refsq.tex) | REFSQ submission, planned as the CHASE paper with human evaluation added |
+| [mesa_paper.tex](mesa_paper.tex) | Current REFSQ manuscript: framework comparison, rubric study, and requirements traceability proposal |
 | [paper.tex](paper.tex) and [paper_old.tex](paper_old.tex) | Preserved RETRAI submission manuscript and preserved older manuscript |
 | [tools/](tools/) | Scorecard and thesis verification scripts |
-| [CHASE reporting records](surveys/colleague-review/mesa-study/chase-report/README.md) | Current selection, results, source links and traceability |
+| [CHASE reporting records](surveys/colleague-review/mesa-study/chase-report/README.md) | Historical questionnaire selection, results, source links and traceability |
 | [Earlier model studies](CHASE-study.md#archived-records) and [archive index](provenance/archive-index.md) | Archived series and relocated-file provenance, not pooled with the current study |
 
 The source survey, benchmark reviews, and preserved manuscripts remain available. Questionnaire choices should not be converted into the numerical ratings used in supporting review documents.
 
-## Reproduce the study analysis
+## Reproduce the historical questionnaire analysis
 
 The [study guide](CHASE-study.md#reproduce-the-offline-analysis) gives Python commands for regenerating results from saved responses. Running those commands does not launch model experiments or send survey submissions. Exact inputs, raw outputs, expected test-case answers, and file fingerprints are retained separately.
 

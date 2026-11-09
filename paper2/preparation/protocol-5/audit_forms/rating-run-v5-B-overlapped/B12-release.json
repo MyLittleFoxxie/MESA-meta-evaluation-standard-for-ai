@@ -1,0 +1,64 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B12",
+  "concern": "C12",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Are uncertainty and statistical support reported for the benchmark's own scores?",
+  "shown_means": "sample size and an uncertainty measure (interval, standard error or spread over runs) for primary scores",
+  "checked_means": "power or significance reasoning given",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B12 applies always."
+  },
+  "check": {
+    "procedure": "The reviewer searched the SWE-bench paper and OpenAI's 2024 and 2026 posts for an interval, standard error, spread over runs, power or significance reasoning for the benchmark's own scores. None was found. No check was reported by the sources or run by the reviewer.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "/Users/mylittlefoxxie/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+    "detection_limits": "The check could not detect uncertainty measures that appear in the leaderboard, in tables or figures lost in the text copies, or in sources outside the six saved ones."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "consisting of 500 samples verified to be non-problematic by our human annotators"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "GPT-4o resolves 33.2% of samples"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "We ran a single seed using closest-documented or default hyperparameters for each scaffold"
+    },
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+      "quote": "significantly challenging"
+    }
+  ],
+  "anchor": "Undocumented",
+  "reasons": "The sources give the sample size (500 for Verified, 2,294 for SWE-bench) and one single seed run, but no uncertainty measure for the resolved rates, so Documented is not reached and, per the rule, the rating is Undocumented; it is not a defect and not Claimed because nothing claims statistical support.",
+  "missing": "An interval, standard error or spread over repeated runs for the primary resolved scores, then power or significance reasoning for Verified.",
+  "checks_performed": [
+    "Searched the saved SWE-bench paper text for interval, standard error, standard deviation, variance, seeds, bootstrap and significance.",
+    "Read the 2024 post passages on sample size and the single seed."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

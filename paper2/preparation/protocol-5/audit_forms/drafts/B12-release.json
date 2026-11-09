@@ -1,0 +1,59 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B12",
+  "concern": "C12",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Are uncertainty and statistical support reported for the benchmark's own scores?",
+  "shown_means": "sample size and an uncertainty measure (interval, standard error or spread over runs) for primary scores",
+  "checked_means": "power or significance reasoning given",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B12 applies always."
+  },
+  "check": {
+    "procedure": "Searched the saved sources (the SWE-bench paper, both OpenAI posts, the datasets guide) for an interval, standard error, standard deviation or spread over runs on SWE-bench Verified scores; none found.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+    "detection_limits": "The check could not detect uncertainty reported in documents that were not saved, such as leaderboard pages or the annotation files."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "consisting of 500 samples verified to be non-problematic by our human annotators"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "We ran a single seed using closest-documented or default hyperparameters for each scaffold"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "from 74.9% to 80.9% in the last 6 months"
+    }
+  ],
+  "anchor": "Undocumented",
+  "reasons": "The sources give the sample size (500) and report scores, but no uncertainty measure; under the rubric a sample size alone does not reach Documented. The single seed footnote admits variation without measuring it.",
+  "missing": "An interval, standard error or spread over runs for the benchmark's reported scores, and power or significance reasoning.",
+  "checks_performed": [
+    "Searched the paper text for confidence, standard error, variance, seed and bootstrap; read the two posts."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

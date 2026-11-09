@@ -1,0 +1,388 @@
+\documentclass[runningheads]{llncs}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\begin{document}
+
+\title{Unifying Benchmark Evaluation Protocols: A Meta-Evaluation Standard for Artificial Intelligence in Requirements Engineering}
+\titlerunning{Unifying Benchmark Evaluation Protocols}
+
+\author{Anonymous Author(s)}
+\authorrunning{Anonymous Author(s)}
+
+\institute{Affiliation Withheld for Double-Blind Review\\
+\email{contact@example.org}}
+
+\maketitle
+
+\begin{abstract}
+\textbf{Context and motivation:} When software engineering teams procure or integrate third-party artificial intelligence models, they rely on public benchmarks to test whether models satisfy system requirements. To decide whether benchmark scores can be trusted, requirements engineers must evaluate the integrity and validity of the benchmark itself.
+
+\textbf{Question/problem:} Multiple benchmark review frameworks and evaluation protocols have emerged, but they ask different questions and apply conflicting scoring conventions. As a result, different protocols reach contradictory verdicts on the same benchmark, and engineers cannot tell whether a low score reflects a genuine defect in the benchmark code or simply missing details in its documentation.
+
+\textbf{Principal ideas/results:} We join seven published review frameworks into a unified evaluation standard called MESA. We map 280 framework items into 30 shared review concerns (C01--C30) and derive an operational rubric with 8 descriptive criteria (A01--A08) and 31 evaluative criteria, each of whose ratings records the check outcome, scope, kind of check, detection limits, and defective tasks. In an empirical study across 18 evaluation sessions on four canonical benchmarks (HumanEval, TruthfulQA, HLE, and $\tau$-bench), different protocols agreed on only 159 of 302 pairwise comparisons (53\% agreement). Qualitative coding revealed that 92 of 143 disagreements (64\%) stemmed from differences in item granularity (50) or missing documentation rules (42), rather than conflicting empirical facts. Across 711 answers, 210 penalized unstated reporting, while only 13 recorded confirmed defects. Applied twice to each benchmark, the rubric's levels matched on 99 of 124 pairs (80\%). In an audit of all 312 rubric judgments against frozen repository sources, an assistant confirmed 55 of 64 descriptive classifications and 159 of 248 evaluative ratings, accepted 54 more as plausible absences, and found none unsupported.
+
+\textbf{Contribution:} (1) A unified standard joining seven evaluation protocols into a shared vocabulary that separates unstated reporting from verified defects; (2) an empirical diagnosis explaining why existing protocols disagree on identical benchmarks; and (3) an exploratory Requirements Traceability Matrix connecting benchmark evidence admissibility to system capability requirements, with the fields a rating must record to count for a requirement.
+
+\keywords{Requirements Engineering \and Artificial Intelligence \and Benchmarks \and Acceptance Testing \and Construct Validity \and Traceability.}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Software engineering teams specifying requirements for artificial intelligence systems face an evidential challenge: when procuring or integrating foundation models to fulfill system requirements (such as automated code completion, customer service triage, or database querying), teams rely heavily on published benchmark scores as third-party verification evidence \cite{habiba_re4ai_maturity_2024}. A high score on a public leaderboard, however, does not prove that an artificial intelligence component will satisfy real-world system requirements \cite{singh_leaderboard_illusion,alonso_church_sigir}. The benchmark itself may test narrow toy problems, contain faulty reference answers, suffer from pretraining data contamination, or execute unshielded code without environment isolation. 
+
+To determine whether benchmarks are sound and trustworthy, the research community has created numerous review checklists and evaluation protocols \cite{reuel_betterbench,liu_ecbd_2024,san_joaquin_scorecard_2026,cao_how2bench_2025,zhu_agentic_benchmark_checklist_2025,corona_benchmark_caliper_2026,cohn_hernandez_orallo_oecd_2023}. While recent guidelines such as NIST AI 800-2 \cite{nist_ai_800_2_2026} and component quality models \cite{lewis_quality_model_ml_2026} recommend aligning benchmark selection with measurement goals, each published review framework was developed independently. Consequently, existing protocols ask different questions, use divergent rating scales, and enforce conflicting rules for missing information.
+
+When requirements engineers apply these protocols to the same benchmark, they meet a problem: \textbf{existing review protocols frequently disagree}. In our empirical evaluation of six published frameworks across four canonical benchmarks, review protocols reached conflicting verdicts on nearly half of all shared questions (agreeing on only 159 of 302 comparisons, 53\% agreement). An engineer comparing reviews also cannot determine \emph{why} they disagree: did a benchmark fail because of an actual bug in its execution harness, or simply because its authors did not document a specific procedure in their paper? Across 711 framework answers in our study, 210 answers (30\%) penalized unstated documentation as a failure, whereas only 13 answers recorded confirmed software defects. In practice, existing protocols penalize documentation silence as if it were a proven defect, confusing missing paperwork with broken software.
+
+This paper addresses this challenge by \textbf{joining published benchmark evaluation protocols into a single, unified evaluation standard} called MESA (Meta-Evaluation Standard for AI). Grounded in psychometric construct validity \cite{kane_validation,aera_apa_ncme_standards_2014}, ontological expressiveness \cite{wand_weber_1993}, and the European Federation of Psychologists' Associations measurement tradition \cite{efpa_test_review_model_2025}, MESA provides:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{A Unified Mapping and 39-Criterion Rubric}: We map 280 published framework questions across 386 links into 30 shared review concerns (Concerns C01--C30). From this mapping, we derive an operational rubric comprising 8 Descriptive Criteria in Part~A (A01--A08) defining the benchmark's operational profile and 31 Evaluative Criteria in Part~B evaluating Kane's construct validity inferences, whose ratings record the fields that requirement decisions need;
+    \item \textbf{A Standardized Three-Way Verdict System}: We translate disparate scoring conventions into three outcomes: \textbf{Satisfied}, \textbf{Unsatisfied}, and \textbf{Open}. An \textbf{\emph{unreported}} qualifier ($-r$) marks a negative verdict that rests only on absent reporting, which separates unstated reporting from verified defects;
+    \item \textbf{An Exploratory Requirements Traceability Matrix Calculus}: We provide an exploratory assurance calculus that connects system capability requirements to benchmark evidence, states what each rating must record to count for a requirement (level, check outcome, scope, kind of check, detection limits, and defective tasks), and evaluates whether benchmark evidence is admissible before checking statistical score bounds against deployment targets;
+    \item \textbf{An Empirical Conflict Diagnosis}: Through qualitative coding, we explain why existing protocols disagree, showing that 64\% of observed conflicts stem from checklist granularity and omission rules rather than conflicting facts about benchmark code;
+    \item \textbf{Configuration Repeatability and Source Auditing}: We evaluate the rubric across repeated sessions on frozen benchmark snapshots (81\% Part~A and 80\% Part~B agreement, $\alpha_n = 0.80$, ordinal sensitivity analysis $\alpha_o = 0.70$), supported by an audit of citations against source repositories.
+\end{enumerate}
+
+We evaluate this unified standard through two empirical studies on four frozen benchmarks (HumanEval, TruthfulQA, Humanity's Last Exam, and $\tau$-bench): (1) an evaluation comparing six published frameworks to analyze coverage, conflicts, and missing information penalties; and (2) a repeatability study of the unified rubric across repeated evaluation runs, with a check of its ratings against the sources.
+
+\section{Background and Motivation}
+\label{sec:background}
+
+\subsection{The Inductive Acceptance Oracle in the Requirements Reference Model}
+In classical Requirements Engineering, the Jackson-Zave reference model defines satisfaction as $W, S \vdash R$, where system domain assumptions $W$ and software specification $S$ deductively entail customer requirements $R$ \cite{zave_jackson_1997,habiba_re4ai_maturity_2024}. In foundation model integration, software teams lack an explicit, inspectable implementation specification $S$ of the model's internal parameters and weights (which are opaque, distributed, and non-deterministic). Instead, teams formulate external, black-box functional requirements $G_{\text{AI}}$ and replace deductive verification with an empirical acceptance testing oracle:
+\begin{equation}
+\label{eq:jz_inductive}
+W, E, O_{\text{bench}}(M, B) \vdash_{\text{ind}} G_{\text{AI}}
+\end{equation}
+where $G_{\text{AI}}$ is the functional AI capability requirement, $E$ is the operational execution environment, and $B = (T, H, S_{\text{score}})$ is the benchmark instrument comprising task suite $T$, execution harness $H$, and scoring oracle $S_{\text{score}}$ \cite{bean_measuring_what_matters}.
+
+The symbol $\vdash_{\text{ind}}$ formalizes an \textbf{inductive assurance argument pattern} \cite{hawkins_amlas_2021}: observing that model $M$ achieves score $O_{\text{bench}}(M, B) \ge \theta$ within environment $E$ provides inductive evidential support that $M$ satisfies $G_{\text{AI}}$ under operational assumptions $W$. In safety and quality frameworks such as AMLAS, ISO/IEC 25059, and component quality models \cite{hawkins_amlas_2021,iso_iec_25059_2023,lewis_quality_model_ml_2026}, the credibility of this inductive inference depends on whether the measurement instrument $B$ provides inspectable, adequate evidence for the target requirement. However, verifying an instrument's execution integrity does not alone establish that its scores support every intended deployment requirement; corpus coverage, review consistency, and domain suitability for a specific requirement remain distinct evaluative claims. The evidential chain breaks under two classic metrological concerns:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Construct Underrepresentation:} Tasks $T$ evaluate narrow syntax rather than the functional capability demanded by $G_{\text{AI}}$ (e.g., verifying algorithmic puzzle completion when $G_{\text{AI}}$ requires multi-file repository refactoring).
+    \item \textbf{Construct-Irrelevant Variance:} Benchmark scores are artificially inflated by test harness leaks in $H$ (e.g., unshielded runtime reflection), prompt gaming, or pretraining contamination in $T$.
+\end{enumerate}
+Teams that rely on benchmark scores therefore need to verify the benchmark $B$ itself.
+
+\subsection{Construct Validity as an Assurance Argument: Operationalizing Kane}
+In educational and psychological measurement, \textbf{validity} is not an intrinsic property of a test, but the degree to which empirical evidence supports the interpretation of test scores for a specified purpose \cite{kane_validation,aera_apa_ncme_standards_2014}. Under Kane's argument-based framework---which functions analogously to an end-to-end software testing pipeline---validation requires demonstrating an unbroken chain across four inferential stages:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Scoring Inference ($I_{\text{score}}$ -- Test Runner Assertion Integrity):} Evaluates the transition from raw task execution to assigned score, ensuring test runners execute without parser exploits, grading bugs, or gaming loopholes (mapped to MESA Criteria B06, B07);
+    \item \textbf{Generalization Inference ($I_{\text{gen}}$ -- Parameterized Fuzzing and Prompt Stability):} Evaluates whether observed performance is robust across task variations, prompt perturbations, baseline comparisons, and evaluation runs rather than narrow seeding artifacts (mapped to MESA Criteria B08, B09, B10, B11, B12, B20);
+    \item \textbf{Extrapolation Inference ($I_{\text{extrap}}$ -- Unit Tests vs.\ Production Reality):} Evaluates whether passing synthetic benchmark tasks reflects genuine real-world capability rather than dataset shortcuts, granular misalignment, training on the test, or pretraining contamination (mapped to MESA Criteria B01, B03, B04, B05, B13, B14a, B14b, B15, B16, B23, B27);
+    \item \textbf{Implication / Decision Inference ($I_{\text{dec}}$ -- Production Release Readiness):} Evaluates whether accepting the model satisfies system safety constraints, annotator reliability, isolation of the evaluation environment, and software licensing requirements (mapped to MESA Criteria B02, B17, B18, B19, B21, B22, B24, B25, B26, B28a, B28b, B29).
+\end{enumerate}
+Following the 2025 European Federation of Psychologists' Associations (EFPA) model \cite{efpa_test_review_model_2025}, MESA translates this four-stage inference into an operational requirements assurance pattern, decoupling neutral descriptive envelopes (Part~A) from evaluative construct criteria (Part~B).
+
+\subsection{Operational Envelopes and Observable Design Facets}
+Cohn and Hern\'andez-Orallo adapted this measurement tradition to artificial intelligence across \textbf{18 categorical facets} structured under validity, consistency, and fairness \cite{cohn_categorising_2022,cohn_hernandez_orallo_oecd_2023}. In the 2023 OECD study, when four independent raters classified 20 AI evaluation instruments, a pattern emerged: raters agreed consistently on observable design facets describing the instrument's operational profile---such as \emph{Judgeability} and \emph{Purpose}---but disagreed on evaluative facets such as \emph{Coverage} \cite{cohn_hernandez_orallo_oecd_2023}.
+
+MESA operationalizes observable design properties into \textbf{Part~A Descriptive Criteria (A01--A08)}, adapted from the OECD measurement facets \cite{cohn_hernandez_orallo_oecd_2023} to establish the benchmark's operational profile:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{A01 (Purpose):} Classifies the benchmark objective: research, conformity, or other;
+    \item \textbf{A02 (Judgeability):} Evaluates scoring automation: manual, automated, or mixed. In the rubric, this formally gates scoring implementation checks (B07 applies only when automated or mixed);
+    \item \textbf{A03 (Reference):} Identifies score reference: absolute or relative. In the rubric, this gates comparative baselines (B09 applies in full only when relative);
+    \item \textbf{A04 (Containedness):} Records containment: fully contained, partial interference, or not contained (describing training data overlap and execution environment);
+    \item \textbf{A05 (Objectivity):} Records test objectivity: loose, customised, or fully independent;
+    \item \textbf{A06 (Autonomy):} Classifies system architecture: autonomous, coupled, or component;
+    \item \textbf{A07 (Progression):} Classifies task progression: static or developmental;
+    \item \textbf{A08 (Variation):} Records test stability: fixed, altered, or procedural. In the rubric, this gates version tracking (B20 applies in full when altered, procedural, or multiple releases exist).
+\end{itemize}
+
+\subsection{Safety Assurance Cases, Quality Models, and Evidence Structuring}
+In safety-critical software engineering, the AMLAS methodology (\emph{Guidance on the Assurance of Machine Learning in Autonomous Systems}) establishes explicit argument patterns connecting system-level safety requirements to machine learning evidence \cite{hawkins_amlas_2021}. Recently, Lewis et al.~\cite{lewis_quality_model_ml_2026} introduced a quality model for machine learning components connecting system requirements, component quality characteristics, and testing. Similarly, NIST AI 800-2 \cite{nist_ai_800_2_2026} outlines official practices for automated language model benchmark evaluations, emphasizing evaluation objectives and uncertainty bounds, while documentation standards such as Evaluation Cards \cite{ghosh_evaluation_cards_2026} standardize metadata records, dataset provenance, and execution environments to support comparability across foundation models. In AI for Software Engineering, Koohestani et al.~\cite{koohestani_benchframe_2025} developed BenchScout for benchmark search and BenchFrame to repair and elevate benchmark quality on HumanEval. Further, G{\'o}mez et al.~\cite{gomez_bqai_2026} proposed the Benchmark Quality Assurance Index (BQAI), calculating an AHP-weighted composite quality score across seven dimensions for 30 benchmarks evaluated by three raters.
+
+While top-down quality models \cite{hawkins_amlas_2021,lewis_quality_model_ml_2026,nist_ai_800_2_2026} define assurance goals and Evaluation Cards \cite{ghosh_evaluation_cards_2026} provide reporting schemas, requirements engineers still face a gap: how to critically audit and compare reviews across divergent published review frameworks. While BQAI \cite{gomez_bqai_2026} reduces multi-faceted benchmark assessments into an AHP composite index, MESA focuses on qualitative evidence levels and explicit decoupling of missing documentation from confirmed defects. The present paper develops and reports the \textbf{39-criterion MESA comparison standard} (8 Part~A descriptive criteria and 31 Part~B evaluative criteria derived from 30 shared review concerns), designed to map, recode, and compare reviews across divergent published frameworks.
+
+\subsection{Existing Benchmark Review Frameworks}
+We examine seven published frameworks evaluating benchmarks as measurement instruments (Table~\ref{tab:frameworks}): \textbf{BetterBench (BB)} \cite{reuel_betterbench} scores 47 template items (46 in paper) across four lifecycle stages; the \textbf{ECBD worksheet} \cite{liu_ecbd_2024} asks 20 open-ended questions across seven modules without scores; the \textbf{Scorecard of AI Benchmark Quality (SC)} \cite{san_joaquin_scorecard_2026} evaluates 22 principles and 46 bullets across five validity dimensions (68 items total); \textbf{How2Bench (H2B)} \cite{cao_how2bench_2025} provides a 55-item checklist across five phases for code benchmarks; the \textbf{Agentic Benchmark Checklist (ABC)} \cite{zhu_agentic_benchmark_checklist_2025} scores 44 released items (42 in paper) across task, outcome, and reporting validity; \textbf{Benchmark Caliper (CAL)} \cite{corona_benchmark_caliper_2026} evaluates regional transfer across 28 items and six dimensions; and the \textbf{OECD facets} \cite{cohn_hernandez_orallo_oecd_2023} classify instruments across 18 facets.
+
+\begin{table}[t]
+\caption{The seven review frameworks and the unified comparison standard.}
+\label{tab:frameworks}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.2cm}rr>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.5cm}@{}}
+\toprule
+\textbf{Code} & \textbf{Framework} & \textbf{Paper} & \textbf{Items} & \textbf{Scope} & \textbf{Rule for Missing Documentation} & \textbf{Standardized Verdict} \\
+\midrule
+BB & BetterBench \cite{reuel_betterbench} & 46 & 47 & General AI & Score 0 (unacknowledged); Score 5 (no proof) & Unsatisfied, \emph{unreported} \\
+ECBD & ECBD worksheet \cite{liu_ecbd_2024} & 20 & 20 & NLP & Absence of support recorded in text without score & Open \\
+SC & Scorecard \cite{san_joaquin_scorecard_2026} & 68 & 68 & General AI & Vague or absent documentation fails item & Unsatisfied, \emph{unreported} \\
+H2B & How2Bench \cite{cao_how2bench_2025} & 55 & 55 & Code & Absent documentation grouped with not done & Unsatisfied, \emph{unreported} \\
+ABC & ABC \cite{zhu_agentic_benchmark_checklist_2025} & 42 & 44 & Agentic & Undocumented item scored 0 & Unsatisfied, \emph{unreported} \\
+CAL & Caliper \cite{corona_benchmark_caliper_2026} & 28 & 28 & Cultural & Unknown; dimension lowered to 1--2 & Unsatisfied, \emph{unreported} \\
+OECD & OECD facets \cite{cohn_hernandez_orallo_oecd_2023} & 18 & 18 & All AI & Reliability allows N/A; others require value & Reliability open; others evaluated \\
+\midrule
+--- & \textbf{MESA Standard} & --- & 39 & General AI & Recorded as \emph{Undocumented} (open question) & Open \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{A Unified Meta-Evaluation Standard and Rubric}
+\label{sec:mesa_standard}
+
+\subsection{Standard Terminology and Shared Review Criteria}
+To ensure conceptual clarity across evaluation levels, ten terms have fixed meanings throughout this paper:
+\begin{itemize}[leftmargin=*]
+    \item A \textbf{framework} is a published set of benchmark review items (e.g. BetterBench, Scorecard);
+    \item An \textbf{item} is an individual question in a framework's released template (280 unique items across the seven frameworks);
+    \item A \textbf{concern} is one of the 30 shared review concerns (Concerns C01--C30 in the framework-comparison mapping);
+    \item A \textbf{MESA criterion} is one of the 39 review criteria in the derived rubric: A01--A08 in Part~A and 31 in Part~B, numbered B01--B29 after the concern they come from, with two criteria for Concern C14 (B14a and B14b) and two for Concern C28 (B28a and B28b);
+    \item A \textbf{link} (or allocation) is a mapping from a framework item to a concern (386 total links across all frameworks);
+    \item An \textbf{answer} is a reviewer's response to one framework item;
+    \item A \textbf{classification} is a reviewer's assignment of one of the 8 descriptive criteria in Part~A;
+    \item A \textbf{rating} is a reviewer's evaluation of one MESA evaluative criterion in Part~B, given as one of six \emph{levels} (\emph{Claimed}, \emph{Documented}, \emph{Verified}, \emph{Contradicted}, \emph{Undocumented}, \emph{Not applicable}) together with the record fields of Section~\ref{sec:levels};
+    \item A \textbf{verdict} is the standardized three-way outcome on a criterion (\textbf{Satisfied}, \textbf{Unsatisfied}, or \textbf{Open}), accompanied by the \textbf{\emph{unreported}} qualifier ($-r$) when it is negative only because the sources do not report the practice, or \textbf{\emph{partial}} for intermediate support;
+    \item A \textbf{decision} is the outcome of the traceability matrix for one requirement: an \emph{evidence status} (Inadmissible, Inquiry Required, or Admissible) and, when the status is Admissible, a \emph{score decision} (Accept, Reject, or Inconclusive); and
+    \item A \textbf{session} is one execution of an evaluation session applying a framework or MESA to a benchmark snapshot.
+\end{itemize}
+
+All 280 unique items across the seven frameworks were transcribed and mapped bottom-up onto the \textbf{30 comparison concerns (C01--C30)}. Table~\ref{tab:coverage} lists the concerns and framework item allocations. In Table~\ref{tab:coverage}, Concern C30 is listed as the Part~A descriptive envelope (A01--A08), which aggregates the 10 descriptive items from the OECD framework, while Concerns C01--C29 give the 31 Part~B evaluative criteria: one criterion each, except Concern C14, which gives B14a and B14b, and Concern C28, which gives B28a and B28b. Concern C\emph{nn} and criterion B\emph{nn} denote the same question for \emph{nn} from 01 to 29; we use B\emph{nn} for criteria and C\emph{nn} only for the framework mapping. Compound items in source frameworks (e.g. Scorecard items checking both reference answers and execution harnesses) are allocated across multiple concerns, yielding \textbf{386 total criterion links} across the 280 items with zero unmapped source items. We note that allocating an item across multiple concerns documents its coverage across our comparison vocabulary, but does not eliminate the compound nature of the source framework's question or imply that every source nuance is preserved identically. Framework coverage varies: Caliper concentrates all 28 items on cultural transfer (B23), whereas BetterBench, Scorecard, and How2Bench distribute items broadly across lifecycle and validity concerns.
+
+\begin{table}[t]
+\caption{The 30 comparison concerns and derived rubric criteria item allocations.}
+\label{tab:coverage}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrrrrrrr@{}}
+\toprule
+\textbf{Id} & \textbf{MESA Review Criterion} & \textbf{BB} & \textbf{ECBD} & \textbf{SC} & \textbf{H2B} & \textbf{ABC} & \textbf{CAL} & \textbf{OECD} & \textbf{Fwks} \\
+\midrule
+A01--A08 (C30) & Part~A: 8 Descriptive Criteria (OECD Facet Envelope) & 0 & 0 & 0 & 0 & 0 & 0 & 10 & 1 \\
+B01 & Target ability stated and operationalized (Construct Def) & 2 & 2 & 3 & 2 & 1 & 0 & 1 & 6 \\
+B02 & Intended use, target users, and real-world relevance stated & 2 & 3 & 1 & 1 & 1 & 0 & 2 & 6 \\
+B03 & Task selection justified for claimed ability (Relevance) & 4 & 3 & 5 & 2 & 1 & 0 & 0 & 5 \\
+B04 & Task set covers the ability and is representative (Breadth) & 2 & 5 & 4 & 5 & 0 & 5 & 1 & 6 \\
+B05 & Tasks and reference answers checked for flaws & 1 & 0 & 10 & 7 & 12 & 3 & 0 & 5 \\
+B06 & Scoring rule described and mathematically justified & 3 & 2 & 4 & 4 & 3 & 0 & 1 & 6 \\
+B07 & Scoring implementation checked and exploit-resistant & 1 & 1 & 8 & 1 & 18 & 0 & 0 & 5 \\
+B08 & Aggregation rule and subscores justified & 0 & 3 & 3 & 1 & 0 & 1 & 1 & 5 \\
+B09 & Comparison points and baseline models justified & 3 & 0 & 3 & 0 & 2 & 0 & 1 & 4 \\
+B10 & Variation on repeated testing and environment parity reported & 0 & 0 & 2 & 3 & 1 & 0 & 2 & 4 \\
+B11 & Prompting and setup described and sensitivity tested & 2 & 3 & 3 & 6 & 0 & 0 & 0 & 4 \\
+B12 & Uncertainty, sample size, and statistical support reported & 1 & 2 & 3 & 1 & 2 & 0 & 0 & 5 \\
+B13 & Shortcuts, confounds, and chance investigated & 0 & 1 & 12 & 1 & 6 & 2 & 1 & 6 \\
+B14a, B14b & Pretraining contamination and data leakage assessed & 2 & 0 & 1 & 1 & 2 & 0 & 0 & 4 \\
+B15 & Output cleansing and submission rules stated & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 2 \\
+B16 & Claims about performance beyond the test supported (Extrap) & 1 & 1 & 6 & 1 & 0 & 1 & 2 & 6 \\
+B17 & Fairness across systems and conditions addressed & 0 & 1 & 1 & 0 & 0 & 1 & 2 & 4 \\
+B18 & Materials and instructions for repeating evaluation provided & 10 & 0 & 3 & 11 & 3 & 0 & 1 & 5 \\
+B19 & Terms of access and license stated & 1 & 0 & 0 & 2 & 0 & 0 & 0 & 2 \\
+B20 & Version maintenance and issue tracking recorded & 3 & 0 & 1 & 0 & 3 & 0 & 2 & 4 \\
+B21 & Limitations stated and claims remain within evidence & 4 & 0 & 6 & 0 & 4 & 0 & 0 & 3 \\
+B22 & Benchmark maintenance and contact exist & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+B23 & Transfer to another cultural/deployment context assessed & 0 & 0 & 0 & 0 & 0 & 28 & 1 & 2 \\
+B24 & Harmful or sensitive content handled & 1 & 0 & 0 & 3 & 0 & 1 & 0 & 3 \\
+B25 & Evaluated systems and benchmark difficulty examined & 0 & 0 & 0 & 6 & 0 & 0 & 1 & 2 \\
+B26 & Results presented and explained & 0 & 0 & 0 & 6 & 0 & 0 & 0 & 1 \\
+B27 & Data provenance and collection documented & 7 & 1 & 4 & 5 & 0 & 1 & 2 & 6 \\
+B28a, B28b & Evaluation environment controlled and isolated from answers & 0 & 0 & 3 & 0 & 7 & 0 & 1 & 3 \\
+B29 & Domain experts or users took part in design or review & 1 & 1 & 2 & 0 & 0 & 2 & 0 & 4 \\
+\midrule
+\textbf{Total} & \textbf{Total Allocated Links Across 30 Concerns (386 Links)} & \textbf{56} & \textbf{29} & \textbf{88} & \textbf{69} & \textbf{67} & \textbf{45} & \textbf{32} & \textbf{386} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Three-Tier Verdict Architecture}
+To eliminate confusion across evaluation levels, MESA defines three distinct tiers:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Tier 1: Rubric Evidence Levels (Rating Level):} Six asymmetric evidence levels assigned directly to benchmark artifacts (\emph{Claimed}, \emph{Documented}, \emph{Verified}, \emph{Contradicted}, \emph{Undocumented}, \emph{Not applicable}).
+    \item \textbf{Tier 2: Harmonized Framework Verdicts (Criterion Level):} Three standardized outcomes used to reconcile scores across external frameworks: \textbf{Satisfied} (favorable), \textbf{Unsatisfied} (unfavorable), and \textbf{Open} (unresolved). When an external framework scores missing information as failing, MESA attaches the \textbf{\emph{unreported}} qualifier ($-r$). The qualifier covers two meanings of an absence: (i) an unfulfilled reporting requirement where documentation silence is itself non-compliance; and (ii) an unverified practice (such as a contamination check) where silence leaves empirical status unknown, distinct from confirmed defects.
+    \item \textbf{Tier 3: Acceptance Decisions (System Requirement Level):} The Requirements Traceability Matrix (Section~\ref{sec:discussion}) reports two outputs for each requirement: an evidence status (\textbf{Inadmissible}, \textbf{Inquiry Required}, or \textbf{Admissible}) and, only when the status is Admissible, a score decision (\textbf{Accept}, \textbf{Reject}, or \textbf{Inconclusive}). Neither set reuses a level name.
+\end{enumerate}
+
+\subsection{The Review Criteria and Evidence Levels}
+\label{sec:levels}
+The MESA criteria operate in two parts:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Part~A (8 Descriptive Criteria A01--A08):} Neutral structural classification recording \emph{Purpose} (A01), \emph{Judgeability} (A02), \emph{Reference} (A03), \emph{Containedness} (A04), \emph{Objectivity} (A05), \emph{Autonomy} (A06), \emph{Progression} (A07), and \emph{Variation} (A08). Several descriptive criteria gate Part~B applicability: A02 (Judgeability) gates Criterion B07 (scoring implementation checks apply when automated or mixed); A03 (Reference) gates B09 (baseline comparisons apply in full when relative); and A08 (Variation) gates B20 (release tracking applies in full when releases are altered or procedural). A04 (Containedness) describes execution containment and environment overlap; it informs the environment criteria but does not gate them.
+    \item \textbf{Part~B (Evaluative Criteria):} Each criterion is rated on six levels: \emph{Claimed} (asserted in text without inspectable artifact), \emph{Documented} (inspectable artifact present), \emph{Verified} (a check whose coverage, findings, and limits are reported by the sources or recorded by the reviewer), \emph{Contradicted} (a defect or contradiction at a cited location), \emph{Undocumented} (the sources do not allow a level to be chosen; not a defect), and \emph{Not applicable} (the concern does not arise, for a reason that cites Part~A or the stated use). Table~\ref{tab:rubric_summary} gives the level thresholds for representative criteria.
+\end{itemize}
+
+\textbf{Record fields and rules.} A level alone cannot tell whether a rating supports a requirement (Section~\ref{sec:discussion}). Every Part~B rating therefore records six fields besides its level: the \emph{outcome} of the check (\emph{passed}, \emph{failed}, \emph{not performed}, or \emph{not recorded}), which says whether the check found a defect that bears on the criterion on the tasks in its scope after the listed task defects are left out, and is independent of the level, so that a rating at Verified may have outcome failed; the \emph{check kind} (reported by the sources, run by the reviewer, both, or none); the \emph{scope} the rating covers (the \emph{release} at a named version, one \emph{configuration} of model setup, harness, and environment, one \emph{task}, or a named \emph{subset} of tasks); the \emph{detection limits}, one sentence of the form ``the check could not detect X''; the \emph{task defects}, single tasks whose tests are shown to be wrong, each with a cited location; and the raters and signer, each named with its kind (person, or model with identifier and prompt). The rubric also states four rules. Contradicted needs a cited location. Not applicable needs a reason and is refused for criteria that apply always. B05 covers tests that reject a correct solution and reference answers that are wrong, while B07 covers tests and scoring code that accept a wrong solution. An exploit check that the reviewer runs counts for B07 at Verified when it records every attempt, an independent test that rejects each attempt and accepts the reference solution, and its limits; an exploit must break behavior that the task statement asks for, and failing to find one does not show that none exists. Exposure and environment each have two criteria: B14a covers the benchmark's safeguards against exposure and B14b the possible exposure of one named model, rated at configuration scope; B28a covers the grading environment and B28b the agent environment. Their outcomes follow three rules. A source that shows models reproduce the benchmark's test material makes the B14a outcome failed, whatever models it names. When every task predates the named model's stated training cutoff and no contamination check for that model exists, the B14b outcome is not performed, because exposure is possible but not shown. When a shipped agent environment holds later history, such as commits after the task's starting state, and a search of it does not find the answer, the B28b outcome is passed, with the history in the evidence and the limits of the search stated.
+
+\begin{table}[t]
+\caption{Representative evaluative criteria and their level thresholds.}
+\label{tab:rubric_summary}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.2cm}@{}}
+\toprule
+\textbf{Id} & \textbf{Evaluation Criterion} & \textbf{What Counts as Documented} & \textbf{What Counts as Verified} & \textbf{Applies When} \\
+\midrule
+B01 & Ability under test stated (Construct Def) & Operational form and scope defined & Definition compared with others or boundaries tested & Always \\
+B05 & Tasks, answers, and tests checked for errors that reject a correct solution & Checking procedure described & Coverage, findings, and limits of check reported & Always \\
+B07 & Scoring checked; can it accept a wrong solution & Scoring code inspectable & Parser or judge validated, or exploit attempts reported or run by the reviewer, all recorded with limits & Judgeability automated or mixed (A02) \\
+B12 & Uncertainty for the benchmark's own scores & Sample size and an uncertainty measure & Power or significance reasoning reported & Always \\
+B14a & Benchmark safeguards against exposure & Risk acknowledged; safeguard described & Contamination check or held out procedure reported & Always \\
+B14b & Exposure of one named model & Stated training cutoff and task dates recorded with sources & Contamination check for that model, or tasks created after its cutoff used as a held out set & A model configuration is named \\
+B18 & Replication instructions provided & Code, data, and instructions present & Independent replication reported & Always \\
+B28a & Grading environment isolated from the system under test & Grading environment and isolation described & Isolation of the output from tests and scorer verified or enforced in code & Scoring runs the system's output \\
+B28b & Agent environment isolated from answers & Environment, tools, and isolation described & State clearing and isolation from answers, history, and network verified or enforced in code & Systems run in an environment with tools or state \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Empirical Research Design}
+\label{sec:research_design}
+
+To evaluate MESA's analytical properties under a controlled model configuration prior to human deployment studies, our evaluation follows the ACM SIGSOFT Empirical Standard for Standards and Taxonomies. We examine four properties of the synthesis and review records: (1)~construct coverage across prior evaluation instruments; (2)~reproducible diagnosis of observed framework disagreements; (3)~decoupling of unstated documentation from verified implementation defects; and (4)~measurement repeatability across repeated evaluation runs under an identical reviewer model baseline. We formulate these through four research questions:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{RQ1 (Coverage):} Which evaluation concerns do existing frameworks cover, and where do coverage gaps emerge?
+    \item \textbf{RQ2 (Framework Disagreements):} When applied to identical benchmarks, do existing frameworks agree, and what causes their conflicts?
+    \item \textbf{RQ3 (Missing Documentation):} How do existing frameworks penalize missing documentation, and what is the empirical distortion?
+    \item \textbf{RQ4 (Synthesis and Repeatability):} When a rubric is derived from the shared concerns, do its ratings diagnose observed conflicts, and does it produce repeatable evaluations under a controlled reviewer baseline, including the record fields that requirement decisions need?
+\end{itemize}
+
+\subsection{Study 1: Comparing Frameworks Across Four Benchmarks}
+In Study 1, evaluation sessions applied six frameworks (BetterBench, ECBD, Scorecard, How2Bench, ABC, and the OECD framework) across four frozen benchmarks: HumanEval \cite{human_eval_repository}, TruthfulQA \cite{truthfulqa_repository}, Humanity's Last Exam (HLE) \cite{phan_etal_hle_2025}, and $\tau$-bench \cite{tau_bench_repository}. All evaluation sessions were executed over static, frozen repository snapshots and paper texts using read-only access. Specifically, sessions were conducted with Claude Sonnet 5.5 through Claude Code at medium effort, equipped with only two read-only MCP tools (\texttt{list\_files} and \texttt{read\_file}), without dynamic code execution or AST parsers.
+
+\subsection{Study 2: Repeatability and Conflict Diagnosis}
+In Study 2, independent evaluation sessions applied the MESA rubric (Section~\ref{sec:levels}) twice to all four frozen benchmarks, with the same model, effort, tools, and isolation as Study~1, to measure repeatability across repeated runs. All ratings, record fields, extracted locators, and cited evidence quotes were logged and checked for classification stability on Part~A descriptive criteria, ordinal stability across the Part~B evidence levels, and agreement on the record fields. The rubric, prompts, runner, and analysis plan were frozen after one pilot on a fictional two task benchmark and before the eight main sessions. The prompt named no model configuration, so B14b does not apply in Study~2. The sessions could read files but not execute code, so a check ``run by the reviewer'' is an inspection, and the B07 exploit check was not exercised.
+
+We distinguish three agent roles in the evaluation and audit pipeline: (1) the \emph{reviewer model} (Claude Sonnet 5.5 through Claude Code at medium effort, with one fixed prompt per session that is part of the replication package), which executed all benchmark review sessions across frameworks; (2) the \emph{source checker} (a Claude Fable 5.1 subagent), which audited the benchmark rating records of Study 2 against cited quotes, source paths, and locators in the frozen benchmark snapshots, categorizing findings into supported evidence, weaker indirect support, unsupported ratings, plausible absences, and absences that the sources contradict; and (3) the \emph{disagreement coder} (also a Claude Fable 5.1 subagent), which qualitatively classified framework disagreement causes across the 143 discrepancies. The reviewer model and the auditing subagents belong to the same model family. No person rated a benchmark, checked a rating, or signed a judgment; the author's own check of the source audit is pending. Both the source check and disagreement coding logs are preserved in the replication records, with independent human participant validation scoped as future work.
+
+\section{Empirical Results}
+\label{sec:results}
+
+\subsection{Coverage and Disagreements}
+Addressing RQ1 (coverage) and RQ2 (framework disagreements), no single criterion is covered by all seven frameworks. Across 18 framework-benchmark sessions in Study 1, \textbf{159 of 302 pairwise comparisons agreed and 143 disagreed (52.6\% agreement)} across shared criteria (producing 711 item answers). Framework pairs agree on 17/19 comparisons on documentation and licensing (B18, B19), but diverge sharply on construct validity criteria (B01--B16, agreeing on 117/221 comparisons, 53\%). 
+
+To interpret these conflicts, we distinguish three layers of comparison among framework items: (1)~\emph{Equivalent requirements}, where items ask essentially identical questions with matching evidentiary thresholds; (2)~\emph{Overlapping requirements}, where frameworks address the same underlying validity topic but differ in scope or stringency; and (3)~\emph{Grouped requirements}, where multiple distinct sub-items or narrow questions are grouped under one shared concern. For example, under statistical support (Concern C12 / Criterion B12), one framework checks only for a stated sample size, while another demands statistical power calculations or bootstrap confidence intervals. Comparing a framework that asks three narrow sub-items against one that asks a single broad question inevitably produces divergence under strict scoring rules.
+
+Qualitative coding of the 143 pairwise disagreements---conducted by an assistant under our correspondence mapping---categorized \textbf{92 of 143 discrepancies (64\%) as stemming from item granularity (50) or missing documentation rules (42)}, rather than differing interpretations of empirical evidence (42 reading, 8 threshold, 1 sources). We report this attribution as an interpretation under our specific mapping, aggregation rules, and reviewer model configuration, rather than a proof that rubric design alone causes all observed conflict. Granularity conflicts occur when one framework maps multiple narrow sub-items to a MESA criterion while another maps a single broad question.
+
+\textbf{Sensitivity to Aggregation Rules:} The 53\% agreement baseline depends partly on the aggregation operator: with between 1 and 18 items mapped per criterion, an ``any unmet item makes the criterion unmet'' rule causes a framework with many narrow items to fail a criterion as soon as one narrow sub-item is unmet. Consequently, 50 of the 143 disagreements are decided by an item the other framework never asks. Replacing strict conjunction with a majority rule (with ties broken to not-met) changes overall agreement across the 302 comparisons from \textbf{159 of 302 (52.6\%)} to \textbf{148 of 302 (49.0\%)}. While both aggregation rules yield comparable aggregate agreement percentages, we emphasize that aggregate stability does not establish that identical individual disagreements persist across criteria; establishing that requires item-by-item tracing. Same-framework repeats on HumanEval agreed on 19/21 (BetterBench) and 20/22 criteria (Scorecard) under this configuration, supporting the interpretation that rubric differences account for substantial divergence beyond prompt-to-prompt variation.
+
+\subsection{Unreported Answers Versus Contradicted Evidence}
+Addressing RQ3 (missing documentation), answers penalizing missing documentation in Study 1 evaluation sessions heavily outnumbered answers recording confirmed defects: across 711 item answers, frameworks recorded 199 answers where an absence was scored failing under narrow absence-of-information criteria (41 BetterBench, 123 Scorecard, 23 How2Bench, 12 ABC). Under the broader qualifier defining any answer penalizing an unstated practice or bare acknowledgment as non-compliance, \textbf{210 of the 711 framework answers (30\%)} carried the \emph{unreported} qualifier (including 52 BetterBench answers scored 0 or 5). By contrast, the evaluation sessions recorded contradicted evidence on only \textbf{13 of the 711 answers} across the four benchmarks (9 Scorecard, 2 BetterBench, 2 ABC). We note that these 13 instances represent answers recording contradicted evidence in the evaluation records; the number of distinct underlying software defects was not measured.
+
+Three distinct situations lie behind an unreported answer: (1)~the item may be a reporting requirement (where a missing report is the failure the framework set out to find); (2)~the item may ask about a practice that the benchmark authors carried out without reporting (where silence leaves the outcome unknown); or (3)~the practice was not done. The \emph{unreported} qualifier pools the first two cases without separating them; it records that a verdict rests on an absence, rather than asserting that the framework was wrong to score it. MESA's contribution is isolating this unstated evidence so requirements engineers can distinguish documentation gaps from confirmed software defects.
+
+\subsection{Synthesis and Repeatability Across Repeated Runs}
+Addressing RQ4 (synthesis and repeatability), the eight evaluation sessions in Study 2 completed on their first attempt, returned valid responses, used only the two file tools, and cost 2.23 USD in all. They produced 64 Part~A descriptive classifications and 248 Part~B evaluative ratings across the four benchmarks. Of 28 ratings that rested on an absence of information, 21 were recorded as \emph{Undocumented} (open), 5 as \emph{Claimed} (crediting stated principles), and 2 as \emph{Documented}, and none as a defect, whereas all 199 such answers in BetterBench, Scorecard, How2Bench, and ABC were scored failing. All 35 \emph{Not applicable} ratings gave a reason, both \emph{Contradicted} ratings cited a location, B14b was \emph{Not applicable} in all eight sessions because the prompt named no model, and no session listed a defective task.
+
+Across repeated runs, \textbf{26 of 32 repeated Part~A descriptive classifications (81\%)} agreed on the assigned category, while 23 of 32 matched on the complete text string (the other 3 pairs with the same category used different wording). On Part~B, \textbf{99 of 124 repeated construct ratings (80\%)} matched at identical evidence levels. Chance-corrected agreement is lower: nominal Krippendorff's alpha for Part~A was $\alpha_n = 0.80$, calculated across pooled descriptive facets with differing category vocabularies. For Part~B, 17 of 18 pairs with a \emph{Not applicable} rating agreed across repetitions. Treating the five evaluative levels (\emph{Contradicted} $<$ \emph{Undocumented} $<$ \emph{Claimed} $<$ \emph{Documented} $<$ \emph{Verified}) as an assumed ordinal scale, an ordinal sensitivity analysis across the 106 applicable Part~B pairs yields $\alpha_o = 0.70$ (0.702; all alphas are computed by a script in the replication package). This ordering reflects the analytical assumption that inspectable evidence ranks above unevidenced claims, and claims rank above unstated silence, while active contradiction represents failure; we note that combining evidence presence with evaluative favorability remains an assumption rather than an intrinsic natural scale, and \emph{Documented} indicates inspectable repository evidence rather than mathematical proof. The record fields repeated as follows: check kind in 101 of 124 pairs, outcome in 94, level and outcome together in 83, and scope in all 124 (246 of the 248 ratings were at release scope).
+
+The source checker found every cited quote in the frozen sources (the automated check matched 246 of 286 exactly or after whitespace normalization; the rest span hyphenated line breaks or ligatures in the extracted paper text). It confirmed 55 of 64 Part~A descriptive classifications; 9 had weaker support (3 on A04 \emph{Containedness}, 2 each on A07 \emph{Progression} and A08 \emph{Variation}, and 1 each on A03 \emph{Reference} and A05 \emph{Objectivity}), and none was unsupported. Of the 248 Part~B ratings, 159 were directly supported by repository evidence or text quotes, 29 had weaker support (11 of the 46 \emph{Verified} ratings claimed more than their quotes show), 54 were plausible absences, 6 were absences that the sources contradict, and none was unsupported. The contradicted absences are a package version string in the HumanEval repository (two ratings), sampling conditions stated in the HumanEval paper, a tool-enabled HLE setting documented in the repository but outside the reported tasks (two ratings), and the external reviewers of TruthfulQA's answers named in its paper. Repeated model agreement establishes algorithmic consistency within the tested configuration rather than factual correctness: as the source audit demonstrates, an evaluation session may consistently repeat a classification where underlying repository support is ambiguous or lacking.
+
+\section{Discussion: Implications for Requirements Engineering Practice}
+\label{sec:discussion}
+
+\subsection{Auditing Benchmarks for Acceptance Decisions}
+When software engineers specify that an AI model must achieve a target threshold on a benchmark to satisfy a system requirement, MESA provides the acceptance audit checklist:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Construct Validity (B01--B04, B16):} Does the benchmark validly operationalize the capability required by the software feature, or are high scores driven by construct underrepresentation or dataset shortcuts?
+    \item \textbf{Operational Envelope Alignment (Part~A):} Does the benchmark's operational profile match the target system architecture (e.g. A02 \emph{Judgeability} aligning with automated scoring requirements; A04 \emph{Containedness} matching sandbox containment requirements)?
+    \item \textbf{Scoring and Environment Integrity (B05, B07, B13, B28a, B28b):} Do the tests reject correct solutions (B05) or accept wrong ones (B07), and can the system under test reach answers or alter the scoring (B28a, B28b)?
+    \item \textbf{Exposure (B14a, B14b):} Does the benchmark guard against training on its test material, and could the material be in the training data of the model under consideration?
+    \item \textbf{Uncertainty Bounds (B12):} Are the benchmark's own scores reported with sample sizes and uncertainty, so that differences between models can be judged?
+\end{enumerate}
+
+\subsection{A Requirements Traceability Matrix for Artificial Intelligence Components}
+In classical requirements engineering, an RTM links high-level business goals to software specifications and verification test cases. We formalize the AI Requirements Traceability Matrix (RTM) as an exploratory assurance proposal linking benchmark evidence admissibility to system capability requirements, remaining a conceptual proposal until empirically evaluated on practitioner requirements decisions. While this paper establishes the MESA standard for meta-evaluating benchmarks and introduces the RTM formulation, the operational implementation of this decision calculus, the step from benchmark tasks to a team's own target requirement (argued in a transfer justification), and its empirical evaluation against target repository workloads are investigated in companion work on benchmark evidence reuse; the record fields and rules below were developed while implementing it. The RTM is defined as a 4-tuple relation:
+\[
+\mathcal{M}_{\text{RTM}} \subseteq \mathcal{R} \times \mathcal{C} \times \mathcal{T} \times \mathcal{E}
+\]
+where $\mathcal{R}$ is the set of system functional requirements, $\mathcal{C}$ is the construct validity specification (MESA B01--B04), $\mathcal{T}$ is the benchmark task suite, and $\mathcal{E}$ is the audited empirical evidence (the remaining Part~B criteria).
+
+\textbf{What a rating records.} Each rating $c$ carries its level $\text{level}(c)$, the outcome $\text{out}(c) \in \{\text{passed}, \text{failed}, \text{not performed}, \text{not recorded}\}$ of the check behind it, the check kind, its scope $\text{scope}(c)$ (the tasks and configurations it covers; a release scope covers every task and configuration of that release, a configuration scope covers one configuration), its detection limits, a set $D(c)$ of tasks with tests shown to be wrong, and its raters and signer (Section~\ref{sec:levels}). A requirement $r$ uses a task set $T_r \subseteq \mathcal{T}$, a model configuration $k_r$, a minimum number of observations $n_{\min}(r)$, a threshold $\theta$, and a confidence level $1-\alpha$.
+
+\textbf{Sufficiency.} Table~\ref{tab:rtm_example} illustrates an instantiated RTM entry for an IDE code-completion assistant. In an operational deployment, defining the mandatory criterion profile $\tau_C(r)$ and the requirement-specific sufficiency conditions $\text{Suff}(c, r)$ is a requirements engineering task undertaken by system engineers and risk stakeholders. Admissibility cannot rely on one evidence threshold for all criteria. For Criterion B07, the rubric awards \emph{Documented} whenever scoring code is inspectable; awarding \textbf{Admissible} on inspectability alone would admit evidence from an unchecked scoring implementation. Each requirement therefore sets $\text{Suff}(c, r)$ for each criterion $c \in \tau_C(r)$: the minimum level, the required outcome, the check kinds it accepts, the known detection limits it accepts, and whether a person must sign. For descriptive documentation criteria, $\text{level}(c) \ge \text{Documented}$ may suffice. For checking criteria $\tau_{\text{check}}(r) \subseteq \tau_C(r)$, such as B07 (scoring), B14a and B14b (exposure), and B28a and B28b (environment), $\text{Suff}$ requires $\text{level}(c) \ge \text{Verified}$, $\text{out}(c) = \text{passed}$, and recorded detection limits. A check reported by the sources and a check run by the reviewer both count, and the record states which. A check that reports limits may still be weak: the requirements engineer decides in $\text{Suff}$ which limits are acceptable, and a later audit that found defects the check missed is added to its limits. For B14b, tasks created after the model's stated training cutoff count as a held out check, with the source of the cutoff recorded; a stated cutoff is a claim by the provider. When no task postdates the cutoff and no contamination check for the model exists, the outcome is not performed, and B14b requires inquiry rather than blocking the decision.
+
+\textbf{Defective tasks.} A benchmark of hundreds of tasks will often contain some with wrong tests, and under a rule that judges each criterion as a whole, one such task would block every decision. A rating may therefore list tasks whose tests are shown to be wrong, each with a cited location (under B05 when they reject a correct solution, under B07 when they accept a wrong one); a defect shown by a patch counts only when the patch was executed. The outcome of such a rating describes the check on the remaining tasks: it is failed only for a defect beyond the listed tasks, so listing every defect found keeps the criterion from blocking the decision and lets the removal take effect. For requirement $r$, the decision uses $T'_r = T_r \setminus \bigcup_{c \in \tau_C(r)} D(c)$, names each removed task with its reason, and reports the score with and without the removed tasks. The removal is fixed before any model score is seen. A defect of the whole benchmark, such as a scorer that accepts every answer, is not listed per task; it makes the criterion Contradicted.
+
+\textbf{Criterion status.} A criterion is inactive, $\text{Active}(c) = 0$, only when its rating is Not applicable with a reason that cites Part~A or the stated use and that also holds for $r$; criteria whose rubric entry applies always cannot be Not applicable. B14b, for example, applies to every requirement that names a model configuration, whatever a review that named no model recorded. Let $\text{Def}(c) \equiv \text{level}(c) = \text{Contradicted} \lor \text{out}(c) = \text{failed}$, let $\text{Loc}(c)$ hold when the record cites the location of that defect, and let $\text{Cov}(c, r) \equiv T'_r \cup \{k_r\} \subseteq \text{scope}(c)$ hold when the rating's scope contains every task and the configuration the decision uses. The criterion status is
+\begin{equation}
+\label{eq:rtm_criterion_verdict}
+v(c, r) = \begin{cases}
+\textbf{N/A} & \text{if } \text{Active}(c) = 0, \\
+\textbf{Inadmissible} & \text{if } \text{Active}(c) = 1 \land \text{Def}(c) \land \text{Loc}(c), \\
+\textbf{Admissible} & \text{if } \text{Active}(c) = 1 \land \neg\text{Def}(c) \land \text{Cov}(c, r) \land \text{Suff}(c, r), \\
+\textbf{Inquiry Required} & \text{otherwise.}
+\end{cases}
+\end{equation}
+A defect without a cited location therefore requires inquiry rather than blocking the decision, and a failed outcome does not by itself mean Contradicted.
+
+\textbf{Evidence status and score decision.} The matrix reports two outputs. The evidence status, over the mandatory profile $\tau_C(r) = \tau_{\text{score}}(r) \cup \tau_{\text{gen}}(r) \cup \tau_{\text{extrap}}(r) \cup \tau_{\text{dec}}(r)$ derived from Kane's four inferences, is
+\begin{equation}
+\label{eq:ternary_decision}
+\text{Status}(r) = \begin{cases}
+\textbf{Inadmissible} & \text{if } \exists c \in \tau_C(r) : v(c, r) = \textbf{Inadmissible}, \\
+\textbf{Inquiry Required} & \text{else if } \exists c \in \tau_C(r) : v(c, r) = \textbf{Inquiry Required}, \text{ or } |T'_r| < n_{\min}(r), \text{ or } \tau_{\text{active}}(r) = \emptyset, \\
+\textbf{Admissible} & \text{otherwise,}
+\end{cases}
+\end{equation}
+where $\tau_{\text{active}}(r)$ is the set of active criteria; requiring it to be non-empty ensures that marking criteria Not applicable cannot make the evidence admissible. Only when $\text{Status}(r) = \textbf{Admissible}$ is a score decision made from the confidence bounds of model $M$ on the $n = |T'_r|$ observations the decision uses:
+\begin{equation}
+\label{eq:rtm_acceptance_rule}
+\text{Decision}(M, r, \theta, \alpha) = \begin{cases}
+\textbf{Accept} & \text{if } \text{LB}_{1-\alpha}(\text{Score}(M, T'_r)) \ge \theta, \\
+\textbf{Reject} & \text{if } \text{UB}_{1-\alpha}(\text{Score}(M, T'_r)) < \theta, \\
+\textbf{Inconclusive} & \text{otherwise (the interval contains } \theta\text{; reported with } n\text{)}.
+\end{cases}
+\end{equation}
+When the status is not Admissible, no score decision is made, and the record lists every criterion that blocks it; the minimal evidential query set $\mathcal{Q}(r) = \{ c \in \tau_C(r) \mid v(c, r) = \textbf{Inquiry Required} \}$ names the evidence to request. Checking the evidence first ensures that a defective harness or broken scoring oracle stops acceptance, and that a model is never rejected on evidence the audit deems invalid. B12 concerns the scores the benchmark itself reports; the bounds in Equation~\ref{eq:rtm_acceptance_rule} are computed by the team, and the number of observations the decision uses, not the size of the benchmark, limits what it can show. With a Wilson interval at 95\%, for example, six successes in six tasks give a lower bound of 0.61, so a threshold of 0.70 cannot be met with six observations. If an organization halts deployment whenever the lower bound misses the target, that gate is a \emph{deployment policy}, not a rejection of the model. Demonstrating benchmark performance provides inductive warrant for $G_{\text{AI}}$ only if construct validity ($\mathcal{C}$) and operational envelope alignment (Part~A) are also demonstrated.
+
+\begin{table}[t]
+\caption{Instantiated requirements traceability matrix entry from the two Study~2 sessions on HumanEval.}
+\label{tab:rtm_example}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+\textbf{System Req ($r$)} & \textbf{Construct Validity ($\mathcal{C}$)} & \textbf{Benchmark Tasks ($\mathcal{T}$)} & \textbf{Audited MESA Evidence ($\mathcal{E}$)} & \textbf{Status and Decision} \\
+\midrule
+R1: IDE Python docstring-to-code synthesis, pass@1 $\ge 80\%$ & Function-level Python synthesis from docstrings and unit assertions (B01: \emph{Documented} in both repetitions) & HumanEval: 164 hand-written functions (B03: \emph{Documented} in both) & B07: \emph{Documented}, code inspected by the reviewer, no exploit check (outcome not recorded / not performed); B14b: \emph{Not applicable} in the sessions (no model named), but R1 names one, so B14b applies and has no rating; B28a: \emph{Contradicted} (rep.~1) / \emph{Documented} (rep.~2), outcome \emph{failed} in both, location \texttt{human\_eval/execution.py} line 50 & Status \textbf{Inadmissible} in both repetitions (B28a); no score decision. B07 and B14b would also require inquiry \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+In Table~\ref{tab:rtm_example}, the team's profile is B01, B03, B07, B14b, and B28a, all at release scope except B14b, which needs a rating for the candidate model's configuration. It requires Documented for B01 and B03, and Verified with outcome passed for B07, B14b, and B28a. The two Study~2 sessions on HumanEval disagree on the level of B28a, but both record outcome failed and cite the same location: \texttt{human\_eval/execution.py} executes each completion with \texttt{exec} in the same namespace as its tests, under a guard that states it is not a security sandbox, while the paper describes a gVisor sandbox that the repository does not include. Under Equation~\ref{eq:rtm_criterion_verdict}, $v(\text{B28a}, r) = \textbf{Inadmissible}$ in both repetitions, so the evidence status is Inadmissible and no score decision is made. Because the outcome is recorded apart from the level, the two repetitions reach the same status although their levels differ. If B28a were resolved, B07 (code inspected, no exploit check) and B14b (no rating for the candidate model's configuration) would still require inquiry, and $\mathcal{Q}(r)$ would name both.
+
+\subsection{Decoupling Omissions from Defects in Requirements Verification}
+When evaluating whether third-party model evidence satisfies a functional capability requirement, conflating unstated reporting with empirical failure leads to erroneous rejections. MESA's \emph{Undocumented} level, its \emph{unreported} qualifier for framework verdicts, and the Inquiry Required status make missing documentation trigger targeted inquiries to benchmark or model developers rather than defect reports.
+
+\section{Threats to Validity}
+\label{sec:threats}
+
+\subsection{Construct Validity}
+The 39 rubric criteria represent an operationalization of 280 items across seven published frameworks mapped onto 30 shared review concerns. While compound items in source frameworks were allocated across multiple concerns to unpack their constituent demands, the correspondence mapping inherently reflects qualitative interpretations by the author and automated coding assistants; alternative semantic clusterings remain possible. As noted in Section~\ref{sec:results}, framework agreement rates depend on the aggregation operator: strict Boolean conjunction yields 52.6\% agreement (159/302), whereas a majority rule with ties broken to not-met yields 49.0\% (148/302). Although aggregate agreement remains comparable under both operators, similar overall percentages do not imply that identical individual disagreements persist across all pairwise comparisons. Omission handling nonetheless remains a major driver of disagreement, as unstated practices receive zero scores across multiple sub-items under both rules.
+
+\subsection{Internal Validity}
+Qualitative coding of framework disagreement causes (RQ2) and the source verification checks (RQ4) were conducted using the preparing assistant model (Claude Fable 5.1 subagent) as an automated baseline without independent human adjudication; human participant validation is formally scoped as future work. Evaluation sessions across frameworks relied on Claude Sonnet 5.5 through Claude Code; while repeatability metrics ($\alpha_n = 0.80$, ordinal sensitivity $\alpha_o = 0.70$) demonstrate algorithmic repeatability and configuration consistency under the tested model baseline, rubric clarity and human inter-rater reliability remain empirical questions for future human studies. In Study~2 the sessions could read files but not execute code, so no B07 exploit check ran, no session named a model, so B14b was never rated, and no session listed a defective task; these parts of the rubric and of the traceability rules remain untested here. The rules were refined while implementing the matrix in companion work, which is not an independent test of them.
+
+\subsection{External Validity}
+Our empirical findings are bounded by four frozen benchmarks (HumanEval, TruthfulQA, HLE, and $\tau$-bench), all operating via Python test runners. Modern software engineering environments employ containerized sandboxes, microservices, and multi-lingual runtimes (C++, Java, Rust). While MESA evaluates environment control and isolation (B28a, B28b), Docker daemon permissions and network namespaces introduce low-level vulnerabilities not captured in static Python harnesses. Replicating MESA across compiled languages, containerized agent benchmarks (e.g. SWE-bench), and alternative LLM evaluator families remains future work.
+
+\subsection{Conclusion Validity and Reliability}
+Automated validation scripts ensure all counts and tables are deterministic. For reliability analysis, we report chance-corrected agreement metrics including nominal and ordinal Krippendorff's alpha, alongside full source-level audit breakdowns.
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+MESA establishes a shared requirements metrology connecting benchmark review frameworks: 30 shared review concerns structuring an operational 39-criterion rubric whose ratings record the outcome, scope, and kind of each check, standardized verdicts that isolate missing documentation from verified defects, and an exploratory Requirements Traceability Matrix assurance proposal that states what a rating must record to count for a requirement. Our empirical study---evaluated under a controlled model baseline and correspondence mapping---categorizes 64\% of observed framework disagreements as reflecting item granularity and missing documentation rules rather than conflicting interpretations of empirical evidence, and observes that answers carrying the \emph{unreported} qualifier (pooling unmet reporting requirements with unobserved practices, 210 answer instances across rubrics) far outnumber recorded contradictions (13 answer instances). The rubric's levels repeated in 80\% of pairs, and in our source audit 159 of 248 evaluative ratings and 55 of 64 descriptive classifications were confirmed against repository sources, 54 more ratings were plausible absences, and none was unsupported. Future work will investigate human verification of automated auditing agents and empirical evaluation of the RTM calculus on practitioner requirements decisions.
+
+\section*{Data Availability}
+Study protocols, benchmark snapshots, framework item allocation tables, pairwise agreement data, and verification scripts are available in the project replication package at git branch \texttt{refsq-v1}: \url{https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai}. *(Identity Notice: Reviewers wishing to preserve double-blind anonymity should consult the blind-safe artifact distribution or offline replication bundle.)*
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\end{document}

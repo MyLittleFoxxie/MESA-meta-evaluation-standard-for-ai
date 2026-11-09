@@ -1,5 +1,7 @@
 # CHASE 2027 Revision Plan for `paper_chase_v4.tex`
 
+> Historical record. Manuscript targets and commands below describe earlier work. See the [3 November 2026 consolidation record](../../provenance/manuscript-consolidation-2026-11-03.md) for Git retrieval and the current entry point.
+
 Prepared 1 November 2026 from a mock CHASE 2027 review of `paper_chase_v4.tex`.
 
 Target format: IEEE conference template (`IEEEtran`), 10 pages of content plus up to 2 pages of references. LaTeX is not compiled in agent sessions, so the author checks page count after each phase.

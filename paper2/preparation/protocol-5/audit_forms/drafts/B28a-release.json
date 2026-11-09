@@ -1,0 +1,75 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28a",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the grading environment controlled, so that the system under test cannot reach answers or alter the scoring?",
+  "shown_means": "the grading environment and its isolation described",
+  "checked_means": "isolation of the system's output from the tests and the scorer verified or enforced in code",
+  "applies_when": "scoring runs the system's output as code or in an environment",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Scoring applies the system's patch as code in a container and runs the tests."
+  },
+  "check": {
+    "procedure": "Run for this study by a Claude Sonnet 5.5 run (recorded as a check run by the reviewer): on sympy__sympy-13031 (SymPy 1.1), sympy__sympy-20590 (1.7), and sympy__sympy-24539 (1.12), one per test runner layout, three patches each that change only test-running files (bin/test, runtests.py) were graded with the SWE-bench harness 5.0.2. Also read: run_evaluation.py, grading.py, and utils.py.",
+    "kind": "run_by_reviewer",
+    "outcome": "failed",
+    "evidence_location": "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json; paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-20590/check.json; paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-24539/check.json",
+    "detection_limits": "The check could not detect other ways to alter the grading than changing the test-running files, on tasks other than the three tried; it shows that such a patch is graded resolved, not how often an agent would write one."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "uses containerized Docker environments to make evaluating on SWE-bench easier and more reliable"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+      "quote": "{git_apply_cmd} {CONTAINER_PATCH_FILE}"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+      "quote": "container, \"/bin/bash /eval.sh\", timeout"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/utils.py",
+      "quote": "Eval scripts end with a `git checkout` that resets the test files"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+      "quote": "A patch can print its own \"PASSED\" lines (e.g. from a conftest.py hook)"
+    },
+    {
+      "location": "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json",
+      "quote": "\"outcome\": \"grading altered\""
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+      "quote": "A patch can print its own \"PASSED\" lines (e.g. from a conftest.py hook),"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The environment and its handling are described, and the isolation of the patch from the tests and the scorer was checked by executed patches, so the level is Verified. The outcome is failed: on all three tasks, every patch that changed only the test-running files, and no source code, was graded resolved, because the patch runs in the same container as the tests and the harness trusts the runner's log; the exit-status cross-check does not catch a run that exits 0. The defect is in the grading of the whole benchmark, not in single tasks, so no task is listed.",
+  "missing": "Grading that runs the tests from a copy the patch cannot change, or that rejects patches to the test-running files; or a check showing the harness does so.",
+  "checks_performed": [
+    "Read the harness code for container creation, patch application, eval script run and log grading."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

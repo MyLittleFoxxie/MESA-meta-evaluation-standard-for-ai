@@ -1,5 +1,7 @@
 # Response to the CHASE manuscript review
 
+> Historical record. Manuscript targets and commands below describe earlier work. See the [3 November 2026 consolidation record](../../provenance/manuscript-consolidation-2026-11-03.md) for Git retrieval and the current entry point.
+
 Current reporting decisions, 17 October 2026.
 
 | Concern | Manuscript treatment |
@@ -15,4 +17,4 @@ Current reporting decisions, 17 October 2026.
 
 The selected 30 conversations have 28 usable responses and 32 physical attempts. MESA matches 242/245 fixed-key labels and 239/245 under the alternative P6B label; twelve question–benchmark pairs vary and 435/500 repeated choices match. Every affected table, quotation and qualitative comparison uses this selection. Its assembly after development testing is explicit.
 
-See [the manuscript](../../paper_chase.tex), [study guide](../../CHASE-study.md), and [current traceability](../../surveys/colleague-review/mesa-study/chase-report/manuscript-traceability.md). Frozen inputs, raw outputs, historical analyses and the live participant survey remain preserved. No experiments or human study were added for this edit. Layout and page length are unchecked.
+See [the manuscript](https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai/blob/0a24e62dc9fb337dc05e61309b528972dd5b4d86/paper_chase.tex), [study guide](../../CHASE-study.md), and [current traceability](../../surveys/colleague-review/mesa-study/chase-report/manuscript-traceability.md). Frozen inputs, raw outputs, historical analyses and the live participant survey remain preserved. No experiments or human study were added for this edit. Layout and page length are unchecked.

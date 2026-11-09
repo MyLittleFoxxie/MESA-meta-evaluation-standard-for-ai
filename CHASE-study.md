@@ -1,6 +1,8 @@
 # MESA: study materials and results for the CHASE paper
 
-This guide accompanies [paper_chase.tex](paper_chase.tex). MESA is the 25-question questionnaire adapted from the EFPA Test Review Model (EFPA-TRM). The CHASE paper explains the adaptation and examines interpretation problems in model-generated reviews. Human evaluation remains future work.
+> Historical record. Manuscript targets and commands below describe earlier work. See the [3 November 2026 consolidation record](provenance/manuscript-consolidation-2026-11-03.md) for Git retrieval and the current entry point.
+
+This guide accompanies [paper_chase.tex](https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai/blob/0a24e62dc9fb337dc05e61309b528972dd5b4d86/paper_chase.tex). MESA is the 25-question questionnaire adapted from the EFPA Test Review Model (EFPA-TRM). The CHASE paper explains the adaptation and examines interpretation problems in model-generated reviews. Human evaluation remains future work.
 
 ## Contribution and intended practice
 
@@ -73,6 +75,8 @@ A human author reported checking an earlier set of six reviews and coding, inclu
 | [Standards assessment](supporting/adaptation/standards-assessment.md) | ACM SIGSOFT methods guidance |
 
 ## Reproduce the offline analysis
+
+These are historical commands. The verifier requires the removed CHASE manuscript. Run them in the earlier checkout described in the [consolidation record](provenance/manuscript-consolidation-2026-11-03.md), not against the current manuscript.
 
 ```sh
 python3 surveys/colleague-review/mesa-study/chase-report/analyze.py

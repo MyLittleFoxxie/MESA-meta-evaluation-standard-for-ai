@@ -1,0 +1,40 @@
+{
+  "record": "paper2-configurations/protocol-4",
+  "decided": "2026-11-05 by the author: both configurations are run by hand; no scripted provider adapter",
+  "replaces_for_protocol_4": "paper2/preparation/v3/configurations.json (kept unchanged as a historical record)",
+  "operation": "The author runs each session by hand from a workspace prepared by paper2/preparation/sessions.py. The agent runs on the host, not in a container. The prompt text is identical for both configurations.",
+  "limits": {
+    "steps": 30,
+    "seconds": 900,
+    "enforcement": "Stated in the prompt and watched by the operator; observed in the logs, not enforced in code. A patch counts as resolved only if the session stayed within both limits."
+  },
+  "configurations": [
+    {
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model": "Gemini 3.8 Flash",
+      "setting": "Medium",
+      "scaffold": "Antigravity",
+      "telemetry": "Conversation export with tool calls; model name as shown in the interface or export, recorded by the operator with its location; step count recorded by the operator with the counting method.",
+      "network": "Not observable unless the operator records the terminal and network settings in effect.",
+      "training_cutoff": {
+        "value": "March 2026; some domains end at January 2025",
+        "source": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
+        "accessed": "2026-11-05"
+      }
+    },
+    {
+      "config_id": "CONFIG_02_SOL_MED",
+      "model": "gpt-6.1-sol",
+      "setting": "reasoning effort medium",
+      "scaffold": "Codex CLI (version recorded per session)",
+      "command": "codex exec --model gpt-6.1-sol -c model_reasoning_effort=\"medium\" --sandbox workspace-write --json -C <workspace> \"<prompt>\"",
+      "telemetry": "Codex session log: turn_context gives model, effort, and sandbox policy as reported by the client; tool calls give the step count; token_usage_record gives tokens.",
+      "network": "The workspace-write sandbox runs commands without network access when the log reports network_access false.",
+      "training_cutoff": {
+        "value": "2026-04-30",
+        "source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+        "accessed": "2026-11-05"
+      }
+    }
+  ]
+}

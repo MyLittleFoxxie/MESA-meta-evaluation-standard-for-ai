@@ -1,0 +1,65 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14b",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Could the test material be in the training data of the named model configuration?",
+  "shown_means": "the model's stated training cutoff and the task creation dates recorded with their sources",
+  "checked_means": "a contamination check for that model reported, or tasks created after its stated cutoff used as a held out set",
+  "applies_when": "a model configuration is named for the review",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "configuration",
+    "config_ids": [
+      "CONFIG_01_GEMINI_FLASH_MED"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "A model configuration is named for the review (Gemini 3.8 Flash at medium effort)."
+  },
+  "check": {
+    "procedure": "I recorded the stated training cutoff for Gemini 3.8 Flash at medium effort and the creation dates of the tasks, and compared them. I found no contamination check for this model in the sources; the 2026 OpenAI post probes other models. No check was run.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "~/paper2-sources/gemini-3-8-flash-model-card.txt; ~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+    "detection_limits": "The check could not detect exposure to the tasks: the cutoff is the provider's claim, every task predates it so no held out tasks exist for this model, exposure is possible but not shown, and the per task creation dates were not in my sources, only the 2023 release of the original benchmark."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/gemini-3-8-flash-model-card.txt",
+      "quote": "The knowledge cutoff date for Gemini 3.8 Flash is March 2026"
+    },
+    {
+      "location": "~/paper2-sources/gemini-3-8-flash-model-card.txt",
+      "quote": "It continues to support customizable effort levels"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "evaluation was released in 2023."
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "a subset of the original test set from SWE-bench"
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "The cutoff and the task release dates are recorded with sources, which is Documented. Not Verified: no contamination check for this model exists and no task is later than its cutoff, so no held out check is possible. The outcome is not performed, not failed, because no source shows this model reproduces the test material.",
+  "missing": "A contamination check on this model, or tasks created after its stated cutoff (with the cutoff source), would give Verified.",
+  "checks_performed": [
+    "Read the model card or model page for the cutoff and effort setting",
+    "Read the sources for the benchmark's 2023 and 2024 release dates",
+    "Checked the 2026 contamination post: it names GPT-5.2, Claude Opus 4.5 and Gemini 3 Flash Preview, not this model"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

@@ -1,0 +1,64 @@
+{
+  "instance_id": "sympy__sympy-30748",
+  "repo": "sympy/sympy",
+  "base_commit": "01f79a5f52d4ec14da9d028f4fe9a7f9627679c5",
+  "created_at": "2026-10-13T18:30:52Z",
+  "merged_at": "2026-10-13T20:12:19Z",
+  "merge_commit": "92e2a7e6accdc417cf76c6dfbb3221de09bd41b9",
+  "pull_request": "https://github.com/sympy/sympy/pull/30748",
+  "issues": [
+    {
+      "number": 30742,
+      "url": "https://github.com/sympy/sympy/issues/30742",
+      "created_at": "2026-10-13T08:42:25Z"
+    }
+  ],
+  "problem_statement": "`swinnerton_dyer_poly` does not capture sympification of x\nIn the swinnerton_dyer_poly routine, the sympification of x is not captured:\n\n```python\n    if x is not None:\n        sympify(x) <--------- should be x = sympify(x)\n```\nhence:\n```python\n>>> from sympy.polys.specialpolys import swinnerton_dyer_poly as f\n>>> f(2,'x')\nTraceback (most recent call last):\n...\nTypeError: unsupported operand type(s) for ** or pow(): 'str' and 'int'\n\n```\n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex 9fb47375305f..ef2965f2ab9e 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -749,6 +749,7 @@ Hampus Malmberg <hampus.malmberg88@gmail.com>\n Han Wei Ang <ang.h.w@u.nus.edu>\n Hannah Kari <hannah.kari@marquette.edu> hannah-kari <42753364+hannah-kari@users.noreply.github.com>\n Hanspeter Schmid <hanspeter.schmid@fhnw.ch>\n+Hardik Pandey <hardikpandey0903@gmail.com>\n Hardik Saini <43683678+Guardianofgotham@users.noreply.github.com>\n Harikrishna Srinivasan <harikrishnasri3@gmail.com>\n Harold Erbin <harold.erbin@gmail.com>\ndiff --git a/sympy/polys/specialpolys.py b/sympy/polys/specialpolys.py\nindex c902b38943d4..3c7b110f20c3 100644\n--- a/sympy/polys/specialpolys.py\n+++ b/sympy/polys/specialpolys.py\n@@ -19,6 +19,7 @@\n from sympy.polys.polytools import Poly, PurePoly\n from sympy.polys.polyutils import _analyze_gens\n from sympy.utilities import subsets, public, filldedent\n+from sympy.utilities.misc import as_int\n \n \n @public\n@@ -31,19 +32,30 @@ def swinnerton_dyer_poly(n, x=None, polys=False):\n         `n` decides the order of polynomial\n     x : optional\n     polys : bool, optional\n-        Returns a Poly object when ``polys=True``, otherwise\n-        (default) returns an expression.\n+        If True, return a ``Poly`` when ``x`` is specified, or a\n+        ``PurePoly`` otherwise. If False (default), return an expression\n+        using ``x`` when specified, or the default generator otherwise.\n     \"\"\"\n+    n = as_int(n)\n+\n     if n <= 0:\n         raise ValueError(\n             \"Cannot generate Swinnerton-Dyer polynomial of order %s\" % n)\n \n     if x is not None:\n-        sympify(x)\n+        x = sympify(x)\n+        poly_cls = Poly\n     else:\n         x = Dummy('x')\n+        poly_cls = PurePoly\n \n-    if n > 3:\n+    if n == 1:\n+        ex = x**2 - 2\n+    elif n == 2:\n+        ex = x**4 - 10*x**2 + 1\n+    elif n == 3:\n+        ex = x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n+    else:\n         from sympy.functions.elementary.miscellaneous import sqrt\n         from .numberfields import minimal_polynomial\n         p = 2\n@@ -51,16 +63,9 @@ def swinnerton_dyer_poly(n, x=None, polys=False):\n         for i in range(2, n + 1):\n             p = nextprime(p)\n             a.append(sqrt(p))\n-        return minimal_polynomial(Add(*a), x, polys=polys)\n-\n-    if n == 1:\n-        ex = x**2 - 2\n-    elif n == 2:\n-        ex = x**4 - 10*x**2 + 1\n-    elif n == 3:\n-        ex = x**8 - 40*x**6 + 352*x**4 - 960*x**2 + 576\n+        ex = minimal_polynomial(Add(*a), x)\n \n-    return PurePoly(ex, x) if polys else ex\n+    return poly_cls(ex, x) if polys else ex\n \n \n @public\n",
+  "test_patch": "diff --git a/sympy/polys/tests/test_specialpolys.py b/sympy/polys/tests/test_specialpolys.py\nindex 3556736dcef1..9a6f44e2e1ee 100644\n--- a/sympy/polys/tests/test_specialpolys.py\n+++ b/sympy/polys/tests/test_specialpolys.py\n@@ -6,7 +6,7 @@\n from sympy.functions.elementary.miscellaneous import sqrt\n from sympy.ntheory.generate import prime\n from sympy.polys.domains.integerring import ZZ\n-from sympy.polys.polytools import Poly\n+from sympy.polys.polytools import Poly, PurePoly\n from sympy.utilities.iterables import permute_signs\n from sympy.testing.pytest import raises\n \n@@ -39,9 +39,15 @@ def test_swinnerton_dyer_poly():\n     # we only need to check that the polys arg works but\n     # we may as well test that the roots are correct\n     p = [sqrt(prime(i)) for i in range(1, 5)]\n+    p4 = swinnerton_dyer_poly(4, polys=True)\n+    assert type(swinnerton_dyer_poly(1, polys=True)) is PurePoly\n+    assert type(swinnerton_dyer_poly(1, x, polys=True)) is Poly\n+    assert type(swinnerton_dyer_poly(4, polys=True)) is PurePoly\n+    assert type(swinnerton_dyer_poly(4, x, polys=True)) is Poly\n     assert str([i.n(3) for i in\n-        swinnerton_dyer_poly(4, polys=True).all_roots()]\n+        p4.all_roots()]\n         ) == str(sorted([Add(*i).n(3) for i in permute_signs(p)]))\n+    raises(ValueError, lambda: swinnerton_dyer_poly(1.2, x))\n \n \n def test_cyclotomic_poly():\n",
+  "FAIL_TO_PASS": [
+    "sympy/polys/tests/test_specialpolys.py::test_swinnerton_dyer_poly"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/polys/tests/test_specialpolys.py::test_cyclotomic_poly",
+    "sympy/polys/tests/test_specialpolys.py::test_fateman_poly_F_1",
+    "sympy/polys/tests/test_specialpolys.py::test_fateman_poly_F_2",
+    "sympy/polys/tests/test_specialpolys.py::test_fateman_poly_F_3",
+    "sympy/polys/tests/test_specialpolys.py::test_interpolating_poly",
+    "sympy/polys/tests/test_specialpolys.py::test_random_poly",
+    "sympy/polys/tests/test_specialpolys.py::test_symmetric_poly"
+  ],
+  "image": "paper2/sympy-target:30748",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 01f79a5f52d4ec14da9d028f4fe9a7f9627679c5\ngit checkout 01f79a5f52d4ec14da9d028f4fe9a7f9627679c5 sympy/polys/tests/test_specialpolys.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/polys/tests/test_specialpolys.py b/sympy/polys/tests/test_specialpolys.py\nindex 3556736dcef1..9a6f44e2e1ee 100644\n--- a/sympy/polys/tests/test_specialpolys.py\n+++ b/sympy/polys/tests/test_specialpolys.py\n@@ -6,7 +6,7 @@\n from sympy.functions.elementary.miscellaneous import sqrt\n from sympy.ntheory.generate import prime\n from sympy.polys.domains.integerring import ZZ\n-from sympy.polys.polytools import Poly\n+from sympy.polys.polytools import Poly, PurePoly\n from sympy.utilities.iterables import permute_signs\n from sympy.testing.pytest import raises\n \n@@ -39,9 +39,15 @@ def test_swinnerton_dyer_poly():\n     # we only need to check that the polys arg works but\n     # we may as well test that the roots are correct\n     p = [sqrt(prime(i)) for i in range(1, 5)]\n+    p4 = swinnerton_dyer_poly(4, polys=True)\n+    assert type(swinnerton_dyer_poly(1, polys=True)) is PurePoly\n+    assert type(swinnerton_dyer_poly(1, x, polys=True)) is Poly\n+    assert type(swinnerton_dyer_poly(4, polys=True)) is PurePoly\n+    assert type(swinnerton_dyer_poly(4, x, polys=True)) is Poly\n     assert str([i.n(3) for i in\n-        swinnerton_dyer_poly(4, polys=True).all_roots()]\n+        p4.all_roots()]\n         ) == str(sorted([Add(*i).n(3) for i in permute_signs(p)]))\n+    raises(ValueError, lambda: swinnerton_dyer_poly(1.2, x))\n \n \n def test_cyclotomic_poly():\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/polys/tests/test_specialpolys.py\n: '>>>>> End Test Output'\ngit checkout 01f79a5f52d4ec14da9d028f4fe9a7f9627679c5 sympy/polys/tests/test_specialpolys.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-08T06:35:02.606904+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/report.json": "f174d2292411aa690946eca0437a6801281360051d6ab5c1acb133b0562b0a6b",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/test_output.txt": "13667d34fb675c7196601966181f52b34e653f7a51c1819f6486891785ea4045",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/run_instance.log": "24a1f1e40d420063567d33a5bcc6552e78f633008cb8118b5844926c29c816a3",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/report.json": "f174d2292411aa690946eca0437a6801281360051d6ab5c1acb133b0562b0a6b",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/test_output.txt": "4db5461efe9c275cb9722e522b5bf8e48800dda2d9cd1053b9948248dbe0126e",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/run_instance.log": "6b71eeb27b6e1e95c004114e549ba58b423449c33586e22957e4ff9e3e98d1f3",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30748-20261108T063501/derive/sympy__sympy-30748/patch.diff": "bfa9cdb03fb084aa4386b80f18f5b777267cf01a2baa47de7480f2ff03f4e63f"
+      }
+    },
+    "image_id": "sha256:ed5938cdd5593943986c314e19bcb08f9616dff1bde5cd5e6573d9c82f802c6f"
+  },
+  "status": "derived"
+}

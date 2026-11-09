@@ -1,0 +1,150 @@
+{
+  "version": 3,
+  "status": "audited",
+  "variation": "Dual evaluation: C14 rated Documented (unresolved) for closed proprietary models due to pre-training opacity, and Verified for open-weight models (Qwen 2.5 Coder) with auditable pre-training disclosures. C05, C07, C12, C28 Verified within documented detection limits.",
+  "records": [
+    {
+      "criterion": "C05",
+      "evidence_location": "SWE-bench Verified paper (OpenAI, Princeton, 2024, arXiv:2408.06292), Section 3 'Dataset Construction' and Appendix A 'Human Validation Interface'",
+      "scope": "release",
+      "judgment": "Verified",
+      "rationale": "The SWE-bench Verified dataset was constructed by human software engineers independently auditing 2,294 SWE-bench candidate tasks to verify that problem statements provide sufficient specification, unit test assertions are checkable, and reference solutions solve the issue without breaking unrelated tests. Of 2,294 candidate tasks, 500 tasks were verified and retained across 12 repositories.",
+      "detection_limits": "Human validation filters known under-specified issues and obvious test flakiness, but cannot guarantee that all 500 tasks are completely free of subtle corner-case test omissions, over-strict assertion checks, or latent dependency flakiness across exotic Python versions.",
+      "audit_execution": "Independent human verification by professional software engineers examining task descriptions, unit test assertions, and reference patch execution.",
+      "method_adequacy": "Adequate: Two-stage independent human review protocol with inter-annotator agreement checks and unit test pass/fail execution validation.",
+      "empirical_finding": "500 of 2,294 candidate tasks passed human validation; 75 SymPy, 231 Django, and 44 Sphinx tasks confirmed solvable and non-trivial.",
+      "warrant": "Discharges Task Integrity within human audit scope, establishing that candidate tasks represent checkable bug-fix issues rather than unresolvable tasks.",
+      "author": "Research Author",
+      "assistant_role": "Review schema formatting and factual consistency check",
+      "affected_cases": [
+        "CONFIG_01_GEMINI_FLASH_MED/sympy",
+        "CONFIG_01_GEMINI_FLASH_MED/django",
+        "CONFIG_01_GEMINI_FLASH_MED/sphinx",
+        "CONFIG_02_SOL_LIGHT/sympy",
+        "CONFIG_02_SOL_LIGHT/django",
+        "CONFIG_02_SOL_LIGHT/sphinx",
+        "CONFIG_03_QWEN_CODER/sympy",
+        "CONFIG_03_QWEN_CODER/django",
+        "CONFIG_03_QWEN_CODER/sphinx"
+      ]
+    },
+    {
+      "criterion": "C07",
+      "evidence_location": "SWE-bench evaluation harness (github.com/princeton-nlp/SWE-bench, commit v1.0.0), swebench/harness/run_evaluation.py and test patch execution scripts",
+      "scope": "release",
+      "judgment": "Verified",
+      "rationale": "The SWE-bench evaluation harness applies candidate patches via git apply, applies dedicated hidden test patches, executes repository test commands, and parses test outcome logs (FAIL_TO_PASS and PASS_TO_PASS assertions) to determine resolution. Test assertions are evaluated in clean environments, requiring all FAIL_TO_PASS tests to pass and all PASS_TO_PASS tests to remain passing.",
+      "detection_limits": "Grader execution checks verify syntax and execution exit codes, but cannot detect specification-oracle gaps where test suites test implementation details rather than functional requirements, nor do they prevent models from guessing hard-coded values if tests are overly narrow.",
+      "audit_execution": "Automated harness inspection verifying that grader applies patches cleanly, executes pytest/django test runners, and evaluates binary PASS/FAIL assertions without permissive bypasses.",
+      "method_adequacy": "Adequate: Execution-based evaluation comparing pre-patch and post-patch test outcomes under separate FAIL_TO_PASS and PASS_TO_PASS test specifications.",
+      "empirical_finding": "Test grading executes via automated test frameworks; patch evaluation fails when target assertions fail and passes only when both target and regression tests succeed.",
+      "warrant": "Discharges Functional Measurement, ensuring candidate resolutions are scored based on actual test suite outcomes rather than synthetic heuristics.",
+      "author": "Research Author",
+      "assistant_role": "Review schema formatting and factual consistency check",
+      "affected_cases": [
+        "CONFIG_01_GEMINI_FLASH_MED/sympy",
+        "CONFIG_01_GEMINI_FLASH_MED/django",
+        "CONFIG_01_GEMINI_FLASH_MED/sphinx",
+        "CONFIG_02_SOL_LIGHT/sympy",
+        "CONFIG_02_SOL_LIGHT/django",
+        "CONFIG_02_SOL_LIGHT/sphinx",
+        "CONFIG_03_QWEN_CODER/sympy",
+        "CONFIG_03_QWEN_CODER/django",
+        "CONFIG_03_QWEN_CODER/sphinx"
+      ]
+    },
+    {
+      "criterion": "C12",
+      "evidence_location": "Pinned release metadata (paper2/records/swe_bench_verified_release.json) and SWE-bench Verified leaderboard evaluation logs",
+      "scope": "release",
+      "judgment": "Verified",
+      "rationale": "SWE-bench Verified leaderboard and release records provide disaggregated, item-level binary outcomes (solved/unsolved per task instance). These item-level records enable exact calculation of sample sizes n, successes k, and binomial Wilson confidence intervals across arbitrary repository subsets.",
+      "detection_limits": "While item-level binary outcomes enable calculating standard confidence intervals, they do not account for intra-repository issue correlation or clustering, which may lead Wilson intervals to slightly underestimate true sampling variance.",
+      "audit_execution": "Inspection of release dataset records confirming complete availability of per-instance resolution outcomes and identifiers for all 500 instances.",
+      "method_adequacy": "Adequate: Complete item-level binary data reporting satisfies requirements for exact binomial confidence interval computation and subset filtering.",
+      "empirical_finding": "500 instances have verified binary pass/fail outcomes, enabling exact computation of sample sizes and Wilson intervals for SymPy (n=75), Django (n=231), and Sphinx (n=44).",
+      "warrant": "Discharges Statistical Uncertainty by providing complete item-level data required for computing 95% Wilson confidence intervals.",
+      "author": "Research Author",
+      "assistant_role": "Review schema formatting and factual consistency check",
+      "affected_cases": [
+        "CONFIG_01_GEMINI_FLASH_MED/sympy",
+        "CONFIG_01_GEMINI_FLASH_MED/django",
+        "CONFIG_01_GEMINI_FLASH_MED/sphinx",
+        "CONFIG_02_SOL_LIGHT/sympy",
+        "CONFIG_02_SOL_LIGHT/django",
+        "CONFIG_02_SOL_LIGHT/sphinx",
+        "CONFIG_03_QWEN_CODER/sympy",
+        "CONFIG_03_QWEN_CODER/django",
+        "CONFIG_03_QWEN_CODER/sphinx"
+      ]
+    },
+    {
+      "criterion": "C14",
+      "evidence_location": "SWE-bench paper (Jimenez et al., 2024, ICLR 2024) Section 4.2; SWE-bench Verified dataset card (2024); OpenAI evaluation methodology report (2024)",
+      "scope": "release",
+      "judgment": "Documented",
+      "rationale": "SWE-bench Verified enforces a temporal cutoff (pull requests created before January 2024) and documents that candidate models may have observed public GitHub repositories in pre-training data. OpenAI and Princeton conducted canary checks and n-gram overlap analyses for specific foundation models, but third-party closed models (e.g. Gemini, Sol/GPT) have undisclosed training corpora, preventing third parties from auditing pre-training exposure directly.",
+      "detection_limits": "Third-party evaluators cannot verify the absence of pre-training exposure in closed commercial models without training data disclosures or model provider cooperation. Temporal cutoff alone does not prevent web scraping of GitHub issues prior to model cutoff dates.",
+      "audit_execution": "Review of documented contamination methodology and temporal cutoff timestamps across the 350 candidate repository tasks.",
+      "method_adequacy": "Partially adequate: Temporal cutoff is verified in commit metadata, but empirical pre-training n-gram auditing on closed commercial weights remains inaccessible to independent evaluators.",
+      "empirical_finding": "Task creation dates are documented (2018-2023), confirming release predates January 2024, but proprietary training set exposure remains unverified. Rated Documented (unresolved per decision table for proprietary weights without canary audits).",
+      "warrant": "Fails to fully discharge Contamination Neutrality for closed proprietary models without explicit canary disclosures, rendering C14 an active gatekeeper that appropriately yields Unresolved under conservative policy.",
+      "author": "Research Author",
+      "assistant_role": "Review schema formatting and factual consistency check",
+      "affected_cases": [
+        "CONFIG_01_GEMINI_FLASH_MED/sympy",
+        "CONFIG_01_GEMINI_FLASH_MED/django",
+        "CONFIG_01_GEMINI_FLASH_MED/sphinx",
+        "CONFIG_02_SOL_LIGHT/sympy",
+        "CONFIG_02_SOL_LIGHT/django",
+        "CONFIG_02_SOL_LIGHT/sphinx"
+      ]
+    },
+    {
+      "criterion": "C28",
+      "evidence_location": "SWE-bench evaluation harness (swebench/harness/docker_build.py, docker_run.py), containerized environment specifications",
+      "scope": "release",
+      "judgment": "Verified",
+      "rationale": "The official SWE-bench evaluation harness builds dedicated Docker container images per repository and version, creating a clean container instance for each task evaluation and discarding container state upon task completion, preventing inter-task file leakage or persistent state.",
+      "detection_limits": "Docker container isolation guarantees clean filesystem states between tasks, but relies on proper container daemon configuration and does not prevent network calls unless explicitly run with --network none.",
+      "audit_execution": "Inspection of Dockerfile templates and container execution scripts verifying that each task attempt executes in an ephemeral container with worktree reset.",
+      "method_adequacy": "Adequate: Per-task ephemeral Docker containers provide strong process and filesystem isolation.",
+      "empirical_finding": "Evaluation harness creates isolated container instances per task evaluation with automated teardown upon completion.",
+      "warrant": "Discharges Execution Independence by verifying that benchmark runs evaluate each task in an isolated runtime environment.",
+      "author": "Research Author",
+      "assistant_role": "Review schema formatting and factual consistency check",
+      "affected_cases": [
+        "CONFIG_01_GEMINI_FLASH_MED/sympy",
+        "CONFIG_01_GEMINI_FLASH_MED/django",
+        "CONFIG_01_GEMINI_FLASH_MED/sphinx",
+        "CONFIG_02_SOL_LIGHT/sympy",
+        "CONFIG_02_SOL_LIGHT/django",
+        "CONFIG_02_SOL_LIGHT/sphinx",
+        "CONFIG_03_QWEN_CODER/sympy",
+        "CONFIG_03_QWEN_CODER/django",
+        "CONFIG_03_QWEN_CODER/sphinx"
+      ]
+    }
+  ],
+  "configuration_records": [
+    {
+      "criterion": "C14",
+      "evidence_location": "Qwen 2.5 Coder Technical Report (Hui et al., 2024, arXiv:2409.12186) Section 2.2 'Decontamination Protocol'",
+      "scope": "configuration",
+      "judgment": "Verified",
+      "rationale": "Qwen 2.5 Coder openly discloses pre-training data composition, filtering pipelines, and explicit 13-gram decontamination filters removing benchmark tasks (including SWE-bench and HumanEval) prior to model training, establishing verifiable Contamination Neutrality within audit scope.",
+      "detection_limits": "Independent evaluators can audit the public technical report and n-gram overlap scripts, but cannot inspect all 5.5 trillion raw training tokens directly.",
+      "audit_execution": "Author audit of the published Qwen 2.5 Coder technical report decontamination protocol and tokenizer overlap methodology.",
+      "method_adequacy": "Adequate: Verifiable pre-training cutoff (September 2024) combined with documented multi-gram decontamination filters across public benchmark splits.",
+      "empirical_finding": "Decontamination removed exact and fuzzy benchmark overlaps from training corpora; open weights permit reproducible downstream verification.",
+      "warrant": "Discharges Contamination Neutrality for auditable open weights (CONFIG_03_QWEN_CODER), contrasting with the Documented/unresolved status of opaque commercial weights.",
+      "author": "Research Author",
+      "assistant_role": "Review schema formatting and factual consistency check",
+      "affected_cases": [
+        "CONFIG_03_QWEN_CODER/sympy",
+        "CONFIG_03_QWEN_CODER/django",
+        "CONFIG_03_QWEN_CODER/sphinx"
+      ]
+    }
+  ]
+}

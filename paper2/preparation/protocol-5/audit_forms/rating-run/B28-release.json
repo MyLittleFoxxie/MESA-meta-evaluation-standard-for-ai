@@ -1,0 +1,67 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28",
+  "concern": "C28",
+  "definition": {
+    "path": "v4/rubric/rubric-draft.md",
+    "sha256": "7ac2ed6e02230af818fc0ccde0105837c81bba5491e2d351d6f1f41205850c74"
+  },
+  "question": "Is the evaluation environment controlled and isolated from answers?",
+  "shown_means": "the environment and its isolation described",
+  "checked_means": "state clearing and isolation verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Coding agents work in a repository checkout with tools, and the harness runs the hidden tests in a container."
+  },
+  "check": {
+    "procedure": "The study's auditor (Claude Code models) listed, for each of 75 published SymPy task images, the commits reachable beyond the base commit and the files changed since it, with no network. Two images held commits that are not ancestors of the base (sympy__sympy-19346 and sympy__sympy-20590, the latter in scope). The auditor searched those commits for every added line longer than 25 characters of the reference patch and found none. In the harness code I read how containers are created and patches applied.",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json and b28-extra-commits-fix-search.json",
+    "detection_limits": "Covers 75 images, not all 500 tasks. A rewritten or split fix, or a fix shorter than 25 characters per line, would not be found. The image of sympy__sympy-20590 still holds 58 later commits in its history, so an agent running in it could read future code. Container creation in run_evaluation.py sets no network restriction, and the check does not test network access. The harness isolation covers the test run; the agent's own working environment is set by the agent tool, which these sources do not describe."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt, appendix A.3 validation engine",
+      "quote": "Create executable contexts as conda envs. based on latest task instance per version."
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt, section SWE-bench Verified",
+      "quote": "which uses containerized Docker environments to make evaluating on SWE-bench easier and more reliable"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py, run_instance, patch application",
+      "quote": "restart from a pristine tree"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json, auditor check of 75 images",
+      "quote": "list commits reachable beyond the task's base commit (git log --all --not base)"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json, detection_limits",
+      "quote": "A fix rewritten in other words, or split across lines, would not be found; short added lines are not searched."
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Documented would need only the description of Docker images and a fresh container per run, which the sources give. The auditor's image check reports coverage, findings and limits, and the harness code resets the tree between patch attempts, so the level is Checked. It is not Contradicted: the extra history in the sympy__sympy-20590 image is a risk, but no record shows the reference fix in it, and no source shows an answer leaking into a run. The level is not higher because the anchor stops at Checked.",
+  "missing": "Evidence that the agent's working environment has no network and no access to later history; a search of all 500 images; a stronger search for rewritten fixes.",
+  "checks_performed": [
+    "Read the two auditor image checks",
+    "Read create_container and the patch application code in run_evaluation.py",
+    "Compared the in scope tasks with the image history result: only sympy__sympy-20590 has other commits"
+  ],
+  "roles": {
+    "author": "",
+    "assistant": "Claude Sonnet 5.5 (Claude Code subagent), rating form run of 2026-11-08"
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

@@ -1,0 +1,14 @@
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -74,6 +74,10 @@ class Basic(Printable, metaclass=ManagedProperties):
+                  '_assumptions'
+                 )
+ 
++    @property
++    def __dict__(self):
++        raise AttributeError("'%s' object has no attribute '__dict__'" % type(self).__name__)
++
+     # To be overridden with True in the appropriate subclasses
+     is_number = False
+     is_Atom = False

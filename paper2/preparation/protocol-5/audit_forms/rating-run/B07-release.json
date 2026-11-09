@@ -1,0 +1,199 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B07",
+  "concern": "C07",
+  "definition": {
+    "path": "v4/rubric/rubric-draft.md",
+    "sha256": "7ac2ed6e02230af818fc0ccde0105837c81bba5491e2d351d6f1f41205850c74"
+  },
+  "question": "Was the scoring implementation checked, and can it be gamed?",
+  "shown_means": "the implementation can be read and compared with the rule",
+  "checked_means": "parser or judge validated; exploit tests reported",
+  "applies_when": "Judgeability automated or mixed",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": [
+      "sympy__sympy-16597",
+      "sympy__sympy-23413",
+      "sympy__sympy-12096",
+      "sympy__sympy-24539",
+      "sympy__sympy-21847",
+      "sympy__sympy-13551",
+      "sympy__sympy-15809",
+      "sympy__sympy-20590",
+      "sympy__sympy-20438",
+      "sympy__sympy-20428",
+      "sympy__sympy-14711",
+      "sympy__sympy-23534",
+      "sympy__sympy-23824",
+      "sympy__sympy-13372",
+      "sympy__sympy-13878",
+      "sympy__sympy-13031",
+      "sympy__sympy-19783",
+      "sympy__sympy-22914",
+      "sympy__sympy-15976",
+      "sympy__sympy-18199"
+    ]
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Scoring is automated: a patch resolves a task when all FAIL_TO_PASS and PASS_TO_PASS tests pass."
+  },
+  "check": {
+    "procedure": "The study's auditor (Claude Code, Claude Sonnet 5.5 subagents) wrote a behavior list and a check script for each of the 20 source tasks, confirmed the script fails before the fix and passes with the real fix, then wrote up to three patches that pass the harness tests (FAIL_TO_PASS and PASS_TO_PASS) while breaking a listed behavior. Result: 17 tasks had a patch that passed the tests and failed the check, 3 had none (sympy__sympy-13031, 20428, 20590). For each of the 17 I compared the failed behavior with the issue text. The benchmark authors report only an annotation flag for easily gamed tests and an audit finding narrow and wide tests.",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/*/attempt.json; python3 -m paper2.preparation.counterexamples summary",
+    "detection_limits": "At most three attempts per task, written by a model that knew the reference fix. The behavior lists are the auditor's own, so a failed behavior can go beyond the issue; I filtered by the issue text. I read the failing behavior numbers and the check script lines, not every patch. Tasks with no demonstrated defect are not shown to be robust. The harness code was read only at the grading rule, not traced end to end."
+  },
+  "evidence": [
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py, get_resolution_status docstring",
+      "quote": "If fail-to-pass (Resolution) = 1 and pass-to-pass (Maintenance) = 1 -> FULL"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt, section Our Approach",
+      "quote": "if the FAIL_TO_PASS unit tests are easily gamed, this could lead to an invalid solution being marked as correct"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt, section Discussion",
+      "quote": "automated scoring is tricky to get right"
+    },
+    {
+      "location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-21847/behaviors.md, behavior 2",
+      "quote": "every monomial with 2 <= total degree <= 4 is returned"
+    },
+    {
+      "location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-21847/attempt.json, candidate record",
+      "quote": "\"demonstrated\": true"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Documented would need only the readable scoring rule, which is shown. Verified applies because exploit tests were run and reported with their limits. It is not Contradicted for the form as a whole: defects are listed for four single tasks (18199, 21847, 22914, 23824), and the form is rated for the rest. For the other marked tasks the patch broke only behaviors the issue does not state, so they are not listed: sympy__sympy-12096 (precision through nesting), 13372 (polar_lift factor), 13551 (bases 3 and 5), 14711 (S.Zero), 15809 (identity checks only), 15976 (bold matrix symbol), 16597 (ask(Q.finite)), 19783 (IdentityOperator(3)), 20438 (unknown becomes False), 23413 (tall matrices), 23534 (cls=Dummy), 24539 (wrong number of symbols); sympy__sympy-13878 could not be decided. For 15809 the only failed checks use 'is S.Infinity' while the equality check with oo passed, so the issue wording does not clearly require the failed identity. For 13878 the record does not show which part of behavior 3 (Erlang values, checked in three parts) failed, so I could not tie it to the issue's Erlang example.",
+  "missing": "A check of whether the harness scoring can be gamed by means other than patches (for example editing test files, which the harness resets); attempts by an independent party; an author reported exploit test.",
+  "checks_performed": [
+    "Read grading.py and the resolution rule",
+    "Ran the counterexamples summary (17 defect demonstrated, 3 no defect demonstrated)",
+    "Printed the issue text of the 17 marked tasks and compared it with the failed behaviors in candidate-N.log.json and behaviors.md",
+    "Read check.py for sympy__sympy-13878 and 15809 to see which sub check failed"
+  ],
+  "roles": {
+    "author": "",
+    "assistant": "Claude Sonnet 5.5 (Claude Code subagent), rating form run of 2026-11-08"
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "task_defects": [
+    {
+      "task_id": "sympy__sympy-18199",
+      "counterexample": {
+        "task_id": "sympy__sympy-18199",
+        "patch": {
+          "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.diff",
+          "sha256": "62a098c45568c3f9eab78333ec33e9b95f92cb601abf049d01e6f631d51eec90"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json",
+            "sha256": "5506a8b1991e1ad350a98d3cdf0b8bb3ba1a5ba191c8f1d57b9e1b101ead619c"
+          }
+        }
+      },
+      "summary": "the hidden tests pass a patch that breaks a stated behavior: a % p == 0 with p = 2 and all_roots=True returns [1], which lacks the root 0 (behavior 2 of behaviors.md). Issue text: \"Then x = 0 mod p is also a root of this equation\"",
+      "evidence_location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json",
+      "artifacts": {
+        "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-18199/attempt.json": "b8c95e1a90833eb9a52a9d5510d217d7d23e34987e226c6f67278c4ec2660013"
+      }
+    },
+    {
+      "task_id": "sympy__sympy-21847",
+      "counterexample": {
+        "task_id": "sympy__sympy-21847",
+        "patch": {
+          "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-2.diff",
+          "sha256": "613a73da30ca502040153ae8af8b4c05f4624f2bf47bc15bd9f2af83039137ad"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-2.log.json",
+            "sha256": "6f6faebd50008343b1b371cde67764dbb487fbead44869ff467915070c6e80b6"
+          }
+        }
+      },
+      "summary": "the hidden tests pass a patch that breaks a stated behavior: with min_degrees below max_degrees the patch misses monomials (behavior 2). Issue text: \"The monomials are also missing when `max_degrees` is increased above `min_degrees`\"",
+      "evidence_location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-2.log.json",
+      "artifacts": {
+        "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-21847/attempt.json": "459705c73055c9889569901ed72c919cf7c2e49de271636f6c13653a7b88b9c6"
+      }
+    },
+    {
+      "task_id": "sympy__sympy-22914",
+      "counterexample": {
+        "task_id": "sympy__sympy-22914",
+        "patch": {
+          "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.diff",
+          "sha256": "3a74d6221e206e77e48e0fb80e0bdd43a6831d1b03d6dbafcdbe7d7e7c3102cd"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+            "sha256": "0d3fedc333f2b0e8cc6f468d8ab3d47e4fdf3fb3308313430fea9316bbd788a6"
+          }
+        }
+      },
+      "summary": "the hidden tests pass a patch that breaks a stated behavior: min and max with three arguments print only two (behavior 2). Issue text: \"\"min({})\".format(\", \".join(self._print(arg) for arg in expr.args))\"",
+      "evidence_location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+      "artifacts": {
+        "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/attempt.json": "d7dc9ffc3b47a0911367bd521fd0aa87f094169a6bc4673f96c09f19bf0127f8"
+      }
+    },
+    {
+      "task_id": "sympy__sympy-23824",
+      "counterexample": {
+        "task_id": "sympy__sympy-23824",
+        "patch": {
+          "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.diff",
+          "sha256": "17fea5563aaf5559e171e29796dd5899d6226fb1b4a548cc8c17a7fa6b848c5f"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.log.json",
+            "sha256": "4a6a7937c6b764f01a9f3b05cd328ec66f2a42bfbd99255a48ebe796bbc5e631"
+          }
+        }
+      },
+      "summary": "the hidden tests pass a patch that breaks a stated behavior: three leading matrices without contractions are not kept in order (behavior 3). Issue text: \"Leading gamma matrices without contractions should be unaffected\"",
+      "evidence_location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.log.json",
+      "artifacts": {
+        "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-23824/attempt.json": "93728367b76e4dda4b94006cd67c4707cd331ab997e6af0d217043508eb82ced"
+      }
+    }
+  ]
+}

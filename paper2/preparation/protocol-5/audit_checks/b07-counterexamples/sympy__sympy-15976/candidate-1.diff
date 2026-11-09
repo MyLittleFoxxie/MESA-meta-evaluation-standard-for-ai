@@ -1,0 +1,20 @@
+diff --git a/sympy/printing/mathml.py b/sympy/printing/mathml.py
+index 3f8b8d49e..d0c82c95a 100644
+--- a/sympy/printing/mathml.py
++++ b/sympy/printing/mathml.py
+@@ -783,10 +783,11 @@ def translate(s):
+             if len(subs) == 0:
+                 x.appendChild(self.dom.createTextNode(name))
+             else:
+-                msub = self.dom.createElement('msub')
+-                msub.appendChild(mname)
+-                msub.appendChild(join(subs))
+-                x.appendChild(msub)
++                x = self.dom.createElement('msub')
++                x.appendChild(mname)
++                x.appendChild(join(subs))
++                if style == 'bold':
++                    x.setAttribute('mathvariant', 'bold')
+         else:
+             if len(subs) == 0:
+                 msup = self.dom.createElement('msup')

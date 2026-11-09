@@ -1,0 +1,436 @@
+{
+  "record": "paper2-audit-check/1",
+  "supersedes": "paper2/preparation/protocol-4/audit_checks/superseded/b05-18199-counterexample-20261106T231821.json",
+  "check": "B05 counterexample: do the hidden tests of sympy__sympy-18199 reject a patch that fixes only the issue in the problem statement?",
+  "checked_at": "2026-11-06T23:18:29.077216+00:00",
+  "performed_by": "Assistant (Claude Code, claude-opus-5-5) at the author's request. No model session was started; the patch was written by the assistant from the reference patch.",
+  "task_id": "sympy__sympy-18199",
+  "procedure": "1. Keep from the reference patch only the lines that the problem statement asks for (a % p == 0 with prime p returns the root 0) and drop the lines for composite moduli. 2. In the task image, run the issue's example and related calls with the source unchanged and with the minimal patch applied. 3. Grade the minimal patch and, as a control, the full reference patch with paper2.preparation.harness.grade on the task's FAIL_TO_PASS and PASS_TO_PASS tests. Outcome rule: rejected if any graded test fails with the minimal patch while the control passes; accepted if every graded test passes; inconclusive otherwise.",
+  "source": {
+    "title": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (23 February 2026)",
+    "bib_key": "openai_swebench_verified_contamination_2025",
+    "url": "https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/",
+    "archived_url": "https://web.archive.org/web/20261026210824/https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/",
+    "local_copy": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt (outside the repository)",
+    "local_copy_sha256": "e96ff1ebcb4738fc675d19b6ecfc6169fbda92cbb17aa8f4616bfea8ba627cda",
+    "archived_html_sha256": "c19211199f46c0648391011a79e7ea40b78cbd4f2aae83f6bb75ab767145b433",
+    "location": "section 'Too narrow and too wide tests', paragraph on too wide test cases",
+    "quotes": [
+      {
+        "text": "An example of too wide test cases is sympy__sympy-18199",
+        "char_offset_in_local_copy": 8751
+      },
+      {
+        "text": "the PR tests cover all three issues, while the description details only one.",
+        "char_offset_in_local_copy": 9205
+      }
+    ],
+    "claim": "The source pull request fixed three issues with nthroot_mod (#17373, #17377, #18212); the task text covers only #18212, while the tests cover all three.",
+    "linked_items_checked_with_github_api_2026_11_06": [
+      "sympy/sympy#17373 issue: wrong result for nthroot_mod with composite modulus",
+      "sympy/sympy#17377 issue: nthroot_mod(13, 8, 9) raises ValueError(\"Log does not exist\")",
+      "sympy/sympy#18212 issue: nthroot_mod function misses one root of x = 0 mod p.",
+      "sympy/sympy#18199 pull request: Composite number for nthroot_mod"
+    ]
+  },
+  "task": {
+    "base_commit": "ba80d1e493f21431b4bf729b3e0452cd47eb9566",
+    "image": "swebench/sweb.eval.x86_64.sympy_1776_sympy-18199:latest",
+    "image_id": "sha256:3fbc4ff81609eecb1f26540433cbc24b8f6e5454472545e19180137e51883e3e",
+    "problem_statement_sha256": "fb429ef2a603c20980fa2ed7dc66d00cc148ca8103d92b69662bb6c687f2e162",
+    "reference_patch_sha256": "e47b1071074a4e7773e5001dc973547776afb1870c57e44bdb2efc8dc77d61af",
+    "test_patch_sha256": "db4bdcc155293932ebf3b6817871e3b596710eda869918986e4498d045570287",
+    "FAIL_TO_PASS": [
+      "test_solve_modular"
+    ],
+    "PASS_TO_PASS_count": 113,
+    "note": "The test patch changes two assertions in test_solve_modular, the only FAIL_TO_PASS test, both for the composite moduli 8 and 9. test_residue, which holds the test patch's assertion for a % p == 0 (nthroot_mod(0, 12, 37, True) == [0]), is in neither graded list, although the harness runs it."
+  },
+  "minimal_patch": {
+    "text": "diff --git a/sympy/ntheory/residue_ntheory.py b/sympy/ntheory/residue_ntheory.py\nindex 9a3052d4c3..e5462c1401 100755\n--- a/sympy/ntheory/residue_ntheory.py\n+++ b/sympy/ntheory/residue_ntheory.py\n@@ -775,6 +775,8 @@ def nthroot_mod(a, n, p, all_roots=False):\n         return None\n     if not isprime(p):\n         raise NotImplementedError(\"Not implemented for composite p\")\n+    if a % p == 0:\n+        return [0]\n \n     if (p - 1) % n == 0:\n         return _nthroot_mod1(a, n, p, all_roots)\n",
+    "sha256": "bc975e713e96762ba77d665345ddcef4813937b2707a9071d267e178a42d0e3a",
+    "derivation": "Generated in the task image by inserting the kept lines into sympy/ntheory/residue_ntheory.py at the base commit and taking git diff.",
+    "kept_hunks": [
+      {
+        "reference_hunk": "@@ -771,11 +814,12 @@ def nthroot_mod (third hunk)",
+        "kept_lines": [
+          "    if a % p == 0:",
+          "        return [0]"
+        ],
+        "reason": "This is the behaviour issue #18212 asks for: when a % p == 0 the equation has the root 0 mod p. The lines are copied unchanged, including the reference's return value [0] for all_roots=False. They are placed after the existing prime check, so composite moduli still raise NotImplementedError as at the base commit. For prime p and n >= 1, is_nthpow_residue returns True when a % p == 0, so the earlier residue check does not change the result; the cases n == 0 and n < 0 were not checked."
+      }
+    ],
+    "dropped_hunks": [
+      {
+        "reference_hunk": "@@ -2,6 +2,7 @@ (import of cartes)",
+        "reason": "Used only by _nthroot_mod_composite."
+      },
+      {
+        "reference_hunk": "@@ -742,6 +743,48 @@ (new function _nthroot_mod_composite)",
+        "reason": "Solves x**n = a mod m for composite m; this is issues #17373 and #17377, which the problem statement does not mention."
+      },
+      {
+        "reference_hunk": "@@ -771,11 +814,12 @@ lines 'if not isprime(p): return _nthroot_mod_composite(a, n, p)' and the removal of 'raise NotImplementedError(\"Not implemented for composite p\")'",
+        "reason": "Composite moduli support, as above."
+      }
+    ]
+  },
+  "issue_example_check": {
+    "image": "swebench/sweb.eval.x86_64.sympy_1776_sympy-18199:latest",
+    "image_id": "sha256:3fbc4ff81609eecb1f26540433cbc24b8f6e5454472545e19180137e51883e3e",
+    "command": "docker run --rm --platform linux/amd64 -v <scratch dir>:/work:ro swebench/sweb.eval.x86_64.sympy_1776_sympy-18199:latest bash /work/issue_check.sh",
+    "script_final": "set -u\nsource /opt/miniconda3/bin/activate\nconda activate testbed\ncd /testbed\nprobe() {\npython - <<'PY'\nfrom sympy import Mod, S, Symbol\nfrom sympy.solvers.solveset import solveset\nfrom sympy.ntheory.residue_ntheory import nthroot_mod\nx = Symbol('x')\nfor call in [\"nthroot_mod(17*17, 5, 17)\", \"nthroot_mod(17*17, 4, 17, True)\", \"nthroot_mod(17*17, 8, 17)\", \"nthroot_mod(17*17, 5, 17, True)\", \"nthroot_mod(0, 12, 37, True)\", \"nthroot_mod(1, 3, 8, True)\", \"solveset(Mod(x**3, 8) - 1, x, S.Integers)\"]:\n    try:\n        print(call, \"->\", repr(eval(call)))\n    except Exception as e:\n        print(call, \"-> raises\", type(e).__name__, e)\nPY\n}\necho \"### base commit $(git rev-parse HEAD), source unchanged\"\ngit status --short\nprobe\necho \"### after git apply /work/minimal.patch\"\ngit apply -v /work/minimal.patch\ngit status --short\nprobe\n",
+    "runs": [
+      {
+        "note": "First run; the probe list lacked the calls nthroot_mod(17*17, 4, 17, True) and nthroot_mod(17*17, 8, 17), otherwise the script was the same.",
+        "output": "### base commit 841445925feffe8eeb6f8fbcb72745af1a0de103, source unchanged\nnthroot_mod(17*17, 5, 17) -> 0\nnthroot_mod(17*17, 5, 17, True) -> [0]\nnthroot_mod(0, 12, 37, True) -> raises ValueError Log does not exist\nnthroot_mod(1, 3, 8, True) -> raises NotImplementedError Not implemented for composite p\nsolveset(Mod(x**3, 8) - 1, x, S.Integers) -> ConditionSet(x, Eq(Mod(x**3, 8) - 1, 0), Integers)\n### after git apply /work/minimal.patch\nChecking patch sympy/ntheory/residue_ntheory.py...\nApplied patch sympy/ntheory/residue_ntheory.py cleanly.\n M sympy/ntheory/residue_ntheory.py\nnthroot_mod(17*17, 5, 17) -> [0]\nnthroot_mod(17*17, 5, 17, True) -> [0]\nnthroot_mod(0, 12, 37, True) -> [0]\nnthroot_mod(1, 3, 8, True) -> raises NotImplementedError Not implemented for composite p\nsolveset(Mod(x**3, 8) - 1, x, S.Integers) -> ConditionSet(x, Eq(Mod(x**3, 8) - 1, 0), Integers)\n"
+      },
+      {
+        "note": "Second run with script_final, adding two calls of the issue's form where (p - 1) % n == 0.",
+        "output": "### base commit 841445925feffe8eeb6f8fbcb72745af1a0de103, source unchanged\nnthroot_mod(17*17, 5, 17) -> 0\nnthroot_mod(17*17, 4, 17, True) -> raises ValueError Log does not exist\nnthroot_mod(17*17, 8, 17) -> raises ValueError Log does not exist\nnthroot_mod(17*17, 5, 17, True) -> [0]\nnthroot_mod(0, 12, 37, True) -> raises ValueError Log does not exist\nnthroot_mod(1, 3, 8, True) -> raises NotImplementedError Not implemented for composite p\nsolveset(Mod(x**3, 8) - 1, x, S.Integers) -> ConditionSet(x, Eq(Mod(x**3, 8) - 1, 0), Integers)\n### after git apply /work/minimal.patch\nChecking patch sympy/ntheory/residue_ntheory.py...\nApplied patch sympy/ntheory/residue_ntheory.py cleanly.\n M sympy/ntheory/residue_ntheory.py\nnthroot_mod(17*17, 5, 17) -> [0]\nnthroot_mod(17*17, 4, 17, True) -> [0]\nnthroot_mod(17*17, 8, 17) -> [0]\nnthroot_mod(17*17, 5, 17, True) -> [0]\nnthroot_mod(0, 12, 37, True) -> [0]\nnthroot_mod(1, 3, 8, True) -> raises NotImplementedError Not implemented for composite p\nsolveset(Mod(x**3, 8) - 1, x, S.Integers) -> ConditionSet(x, Eq(Mod(x**3, 8) - 1, 0), Integers)\n"
+      }
+    ],
+    "summary": "The issue's literal example nthroot_mod(17*17, 5, 17) already returns 0 at the base commit, so it does not fail without the patch. The defect the issue describes appears in the three calls checked where (p - 1) % n == 0: nthroot_mod(17*17, 4, 17, True), nthroot_mod(17*17, 8, 17) and nthroot_mod(0, 12, 37, True) raise ValueError('Log does not exist') at the base commit and return [0] with the minimal patch. With the minimal patch, nthroot_mod(17*17, 5, 17) returns [0] instead of 0, the same as the reference patch. Composite moduli (nthroot_mod(1, 3, 8, True) and solveset(Mod(x**3, 8) - 1, x, S.Integers)) are unchanged by the minimal patch."
+  },
+  "harness_version": {
+    "swebench": "5.0.2",
+    "docker": "28.1.1 linux/arm64",
+    "python": "/Users/mylittlefoxxie/.venvs/paper2-swebench/bin/python",
+    "grade_function": "paper2.preparation.harness.grade"
+  },
+  "grading": {
+    "minimal": {
+      "run_id": "b05-18199-minimal-20261106T231322Z",
+      "started_at": "2026-11-06T23:13:22.513916+00:00",
+      "finished_at": "2026-11-06T23:14:53.171602+00:00",
+      "resolved": false,
+      "patch_successfully_applied": true,
+      "fail_to_pass_failures": [
+        "test_solve_modular"
+      ],
+      "pass_to_pass_failures": [],
+      "ungraded_test_residue_status": "E",
+      "report": {
+        "patch_is_None": false,
+        "patch_exists": true,
+        "patch_successfully_applied": true,
+        "resolved": false,
+        "infra_failure": false,
+        "tests_status": {
+          "FAIL_TO_PASS": {
+            "success": [],
+            "failure": [
+              "test_solve_modular"
+            ]
+          },
+          "PASS_TO_PASS": {
+            "success": [
+              "test_invert_real",
+              "test_invert_complex",
+              "test_domain_check",
+              "test_issue_11536",
+              "test_issue_17479",
+              "test_is_function_class_equation",
+              "test_garbage_input",
+              "test_solve_mul",
+              "test_solve_invert",
+              "test_errorinverses",
+              "test_solve_polynomial",
+              "test_return_root_of",
+              "test__has_rational_power",
+              "test_solveset_sqrt_1",
+              "test_solveset_sqrt_2",
+              "test_solve_polynomial_symbolic_param",
+              "test_solve_rational",
+              "test_solveset_real_gen_is_pow",
+              "test_no_sol",
+              "test_sol_zero_real",
+              "test_no_sol_rational_extragenous",
+              "test_solve_polynomial_cv_1a",
+              "test_solveset_real_rational",
+              "test_solveset_real_log",
+              "test_poly_gens",
+              "test_solve_abs",
+              "test_issue_9565",
+              "test_issue_10069",
+              "test_real_imag_splitting",
+              "test_units",
+              "test_solve_only_exp_1",
+              "test_atan2",
+              "test_piecewise_solveset",
+              "test_solveset_complex_polynomial",
+              "test_sol_zero_complex",
+              "test_solveset_complex_rational",
+              "test_solveset_complex_exp",
+              "test_solveset_real_exp",
+              "test_solve_complex_log",
+              "test_solve_complex_sqrt",
+              "test_solveset_complex_tan",
+              "test_solve_invalid_sol",
+              "test_solveset",
+              "test__solveset_multi",
+              "test_conditionset",
+              "test_solveset_domain",
+              "test_improve_coverage",
+              "test_issue_9522",
+              "test_solvify",
+              "test_abs_invert_solvify",
+              "test_linear_eq_to_matrix",
+              "test_issue_16577",
+              "test_linsolve",
+              "test_linsolve_immutable",
+              "test_solve_decomposition",
+              "test_nonlinsolve_basic",
+              "test_nonlinsolve_abs",
+              "test_raise_exception_nonlinsolve",
+              "test_trig_system",
+              "test_nonlinsolve_positive_dimensional",
+              "test_nonlinsolve_polysys",
+              "test_nonlinsolve_using_substitution",
+              "test_nonlinsolve_complex",
+              "test_issue_5132_1",
+              "test_issue_5132_2",
+              "test_issue_6752",
+              "test_issue_2777",
+              "test_issue_8828",
+              "test_nonlinsolve_conditionset",
+              "test_substitution_basic",
+              "test_issue_5132_substitution",
+              "test_raises_substitution",
+              "test_issue_9556",
+              "test_issue_9611",
+              "test_issue_9557",
+              "test_issue_9778",
+              "test_issue_10214",
+              "test_issue_9849",
+              "test_issue_9953",
+              "test_issue_9913",
+              "test_issue_10397",
+              "test_issue_14987",
+              "test_simplification",
+              "test_issue_10555",
+              "test_issue_8715",
+              "test_issue_11174",
+              "test_issue_11534",
+              "test_issue_10477",
+              "test_issue_10671",
+              "test_issue_11064",
+              "test_issue_12478",
+              "test_issue_12429",
+              "test_solveset_arg",
+              "test__is_finite_with_finite_vars",
+              "test_issue_13550",
+              "test_issue_13849",
+              "test_issue_14223",
+              "test_issue_10158",
+              "test_issue_14300",
+              "test_issue_14454",
+              "test_term_factors",
+              "test_transolve",
+              "test_exponential_real",
+              "test_expo_conditionset",
+              "test_exponential_symbols",
+              "test_is_exponential",
+              "test_solve_exponential",
+              "test_logarithmic",
+              "test_is_logarithmic",
+              "test_solve_logarithm",
+              "test_linear_coeffs",
+              "test_is_modular",
+              "test_invert_modular"
+            ],
+            "failure": []
+          },
+          "FAIL_TO_FAIL": {
+            "success": [],
+            "failure": []
+          },
+          "PASS_TO_FAIL": {
+            "success": [],
+            "failure": []
+          }
+        }
+      },
+      "logs": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-minimal-20261106T231322Z/session/sympy__sympy-18199/report.json": "c69d469bf6885c2f20bb5654f7456a482698bbb4fe3f8bb6fb01045d8a387218",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-minimal-20261106T231322Z/session/sympy__sympy-18199/test_output.txt": "e7ce1d0a7d5f9083e0dd9334763d66aaa3f6d973b82b650b10cb92b7d330382b",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-minimal-20261106T231322Z/session/sympy__sympy-18199/run_instance.log": "4bec30568103254744efe054636515d2f2f36de24c0dad813b35b8944e9cc765",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-minimal-20261106T231322Z/session/sympy__sympy-18199/patch.diff": "bc975e713e96762ba77d665345ddcef4813937b2707a9071d267e178a42d0e3a"
+      },
+      "harness": {
+        "swebench": "5.0.2",
+        "docker": "28.1.1 linux/arm64"
+      },
+      "image": "swebench/sweb.eval.x86_64.sympy_1776_sympy-18199:latest"
+    },
+    "reference_control": {
+      "run_id": "b05-18199-reference-20261106T231322Z",
+      "started_at": "2026-11-06T23:14:53.172152+00:00",
+      "finished_at": "2026-11-06T23:16:19.947765+00:00",
+      "resolved": true,
+      "patch_successfully_applied": true,
+      "fail_to_pass_failures": [],
+      "pass_to_pass_failures": [],
+      "ungraded_test_residue_status": "ok",
+      "report": {
+        "patch_is_None": false,
+        "patch_exists": true,
+        "patch_successfully_applied": true,
+        "resolved": true,
+        "infra_failure": false,
+        "tests_status": {
+          "FAIL_TO_PASS": {
+            "success": [
+              "test_solve_modular"
+            ],
+            "failure": []
+          },
+          "PASS_TO_PASS": {
+            "success": [
+              "test_invert_real",
+              "test_invert_complex",
+              "test_domain_check",
+              "test_issue_11536",
+              "test_issue_17479",
+              "test_is_function_class_equation",
+              "test_garbage_input",
+              "test_solve_mul",
+              "test_solve_invert",
+              "test_errorinverses",
+              "test_solve_polynomial",
+              "test_return_root_of",
+              "test__has_rational_power",
+              "test_solveset_sqrt_1",
+              "test_solveset_sqrt_2",
+              "test_solve_polynomial_symbolic_param",
+              "test_solve_rational",
+              "test_solveset_real_gen_is_pow",
+              "test_no_sol",
+              "test_sol_zero_real",
+              "test_no_sol_rational_extragenous",
+              "test_solve_polynomial_cv_1a",
+              "test_solveset_real_rational",
+              "test_solveset_real_log",
+              "test_poly_gens",
+              "test_solve_abs",
+              "test_issue_9565",
+              "test_issue_10069",
+              "test_real_imag_splitting",
+              "test_units",
+              "test_solve_only_exp_1",
+              "test_atan2",
+              "test_piecewise_solveset",
+              "test_solveset_complex_polynomial",
+              "test_sol_zero_complex",
+              "test_solveset_complex_rational",
+              "test_solveset_complex_exp",
+              "test_solveset_real_exp",
+              "test_solve_complex_log",
+              "test_solve_complex_sqrt",
+              "test_solveset_complex_tan",
+              "test_solve_invalid_sol",
+              "test_solveset",
+              "test__solveset_multi",
+              "test_conditionset",
+              "test_solveset_domain",
+              "test_improve_coverage",
+              "test_issue_9522",
+              "test_solvify",
+              "test_abs_invert_solvify",
+              "test_linear_eq_to_matrix",
+              "test_issue_16577",
+              "test_linsolve",
+              "test_linsolve_immutable",
+              "test_solve_decomposition",
+              "test_nonlinsolve_basic",
+              "test_nonlinsolve_abs",
+              "test_raise_exception_nonlinsolve",
+              "test_trig_system",
+              "test_nonlinsolve_positive_dimensional",
+              "test_nonlinsolve_polysys",
+              "test_nonlinsolve_using_substitution",
+              "test_nonlinsolve_complex",
+              "test_issue_5132_1",
+              "test_issue_5132_2",
+              "test_issue_6752",
+              "test_issue_2777",
+              "test_issue_8828",
+              "test_nonlinsolve_conditionset",
+              "test_substitution_basic",
+              "test_issue_5132_substitution",
+              "test_raises_substitution",
+              "test_issue_9556",
+              "test_issue_9611",
+              "test_issue_9557",
+              "test_issue_9778",
+              "test_issue_10214",
+              "test_issue_9849",
+              "test_issue_9953",
+              "test_issue_9913",
+              "test_issue_10397",
+              "test_issue_14987",
+              "test_simplification",
+              "test_issue_10555",
+              "test_issue_8715",
+              "test_issue_11174",
+              "test_issue_11534",
+              "test_issue_10477",
+              "test_issue_10671",
+              "test_issue_11064",
+              "test_issue_12478",
+              "test_issue_12429",
+              "test_solveset_arg",
+              "test__is_finite_with_finite_vars",
+              "test_issue_13550",
+              "test_issue_13849",
+              "test_issue_14223",
+              "test_issue_10158",
+              "test_issue_14300",
+              "test_issue_14454",
+              "test_term_factors",
+              "test_transolve",
+              "test_exponential_real",
+              "test_expo_conditionset",
+              "test_exponential_symbols",
+              "test_is_exponential",
+              "test_solve_exponential",
+              "test_logarithmic",
+              "test_is_logarithmic",
+              "test_solve_logarithm",
+              "test_linear_coeffs",
+              "test_is_modular",
+              "test_invert_modular"
+            ],
+            "failure": []
+          },
+          "FAIL_TO_FAIL": {
+            "success": [],
+            "failure": []
+          },
+          "PASS_TO_FAIL": {
+            "success": [],
+            "failure": []
+          }
+        }
+      },
+      "logs": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-reference-20261106T231322Z/session/sympy__sympy-18199/report.json": "cddcfabd7a8851e3b7846224eba8e92cd96684b6b8ca3b0503ebc55ae4fbcc11",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-reference-20261106T231322Z/session/sympy__sympy-18199/test_output.txt": "2876f5fd0b68ddf2754a4edfa613ef10d1545f38cc1b37088d7d2a30cfb2632e",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-reference-20261106T231322Z/session/sympy__sympy-18199/run_instance.log": "07ecebd23e2f77a19954af7734593524aadafc80f1b9748ae60f43f702f217fa",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/b05-18199-reference-20261106T231322Z/session/sympy__sympy-18199/patch.diff": "e47b1071074a4e7773e5001dc973547776afb1870c57e44bdb2efc8dc77d61af"
+      },
+      "harness": {
+        "swebench": "5.0.2",
+        "docker": "28.1.1 linux/arm64"
+      },
+      "image": "swebench/sweb.eval.x86_64.sympy_1776_sympy-18199:latest"
+    }
+  },
+  "outcome": "rejected",
+  "failing_tests_with_minimal_patch": [
+    "test_solve_modular"
+  ],
+  "failing_assertion_with_minimal_patch": "sympy/solvers/tests/test_solveset.py line 2246, test_solve_modular: assert solveset(Mod(x**3, 8) - 1, x, S.Integers) == ImageSet(Lambda(n, 8*n + 1), S.Integers) raises AssertionError; the minimal patch leaves composite moduli unsupported, so solveset returns a ConditionSet.",
+  "ungraded_tests_note": "test_residue: error with the minimal patch (line 166, nthroot_mod(29, 31, 74) raises NotImplementedError for the composite modulus 74) and ok with the reference patch. test_solve_trig fails in both runs. Neither test is in FAIL_TO_PASS or PASS_TO_PASS, so neither affects the outcome.",
+  "statement": "Shows: on the task's own graded tests, a patch that keeps only the reference lines for the stated issue (a % p == 0 with prime p returns the root 0) is not resolved, because the only FAIL_TO_PASS test, test_solve_modular, fails on an assertion about the composite modulus 8; the full reference patch is resolved under the same harness, image and day. Every PASS_TO_PASS test passes with the minimal patch. The issue check shows the patch changes the behaviour the issue describes: three calls with a % p == 0 and (p - 1) % n == 0 raise ValueError at the base commit and return [0] with the patch. Does not show: that the minimal patch is a correct or complete fix of issue #18212 (that is a judgment; for example it returns [0] rather than 0 when all_roots is False, as the reference patch does); that every fix of only the stated issue fails, although the two assertions the test patch changes in test_solve_modular concern only composite moduli, which the problem statement does not mention; or anything about the other 74 tasks. The issue's literal example, nthroot_mod(17*17, 5, 17), already returns 0 at the base commit, so it does not by itself show the defect. The graded lists omit test_residue, the file where the test patch checks a % p == 0. The graded tests give the same result for the unchanged source (eligibility baseline run source-baseline-20261106T042550Z) and for the minimal patch: test_solve_modular fails at line 2246 on the composite modulus 8 and all 113 PASS_TO_PASS tests pass. So the graded tests do not separate a fix of the stated issue from no change; whether any graded assertion reaches nthroot_mod with a % p == 0 was not checked. One minimal patch was graded once; the harness ran under amd64 emulation on an arm64 host."
+}

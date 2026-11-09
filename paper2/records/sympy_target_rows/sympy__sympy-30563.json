@@ -1,0 +1,76 @@
+{
+  "instance_id": "sympy__sympy-30563",
+  "repo": "sympy/sympy",
+  "base_commit": "fe6ffa53d1464e4ac139088b178e61cb645eb30a",
+  "created_at": "2026-09-22T14:14:52Z",
+  "merged_at": "2026-09-25T06:03:15Z",
+  "merge_commit": "a7c459d910e8bc6de9eb2b6635ba70c123ce39ce",
+  "pull_request": "https://github.com/sympy/sympy/pull/30563",
+  "issues": [
+    {
+      "number": 30560,
+      "url": "https://github.com/sympy/sympy/issues/30560",
+      "created_at": "2026-09-22T09:06:16Z"
+    }
+  ],
+  "problem_statement": "Quaternion.norm returns complex number, Quaternion.inverse returns Quaternion with complex args\n```python\nfrom sympy import sqrt, Rational, cosh, Quaternion, tanh, Symbol\n\nt = Symbol('t', real=True)\ntq = Rational(3,4)\n\nq = Quaternion(\n2**tq*sqrt(sqrt(2) + 2)*sqrt(cosh(t) + 1)/(4*sqrt(cosh(t))),\n2**tq*sqrt(sqrt(2) + 2)*sqrt(cosh(t))*tanh(t)/(4*sqrt(cosh(t) + 1)),\n2**tq*sqrt(2 - sqrt(2))*sqrt(cosh(t) + 1)/(4*sqrt(cosh(t))),\n(-2**tq*sqrt(2 - sqrt(2))*sqrt(cosh(t))*tanh(t)/(4*sqrt(cosh(t) + 1)))\n)\n\nprint(q.norm())\nprint(q.inverse())\n```\nThe following definitions return the correct result\n\n```python\ndef norm(q):\n    return sqrt((q*q.conjugate()).args[0])\n\ndef inverse(q):\n    return q.conjugate()/(q*q.conjugate()).args[0]\n\nprint(norm(q))\nprint(inverse(q))\n```\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/algebras/quaternion.py b/sympy/algebras/quaternion.py\nindex b9014749165a..90a1e6e551cb 100644\n--- a/sympy/algebras/quaternion.py\n+++ b/sympy/algebras/quaternion.py\n@@ -924,9 +924,8 @@ def norm(self) -> Expr:\n         \"\"\"Returns the norm of the quaternion.\"\"\"\n         if self._norm is None:  # check if norm is pre-defined\n             q = self\n-            # trigsimp is used to simplify sin(x)^2 + cos(x)^2 (these terms\n-            # arise when from_axis_angle is used).\n-            return sqrt(trigsimp(q.a**2 + q.b**2 + q.c**2 + q.d**2))\n+            # target trig and hyperbolics that arise when using from_axis_angle.\n+            return sqrt(trigsimp((q.a**2 + q.b**2 + q.c**2 + q.d**2).together()))\n \n         return self._norm\n \ndiff --git a/sympy/simplify/trigsimp.py b/sympy/simplify/trigsimp.py\nindex 2b4ed8bf55fd..e95bbc274c91 100644\n--- a/sympy/simplify/trigsimp.py\n+++ b/sympy/simplify/trigsimp.py\n@@ -561,6 +561,8 @@ def traverse(e):\n         'old': lambda x: trigsimp_old(x, **opts),\n                    }[method]\n \n+    # TODO issue 17778 and others can be solved by using expr.together()\n+    # but this leads to other failure; investigate\n     expr_simplified = trigsimpfunc(expr)\n     if inverse:\n         expr_simplified = _trigsimp_inverse(expr_simplified)\n",
+  "test_patch": "diff --git a/sympy/algebras/tests/test_quaternion.py b/sympy/algebras/tests/test_quaternion.py\nindex 94f90d76a16f..adb3cd7ef2d3 100644\n--- a/sympy/algebras/tests/test_quaternion.py\n+++ b/sympy/algebras/tests/test_quaternion.py\n@@ -457,3 +457,24 @@ def test_issue_28556():\n     q3 = Quaternion(r, 0, 0, 0)\n     result3 = q3.log()\n     assert result3 == Quaternion(log(r), 0, 0, 0)\n+\n+\n+def test_issue_30560():\n+    from sympy import sqrt, Rational, cosh, tanh, Symbol, I, S\n+    from sympy.algebras.quaternion import Quaternion\n+    t = Symbol(\"t\", real=True)\n+    tq = Rational(3,4)\n+\n+    q = Quaternion(\n+        2**tq*sqrt(sqrt(2) + 2)*sqrt(cosh(t) + 1)/(4*sqrt(cosh(t))),\n+        2**tq*sqrt(sqrt(2) + 2)*sqrt(cosh(t))*tanh(t)/(4*sqrt(cosh(t) + 1)),\n+        2**tq*sqrt(2 - sqrt(2))*sqrt(cosh(t) + 1)/(4*sqrt(cosh(t))),\n+        (-2**tq*sqrt(2 - sqrt(2))*sqrt(cosh(t))*tanh(t)/(4*sqrt(cosh(t) + 1)))\n+    )\n+\n+    # Norm should be purely real (evaluates exactly to 2**(1/4))\n+    assert q.norm() == 2**(S(1)/4)\n+\n+    # Inverse components should be purely real\n+    inv = q.inverse()\n+    assert not inv.has(I)\n",
+  "FAIL_TO_PASS": [
+    "sympy/algebras/tests/test_quaternion.py::test_issue_30560"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/algebras/tests/test_quaternion.py::test_issue_16318",
+    "sympy/algebras/tests/test_quaternion.py::test_issue_25254",
+    "sympy/algebras/tests/test_quaternion.py::test_issue_28556",
+    "sympy/algebras/tests/test_quaternion.py::test_product_matrices",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_axis_angle",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_axis_angle_simplification",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_complex_real_addition",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_construction",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_construction_norm",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_conversions",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_evalf",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_functions",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_multiplication",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_rotation_iss1593",
+    "sympy/algebras/tests/test_quaternion.py::test_quaternion_subs",
+    "sympy/algebras/tests/test_quaternion.py::test_rotation_matrix_homogeneous",
+    "sympy/algebras/tests/test_quaternion.py::test_to_and_from_Matrix",
+    "sympy/algebras/tests/test_quaternion.py::test_to_euler_iss24504",
+    "sympy/algebras/tests/test_quaternion.py::test_to_euler_numerical_singilarities"
+  ],
+  "image": "paper2/sympy-target:30563",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff fe6ffa53d1464e4ac139088b178e61cb645eb30a\ngit checkout fe6ffa53d1464e4ac139088b178e61cb645eb30a sympy/algebras/tests/test_quaternion.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/algebras/tests/test_quaternion.py b/sympy/algebras/tests/test_quaternion.py\nindex 94f90d76a16f..adb3cd7ef2d3 100644\n--- a/sympy/algebras/tests/test_quaternion.py\n+++ b/sympy/algebras/tests/test_quaternion.py\n@@ -457,3 +457,24 @@ def test_issue_28556():\n     q3 = Quaternion(r, 0, 0, 0)\n     result3 = q3.log()\n     assert result3 == Quaternion(log(r), 0, 0, 0)\n+\n+\n+def test_issue_30560():\n+    from sympy import sqrt, Rational, cosh, tanh, Symbol, I, S\n+    from sympy.algebras.quaternion import Quaternion\n+    t = Symbol(\"t\", real=True)\n+    tq = Rational(3,4)\n+\n+    q = Quaternion(\n+        2**tq*sqrt(sqrt(2) + 2)*sqrt(cosh(t) + 1)/(4*sqrt(cosh(t))),\n+        2**tq*sqrt(sqrt(2) + 2)*sqrt(cosh(t))*tanh(t)/(4*sqrt(cosh(t) + 1)),\n+        2**tq*sqrt(2 - sqrt(2))*sqrt(cosh(t) + 1)/(4*sqrt(cosh(t))),\n+        (-2**tq*sqrt(2 - sqrt(2))*sqrt(cosh(t))*tanh(t)/(4*sqrt(cosh(t) + 1)))\n+    )\n+\n+    # Norm should be purely real (evaluates exactly to 2**(1/4))\n+    assert q.norm() == 2**(S(1)/4)\n+\n+    # Inverse components should be purely real\n+    inv = q.inverse()\n+    assert not inv.has(I)\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/algebras/tests/test_quaternion.py\n: '>>>>> End Test Output'\ngit checkout fe6ffa53d1464e4ac139088b178e61cb645eb30a sympy/algebras/tests/test_quaternion.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-08T06:14:26.701585+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/report.json": "44abd2687e93344400f991d09a16e7e57b9ee7d29935548d3169fade02f54724",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/test_output.txt": "8d65a50497b0742abba111f0fa3f02df989fb987e27e8a35a8651760f579e7ec",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/run_instance.log": "90e14700911f83f3eba6da6c209a5e25b8b797d62374eea4b3a24be20b66dc8d",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/report.json": "44abd2687e93344400f991d09a16e7e57b9ee7d29935548d3169fade02f54724",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/test_output.txt": "7f17dae70135810cf640ebc896842d4f9ae5cd21deb6dd5c499cb09c3dbbe5a9",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/run_instance.log": "ab8ecfa8b13f2ee3d63158099cccd987e6a854d054b050412cbfa9074c25f15b",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30563-20261108T061425/derive/sympy__sympy-30563/patch.diff": "cba473a1106f8f705f0f182fd0636971cd9ab324e26d20da26ef734e82d76980"
+      }
+    },
+    "image_id": "sha256:ff1107586315ee4b83a65171c6a392a43b0b988a93601e10de24baafbbc73e46"
+  },
+  "status": "derived"
+}

@@ -1,0 +1,72 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B07",
+  "concern": "C07",
+  "definition": {
+    "path": "v4/rubric/rubric-draft.md",
+    "sha256": "7ac2ed6e02230af818fc0ccde0105837c81bba5491e2d351d6f1f41205850c74"
+  },
+  "question": "Was the scoring implementation checked, and can it be gamed?",
+  "shown_means": "the implementation can be read and compared with the rule",
+  "checked_means": "parser or judge validated; exploit tests reported",
+  "applies_when": "Judgeability automated or mixed",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Judgeability is automated: the harness runs unit tests."
+  },
+  "check": {
+    "procedure": "Auditor checks: reading of the harness grading code and comparison with the stated rule (resolved only when every FAIL_TO_PASS and PASS_TO_PASS test passes; XFAIL counts as passed, a missing or skipped test as not passed); the eligibility runs on 75 SymPy tasks, which test the grader in both directions (reference patch resolved, unchanged source not resolved). No exploit test was run.",
+    "outcome": "passed",
+    "evidence_location": "swebench 5.0.2 harness/grading.py; paper2/preparation/protocol-4/eligibility/ (75 SymPy source results)",
+    "detection_limits": "The runs check the grader on two patches per task only. They do not test whether an invalid patch can pass (gaming), and they do not test correct fixes that differ from the reference patch."
+  },
+  "evidence": [
+    {
+      "location": "OpenAI, Introducing SWE-bench Verified (2024), https://openai.com/index/introducing-swe-bench-verified/, section Background on SWE-bench",
+      "quote": "Both sets of tests are required to pass for the edit to fully resolve the original GitHub issue."
+    },
+    {
+      "location": "swebench 5.0.2, harness/grading.py, get_resolution_status, line 314",
+      "quote": "If fail-to-pass (Resolution) = 1 and pass-to-pass (Maintenance) = 1 -> FULL"
+    },
+    {
+      "location": "OpenAI, Introducing SWE-bench Verified (2024), https://openai.com/index/introducing-swe-bench-verified/, section Our Approach",
+      "quote": "if the FAIL_TO_PASS unit tests are easily gamed, this could lead to an invalid solution being marked as correct"
+    },
+    {
+      "location": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (2026), https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/, section Too narrow and too wide tests",
+      "quote": "35.5% of the audited tasks have strict test cases that enforce specific implementation details"
+    },
+    {
+      "location": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (2026), https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/, section Discussion",
+      "quote": "automated scoring is tricky to get right"
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "The scoring implementation can be read and matches the stated rule, and the auditor runs confirm that the grader resolves every reference patch and no unchanged source. The sources report gaming only as an annotation category and report no exploit tests, so the proposed anchor is Shown (stored as Documented). The 2026 audit reports tests that reject correct fixes; that lowers resolved rates rather than raising them, and no counterexample of an invalid patch passing has been executed, so no oracle defect is demonstrated here.",
+  "missing": "Exploit tests: invalid patches that the tests accept.",
+  "checks_performed": [
+    "grading code reading",
+    "eligibility runs on 75 SymPy tasks"
+  ],
+  "roles": {
+    "author": "",
+    "assistant": "Claude Code (Claude Opus 5.5) drafted this form from the cited sources and ran the listed auditor checks; the anchor is a proposal for the author, who reviews, changes if needed, and signs."
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "drafted_at": "2026-11-06T23:23:18.218151+00:00",
+  "carried_over_from": {
+    "path": "paper2/preparation/protocol-4/audit_forms/drafts/B07-release.json",
+    "sha256": "fb10dacdf215919a42f82b914d8d41aaf4bc2b8fe06ef4731a008c462e777065",
+    "note": "protocol 4 draft, unchanged in content"
+  }
+}

@@ -1,5 +1,7 @@
 # Plan for paper_chase_v2.tex
 
+> Historical record. Manuscript targets and commands below describe earlier work. See the [3 November 2026 consolidation record](../../provenance/manuscript-consolidation-2026-11-03.md) for Git retrieval and the current entry point.
+
 Status: proposed implementation plan, 28 October 2026. This plan does not create the manuscript or launch experiments. New study results do not yet exist. The existing participant survey is Study 3; no second survey is required.
 
 ## 1. Output and boundaries
@@ -175,7 +177,7 @@ Definition of done for the first writing phase: a separate `paper_chase_v2.tex` 
 
 ## Related records
 
-- [Current manuscript](../../paper_chase.tex)
+- [Current manuscript](https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai/blob/0a24e62dc9fb337dc05e61309b528972dd5b4d86/paper_chase.tex)
 - [Current study and provenance](../../CHASE-study.md)
 - [Literature review](../../literature/slr-2026-10-28/README.md)
 - [Concept and experiment proposal](../../literature/slr-2026-10-28/mesa-direction-proposal.md)

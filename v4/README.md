@@ -1,6 +1,8 @@
 # MESA as a standard for comparing benchmark reviews
 
-Status: all ten checks done, inputs frozen, 7 pilots, 26 main sessions and 2 amendment sessions (`study/addition.md`) run and analysed on 31 October 2026, manuscripts (`../paper_mesa_v4.tex` and the 10-page CHASE adaptation `../paper_chase_v4.tex`) filled in from the analysis. Branch `codex/mesa-v3`. The RQ4 source check and the RQ2 disagreement causes under `study/analysis/coding/` were coded by the preparing assistant, not by a person; the author's review of both is pending.
+Current manuscript: [mesa_paper.tex](../mesa_paper.tex), intended for REFSQ in Springer LNCS format. It uses the mapping and the Study 1 records here; its rubric study (Study 2 in the paper) is `../v5/study/`, and it adds a requirements traceability proposal. The mapping has 30 comparison concerns; the derived rubric has eight description fields and 29 evaluation questions. Neither is the earlier 25 question questionnaire.
+
+Study status recorded on 31 October 2026: all ten checks done, inputs frozen, seven pilots, 26 main sessions and two amendment sessions (`study/addition.md`) run and analysed. The RQ4 source check and RQ2 disagreement causes were coded by the preparing assistant; the recorded author review status is pending. Study paths, version identifiers, and frozen records are unchanged. Earlier manuscripts are indexed in the [consolidation record](../provenance/manuscript-consolidation-2026-11-03.md).
 
 ## The idea
 
@@ -50,7 +52,7 @@ Four benchmarks plus one fictional pilot fixture (`AddTwo`), frozen under `study
 
 Sessions: 18 framework and benchmark pairs plus the derived rubric twice on four benchmarks (26 main sessions), plus 7 pilots on the fictional `AddTwo` fixture, plus 2 post-hoc amendment sessions (`study/addition.md`: a second repetition of BetterBench and the Scorecard on HumanEval). One configuration: Claude Sonnet 5.5 (`claude-sonnet-5-5`) through Claude Code (`claude -p`) at `medium` effort, validated via `--json-schema`, with only two read-only MCP tools exposed (`list_files` and `read_file` served by `study/file_server.py`). Paper text is extracted with `PDFKit` (`study/pdftext.swift`).
 
-## Terms in the manuscripts and names in the records
+## Terms used in the v4 records and earlier manuscripts
 
 | Paper term | Record name |
 |---|---|
@@ -73,8 +75,7 @@ Sessions: 18 framework and benchmark pairs plus the derived rubric twice on four
 | `mapping/check.py`, `mapping/coverage.md`, `mapping/coverage.tex` | checks and the coverage table (RQ1) |
 | `rubric/rubric-draft.md`, `study/materials/rubric.json` | the derived rubric, specified from the final mapping and item specifications, with lineage |
 | `study/` | the agent study: snapshots (`sources/`), materials (`materials/`), prompts (`prompts/`), schemas, `jobs.json`, `earlier-reviews/`, `run.py`, `run_addition.py`, `validate.py`, `analyze.py`, `disagreements.py`, `test_harness.py`, `freeze.py`, `freeze-manifest.json`, `protocol.md`, `addition.md`, `outputs/` and `analysis/` (`paper-grid-*.tex`, `pairwise.tex`, `disagreement-log.csv`, `rq3-conflicts.csv`, `source-check.csv`, `addition-repeat.json`); see `study/README.md` |
-| `../paper_mesa_v4.tex` | full v4 manuscript |
-| `../paper_chase_v4.tex` | 10-page IEEE CHASE venue submission manuscript adapted from `paper_mesa_v4.tex` |
+| [mesa_paper.tex](../mesa_paper.tex) | Current MESA manuscript for REFSQ |
 | `../figures/v4_study1_diagram.*`, `../figures/v4_study2_diagram.*` | the two study figures |
 | `../figures/v4_chase_design.*` | the CHASE study design figure, coloured by role (render steps in the SVG comment) |
 

@@ -1,0 +1,45 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index ad4d7d961..d0e1c38a9 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -156,11 +156,19 @@ def __init__(self, settings=None):
+             "times": r" \times "
+         }
+ 
++        mul_symbol = self._settings['mul_symbol']
+         self._settings['mul_symbol_latex'] = \
+-            mul_symbol_table[self._settings['mul_symbol']]
++            mul_symbol_table.get(mul_symbol, mul_symbol)
+ 
+-        self._settings['mul_symbol_latex_numbers'] = \
+-            mul_symbol_table[self._settings['mul_symbol'] or 'dot']
++        # Keep a visible separator between numbers, even when the custom
++        # multiplication symbol consists only of LaTeX spacing commands.
++        if mul_symbol is None or re.match(
++                r'^(\s|\\[,;:! ]|\\(?:quad|qquad|enspace|thinspace)\b)*$',
++                mul_symbol):
++            self._settings['mul_symbol_latex_numbers'] = mul_symbol_table['dot']
++        else:
++            self._settings['mul_symbol_latex_numbers'] = \
++                mul_symbol_table.get(mul_symbol, mul_symbol)
+ 
+         self._delim_dict = {'(': ')', '[': ']'}
+ 
+@@ -2155,11 +2163,16 @@ def latex(expr, **settings):
+     \frac{1}{2 \pi} \int r\, dr
+ 
+     mul_symbol: The symbol to use for multiplication. Can be one of None,
+-    "ldot", "dot", or "times".
++    "ldot", "dot", or "times", or a custom LaTeX string. Custom strings are
++    used verbatim, so include any desired spaces. A dot is used between
++    numbers when the symbol consists only of spacing.
+ 
+     >>> print(latex((2*tau)**sin(Rational(7,2)), mul_symbol="times"))
+     \left(2 \times \tau\right)^{\sin{\left (\frac{7}{2} \right )}}
+ 
++    >>> print(latex(3*x**2*y, mul_symbol=r" \, "))
++    3 \, x^{2} \, y
++
+     inv_trig_style: How inverse trig functions should be displayed. Can be one
+     of "abbreviated", "full", or "power". Defaults to "abbreviated".
+ 

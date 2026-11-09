@@ -1,0 +1,72 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28a",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the grading environment controlled, so that the system under test cannot reach answers or alter the scoring?",
+  "shown_means": "the grading environment and its isolation described",
+  "checked_means": "isolation of the system's output from the tests and the scorer verified or enforced in code",
+  "applies_when": "scoring runs the system's output as code or in an environment",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Scoring runs the system's output (a patch) as code in a container together with the hidden tests."
+  },
+  "check": {
+    "procedure": "Reviewer read run_evaluation.py, grading.py and utils.py of swebench 5.0.2: the patch is copied into a fresh container from the task image and applied; the eval script resets and applies the test files after the patch; the scorer runs on the host and parses the log; grading.py rejects a log that shows passes while the test command exits non zero and counts skipped FAIL_TO_PASS tests as failures. The eligibility runs and the B07 exploit runs used this harness. No attempt to alter the tests or the log from inside a patch was run.",
+    "kind": "reported_by_sources",
+    "outcome": "passed",
+    "evidence_location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+    "detection_limits": "The check could not detect a patch that alters test behavior from inside the same container, network access from the grading container, or the content of the eval script that was not read."
+  },
+  "evidence": [
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+      "quote": "# Copy model prediction as patch file to container"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/utils.py",
+      "quote": "Eval scripts end with a `git checkout` that resets the test files"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+      "quote": "so cross-check the log against the test command's exit status"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+      "quote": "a skipped F2P test is not a resolution"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "The model does not see the tests."
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+      "quote": "cap_add=[\"SYS_ADMIN\"]"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Verified and not Documented because the isolation of the system output from the scorer is enforced in code (host side scorer, test files reset after the patch, exit status cross check against forged pass lines, skipped tests counted as failures). Not Contradicted because no defect of the whole grading environment was found; the container is not isolated from the network and runs with SYS_ADMIN, which is a detection limit, not a shown defect.",
+  "missing": "A run that tries to alter the tests or the log from inside a patch, and a check of the grading container's network and capabilities, would be needed to move the limits.",
+  "checks_performed": [
+    "Read grading.py, run_evaluation.py and utils.py of the harness.",
+    "Read the protocol-4 eligibility and protocol-5 B07 run records that used the harness."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

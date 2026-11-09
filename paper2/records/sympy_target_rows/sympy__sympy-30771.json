@@ -1,0 +1,66 @@
+{
+  "instance_id": "sympy__sympy-30771",
+  "repo": "sympy/sympy",
+  "base_commit": "50e68debd256f0ff52b1856bba54868e5499448e",
+  "created_at": "2026-10-18T17:59:03Z",
+  "merged_at": "2026-10-18T18:55:24Z",
+  "merge_commit": "593116bbec1982c9495f5855edf42b2d35974b05",
+  "pull_request": "https://github.com/sympy/sympy/pull/30771",
+  "issues": [
+    {
+      "number": 30770,
+      "url": "https://github.com/sympy/sympy/issues/30770",
+      "created_at": "2026-10-18T15:15:53Z"
+    }
+  ],
+  "problem_statement": "convolution() drops trailing zeros for Python integer inputs\n### Description\n\n`convolution()` silently drops trailing zeros from the result of a default linear convolution when its inputs contain Python integers. The output length depends on the numeric representation of otherwise identical inputs.\n\n### Reproducer\n\n```python\nfrom sympy import S, convolution\n\nprint(convolution([1, 0], [1, 1]))\nprint(convolution([S.One, S.Zero], [S.One, S.One]))\nprint(convolution([0, 0], [1, 2]))\n```\n\nActual output:\n\n```text\n[1, 1]\n[1, 1, 0]\n[0]\n```\n\nExpected output:\n\n```text\n[1, 1, 0]\n[1, 1, 0]\n[0, 0, 0]\n```\n\nFor nonempty sequences of lengths `n` and `m`, the full linear convolution should preserve `n + m - 1` samples, including trailing zeros. Omitting them can cause an `IndexError` when accessing a valid output sample.\n\n### Investigation\n\nThe integer fast path calls `convolution_int()`, whose integer unpacking stops after the highest nonzero coefficient. The public wrapper returns that shortened list directly. `convolution_fft()` preserves the full length, as does `convolution(a, b, cycle=len(a) + len(b) - 1)` for these examples.\n\nExecuting the version of `convolutions.py` immediately before #25018 also returns the full-length results for these examples. This suggests a regression in the integration of the integer fast path, rather than a request to change the low-level helper's polynomial representation.\n\n### Environment and validation\n\n- SymPy `1.15.0.dev`, current `master` commit `50e68debd256f0ff52b1856bba54868e5499448e`.\n- CPython `3.14.8`, Windows, Python integer ground types.\n- Three minimal cases verified against a direct exact convolution and the FFT backend. Of the 81 pairs of two-element sequences with entries in `{-1, 0, 1}`, 45 return shortened lists.\n- All nine existing tests in `sympy/discrete/tests/test_convolutions.py` pass using `sympy.testing.runtests.test`.\n\n### Related reports\n\nSearches of open and closed issues, PRs, and related comments found no existing report of this output-length regression. #29503 and #29504 concern the separate SymPy Integer dispatch/FFT fallback problem.\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/discrete/convolutions.py b/sympy/discrete/convolutions.py\nindex fa3f101a0165..cdfa92e2d07f 100644\n--- a/sympy/discrete/convolutions.py\n+++ b/sympy/discrete/convolutions.py\n@@ -111,6 +111,7 @@ def loop(a):\n                 (ia, ma), (ib, mb) = da, db\n                 den = ma*mb\n                 ls = convolution_int(ia, ib)\n+                ls.extend([0]*(len(a) + len(b) - 1 - len(ls)))\n                 if den != 1:\n                     ls = [Rational(i, den) for i in ls]\n         if ls is None:\n",
+  "test_patch": "diff --git a/sympy/discrete/tests/test_convolutions.py b/sympy/discrete/tests/test_convolutions.py\nindex 78ec4334a93e..18b85c5d1573 100644\n--- a/sympy/discrete/tests/test_convolutions.py\n+++ b/sympy/discrete/tests/test_convolutions.py\n@@ -63,6 +63,12 @@ def test_convolution():\n                                  Rational(14, 5)]\n \n \n+def test_convolution_trailing_zeros_issue_30770():\n+    assert convolution([1, 0], [1, 1]) == [1, 1, 0]\n+    assert convolution([0, 0], [1, 2]) == [0, 0, 0]\n+    # check that cyclic convolution preserves trailing zeros\n+    assert convolution([1, 0], [1, 1], cycle=3) == [1, 1, 0]\n+\n def test_cyclic_convolution():\n     # fft\n     a = [1, Rational(5, 3), sqrt(3), Rational(7, 5)]\n",
+  "FAIL_TO_PASS": [
+    "sympy/discrete/tests/test_convolutions.py::test_convolution_trailing_zeros_issue_30770"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/discrete/tests/test_convolutions.py::test_convolution",
+    "sympy/discrete/tests/test_convolutions.py::test_convolution_fft",
+    "sympy/discrete/tests/test_convolutions.py::test_convolution_fwht",
+    "sympy/discrete/tests/test_convolutions.py::test_convolution_int",
+    "sympy/discrete/tests/test_convolutions.py::test_convolution_ntt",
+    "sympy/discrete/tests/test_convolutions.py::test_convolution_subset",
+    "sympy/discrete/tests/test_convolutions.py::test_covering_product",
+    "sympy/discrete/tests/test_convolutions.py::test_cyclic_convolution",
+    "sympy/discrete/tests/test_convolutions.py::test_intersecting_product"
+  ],
+  "image": "paper2/sympy-target:30771",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 50e68debd256f0ff52b1856bba54868e5499448e\ngit checkout 50e68debd256f0ff52b1856bba54868e5499448e sympy/discrete/tests/test_convolutions.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/discrete/tests/test_convolutions.py b/sympy/discrete/tests/test_convolutions.py\nindex 78ec4334a93e..18b85c5d1573 100644\n--- a/sympy/discrete/tests/test_convolutions.py\n+++ b/sympy/discrete/tests/test_convolutions.py\n@@ -63,6 +63,12 @@ def test_convolution():\n                                  Rational(14, 5)]\n \n \n+def test_convolution_trailing_zeros_issue_30770():\n+    assert convolution([1, 0], [1, 1]) == [1, 1, 0]\n+    assert convolution([0, 0], [1, 2]) == [0, 0, 0]\n+    # check that cyclic convolution preserves trailing zeros\n+    assert convolution([1, 0], [1, 1], cycle=3) == [1, 1, 0]\n+\n def test_cyclic_convolution():\n     # fft\n     a = [1, Rational(5, 3), sqrt(3), Rational(7, 5)]\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/discrete/tests/test_convolutions.py\n: '>>>>> End Test Output'\ngit checkout 50e68debd256f0ff52b1856bba54868e5499448e sympy/discrete/tests/test_convolutions.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-08T06:28:35.921867+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/report.json": "8ee2751c71bfba24cf0b3280544f96bfae35145d5abbabf48afab47b4f24c2fd",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/test_output.txt": "7ece98c1f731cda307da824be98ccf8ac4e754f67a08fb867efa4c0bb17b3599",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/run_instance.log": "541a5739d564d58d986ccc0a195fee0c328cf76266f9515b9aa703eb7c8662d7",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/report.json": "8ee2751c71bfba24cf0b3280544f96bfae35145d5abbabf48afab47b4f24c2fd",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/test_output.txt": "5949f459113e36e66d2bb7a8e611270b240a9e24618409a5130392e34cff4727",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/run_instance.log": "12462917fb3b71768c813a153fe20f051cc3414bef7b8f75e88f8cb5329f9a9b",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30771-20261108T062834/derive/sympy__sympy-30771/patch.diff": "49930eae92c4b4100f096188dc1faf7715bac861e9dd67332eba90f0617dc52f"
+      }
+    },
+    "image_id": "sha256:b9932fe1a24763e003c3e56a234d2e854a4725c7daa65558817b839f54311115"
+  },
+  "status": "derived"
+}

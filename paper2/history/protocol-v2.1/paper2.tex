@@ -1,0 +1,469 @@
+\documentclass[runningheads]{llncs}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\begin{document}
+
+\title{Using AI Benchmark Results as Requirements Evidence: Traceability, Admissibility Gating, and Decision Sensitivity}
+\titlerunning{AI Benchmark Results as Requirements Evidence}
+
+\author{Anonymous Author(s)}
+\authorrunning{Anonymous Author(s)}
+
+\institute{Affiliation Withheld for Double-Blind Review\\
+\email{contact@example.org}}
+
+\maketitle
+
+\begin{abstract}
+\textbf{Context and motivation:} Software engineering teams evaluating third-party coding assistants often consult public benchmark leaderboards as surrogate acceptance testing evidence. Inferring that an assistant satisfies an operational software requirement from benchmark scores assumes that test oracles faithfully evaluate required behaviors without grading shortcuts or pre-training leakage, and that demonstrated capability transfers to the target repository workload.
+
+\textbf{Question/problem:} How can software engineers determine whether third-party benchmark evidence legitimately supports a software requirement, contradicts it, or leaves it unresolved? How do sample size, threshold distance, and benchmark review findings affect requirement verdicts and decision resolution under sampling uncertainty?
+
+\textbf{Principal ideas/results:} We formulate an empirical method linking system requirements to benchmark evidence using 95\% Wilson confidence intervals, task matching, explicit domain transfer tolerance $\delta_{\text{trans}}$, and an admissibility gate based on Kane's validity framework and MESA review concerns. Method 3 retains Method 2's matched task subset and raw Wilson bounds, adding review-based abstention when validity evidence is inadmissible. Domain transfer sensitivity is evaluated as an exploratory parameter. Exact binomial power calculations establish that at single-repository sample sizes ($N = 30$, threshold $\theta = 0.70$), power to accept a compliant model ($p = 0.75$) is 9.8\% (89.4\% unresolved probability under the analytical model), rising to 81.9\% at $N = 60$ for $p = 0.85$. In a 10,000-trial simulation under an assumed review detector (85\% defect sensitivity, 5\% false alarms, 10\% missing documentation), Method 3 reduces false acceptance to 5.4\% compared with 20.8\% under task matching alone, 6.4\% under random abstention, and 6.5\% under threshold-proximity abstention at matched 6.8\% decision coverage. In compliant target scenarios, review-based abstention withholds an additional fraction as Unresolved.
+
+\textbf{Contribution:} Completed contributions comprise: (1)~a requirements-to-benchmark traceability method with explicit assumption tracking; (2)~an executable decision engine implementing three comparative methods over supplied review judgments; (3)~exact binomial power analyses and a 576-cell parametric simulation benchmarking review-based abstention against random and uncertainty-proximity controls; and (4)~a 12-attempt fixture pilot verifying harness execution mechanics. A prospective evaluation protocol specifies 696 planned attempts across two configurations, three repositories, and 90 target tasks.
+
+\keywords{Requirements Engineering for AI \and AI Benchmarks \and Acceptance Testing \and Evidence Reuse \and Kane's Validity Framework \and Coding Assistants.}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+When software engineering organizations select third-party foundation models and automated coding assistants, they must establish empirical evidence that an external probabilistic component satisfies operational software requirements \cite{cleland_huang_traceability_2012,habiba_re4ai_maturity_2024,lewis_quality_model_ml_2026}. Historically, selecting commercial off-the-shelf (COTS) software components relied on standardized interfaces, architectural contracts, and deterministic acceptance testing \cite{sljivo_assurance_contracts_2014}. With generative artificial intelligence components, engineering teams increasingly turn to public benchmark leaderboards---such as SWE-bench \cite{jimenez_swebench_2024} or HumanEval \cite{human_eval_repository}---as surrogate acceptance testing suites \cite{ghosh_evaluation_cards_2026,hou_llm4se_survey_2024,singh_leaderboard_illusion}. If a coding agent achieves an aggregate pass rate on a public leaderboard, decision-makers may infer that the model is qualified to resolve software engineering tasks in their proprietary repositories \cite{bean_measuring_what_matters,reuel_betterbench}.
+
+However, in software requirements engineering, measurement metrology, and AI capability measurement \cite{aera_apa_ncme_standards_2014,jo_wilson_what_does_your_benchmark_measure,kane_validation}, Jo and Wilson analyze the inferential gap between observed test performances and latent capabilities under measurement noise. In requirements verification, treating a benchmark score as acceptance evidence requires validating an inferential chain connecting observed performances to an operational claim:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Scoring Inference ($I_{\text{score}}$):} Evaluates whether benchmark test oracles faithfully assert the target functional requirement rather than accepting incomplete patches through permissive shortcuts or rejecting valid implementations through over-constrained tests \cite{ding_spec_oracle_gaps_2026,openai_swebench_audit_2026}.
+    \item \textbf{Generalization Inference ($I_{\text{gen}}$):} Evaluates whether observed sample tasks represent the specific task category, programming language, and runtime conditions specified in the requirement.
+    \item \textbf{Extrapolation Inference ($I_{\text{extra}}$):} Evaluates whether demonstrated capability in benchmark domains transfers to the target repository context without cross-codebase performance collapse.
+    \item \textbf{Decision Use Justification ($I_{\text{use}}$):} Evaluates whether the statistical confidence bounds over admissible observations warrant issuing an affirmative requirement verdict against a defined threshold.
+\end{enumerate}
+
+In practice, common acceptance practices often encounter difficulties along this chain. Aggregate leaderboard scores pool heterogeneous tasks across dozens of unrelated software projects, averaging trivial bug fixes with complex architectural refactorings. Filtering by nominal tags identifies superficially similar tasks, but ignores whether underlying test harnesses enforce the target requirement without scoring bypasses or pre-training leakage. Furthermore, missing benchmark documentation is often unexamined, converting unverified assumptions into implicit endorsements.
+
+Consider a practical requirements verification problem: an engineering team requires an AI coding assistant to resolve at least 70\% of open bug-fix issues in a defined repository workload within a 30-step execution budget ($\theta = 0.70$). A public benchmark reports aggregate performance across multiple repositories. The team must determine which benchmark observations apply, whether their evaluation oracles support the requirement, and what additional testing is required when evidence remains inconclusive. To parameterize these evidential checks, our method builds upon the Meta-Evaluation Standard for AI benchmark review (MESA v4), which allocates 280 framework items across 30 comparison concerns to audit benchmark construct validity, harness hygiene, and reporting completeness. From these concerns, we select five core assumptions as an illustrative evidence admissibility policy for software coding benchmarks. These five checks serve as an explicit admissibility policy; their sufficiency and empirical detection performance represent model inputs rather than a validated property of the full standard.
+
+\subsection{Research Questions}
+This paper develops and evaluates an empirical method for deciding whether third-party benchmark evidence supports a software requirement for a coding assistant, contradicts it, or leaves it unresolved. We investigate three research questions:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{RQ1 (Applicability, Warrants, and Transfer):} How can a software requirement's workload scope, execution constraints, and acceptance threshold be formally linked to third-party benchmark observations, and what evidential warrants are required to justify domain transfer?
+    \item \textbf{RQ2 (Evidential Admissibility and False Acceptance Reduction):} Under specified defect and review detection assumptions, does incorporating benchmark review findings reduce false acceptance compared with task matching alone and controls at the same decision coverage?
+    \item \textbf{RQ3 (Sample Size, Threshold Distance, and Decision Resolution):} How do sample size and distance from the operational acceptance threshold affect the probability of Supported, Contradicted, and Unresolved requirement verdicts under the binomial model?
+\end{itemize}
+
+\subsection{Contributions and Study Boundaries}
+This work contributes:
+\begin{enumerate}[leftmargin=*]
+    \item A formal method for justifying links between system capability requirements and third-party AI benchmark evidence, recording explicit assumptions, missing documentation, and domain transfer tolerance within a Requirements Traceability Matrix (RTM) framework \cite{gotel_traceability_1994};
+    \item An open-source, executable decision engine implementing three comparative decision methods (Scores Alone, Task Matching, and Task Matching + MESA Admissibility Checks);
+    \item An exact binomial power analysis and parameterized simulation benchmarking review-based abstention against random and uncertainty-proximity controls, establishing how sample size and threshold proximity dictate decision resolution and unresolved verdict rates across a 576-cell sensitivity sweep;
+    \item A prospective evaluation protocol across two model-plus-agent configurations (Gemini 3.8 Flash Medium in Antigravity ACI and GPT-6.1 Sol Light via Codex CLI) and three target software projects (\texttt{requests}, \texttt{flask}, \texttt{sympy}, 90 tasks, 696 planned execution attempts), supported by a 12-attempt containerless harness pilot verifying tool execution and assertion checks without container daemons.
+\end{enumerate}
+
+\textbf{Study Boundaries:} The study concerns evidence qualification for issue-resolution requirements on specified coding assistant configurations and Python workloads. It evaluates rules for issuing requirement verdicts using exact binomial power calculations, a 576-cell detector sensitivity sweep, and multi-parameter simulation, and formalizes a prospective repository evaluation protocol whose execution across repository workloads remains future work. It does not evaluate human procurement decisions, practitioner productivity, or non-functional requirements concerning security and maintainability. Change impact analysis is kept strictly outside the study.
+
+\section{Related Work and Research Gap Delineation}
+\label{sec:related_work}
+
+Table~\ref{tab:paper2_related_work} compares the decision objects, evidence sources, missing evidence handling, and outputs of related approaches across safety assurance, requirements verification, benchmark assessment, and model selection.
+
+\begin{table}[t]
+\caption{Comparison of related assurance frameworks, specifications, and benchmark auditing literature.}
+\label{tab:paper2_related_work}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Framework} & \textbf{Input Req. Format} & \textbf{Evidence Source} & \textbf{Missing Evidence} & \textbf{Relation to this study} \\
+\midrule
+AMLAS \cite{hawkins_amlas_2021} & ML safety requirements & Lifecycle assurance data & Not specified in cited work & Specifies assurance argumentation linking safety requirements to training and verification artifacts; does not define a procedure for qualifying external third-party coding benchmarks. \\
+Assurance Contracts \cite{sljivo_assurance_contracts_2014} & Assumption-guarantee contracts & Component safety claims & Assumptions must be discharged & Generates safety case argument fragments where assumptions must be discharged for contextual reuse; lacks statistical confidence bounds or meta-evaluation deficit checks for generative AI benchmarks. \\
+Safety Case Impact \cite{lawford_safety_case_impact_2017} & Safety case arguments & System change diffs & Triggers re-assurance & Assesses impact of software system modifications on existing safety cases; addresses safety case evolution in automotive systems rather than initial qualification of external generative AI coding benchmarks. \\
+Transfer Assurance \cite{picardi_transfer_assurance_2023} & Target domain specs & Retrained model test sets & Re-assesses affected artifacts & Defines a process for retaining parts of an assurance case and reassessing others after model retraining; does not address design-time evidence qualification from external benchmarks. \\
+VNVSpec \cite{arief_vnvspec_2026} & Machine-readable DSL & Test execution \& verifiers & Marked as inconclusive & Links requirements to test runs and formal verification with inconclusive verdicts; does not evaluate the evidential construct validity of external third-party benchmarks or compare with abstention controls. \\
+Evidence Reuse \cite{mukhopadhyay_nalla_evidence_reuse_2026} & Target assurance goals & Pipeline traces \& DVC replays & Fail-closed cryptographic gate & Formulates validity conditions and implements an Ed25519 fail-closed release gate (evaluated on 714 DVC pipelines across 38,083 commits); cannot detect undeclared dependencies and lacks requirements-level Wilson decision thresholds for coding tasks. \\
+Coding Agent Envelopes \cite{goswami_assurance_envelopes_2026} & Software change obligations & Typed inference graphs \& ASTs & Reports solver infeasibility & Selects evidence to derive supplied change obligations using forward chaining and a CP-SAT solver; evaluates runtime change derivations rather than design-time requirements acceptance decisions from external benchmarks. \\
+NIST Guidance \cite{nist_ai_800_2_2026} & AI risk management goals & Benchmark leaderboards & Recommends documentation & Provides governance guidance for defining measurement targets and analyzing evaluations; does not specify an executable decision calculus linking benchmark scores to target system requirements. \\
+Oracle Auditing \cite{ding_spec_oracle_gaps_2026} & Prompt docstrings & Hidden test suites & Flags implicit constraints & Analyzes over-constrained tests and prompt specification gaps in coding benchmarks, releasing filters and addenda; does not link benchmark results to target project requirements. \\
+Model Selection in SE \cite{hou_llm4se_survey_2024} & SE task descriptions & Published benchmark scores & Disclosed as limitations & Surveys literature on LLMs for software engineering and general capability rankings; does not provide an operational evidence qualification calculus for system requirements acceptance. \\
+DAMSA--SMS \cite{singh_damsa_sms_2026} & Deployment criteria & Candidate measurements & Eligibility screening & Translates deployment criteria into Pareto screening, reference ranking, and sensitivity analysis; does not evaluate benchmark review findings to withhold requirement verdicts under matched task subsets and confidence intervals. \\
+ECBD \cite{liu_ecbd_2024} & Intended use specs & NLP evaluation rubrics & Flags unjustified choices & Employs intended use specs and validity warrants to guide NLP benchmark authoring; does not define an automated requirements decision calculus for software engineering teams reusing benchmark results. \\
+BetterBench \cite{reuel_betterbench} & Benchmark evaluation rubrics & Benchmark code \& metadata & Zero score on rubric criteria & Assesses 46 criteria across purpose, score interpretation, implementation, and maintenance; evaluates benchmark artifact quality rather than emitting requirements acceptance verdicts for candidate models. \\
+Evaluation Cards \cite{ghosh_evaluation_cards_2026} & Standardized schemas & Benchmark \& model metadata & Displays omissions visually & Implements a reporting layer joining benchmark, run, and model metadata with interpretive comparability signals; lacks formal decision thresholds, statistical bounding, or requirements acceptance logic. \\
+Beyond the Hype \cite{pizarro_beyond_the_hype_2026} & Organizational adoption goals & Empirical evaluation metrics & Flags adoption risks & Proposes an industry adoption framework adapting GQM and Tetrics; focuses on organizational adoption processes rather than statistical confidence bounding or benchmark review-based abstention. \\
+\midrule
+\textbf{This Work (MESA Method 3)} & \textbf{Target project requirements (threshold $\theta$; study $\theta = 0.70$)} & \textbf{SWE-bench Verified tasks + MESA reviews} & \textbf{Enforces Missing Evidence Neutrality ($\to$ Unresolved)} & \textbf{Retains Method 2's matched task subset and 95\% Wilson bounds while withholding decisions when required evidence assumptions are violated or unverified; benchmarked against random and proximity abstention controls.} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Delineation Against Assurance and Evidence Reuse Literature}
+In software safety assurance, AMLAS \cite{hawkins_amlas_2021} provides a methodology for developing and structuring safety cases for machine learning components, linking system hazards, ML safety requirements, data validation, model training, and verification through explicit assurance arguments. Assurance contracts \cite{sljivo_assurance_contracts_2014} extend this perspective to modular systems by generating safety case argument fragments where contextual assumptions must be formally discharged prior to evidence reuse. In continuous ML pipelines, Mukhopadhyay and Nalla \cite{mukhopadhyay_nalla_evidence_reuse_2026} establish mathematical validity conditions and an Ed25519 cryptographic fail-closed gate to ensure pipeline artifact integrity, demonstrating selective replay across 714 DVC pipelines and 38,083 commits. However, as Mukhopadhyay and Nalla observe, cryptographic gates enforce policy compliance over declared dependencies; they cannot detect undeclared dependencies or resolve whether benchmark tasks semantically represent target operational requirements.
+
+Recent requirements engineering and runtime assurance frameworks address related aspects of evidence qualification. VNVSpec \cite{arief_vnvspec_2026} provides a machine-readable specification language and execution engine linking requirements to automated test suites (such as pytest) and formal verification tools, recording pass, fail, and inconclusive evidence, and preserving inconclusive requirements when verification data is missing. However, whereas VNVSpec qualifies evidence generated from internal test harnesses and verifiers, our method addresses the distinct problem of qualifying \emph{external third-party AI benchmarks}, where evaluation artifacts, task definitions, and test oracles originate outside the adopting organization. Our approach establishes an evidential admissibility gate evaluating benchmark construct validity (task correctness, oracle integrity, scoring implementation, and data contamination) under Kane's argument-based framework, formalizes Missing Evidence Neutrality over external benchmark documentation, and evaluates this review gate against calibrated uncertainty controls at matched decision coverage. In coding agent safety, Goswami \cite{goswami_assurance_envelopes_2026} formulates typed inference graphs and uses forward chaining with a CP-SAT constraint solver to derive whether available evidence proves supplied software change obligations, reporting solver infeasibility when obligations cannot be deduced. For multi-criteria model selection, Singh and Kaewprapha \cite{singh_damsa_sms_2026} introduce DAMSA--SMS (Deployment-Aware Model Selection Algorithm), which translates deployment goals into criteria, applies Pareto screening and reference ranking, and conducts sensitivity analysis over benchmark metrics. 
+
+While these frameworks provide mechanisms for qualifying pipeline evidence, verifying runtime obligations, and ranking candidate models, they do not provide an operational decision calculus for software requirements engineers reusing third-party coding benchmark scores. Specifically, they do not compute statistical coverage bounds over matched task subsets, audit construct validity deficits in generative AI evaluators, or evaluate review-based abstention against calibrated uncertainty controls.
+
+\subsection{Delineation Against Benchmark Auditing and Oracle Literature}
+Recent empirical audits have demonstrated that generative AI coding benchmark scores are vulnerable to construct validity deficits. Ding \cite{ding_spec_oracle_gaps_2026} investigated specification and test oracle gaps across SWE-Milestone, SWE-EVO, and SWE-bench Verified, demonstrating that under-specified problem statements and over-constrained test assertions frequently cause false rejections of functionally compliant code, and released curated filters and specification addenda. Separately, OpenAI's empirical audit of SWE-bench \cite{openai_swebench_audit_2026} identified that over-strict test assertions, under-specified problem descriptions, low coverage test suites, and misleading prompts distort evaluation signal fidelity, while their evaluation of SWE-bench Verified \cite{openai_swebench_verified_contamination_2025} revealed that pre-training data contamination compromises evaluation integrity. In AI capability measurement, Jo and Wilson \cite{jo_wilson_what_does_your_benchmark_measure} analyze the inferential gap between observed test performance and underlying latent capabilities, modeling construct-irrelevant difficulty and measurement error. In the benchmark evaluation literature, BetterBench \cite{reuel_betterbench} systematically audits 46 criteria spanning purpose, score interpretation, implementation hygiene, and maintenance, while Evaluation Cards \cite{ghosh_evaluation_cards_2026} provide standardized reporting schemas for benchmark provenance and comparability. In industrial adoption, Pizarro et al. \cite{pizarro_beyond_the_hype_2026} adapt Goal-Question-Metric (GQM) paradigms to evaluate organizational LLM adoption risks.
+
+However, audit catalogs, rubric scorecards, and filtering addenda do not directly solve the requirements acceptance problem. Software engineering teams evaluating external coding assistants cannot discard all third-party benchmark evidence; they require an operational method to determine when benchmark observations are admissible, which subsets of tasks represent their operational domain, and what additional verification must be triggered when evidence is missing or contested.
+
+Prior work provides mechanisms for qualifying reused assurance evidence, linking requirements to verification results, and interpreting model measurements for deployment selection. This study examines whether benchmark review findings provide actionable information for a software requirement decision beyond task matching and sampling uncertainty. Method 3 retains Method 2's exact matched observations and Wilson confidence interval, but records the requirement as \textbf{Unresolved} when a required evidence assumption is violated or remains unverified. The evaluation compares this withholding rule with random withholding and withholding by threshold proximity at the same decision coverage.
+
+\section{The Evidence Traceability and Decision Method}
+\label{sec:method}
+
+\subsection{Conceptual Framework and Kane's Validity Chain}
+We formulate the decision problem within Kane's argument-based approach to validation \cite{kane_validation}. Kane establishes that a test score does not possess intrinsic validity; instead, validation concerns the specific interpretation and use of scores in an operational decision. Validating this use requires evaluating an explicit chain of inferences and supporting evidential warrants:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Scoring Inference ($I_{\text{score}}$):} Evaluates whether observed test performances faithfully reflect the specified task outcome, requiring sound test oracles, deterministic evaluation environments, and the absence of grading bypasses.
+    \item \textbf{Generalization Inference ($I_{\text{gen}}$):} Evaluates whether observed performances on sample benchmark tasks support inference to the broader population of tasks within the defined task domain across execution variation.
+    \item \textbf{Extrapolation Inference ($I_{\text{extra}}$):} Evaluates whether demonstrated capability on benchmark tasks supports inference to performance on the target software repository workload.
+    \item \textbf{Decision / Use Inference ($I_{\text{use}}$):} Evaluates whether the inferred capability claim justifies the operational acceptance decision under the stated risk policy and performance threshold $\theta$.
+\end{enumerate}
+
+Existing acceptance practices often encounter difficulties along this inferential chain. Method 1 (Scores Alone) relies on an unexamined Extrapolation inference ($I_{\text{extra}}$) by pooling unrelated codebases. Method 2 (Task Matching) addresses Generalization ($I_{\text{gen}}$) by filtering tasks via matching metadata, but takes Scoring ($I_{\text{score}}$) and execution integrity for granted. Method 3 introduces an explicit admissibility gate evaluating the evidential warrants before authorizing an acceptance decision.
+
+Let $\mathcal{R}$ denote a set of software requirements for automated coding assistants on target repositories, where each requirement $r \in \mathcal{R}$ specifies the target task category, programming language, execution budget constraints, and operational success threshold $\theta \in (0, 1)$. Let $\mathcal{C}$ denote a set of candidate model-plus-agent configurations $c$ (the foundation model paired with an agent scaffolding, tool interface, and step budget). 
+
+For a given requirement $r$ and configuration $c$, the target estimand is the true resolution probability:
+\begin{equation}
+\label{eq:estimand}
+p_{r,c} = \Pr_{T \sim \mathcal{Q}_r} \left\{ \text{configuration } c \text{ resolves task } T \text{ within stated constraints} \right\}
+\end{equation}
+where $\mathcal{Q}_r$ is the operational task distribution over target repository issues. Reusing benchmark evidence involves estimating a source success probability $p_{S,r,c}$ over a subset of benchmark tasks $\mathcal{T}_r = \{ T \in \mathcal{T}_{\text{source}} \mid \mathcal{M}(T, r) \}$ matched to $r$ via a caller-specified matching predicate $\mathcal{M}(T, r)$ that filters by language, issue category, repository scope, budget, and configuration identity. 
+
+The primary decision calculus evaluates \textbf{Source-Domain Benchmark Verdicts} $\mathcal{D}_{S,r,c} \in \{ \textbf{Supported}, \textbf{Contradicted}, \textbf{Unresolved} \}$ over matched benchmark observations $E_r$ using raw Wilson score bounds $[\text{LB}, \text{UB}]$ against operational threshold $\theta$. Connecting source compliance to an operational requirement on the target repository requires an explicit \textbf{Extrapolation Warrant} $W_{\text{extra}}(\delta_{\text{trans}}): |p_{r,c} - p_{S,r,c}| \le \delta_{\text{trans}}$. Under the baseline zero-divergence warrant ($\delta_{\text{trans}} = 0.0$, assuming $p_{r,c} \equiv p_{S,r,c}$), source compliance directly transfers to target capability. Importantly, recording an extrapolation warrant ($\delta_{\text{trans}} = 0.0$) in the evidence trace defines the formal condition under which source compliance translates to target compliance; it does not constitute empirical verification that cross-project divergence is zero. When non-zero domain transfer divergence $\delta_{\text{trans}} > 0$ is considered, target compliance bounds adjust symmetrically for both acceptance and rejection.
+
+We define an \textbf{Evidence Trace} as a 6-tuple:
+\begin{equation}
+\label{eq:trace}
+\mathcal{T} = \left( r, c, E_r, \mathcal{A}_r, W_{\text{extra}}, \mathcal{D}_{S,r,c} \right)
+\end{equation}
+where $r \in \mathcal{R}$, $c \in \mathcal{C}$, $E_r \subseteq \mathcal{E}$ is the matched task observation subset for configuration $c$, $\mathcal{A}_r$ is the set of required evidential assumptions mapped to MESA construct validity criteria, $W_{\text{extra}}$ records the explicit extrapolation warrant governing domain transfer, and $\mathcal{D}_{S,r,c} \in \{ \textbf{Supported}, \textbf{Contradicted}, \textbf{Unresolved} \}$ is the resulting primary source-domain acceptance decision.
+
+\subsection{Statistical Bounds and Wilson Confidence Intervals}
+When filtering a public benchmark to a specific repository or language domain, the matched sample size is frequently modest ($n < 50$) and success rates may lie near 0\% or 100\%. Standard Wald confidence intervals ($p \pm z \sqrt{p(1-p)/n}$) break down in these non-asymptotic regimes, frequently predicting impossible negative pass rates or degenerate zero-width intervals. Following statistical recommendations for binomial proportion estimation at small sample sizes \cite{brown_cai_dasgupta_2001,aera_apa_ncme_standards_2014}, our method evaluates observed task success proportions using the two-sided \textbf{95\% Wilson score confidence interval} without continuity correction \cite{wilson_probable_inference_1927}. 
+
+For $s$ successful task resolutions out of $n$ evaluated tasks, the observed proportion is $\hat{p} = s/n$. Assuming independent binomial trials $S \sim \text{Binomial}(n, p_{S,r,c})$, the Wilson score bounds $[\text{LB}, \text{UB}]$ are computed as:
+\begin{equation}
+\label{eq:wilson}
+\text{LB}, \text{UB} = \frac{\hat{p} + \frac{z^2}{2n} \pm z \sqrt{\frac{\hat{p}(1-\hat{p})}{n} + \frac{z^2}{4n^2}}}{1 + \frac{z^2}{n}}
+\end{equation}
+where the minus sign gives the lower bound $\text{LB}$, the plus sign gives the upper bound $\text{UB}$, and $z = 1.95996$ for a 95\% confidence level. When $n = 0$, $\hat{p}$ is undefined and the interval defaults to the uninformative reporting convention $[0.0, 1.0]$. While repository clustering and multi-attempt variance can introduce trial correlations in empirical deployments, both Eq.~\ref{eq:wilson} and our simulation model assume independent binomial trials as an analytical baseline; intra-repository clustering and agent loop variance are discussed as threats to validity in Section~\ref{sec:threats}.
+
+Given an operational capability threshold $\theta$, source-domain compliance is classified into three statistical states:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Supported (Source Domain):} $\text{LB} \ge \theta$. The lower confidence bound meets or exceeds the threshold, establishing affirmative statistical confidence that the configuration meets the requirement on the source benchmark domain.
+    \item \textbf{Contradicted (Source Domain):} $\text{UB} < \theta$. The upper confidence bound falls strictly below the threshold, establishing affirmative statistical confidence that the configuration fails the requirement on the source benchmark domain.
+    \item \textbf{Unresolved (Source Domain):} $\text{LB} < \theta \le \text{UB}$. The confidence interval spans the threshold, indicating that sample precision is insufficient to resolve compliance.
+\end{enumerate}
+
+\subsection{The Three Comparative Decision Methods}
+We implement three comparative decision methods operating over the identical evidence inventory:
+
+\textbf{Method 1: Scores Alone.} Evaluates the aggregate, unpartitioned benchmark pass rate and computes Wilson score bounds across all $N_{\text{total}} = 84$ repository-matched source benchmark tasks for configuration $c$. If $\text{LB} \ge \theta$, the requirement is accepted. This serves as our operationalized comparator representing common leaderboard consultation.
+
+\textbf{Method 2: Task-Level Matching.} Evaluates the matched subset of candidate tasks $E_{\text{match}} = \{ T \in \mathcal{E}_{\text{sample}} \mid \mathcal{M}(T, r) \}$ satisfying the matching predicate $\mathcal{M}(T, r)$ (matching exact target repository, Python language, and bug-fixing task category). Preconditions concerning execution isolation ($S \le 30$ steps, 900s timeout, clean virtual environments) and test harness eligibility (baseline failure on target assertion, reference fix pass) are enforced prior to matching during Stage 1 eligibility verification. While Method 1 evaluates aggregate performance across the entire evaluated 84-task source benchmark sample, Method 2 filters this evaluated sample to the repository-specific matched subset ($N_{\text{match}} = 8$ for \texttt{psf/requests}, $1$ for \texttt{pallets/flask}, and $75$ for \texttt{sympy/sympy}). Method 2 computes raw Wilson score bounds $[\text{LB}, \text{UB}]$ exclusively over this matched subset and evaluates them directly against threshold $\theta$. If $n = 0$, the requirement is left \textbf{Unresolved} ($\text{is\_admissible} = \text{False}$). Missing task metadata is never assumed to match; unmatched tasks are excluded. The 84 repository-matched records represent prospective candidate tasks pending Stage 1 execution eligibility checks. This repository distribution reveals an empirical requirements finding: public benchmark releases exhibit severe domain skew (e.g., 231 of 500 tasks in SWE-bench Verified belong to Django and 75 to SymPy, but only 8 to Requests and 1 to Flask). At operational threshold $\theta = 0.70$, for Requests ($n=8$), even an observed 8/8 success rate yields a 95\% Wilson lower bound of only $0.676 < 0.70$, precluding a Supported verdict under $\theta = 0.70$ (while Contradicted remains reachable if observed successes $\le 3/8$, where $\text{UB} = 0.694 < 0.70$). For Flask ($n=1$), the Wilson score interval necessarily spans $\theta = 0.70$ regardless of outcome ($[0.207, 1.000]$ for $1/1$ success, $[0.000, 0.793]$ for $0/1$ failure), guaranteeing an Unresolved verdict under $\theta = 0.70$. Consequently, at most two of the six prospective cases (the SymPy cases) can ever achieve a Supported verdict from source evidence alone at $\theta = 0.70$, illustrating how benchmark task availability constrains evidence reuse. Software engineering teams must establish repository-specific sample size adequacy before relying on benchmark results for requirements decisions.
+
+\textbf{Method 3: Task Matching + MESA Admissibility Gate.} Retains Method 2's matched task subset $E_{\text{match}}$ and raw Wilson score interval. Method 3 adds formal evidential admissibility checks derived from MESA construct validity criteria. To treat an assumption $a \in \mathcal{A}_{r,c}$ as verified (\emph{supported}) rather than merely documented or claimed, an evidential warrant requires discharging four operational questions: (1)~\textbf{Audit Execution:} Was an empirical check or audit actually conducted? (2)~\textbf{Method Adequacy:} Were inspection methods rigorous and independent rather than unverified self-claims? (3)~\textbf{Empirical Finding:} Did the audit identify flaws or confirm their absence within inspected boundaries? (4)~\textbf{Warrant Discharge:} How do those empirical findings justify the validity inference within the audit's detection limits? Crucially, our decision engine evaluates supplied review judgments and formal metadata against the admissibility decision table; it does not autonomously perform the human or empirical benchmark audit itself. Method 3 evaluates the five concerns selected for this study's illustrative policy under this operational rule:
+\begin{itemize}[leftmargin=*]
+    \item $a_1$ (\textbf{Tasks and Oracles Checked, MESA C05}): (1)~Audit checks human verification of task descriptions and reference solutions; (2)~evaluators independently inspect task solvability; (3)~findings identify no impossible, trivial, or mis-scoped issues within the audited sample; and (4)~supports Task Integrity by establishing that observed passes reflect valid problem solutions within the audit's scope.
+    \item $a_2$ (\textbf{Scoring Implementation, MESA C07}): (1)~Audit executes automated grader and oracle checks; (2)~evaluators inspect assertion logic and verify harness failure on unpatched baselines; (3)~findings detect no assertion syntax bugs or permissive test bypasses in the test suite; and (4)~supports Functional Measurement by verifying that test suites enforce required behavior.
+    \item $a_3$ (\textbf{Uncertainty Reporting, MESA C12}): (1)~Audit checks documented variance or item-level outcomes; (2)~evaluators verify reporting of sample size and success counts (or disaggregated binary records across matched tasks); (3)~findings confirm that observed counts enable interval estimation, while item-level records support fine-grained traceability and subset auditing; and (4)~supports Statistical Uncertainty by enabling computation of 95\% Wilson confidence intervals. Reporting aggregate point estimates without sample dispersion or counts renders C12 \emph{Missing/Undocumented} ($\to$ Unresolved).
+    \item $a_4$ (\textbf{Contamination Assessment, MESA C14}): (1)~Audit executes empirical pre-training data contamination analysis; (2)~evaluators employ string overlap, n-gram matching, or canary token checks across model training dates; (3)~findings detect no training set leakage within audited spans; and (4)~supports Contamination Neutrality within audit scope (without claiming proof of zero leakage in closed proprietary models). Mere declarations of data freshness without empirical checks are rated \emph{Claimed Only} ($\to$ Unresolved).
+    \item $a_5$ (\textbf{Execution Isolation, MESA C28}): (1)~Audit inspects runtime execution environments; (2)~evaluators verify automated container sandboxing or clean virtual workspace resets between tasks; (3)~findings detect no persistent state, cache leakage, or inter-task file retention; and (4)~supports Execution Independence by verifying that tasks execute in isolation.
+\end{itemize}
+
+\begin{table}[t]
+\caption{Requirement element to benchmark evidence mapping and admissibility conditions.}
+\label{tab:evidence_mapping}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.6cm}@{}}
+\toprule
+\textbf{Requirement Element} & \textbf{Evidence Needed} & \textbf{Admissibility Condition (Operational Rule)} & \textbf{Action if Unresolved} \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Execution Eligibility Preconditions (Stage 1 Automated Pre-checks):}} \\
+Workload Scope & Task metadata \& problem statements & Matched tasks represent specified repository, language, and issue type & Exclude unmatched tasks; local evaluation mandated if sample support is inadequate \\
+Execution Budget & Environment logs \& step ceilings & Evaluation constraints match operational budget ($S \le 30$, 900s) & Re-evaluate under matching step/token ceilings \\
+Harness Baseline & Test execution logs on unedited code & Test harness fails on target assertion without import crashes & Quarantine task as ineligible \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{Selected MESA Construct Validity Admissibility Gate (Stage 3/5 Evidential Review):}} \\
+Tasks \& Oracles & Task correctness audit (MESA C05) & Independent human audit identifies no invalid or uncheckable tasks within sample; supports Task Integrity & Render evidence Inadmissible ($\to$ \textbf{Unresolved}) \\
+Functional Verification & Oracle specification \& grader checks (MESA C07) & Grader audit detects no assertion syntax bugs or bypasses; supports Functional Measurement & Render evidence Inadmissible ($\to$ \textbf{Unresolved}) \\
+Statistical Uncertainty & Empirical sample variance (MESA C12) & Complete sample counts or item records enable 95\% Wilson intervals; supports Statistical Uncertainty & Render evidence Inadmissible ($\to$ \textbf{Unresolved}) \\
+Contamination Assessment & Pre-training exposure audit (MESA C14) & Empirical data contamination audit detects no training leakage within scope; supports Contamination Neutrality & Render evidence Inadmissible ($\to$ \textbf{Unresolved}) \\
+Execution Isolation & Sandbox configurations (MESA C28) & Verified container sandboxing or clean workspace resets detect no state retention; supports Execution Independence & Render evidence Inadmissible ($\to$ \textbf{Unresolved}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+In our method, the adopting software engineering team defines the required evidential assumptions $\mathcal{A}_{r,c}$ as an integral component of the requirement specification, based on the operational risk profile of the target system and configuration. For automated repository maintenance tasks, all five selected MESA criteria (C05, C07, C12, C14, C28) are frozen as mandatory evidential warrants under this study's illustrative policy. Criteria rated Not Applicable are accepted only if accompanied by documented justification. Removing defective tasks and re-scoring is treated as a separate exploratory analysis; primary Method 3 acts as an admissibility gate over M2's subset on raw Wilson bounds.
+
+\subsection{The Decision Table and Missing Evidence Rule}
+Table~\ref{tab:decision_table} formalizes the decision table governing Method 3. Formally, let $\sigma_{r,c}(a) \in \{ \text{supported}, \text{violated}, \text{unresolved} \}$ denote the evaluation status of evidential assumption $a \in \mathcal{A}_{r,c}$ for requirement $r$ and candidate configuration $c$. When an assumption is rated \emph{Not Applicable}, our decision calculus maps it to $\text{supported}$ if and only if accompanied by a documented justification; otherwise it is mapped to $\text{unresolved}$ (missing evidence). We define the configuration-specific admissibility indicator $G_{r,c}$ as:
+\begin{equation}
+\label{eq:gate}
+G_{r,c} = \mathbf{1} \left\{ \forall a \in \mathcal{A}_{r,c}, \; \sigma_{r,c}(a) = \text{supported} \right\}
+\end{equation}
+If any required assumption is violated ($\exists a \in \mathcal{A}_{r,c}: \sigma_{r,c}(a) = \text{violated}$) or remains unverified or undocumented ($\exists a \in \mathcal{A}_{r,c}: \sigma_{r,c}(a) = \text{unresolved}$), then $G_{r,c} = 0$, rendering the evidence package inadmissible for this requirement under this policy. 
+
+We treat sample support $n > 0$ as a necessary operational precondition: when $n = 0$, the decision defaults directly to \textbf{Unresolved} (Zero Sample Support) and the admissibility gate is not evaluated, as formalized in Table~\ref{tab:decision_table}. When $n > 0$, the primary Method 3 decision function $D_3(r, c)$ evaluates the same raw 95\% Wilson confidence bounds $[\text{LB}, \text{UB}]$ over the matched task subset $E_{\text{match}}$ as Method 2, applying the review-based admissibility indicator $G_{r,c}$:
+\begin{equation}
+\label{eq:decision_function}
+D_3(r, c) = \begin{cases}
+\textbf{Unresolved}, & \text{if } n = 0 \lor G_{r,c} = 0 \\
+D_2(r, c), & \text{if } G_{r,c} = 1 \land n > 0
+\end{cases}
+\end{equation}
+where $D_2(r, c)$ is the standard Method 2 decision on raw bounds:
+\begin{equation}
+\label{eq:m2_function}
+D_2(r, c) = \begin{cases}
+\textbf{Supported}, & \text{if } \text{LB} \ge \theta \\
+\textbf{Contradicted}, & \text{if } \text{UB} < \theta \\
+\textbf{Unresolved}, & \text{if } \text{LB} < \theta \le \text{UB}
+\end{cases}
+\end{equation}
+When evidential assumptions are supported ($G_{r,c} = 1$) and $n > 0$, Method 3 is equivalent to Method 2 ($D_3(r, c) \equiv D_2(r, c)$). When any required assumption is violated or missing ($G_{r,c} = 0$), or when matched tasks are absent ($n = 0$), Method 3 withholds the decision as \textbf{Unresolved} ($\text{is\_admissible} = \text{False}$), preventing premature or invalid acceptance without asserting that the candidate model fails.
+
+\textbf{Target Domain Operational Extrapolation:} To infer whether candidate configuration $c$ meets the target repository requirement $r$, software teams evaluate source compliance under the extrapolation warrant $W_{\text{extra}}(\delta_{\text{trans}}): |p_{r,c} - p_{S,r,c}| \le \delta_{\text{trans}}$. Under this warrant, target bounds adjust symmetrically for both acceptance and rejection, yielding target-domain operational verdicts:
+\begin{equation}
+\label{eq:target_decision}
+\mathcal{D}_{\text{target}}(r, c) = \begin{cases}
+\textbf{Unresolved}, & \text{if } G_{r,c} = 0 \lor n = 0 \\
+\textbf{Supported (Cond.\ on } W_{\text{extra}}\textbf{)}, & \text{if } G_{r,c} = 1 \land \text{LB} - \delta_{\text{trans}} \ge \theta \\
+\textbf{Contradicted (Cond.\ on } W_{\text{extra}}\textbf{)}, & \text{if } G_{r,c} = 1 \land \text{UB} + \delta_{\text{trans}} < \theta \\
+\textbf{Unresolved}, & \text{if } G_{r,c} = 1 \land \text{LB} - \delta_{\text{trans}} < \theta \le \text{UB} + \delta_{\text{trans}}
+\end{cases}
+\end{equation}
+When $\delta_{\text{trans}} = 0.0$ (baseline zero-divergence assumption), target verdicts coincide exactly with primary source decisions ($D_3$). When $\delta_{\text{trans}} > 0$, the transfer tolerance widens the unresolved margin symmetrically for both Supported and Contradicted, reflecting the added epistemic uncertainty of cross-repository transfer across $\delta_{\text{trans}} \in \{0.00, 0.05, 0.10\}$. In this paper, $\delta_{\text{trans}}$ is treated purely as a hypothetical parametric assumption in sensitivity analysis, and we make no claim that actual cross-project performance transfer satisfies this bound. Establishing an empirical transfer bound requires dedicated baseline calibration and data separation outside the scope of this evaluation.
+
+\begin{table}[t]
+\caption{The Method 3 Evidential Admissibility and Decision Table.}
+\label{tab:decision_table}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lllll}
+\toprule
+\textbf{Evidential State ($\mathcal{A}_{r,c}$)} & \textbf{Raw Bound ($[\text{LB}, \text{UB}]$)} & \textbf{Gate ($G$)} & \textbf{Source Verdict ($D_3$)} & \textbf{Target Verdict ($W_{\text{extra}}$)} \\
+\midrule
+Matched sample size $n = 0$ & Undefined (conv.\ $[0, 1]$) & Not evaluated & \textbf{Unresolved} & \textbf{Unresolved} (Zero Sample Support) \\
+Any assumption \textbf{Violated} & Any & $G = 0$ (Inadmissible) & \textbf{Unresolved} & \textbf{Unresolved} (Benchmark Defect) \\
+Any assumption \textbf{Unresolved} & Any & $G = 0$ (Inadmissible) & \textbf{Unresolved} & \textbf{Unresolved} (Missing Evidence) \\
+Assumption \textbf{N/A} (Unjustified) & Any & $G = 0$ (Inadmissible) & \textbf{Unresolved} & \textbf{Unresolved} (Missing Evidence) \\
+All assumptions \textbf{Supported} & $\text{LB} \ge \theta$ & $G = 1$ (Admissible) & \textbf{Supported} & \textbf{Supported} (if $\text{LB} - \delta_{\text{trans}} \ge \theta$; else \textbf{Unresolved}) \\
+All assumptions \textbf{Supported} & $\text{UB} < \theta$ & $G = 1$ (Admissible) & \textbf{Contradicted} & \textbf{Contradicted} (if $\text{UB} + \delta_{\text{trans}} < \theta$; else \textbf{Unresolved}) \\
+All assumptions \textbf{Supported} & $\text{LB} < \theta \le \text{UB}$ & $G = 1$ (Admissible) & \textbf{Unresolved} & \textbf{Unresolved} (Sample Uncertainty) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Resolving the Benchmark Defect Category Error:} A clear distinction must be maintained between benchmark evidence admissibility and model capability. If an evidential assumption regarding the benchmark is violated (e.g., MESA criterion C07 Scoring Implementation is Contradicted because the benchmark grading script contains syntax bugs or test bypasses), this demonstrates that the \emph{evidence is invalid}:
+\begin{equation}
+\label{eq:category_error}
+\text{evidence inadmissible } (G_{r,c} = 0) \;\not\Rightarrow\; p_{r,c} < \theta
+\end{equation}
+It does \emph{not} demonstrate that the candidate model fails the software requirement. Therefore, as formalized in Table~\ref{tab:decision_table}, benchmark defects render evidence \textbf{Inadmissible}, producing an \textbf{Unresolved} decision that mandates local verification testing. The verdict \textbf{Contradicted} is reserved for when benchmark evidence is verified to be Admissible ($G_{r,c} = 1$) and the candidate model's upper statistical bound falls strictly below the required threshold ($\text{UB} < \theta$). If both violations and unverified assumptions are present, both causes are recorded in the trace, with violation taking precedence in classifying admissibility.
+
+\textbf{The Missing Evidence Neutrality Rule:} In traditional checklists, missing documentation is often scored as a failure. In our method, we maintain neutrality: \textbf{missing evidence never constitutes evidence of model failure}. If a benchmark fails to document contamination controls (MESA criterion C14 is \emph{Undocumented}), the evidence is rendered inadmissible, yielding an \textbf{Unresolved} decision. This rule prevents missing documentation from being scored as model failure while preventing unsupported acceptance.
+
+\subsection{Constructed Pedagogical Example}
+To illustrate the mechanics on a concrete case, consider a constructed pedagogical requirement $r_{\text{example}}$ for deploying an automated coding assistant on the \texttt{psf/requests} library:
+\begin{quote}
+\emph{``The coding assistant must resolve at least 70\% ($\theta = 0.70$) of eligible bug-fix issues drawn from the specified Python repository workload within a 30-step execution budget, while passing specified regression suites.''}
+\end{quote}
+
+Assume a candidate configuration evaluated against a public benchmark:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Under Method 1 (Scores Alone):} The source benchmark leaderboard reports an aggregate pass rate of 52.8\% (264 solved of 500 tasks), yielding a 95\% Wilson confidence interval of $[0.484, 0.571]$. Since $\text{UB} = 0.571 < 0.70$, Method 1 immediately emits \textbf{Contradicted}, rejecting the assistant. However, this rejection conflates performance on complex symbolic mathematics repositories with networking bug fixes, representing an unwarranted cross-domain extrapolation.
+    \item \textbf{Under Method 2 (Task Matching):} Filtering to tasks in Python networking and HTTP handling yields 42 matched source tasks.
+    \begin{itemize}
+        \item \emph{Case A (Sample Uncertainty):} If the model solved 31 of 42 tasks ($73.8\%$), the 95\% Wilson interval is $[0.589, 0.847]$. Because at 31 successes in 42 tasks the interval spans $\theta = 0.70$, Method 2 emits \textbf{Unresolved}, recognizing that sample precision is insufficient to resolve compliance.
+        \item \emph{Case B (Unwarranted Acceptance):} If the assistant instead solved 38 of 42 tasks ($90.5\%$), the 95\% Wilson interval is $[0.779, 0.962]$. Because $\text{LB} = 0.779 \ge 0.70$, Method 2 outputs \textbf{Supported}, affirmatively accepting the assistant.
+    \end{itemize}
+    \item \textbf{Under Method 3 (Task Matching + MESA Gate):}
+    \begin{itemize}
+        \item \emph{Evaluating Evidential Warrants (Case B):} For Case B, evaluating MESA records across the validity criteria reveals that Scoring Implementation (C07), Execution Isolation (C28), and Uncertainty Reporting (C12) are \emph{Verified}, but Contamination Auditing (C14) remains \emph{Undocumented} ($\sigma(a_4) = \text{unresolved}$). Applying Eq.~\ref{eq:gate} and Table~\ref{tab:decision_table}, the admissibility gate fails ($G_{r,c} = 0$), rendering the evidence \textbf{Inadmissible}. Method 3 withholds the decision, emitting \textbf{Unresolved (Missing Evidence)} and generating an audit trace mandating local testing with quarantined tasks before deployment.
+        \item \emph{Evaluating Domain Transfer Tolerance (Case C):} Suppose instead all validity criteria are verified ($G_{r,c} = 1$), yielding $\text{LB} = 0.779 \ge 0.70$ and primary verdict \textbf{Supported} ($D_3 \equiv D_2$). In the exploratory transfer sensitivity analysis with hypothetical tolerance $\delta_{\text{trans}} = 0.10$, $\text{LB} - \delta_{\text{trans}} = 0.779 - 0.10 = 0.679 < 0.70$. This illustrates how an engineering team with stricter risk tolerance flags the need for local testing before deployment.
+    \end{itemize}
+\end{itemize}
+
+
+
+\section{Study Design and Prospective Protocol}
+\label{sec:study_design}
+
+\subsection{Two Model-Plus-Agent Configurations Under Study}
+To evaluate our method across distinct architectural paradigms without conflating model weights with execution scaffolds, we define two specific \textbf{model-plus-agent configurations}:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Configuration 1 (\texttt{CONFIG\_01\_GEMINI\_FLASH\_MED}):} Gemini 3.8 Flash Medium (Google) evaluated via the Antigravity Agent-Computer Interface (ACI) scaffolding, using medium reasoning mode and a 1M token context window.
+    \item \textbf{Configuration 2 (\texttt{CONFIG\_02\_SOL\_LIGHT}):} GPT-6.1 Sol Light (OpenAI) evaluated via the local non-interactive Codex CLI harness (\texttt{codex exec}), using light reasoning mode and a 128k token context window.
+\end{enumerate}
+All comparators (M1, M2, and M3) are evaluated strictly \emph{within} each configuration. Differences across configurations are not attributed solely to model weights.
+
+\subsection{Target Project Workloads}
+We selected three mature open-source Python repositories represented in the SWE-bench ecosystem:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Project 1 (\texttt{psf/requests}):} Networking and HTTP client library (30 target issues).
+    \item \textbf{Project 2 (\texttt{pallets/flask}):} WSGI web application framework (30 target issues).
+    \item \textbf{Project 3 (\texttt{sympy/sympy}):} Symbolic mathematics library (30 target issues).
+\end{itemize}
+The prospective evaluation protocol defines the unit of analysis as the \textbf{6 configuration--project cases} ($2 \text{ configurations} \times 3 \text{ projects}$), each evaluated over repository task observations across two execution attempts. Repetition 1 provides primary observations, while Repetition 2 assesses within-case run-to-run execution stability without pooling as independent observations. Because these cases share configurations and repositories across projects, they represent bounded exploratory cases rather than six independent statistical replications. Furthermore, as noted in Section~\ref{sec:method}, because SWE-bench Verified contains only 8 Requests tasks ($8/8 \implies \text{LB} = 0.676 < 0.70$) and 1 Flask task, neither repository can achieve a Supported verdict from source evidence alone under $\theta = 0.70$. Thus, at most two of the six prospective cases (the SymPy cases) can ever yield Supported from source evidence alone at $\theta = 0.70$, inherently constraining what a future six-case evaluation could establish about affirmative acceptance decisions.
+
+\subsection{Attempt Accounting and Separation}
+The study enforces systematic attempt accounting to prevent sample leakage:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Pilot Study:} 6 tasks $\times$ 2 configurations = \textbf{12 pilot attempts} evaluated on constructed pipeline fixtures (quarantined and excluded from the main evaluation sample).
+    \item \textbf{Source Benchmark Runs:} 84 repository-matched tasks from SWE-bench Verified (8 Requests, 1 Flask, 75 SymPy) $\times$ 2 configurations $\times$ 2 repetitions = \textbf{336 source attempts}.
+    \item \textbf{Target Project Runs:} 90 tasks across the 3 projects $\times$ 2 configurations $\times$ 2 repetitions = \textbf{360 target attempts}.
+    \item \textbf{Main Study Sample:} Exactly \textbf{696 planned attempts} (excluding pilot and infrastructure retries). The 84 repository-matched tasks and 90 target tasks represent planned candidate sampling frames. In Stage 1 execution eligibility verification, all candidate tasks are tested against baseline assertion failure and reference patch pass. Any candidate task failing automated pre-checks (e.g., baseline test passes, reference patch fails, or environment syntax error occurs) is quarantined as ineligible and excluded from execution attempts. If exclusions occur, final attempt totals and sample denominators $n$ are updated to reflect the verified eligible sample, and the reduction in sample support is reported. Planned attempt totals (336 source attempts across 84 candidate tasks and 360 target attempts across 90 candidate tasks, totaling 696 planned execution attempts) represent the maximum prospective sample size assuming 100\% eligibility.
+\end{itemize}
+
+\subsection{Execution Eligibility Checks and Pipeline Pilot}
+Before any model execution, candidate evaluation tasks must satisfy six automated eligibility pre-checks:
+(1)~described behavior checkable by automated test execution;
+(2)~test harness executes on the unedited baseline and fails on the specific target assertion;
+(3)~reference patch passes the test harness cleanly with returncode 0;
+(4)~disjointness from source benchmark sets ($\text{IDs}_{\text{source}} \cap \text{IDs}_{\text{target}} = \emptyset$ and disjoint issue numbers per repository);
+(5)~isolated execution in clean local Python environments; and
+(6)~prospective enforcement of execution ceilings ($S \le 30$ interaction steps, 900s timeout).
+In our pilot verification, all six pipeline fixtures verified checks (1)--(5) under an enforced 180-second subprocess limit in single-step generation (\texttt{steps\_taken = 1}); verifying full multi-turn agent interaction loops and the operational 30-step ceiling is reserved for the prospective repository evaluation. For full repository evaluation, prospective candidate tasks drawn from repository workloads must similarly pass these automated eligibility checks before model attempts commence; tasks failing pre-checks are quarantined and excluded.
+
+To verify harness execution mechanics prior to protocol freezing, we conducted an 18-attempt physical pilot study, comprising a selected 12-attempt evaluation set (6 corrected Gemini Flash Medium runs and 6 Codex Sol Light runs) alongside 6 initial Gemini attempts preserved for audit provenance. The pilot evaluated six constructed pipeline fixtures (representing simplified module patterns in \texttt{requests}, \texttt{flask}, and \texttt{sympy}) under direct single-step patch generation (\texttt{steps\_taken = 1}) with an enforced 180-second subprocess timeout. Both configurations executed live. For Gemini Flash Medium, initial execution encountered virtual environment path setup failures on \texttt{requests} (recorded as 4 of 6 resolved in \texttt{gemini\_pilot\_results.json}); correcting runner test environment configuration in the re-evaluation run resolved all 6 tasks (\texttt{real\_pilot\_results.json}). For Sol Light, 4 of 6 tasks were resolved (\texttt{codex\_pilot\_results.json}, failing on two string-formatting checks). Execution utilized \texttt{codex-cli 0.166.0} with light reasoning mode (\texttt{-c model\_reasoning\_effort="low"}). While an initial exploratory invocation relied on local configuration defaults without explicit command-line model flags (posing a runtime attribution risk), the evaluation runner now enforces runtime model pinning (\texttt{--model gpt-6.1-sol}) on all invocations. In this pilot, each execution performed a single non-interactive invocation (\texttt{steps\_taken = 1}), verifying basic tool invocation, process timeouts, and automated patch evaluation; it did not instrument multi-turn agent tool interaction loops or verify adherence to an operational 30-step ceiling, and all pilot logs remain quarantined. 
+
+We explicitly distinguish the \textbf{Protocol and Tooling Freeze} (recorded in \texttt{freeze\_manifest.json}, which freezes the decision calculus, MESA policy, matching rules, and invariant test suite) from the \textbf{Future Target Task Sample Freeze}: the 90 entries in \texttt{target\_workloads.json} define the prospective sampling frame schema (repository scopes, issue numbers, and language constraints), while \texttt{target\_outcomes\_blinded.json} contains quarantined historical records from an earlier 4-configuration pilot preserved for audit provenance rather than a completed target validation dataset. To prevent target workload selection from being influenced by source benchmark outcomes, candidate repository issues extracted according to this schema undergo Stage 1 automated eligibility pre-checks and will be frozen into a versioned task manifest with cryptographic SHA256 checksums \emph{prior to executing Stage 4 source benchmark evaluations}.
+
+\subsection{Six-Stage Freeze Sequence and Target Validation}
+To preserve methodological integrity, execution follows a sequential protocol gate:
+\textbf{Stage 1 (Eligibility):} Verify pre-checks on all candidate fixtures. $\to$
+\textbf{Stage 2 (Pilot):} Execute the 12-attempt pipeline pilot and quarantine logs. $\to$
+\textbf{Stage 3 (Protocol and Workload Freeze):} Freeze protocol, configuration hashes, tooling, and prospective target task selection manifests in \texttt{freeze\_manifest.json} prior to unblinding or executing source evaluations. $\to$
+\textbf{Stage 4 (Source Evaluation):} Execute the 336 source benchmark attempts. $\to$
+\textbf{Stage 5 (Decision Freeze):} Compute and freeze M1, M2, and M3 decisions for the 6 configuration--project cases. $\to$
+\textbf{Stage 6 (Target Evaluation):} Execute the 360 target project attempts to evaluate decision accuracy. In Stage 6, target execution evaluates the concordance between frozen source decisions and target empirical pass rates. To account for finite target sample uncertainty, target compliance is itself evaluated under 95\% Wilson confidence intervals over verified eligible target tasks: a source \textbf{Supported} verdict is considered concordant if the target lower bound meets threshold ($\text{LB}_{\text{tgt}} \ge \theta$), contradictory if the target upper bound fails ($\text{UB}_{\text{tgt}} < \theta$), and indeterminate if the target interval spans $\theta$. A sample proportion alone is never treated as ground truth about latent population capability.
+
+\section{Simulation Power Analysis and Decision Tradeoffs}
+\label{sec:results}
+
+\subsection{Statistical Power Limits at Small Sample Sizes}
+A central challenge in evaluating coding agents on specific software repositories is sample size. While cross-repository benchmarks aggregate hundreds of tasks, repository-specific evaluation sets in benchmarks such as SWE-bench Verified often contain 30 or fewer tasks (e.g., 8 tasks for Requests and 1 for Flask in our pinned release). To quantify the resolution limits of 95\% Wilson score confidence intervals, we conducted an exact binomial power calculation across sample sizes $N \in \{15, 30, 45, 60, 90, 120\}$ against operational threshold $\theta = 0.70$.
+
+\begin{table}[t]
+\caption{Exact binomial power and unresolved decision rates under 95\% Wilson bounds ($\theta = 0.70$).}
+\label{tab:power_analysis}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{rcccccc}
+\toprule
+\textbf{Sample Size ($N$)} & \multicolumn{2}{c}{\textbf{True $p = 0.75$}} & \multicolumn{2}{c}{\textbf{True $p = 0.65$}} & \multicolumn{2}{c}{\textbf{True $p = 0.85$}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+& \textbf{Power (Sup)} & \textbf{Unresolved} & \textbf{Power (Con)} & \textbf{Unresolved} & \textbf{Power (Sup)} & \textbf{Unresolved} \\
+\midrule
+$N = 15$ & 8.0\% & 90.3\% & 11.3\% & 87.3\% & 31.9\% & 68.1\% \\
+$N = 30$ & 9.8\% & 89.4\% & 12.6\% & 86.6\% & 52.5\% & 47.5\% \\
+$N = 45$ & 9.4\% & 90.2\% & 12.1\% & 87.5\% & 63.9\% & 36.1\% \\
+$N = 60$ & 14.8\% & 84.9\% & 17.1\% & 82.5\% & 81.9\% & 18.1\% \\
+$N = 90$ & 16.5\% & 83.4\% & 18.8\% & 81.1\% & 92.6\% & 7.4\% \\
+$N = 120$ & 23.3\% & 76.6\% & 25.0\% & 74.9\% & 98.1\% & 1.9\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As reported in Table~\ref{tab:power_analysis}, at a single-repository sample size of $N = 30$ tasks, statistical power to accept a truly compliant model whose true success rate is $p = 0.75$ is only \textbf{9.8\%}, leaving \textbf{89.4\%} of requirements Unresolved due to sample uncertainty. Importantly, we distinguish \textbf{directional statistical power} (the probability of issuing the correct directional verdict, such as $\text{LB} \ge \theta$ when true $p > \theta$) from \textbf{decision coverage} (the total probability of issuing any resolved verdict, $\text{LB} \ge \theta \lor \text{UB} < \theta$, which includes rare incorrect directional resolutions). For example, at $N = 30$ and $p = 0.75$, directional power to accept is 9.79\%, while total decision coverage is $10.60\%$ ($9.79\% + 0.81\%$ false contradictions), leaving $89.40\%$ unresolved under the analytical model. Similarly, power to contradict a failing model with true pass rate $p = 0.65$ is only \textbf{12.6\%}. Statistical resolution only emerges when true performance diverges substantially from the threshold (at $p = 0.85$, power reaches 52.5\% at $N = 30$ and 92.6\% at $N = 90$). Due to discrete integer lattice cutoffs in binomial distributions, Wilson decision power exhibits non-monotonic sawtooth fluctuations: at $p = 0.85$, power reaches 81.94\% at $N = 60$, drops to 80.40\% at $N = 61$, 78.79\% at $N = 62$, and 77.13\% at $N = 63$, before recovering to 84.53\% at $N = 64$ (with subsequent dips recurring periodically across the planning range, such as 78.73\% at $N = 68$ before reaching 85.54\% at $N = 69$). Thus, $N = 60$ represents the \emph{first integer sample size} achieving $\ge 80\%$ power under these parameters, rather than a guarantee that power exceeds 80\% for every $N \ge 60$. Crucially, these power curves assume admissible benchmark evidence ($G = 1$); they do not account for additional decision withholding imposed by review gate findings or missing documentation.
+
+This result illustrates a practical constraint in requirements engineering: \textbf{at project sample sizes of $N \approx 30$, statistical bounds near operational thresholds leave most cases unresolved}. Incorporating benchmark review findings (Method 3) does not inflate certainty; rather, it identifies requirements where benchmark evidence should be withheld due to identified harness deficits.
+
+\subsection{Benchmarking Method 3 Against Calibrated Controls}
+Following foundations of selective decision-making and coverage tradeoffs \cite{el_yaniv_selective_classification_2010}, we benchmark Method 3 against two calibrated control baselines matching Method 3's decision coverage:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Control 1 (Random Abstention):} Randomly withholds decisions on Method 2 to match the number of resolved decisions in Method 3.
+    \item \textbf{Control 2 (Threshold-Proximity Abstention):} Withholds decisions on Method 2 whose confidence bounds lie closest to threshold $\theta$ until decision coverage equals Method 3.
+\end{enumerate}
+
+\begin{table}[t]
+\caption{Comparative False Acceptance Rate (FAR) under defect injection ($N = 30, \theta = 0.70, 10,000$ trials).}
+\label{tab:simulation_far}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Defect Rate ($d$)} & \textbf{Shift ($\Delta$)} & \textbf{M2 Cov.} & \textbf{M3 Cov.} & \textbf{FAR (M2)} & \textbf{FAR (Ctrl 1)} & \textbf{FAR (Ctrl 2)} & \textbf{FAR (M3 Gate)} \\
+\midrule
+$d = 0.10$ & $-0.15$ & 12.2\% & 6.4\% & 10.2\% & 5.4\% & 5.6\% & \textbf{4.7\%} \\
+$d = 0.10$ & $-0.05$ & 12.9\% & 7.0\% & 10.6\% & 5.7\% & 6.3\% & \textbf{5.0\%} \\
+$d = 0.20$ & $-0.15$ & 18.7\% & 6.7\% & 16.9\% & 6.1\% & 6.5\% & \textbf{5.2\%} \\
+$d = 0.20$ & $-0.05$ & 17.1\% & 6.2\% & 15.5\% & 5.6\% & 6.0\% & \textbf{4.8\%} \\
+$d = 0.30$ & $-0.15$ & 22.4\% & 6.8\% & 20.8\% & 6.4\% & 6.5\% & \textbf{5.4\%} \\
+$d = 0.30$ & $-0.05$ & 22.2\% & 6.5\% & 20.5\% & 6.0\% & 6.3\% & \textbf{5.1\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We simulated 10,000 Monte Carlo trials per scenario across benchmark defect rates $d \in \{0.10, 0.20, 0.30\}$ and negative distribution shifts $\Delta \in \{-0.15, -0.05\}$. In this simulation model, baseline source pass rate is $p_{\text{src}} = 0.72$. A defective evidence package (occurring with probability $d$) inflates observed source pass rate to $0.86$, while the review gate operates with an assumed 85\% defect detection sensitivity, 5\% false alarm rate, and 10\% missing documentation rate. These parameters represent model inputs evaluating the operational behavior of an assumed review gate rather than measured human audit performance.
+
+As reported in Table~\ref{tab:simulation_far}, under a 30\% benchmark defect rate ($d = 0.30, \Delta = -0.15$), Method 2 suffers a 20.8\% False Acceptance Rate (FAR). Calibrated controls at identical decision coverage reduce FAR: Control 1 (random abstention) achieves 6.4\% FAR and Control 2 (threshold-proximity abstention) achieves 6.5\% FAR. In contrast, \textbf{Method 3 achieves the lowest false acceptance rate at 5.4\% FAR in the evaluated scenarios}. This demonstrates an incremental gain of 0.98 percentage points over random abstention (5.37\% vs 6.35\%) and 1.15 percentage points over proximity abstention (5.37\% vs 6.52\%) at identical 6.78\% decision coverage, illustrating the mechanical consequence of an assumed detector that selectively identifies flawed evidence rather than dropping cases at random or boundary proximity.
+
+Importantly, FAR is calculated across all 10,000 trials in each scenario. Because Method 3 withholds a large fraction of uncertain or defective decisions (retaining $\approx 6.8\%$ decision coverage), the conditional error rate among resolved decisions remains non-negligible ($5.37\% / 6.78\% \approx 79.2\%$ of resolved decisions under $d = 0.30, \Delta = -0.15$). We explicitly delineate the operational scope of this simulation: the simulation model isolates and evaluates the \textbf{review-based defect and missing documentation gate} (the five concerns selected for this study's illustrative evidence admissibility policy: C05, C07, C12, C14, C28) under raw statistical bounds ($\delta_{\text{trans}} = 0$), evaluating how effectively audit findings withhold decisions on inflated source benchmark scores. It does not evaluate hypothetical domain transfer divergence ($\delta_{\text{trans}} > 0$). Because the simulated gate inspects benchmark artifacts rather than cross-domain shift, non-defective source benchmarks subject to negative target distribution drops ($\Delta < 0$) are passed through to the statistical bounds, explaining why 79.2\% of remaining resolved decisions in the severe negative shift scenario ($\Delta = -0.15$) are false acceptances. 
+
+Furthermore, in compliant target scenarios under a 30\% benchmark defect rate ($d = 0.30, \Delta = 0, p_{\text{tgt}} = 0.72 \ge 0.70$), finite sample variation under $N = 30$ causes the upper Wilson confidence bound to occasionally fall strictly below the threshold ($\text{UB} < \theta$), producing a \textbf{1.42\% False Contradiction Rate (FRR)} for Method 3 (versus 0.44\% under random abstention and 0.24\% under threshold-proximity abstention, where abstention removes some contradictory tail cases). Separately, review-based gate abstention (triggered by missing documentation in 10\% of cases or reviewer false alarms in 5\%) withholds an additional fraction of compliant decisions as \textbf{Unresolved} rather than Supported, reducing decision coverage to 7.38\% in this scenario. At equal decision coverage, reducing false acceptances in noncompliant scenarios is accompanied by higher false contradictions or abstentions in compliant scenarios under the simulated detector's operating characteristics. Without an explicit organizational decision loss model specifying the relative economic costs of admitting an unverified model versus withholding a compliant one, these results describe an error tradeoff under assumed detector operating characteristics rather than an unconditional decision improvement. Evaluating whether human MESA reviews achieve these detection characteristics and measuring transfer divergence across repository workloads remain prospective.
+
+Across all 10,000-trial simulation scenarios, Monte Carlo standard errors for reported error rates are bounded by $\text{SE} = \sqrt{\hat{p}(1-\hat{p})/M} \le \sqrt{0.25/10000} = 0.005$ (a standard error bound of $0.005$, with $\text{SE} \approx 0.0022$ near $\hat{p} \approx 0.05$). Across the 10,000 paired trials, the empirical standard error of the trial-level difference $\hat{d} = \text{FAR}_{\text{ctrl}} - \text{FAR}_{\text{M3}}$ is approximately $0.0029$ for random control and $0.0031$ for proximity control ($\text{SE}(\hat{d}) \le 0.0032$). Because batch-level coverage matching couples trials through empirical threshold selection, these trial-level paired standard errors are explicitly approximate; nonetheless, the observed $\approx 1.0$ percentage point difference against both controls consistently exceeds Monte Carlo sampling dispersion across repeated seeds.
+
+\textbf{Detector Sensitivity Sweep and Boundary Conditions:} To delineate the operational conditions under which review-based gating alters decision outcomes, we evaluated a 576-cell parametric sweep exploring detector sensitivity $\in \{0.50, 0.70, 0.85, 0.95\}$, false alarm rate $\in \{0.01, 0.05, 0.15\}$, missing documentation rate $\in \{0.05, 0.10, 0.20\}$, defect prevalence $d \in \{0.00, 0.10, 0.20, 0.30\}$, and distribution shifts $\Delta \in \{-0.15, -0.05, 0.00, +0.05\}$ (2,000 trials per cell). In this simulation model, baseline source pass rate is $p_{\text{src}} = 0.72$ (inflated to $0.86$ under defects), while shift $\Delta$ modifies the target truth label ($p_{\text{tgt}} = p_{\text{src}} + \Delta$) relative to threshold $\theta = 0.70$ without generating target observations directly. Consequently, in expectation, shifts within the noncompliant category ($\Delta = -0.15$ and $\Delta = -0.05$, where $p_{\text{tgt}} < 0.70$) produce identical decision processes and error rates, as do shifts within the compliant category ($\Delta = 0.00$ and $\Delta = +0.05$, where $p_{\text{tgt}} \ge 0.70$), with intra-pair differences arising entirely from Monte Carlo sampling variance. The 576 cells systematically map detector parameter space across the two target truth regimes rather than establishing continuous sensitivity to shift magnitude. Within the evaluated parameter grid, three key behaviors emerge: (1)~Higher detector sensitivity progressively reduces unconditional FAR when defects are present ($d > 0$), whereas higher false alarm rates reduce decision coverage without selectively targeting defects; (2)~When benchmark defect prevalence is zero ($d = 0$), withholding decisions reduces unconditional FAR relative to M2 simply through coverage reduction, but achieves comparable unconditional FAR to random abstention at matched coverage (e.g., 3.9\% vs.\ 4.0\% in expectation under baseline conditions), confirming that selective benefit over random withholding requires the presence of underlying benchmark deficits to detect; and (3)~Missing documentation acts as an unselective coverage filter that withholds decisions regardless of underlying defect status. These boundary conditions confirm that review-based abstention requires evaluative discrimination to yield decision benefits beyond generic uncertainty withholding.
+
+\subsection{Sample Size Requirements and Decision Resolution Limits}
+While Method 3 substantially reduces false acceptance under benchmark deficits (from 20.8\% under Method 2 to 5.4\% under Method 3 at $d = 0.30$), it increases the proportion of Unresolved requirements. In applying this method, software teams must distinguish three sample quantities: (1)~the source benchmark tasks informing an individual requirement (8 for Requests, 1 for Flask, 75 for SymPy); (2)~the prospective target repository workload (30 tasks per repository, totaling 90 tasks across the three repositories); and (3)~the prospective unit of analysis consisting of 6 configuration--project cases.
+
+Analyzing the exact binomial power curve (Table~\ref{tab:power_analysis}) provides planning guidance for local verification testing rather than an empirical cost frontier. Under 95\% Wilson confidence bounds at $\theta = 0.70$, resolving a compliant model ($p = 0.85$) with $\ge 80\%$ statistical power first occurs at $N = 60$ target tests (achieving 81.94\%, though non-monotonic lattice fluctuations recur across the planning range, e.g., dipping to 78.79\% at $N=62$, 77.13\% at $N=63$, and 78.73\% at $N=68$ before reaching 85.54\% at $N=69$), whereas near the threshold ($p = 0.75$), power remains under 25\% even at $N = 120$. While increasing local test suite size from $N = 30$ to $N = 60$ reduces statistical sample uncertainty, local testing alone does not resolve pre-training contamination or domain divergence without quarantined task provenance. This provides software organizations with an explicit trade-off: the execution requirement of expanding target test suites versus the operational risk of admitting an unreliable assistant based on flawed or unverified benchmark scores.
+
+\subsection{Summary of Findings and Answers to Research Questions}
+We summarize the findings of this study against the three research questions:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Answer to RQ1 (Traceability, Warrants, and Transfer):} We demonstrated that system capability requirements can be formally linked to third-party benchmark observations through an Evidence Trace pairing metadata task matching (repository, programming language, and issue category) with 95\% Wilson score bounds, an admissibility gate evaluating Kane's scoring inferences, and an exploratory domain transfer tolerance $\delta_{\text{trans}}$. When evidential warrants remain unverified, our calculus withholds decisions as Unresolved, preserving Missing Evidence Neutrality without scoring unverified documentation as model failure.
+    \item \textbf{Answer to RQ2 (Admissibility and False Acceptance Reduction):} In our 10,000-trial simulation under assumed audit characteristics (85\% defect sensitivity, 5\% false alarms, 10\% missing documentation), Method 3 reduces false acceptance from 20.8\% under task matching alone to 5.4\% at a 30\% benchmark defect rate, achieving a 0.98 percentage point reduction over random abstention (5.37\% vs 6.35\%) and 1.15 percentage points over proximity abstention (5.37\% vs 6.52\%) at matched 6.8\% coverage. However, in compliant target scenarios, this same review gate produces a higher false contradiction rate (1.42\% vs 0.44\% under random abstention) alongside 92.6\% abstention, reflecting an error tradeoff under assumed detector behavior rather than an unconditional decision improvement. Evaluating whether human MESA review achieves these detection characteristics remains prospective.
+    \item \textbf{Answer to RQ3 (Sample Size, Threshold Distance, and Decision Resolution):} Exact binomial power calculations establish that at single-repository sample sizes ($N = 30$), the probability across repeated binomial samples of remaining unresolved near the operational threshold ($p = 0.75$) under the analytical model is 89.4\%. Achieving $\ge 80\%$ statistical power to resolve compliance first occurs at $N = 60$ tasks ($p = 0.85$), though discrete integer lattice effects produce fluctuations at adjacent sample sizes, and power curves assume admissible benchmark evidence ($G=1$). Admitting third-party evidence provides decision resolution only when sample sizes are sufficiently large and benchmark construct validity is verified; otherwise, review-based abstention appropriately withholds verdicts as Unresolved.
+\end{itemize}
+
+\section{Discussion and Threats to Validity}
+\label{sec:threats}
+
+\subsection{Implications for Requirements Traceability}
+In enterprise software engineering, Requirements Traceability Matrices (RTMs) have historically linked specifications to test artifacts \cite{cleland_huang_traceability_2012,gotel_traceability_1994}. The method illustrates how an RTM can incorporate evidential warrants and admissibility gates connecting third-party benchmark observations to a formal requirement verdict. Relying on raw leaderboard rankings risks accepting software requirements based on benchmarks that do not evaluate the required capability. By embedding Kane's scoring inference checks directly into traceability tooling, organizations can systematically identify when benchmark scores are admissible and when targeted local testing must be triggered. Our simulations examine the consequences of withholding verdicts under specified defect and review detection assumptions; whether this improves requirements decisions on repository workloads remains to be evaluated in prospective trials.
+
+\subsection{Threats to Validity}
+\textbf{Internal Validity:} A primary threat to internal validity is the parametric assumption model governing the defect simulation. The simulation assigns an 85\% defect detection sensitivity, 5\% false alarm rate, and 10\% missing documentation rate to the review gate, with defect injection modeled as a positive inflation from baseline pass rate 0.72 to 0.86, and assumes independent missingness. These parameters represent model inputs evaluating the operational behavior of an assumed detector rather than empirical measurements of human auditing teams. Defects that depress performance, bidirectional distortions, or correlated missingness are outside this data generation model. Furthermore, both Eq.~\ref{eq:wilson} and the simulation assume independent binomial trials, which abstracts from intra-repository issue clustering and multi-attempt agent tool-loop variance. We also note that exact power enumeration evaluates binomial verdict probabilities under the model, while Wilson intervals provide approximate frequentist coverage at finite sample sizes. In addition, the simulation evaluates two discrete target truth categories (noncompliant under $\Delta \in \{-0.15, -0.05\}$ versus compliant under $\Delta \in \{0.00, +0.05\}$) under assumed shifts without generating target observations directly; differences within shift categories stem from Monte Carlo variation. Crucially, the evaluation does not formulate an explicit organizational decision loss function weighting the relative economic costs of false acceptance, false contradiction, and abstention; reported benefits in false acceptance reduction reflect an error tradeoff under assumed detector parameters rather than a demonstrated overall improvement in decision utility. In prospective target evaluation, finite sample size ($N = 30$ tasks per repository) introduces target estimation uncertainty; a target sample proportion alone cannot serve as ground truth about latent population capability. Moreover, Stage 1 automated eligibility pre-checks could introduce selection effects by filtering out tasks with uncheckable or flaky baseline harnesses, potentially truncating the sampled workload. In the empirical pilot, execution variance was bounded through deterministic parameters and containerless environment resets on unit-level fixtures, which verify tool execution mechanics rather than full multi-step agent interaction loops.
+
+\textbf{External Validity:} Our prospective evaluation protocol defines two model-plus-agent configurations and three Python repositories representing distinct domains (networking, web frameworks, and symbolic mathematics). Because these units share configurations and repositories across cases, they provide within-case execution stability checks rather than six independent statistical replications. Findings cannot be generalized to other programming languages, proprietary architectures, or non-functional requirements without dedicated trials. In addition, domain transfer tolerance $\delta_{\text{trans}}$ is evaluated as an exploratory parameter sensitivity analysis; passing the five construct validity checks satisfies evidential preconditions but does not prove domain transfer to the target repository. Furthermore, auditing data contamination (criterion C14) on closed commercial models is often infeasible from third-party benchmark artifacts alone without training corpus disclosures or model provider cooperation. When documentation is absent, Missing Evidence Neutrality renders evidence inadmissible, which may enforce uniform abstention against proprietary models unless external canary auditing techniques are deployed. When benchmark documentation is shared across tasks in a release, review findings could similarly lead to uniform abstention across cases if documentation is missing or contested.
+
+\textbf{Construct Validity:} Requirements were formalized using functional issue resolution pass rates, 95\% Wilson confidence intervals, and domain transfer bounds. While functional resolution represents a core operational requirement, it does not evaluate software maintainability, patch readability, security vulnerabilities, or API evolution. The admissibility outcomes depend directly on the five concerns selected for this study's illustrative policy (C05, C07, C12, C14, C28); adopting alternative policies (such as enforcing runtime cost or omitting contamination checks) would produce different admissibility outcomes. Furthermore, documenting that an audit occurred (e.g., verifying that a contamination check or oracle review was conducted) does not guarantee that contamination is entirely absent or that all task assertions are flawless; it establishes only that inspectable evidence exists to evaluate the warrant. Importantly, verifying implementation mechanics of an assumed detector in simulation does not establish the empirical validity or completeness of the underlying evidence review policy with human auditors.
+
+\textbf{Disclosure of AI Assistant Roles:} In accordance with empirical software engineering disclosure standards, an AI assistant running Claude Code with Claude Opus 5.5 was used in formalizing mathematical notation, preparing simulation scripts, and writing unit test invariants. Automated peer review critiques were conducted non-interactively via the local Codex CLI harness utilizing \texttt{gpt-6.1-sol} with medium reasoning effort. Deterministic verification scripts (\texttt{verify\_manuscripts.py}, \texttt{paper2/tests/test\_invariants.py}, and \texttt{tools/extract\_swe\_bench\_verified.py}) verified automated manuscript format checks, methodological invariant test assertions, and the reproducibility of reported simulation calculations.
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+This paper formulated an empirical requirements traceability method and decision calculus for deciding whether third-party AI benchmark evidence legitimately supports software requirements for automated coding assistants. We designed an operational calculus embedding MESA meta-evaluation findings under Kane's scoring and extrapolation inferences, retaining Method 2's matched task subset and raw Wilson bounds while withholding decisions on flawed or missing benchmark evidence, with domain transfer divergence analyzed as an exploratory parameter. Through exact binomial power calculations across sample sizes and defect rates, we demonstrated that single-repository workloads ($N = 30$) leave most requirements unresolved near operational thresholds (89.4\% at $p = 0.75$), and that under the evaluated simulation model, review-based abstention reduces false acceptance to 5.4\% compared with 20.8\% under task matching alone, 6.4\% under random abstention, and 6.5\% under threshold-proximity abstention at identical decision coverage. We emphasize that review-based abstention represents an error tradeoff under assumed detector operating characteristics (lowering false acceptance in noncompliant scenarios while increasing false contradictions and abstentions in compliant scenarios), rather than an unconditional decision improvement. A 12-attempt empirical pilot confirmed the execution mechanics of the evaluation harness across two configurations (Gemini 3.8 Flash Medium in Antigravity ACI and GPT-6.1 Sol Light via Codex CLI). Future work will execute the prospective 696-attempt evaluation protocol across 84 source and 90 target tasks and investigate human practitioner decisions during evidence-based procurement.
+
+\section*{Data Availability}
+The replication package containing the decision engine, configuration inventory, frozen study protocol, prospective target workload templates, quarantined historical pilot outcomes, simulation scripts, and test suites is available at: \url{https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai}.
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\end{document}

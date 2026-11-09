@@ -11,8 +11,8 @@
 
 \begin{document}
 
-\title{Beyond the Happy Path: Evaluating Benchmark Evidence Reuse under Evolved Software Requirements}
-\titlerunning{Beyond the Happy Path: Evaluating Benchmark Reuse}
+\title{Do Code Benchmark Validators Enforce Their Stated Requirements? A Research Preview on Validator Fidelity and Evidential Deficits}
+\titlerunning{Do Code Benchmark Validators Enforce Their Stated Requirements?}
 
 \author{Anonymous Author(s)}
 \authorrunning{Anonymous Author(s)}
@@ -23,85 +23,43 @@
 \maketitle
 
 \begin{abstract}
-\textbf{Context and motivation:} In Requirements Engineering for Artificial Intelligence (RE4AI), procuring third-party foundation models relies on public benchmarks as empirical acceptance testing oracles ($W, E, O_{\text{bench}} \vdash_{\text{ind}} G_{\text{AI}}$). Under software quality and safety standards such as ISO/IEC 25010, ISO/IEC 25059, and AMLAS, reusing third-party verification evidence assumes that the benchmark's test oracles adequately verify the system's operational requirements.
+\textbf{Context and motivation:} In Requirements Engineering for Artificial Intelligence (RE4AI), procuring third-party foundation models relies heavily on public benchmarks as empirical acceptance testing oracles ($W, E, O_{\text{bench}} \vdash_{\text{ind}} G_{\text{AI}}$). Under software quality and safety assurance standards (ISO/IEC 25010, AMLAS), reusing benchmark pass rates as verification evidence assumes Kane's Scoring Inference ($I_{\text{score}}$): that released test oracles faithfully verify operational requirements. Recent instruction-following code benchmarks claim to evaluate whether models comply with fine-grained developer constraints beyond basic input-output correctness.
 
-\textbf{Question/problem:} Existing AI benchmark test suites (e.g., HumanEval, MBPP) evaluate primarily the \emph{happy path}: basic functional input-output pairs under default assumptions. When software requirements evolve to include non-functional constraints (such as in-place input immutability or prohibited APIs) or boundary exception contracts, can existing benchmark test oracles be safely reused off-the-shelf, or do they fail to detect violations of the added requirements? We separate two empirical questions: (1)~auditing whether original benchmark test suites enforce requirements already present in the base specification; and (2)~evaluating the evidential deficit when legacy test suites are reused under evolved requirements.
+\textbf{Question/problem:} Do released code benchmark evaluators actually enforce the requirements that their own task prompts explicitly state? When benchmarks evaluate instruction adherence using static regexes, text scanning, or automated oracles, how faithfully do they distinguish satisfaction from violation of stated requirements, and how do confirmed mismatches affect the permitted interpretation of reported scores?
 
-\textbf{Principal ideas/results:} We formulate a metamorphic specification testing protocol to evaluate benchmark test oracle adequacy under requirements evolution. We scope the evaluation to pure code generation benchmarks across HumanEval and MBPP. We define three formal metamorphic specification operators: (1)~$MR_{\text{neg}}$ (Negative Constraint Injection), (2)~$MR_{\text{bound}}$ (Precondition Exception Contracts), and (3)~$MR_{\text{equiv}}$ (Semantics-Preserving Formal Refactoring). We decouple two complementary evaluation metrics: the \emph{Accepted Violation Rate} ($AVR$) measuring the proportion of accepted model completions that breach the contract, and the \emph{Mutant Survival Rate} ($MSR$) / \emph{Mutation Detection Rate} ($MDR$) measuring test suite sensitivity on controlled violating mutants. We formally distinguish snapshot invariance from temporal execution write prohibition for immutability checking. We present an implemented 5-task pilot artifact with planned 25-task expansion, and design an adjudication protocol across 16 software engineering evaluators (8 Junior Engineers / M.S. students and 8 Senior Technical Experts / Faculty) using a 14-case balanced instrument grounded in an enterprise concurrent microservice deployment scenario, analyzed via Cumulative Link Mixed Models (CLMM).
+\textbf{Principal ideas/results:} We formulate an empirical audit methodology tracing requirement wording $\to$ evaluator implementation $\to$ score interpretation. We decouple benchmark outcomes into Instruction Verdict ($V_{\text{instr}}$), Correctness Verdict ($V_{\text{corr}}$), and Combined Verdict ($V_{\text{comb}}$). After inspecting three instruction-following benchmarks (MultiCodeIF, IFEvalCode, CodeIF), we document accessibility barriers in MultiCodeIF (native dependency conflicts and unpopulated test suites) and CodeIF (reliance on proprietary LLM-as-a-judge APIs). On IFEvalCode, we conduct an exploratory audit across six tasks representing distinct requirement families (prohibited operations, program structure, boundary constraints). We find that 3 of 6 tasks accept violating implementations ($V_{\text{instr}}=\text{PASS}$) via reflection bypasses (\texttt{\_\_import\_\_('re')}), slicing brackets mimicking list comprehensions, or comprehension variables bypassing assignment regexes. Furthermore, 1 task contains an inescapable structural contradiction ($L(V_{\text{instr}})=\emptyset$), 1 task suffers from unscoped regex collisions on Python keywords (\texttt{def}), and 1 task contains a defective ground-truth testcase. Transparently withdrawing an earlier unstated algorithmic complexity assumption, we find 1 task exhibits concordant verification on its verbatim stated constraints.
 
-\textbf{Contribution:} (1) A formal problem formulation of benchmark evidence reuse under evolved software requirements; (2) a metamorphic specification protocol separating base specification-oracle gaps from requirements evolution deltas; (3) decoupled metric formulation ($AVR$ and $MSR/MDR$); (4) dual contract checker semantics and companion pilot artifact; and (5) a research preview adjudication protocol designed to evaluate evaluator decisions via Cumulative Link Mixed Models (CLMM).
+\textbf{Contribution:} As a Research Preview, this work contributes: (1)~an empirical audit methodology tracing requirement wording $\to$ evaluator implementation $\to$ permitted score interpretation under Kane's validity framework; (2)~artifact feasibility analysis across three code benchmarks; (3)~reproducible counterexamples with programmatic AST witness assertions; (4)~a prospective sampling frame and protocol for an expanded full-scale audit; and (5)~formal evidential implications for AI Requirements Traceability Matrices.
 
-\keywords{Requirements Engineering for AI \and AI Benchmarks \and Acceptance Testing \and Benchmark Evidence Reuse \and Metamorphic Testing \and Software Quality.}
+\keywords{Requirements Engineering for AI \and AI Benchmarks \and Acceptance Testing \and Benchmark Oracles \and Software Quality \and Kane's Validity Framework.}
 \end{abstract}
 
 \section{Introduction}
 \label{sec:intro}
 
-When software engineering teams specify functional capability requirements for artificial intelligence (AI) components---such as automated code completion, algorithmic synthesis, or refactoring---they rarely train foundation models from scratch \cite{habiba_re4ai_maturity_2024}. Instead, engineering teams evaluate third-party foundation models against functional requirements using public AI benchmarks as third-party verification evidence \cite{bean_measuring_what_matters,jo_wilson_what_does_your_benchmark_measure}. In software safety and quality assurance methodologies such as AMLAS (\emph{Assurance of Machine Learning in Autonomous Systems}) \cite{hawkins_amlas_2021} and ISO/IEC 25059 \cite{iso_iec_25059_2023}, accepting verification evidence requires demonstrating that the verification instrument itself is valid \cite{zave_jackson_1997}.
+When software engineering teams select or procure third-party foundation models for automated code generation, they rely heavily on public benchmark leaderboards as acceptance testing evidence \cite{bean_measuring_what_matters,habiba_re4ai_maturity_2024}. If a benchmark reports that a model achieved an 85\% score, engineers assume that the model satisfied the requirements tested by the benchmark.
 
-In software supply chains, foundation models are third-party components of black-box provenance. When an engineering team accepts an AI model based on benchmark evidence, the benchmark functions as an \textbf{inductive acceptance testing oracle}:
-\begin{equation}
-\label{eq:inductive_oracle}
-W, E, O_{\text{bench}}(M, B) \vdash_{\text{ind}} G_{\text{AI}}
-\end{equation}
-where $G_{\text{AI}}$ denotes the system capability requirement, $W$ represents operational domain assumptions, $E$ is the deployment execution environment, and $B = (T, H, S_{\text{score}})$ is the benchmark instrument comprising task distribution $T$, execution harness $H$, and scoring oracle $S_{\text{score}}$ \cite{bean_measuring_what_matters,anonymous_companion_2027}. The relation $\vdash_{\text{ind}}$ denotes inductive evidential warrant: observing favorable evaluations in $E$ supports the claim that model $M$ satisfies $G_{\text{AI}}$ under domain assumptions $W$, conditional on the integrity and construct validity of benchmark $B$. In software engineering terms, because teams cannot exhaustively test black-box models across all possible execution traces, they rely on the inductive inference that high benchmark pass rates imply production readiness. However, that inductive warrant depends on whether the benchmark's test oracles adequately enforce the system's operational requirements.
+In traditional benchmarks like HumanEval \cite{human_eval_repository} and MBPP \cite{austin_mbpp_2021}, tests only evaluate input-output correctness on basic algorithms. To reflect realistic software engineering practices, recent benchmarks introduce \emph{instruction-following} and \emph{constrained generation} tasks (such as IFEvalCode \cite{yang_ifevalcode_2025}, MultiCodeIF \cite{sysusel_multicodeif_2026}, CodeIF \cite{yan_codeif_2025}, and CIFE \cite{cife_benchmark_2025}). These benchmarks add explicit developer constraints to task prompts, such as prohibiting specific libraries, restricting variable naming, bounding execution complexity, or mandating specific language idioms.
 
-\subsection{Benchmark Reuse under Requirements Evolution}
-Under Kane's argument-based validity framework \cite{kane_validation,aera_apa_ncme_standards_2014}, an unbroken chain of inferences connects test execution to requirements acceptance:
-\begin{enumerate}[leftmargin=*]
-    \item \textbf{Scoring Inference ($I_{\text{score}}$):} Evaluates the transition from raw task execution to assigned score, ensuring test runners execute without parser exploits, grading bugs, or gaming loopholes (Criterion B07 in the companion benchmark review metrology \cite{anonymous_companion_2027});
-    \item \textbf{Generalization Inference ($I_{\text{gen}}$):} Evaluates whether observed performance is robust across task variations, prompt perturbations, and specification refactorings rather than narrow seeding artifacts (Criterion B11 in \cite{anonymous_companion_2027});
-    \item \textbf{Extrapolation Inference ($I_{\text{extrap}}$):} Evaluates whether passing synthetic benchmark tasks reflects genuine real-world capability rather than dataset shortcuts;
-    \item \textbf{Decision Inference ($I_{\text{dec}}$):} Evaluates whether accepting the model satisfies system safety constraints, deployment isolation, and requirements contracts.
-\end{enumerate}
+Crucially, however, prior research assumes that the \emph{released grading code of these benchmarks is sound}. In software requirements engineering and measurement theory \cite{kane_validation}, accepting a test score requires establishing the \textbf{scoring inference} ($I_{\text{score}}$): the guarantee that the grading script actually tests what the prompt specifies. If a benchmark claims to test whether an AI avoids regular expressions, but its grading script only checks for the literal text \texttt{'import re'}, code that imports regular expressions via reflection (\texttt{\_\_import\_\_('re')}) receives full credit. Conversely, if a grading script contains syntax bugs or internal contradictions, it rejects valid code, producing an artificial failure. When engineering teams ingest these unverified scores into requirements decisions or safety cases \cite{hawkins_amlas_2021,lawford_safety_case_impact_2017}, they risk admitting non-compliant AI components based on an illusion of verification.
 
-Despite the central role of Kane's scoring inference ($I_{\text{score}}$), canonical AI code benchmarks such as HumanEval \cite{human_eval_repository} (which contains an average of 7.7 tests per problem) and MBPP \cite{austin_mbpp_2021} were designed primarily to evaluate basic algorithmic correctness on typical inputs. When an engineering team reuses an off-the-shelf benchmark to verify components intended for production software, requirements inevitably evolve beyond simple input-output matching. In real-world software engineering, systems are governed by non-functional constraints, memory safety, and boundary exception handling (ISO/IEC 25010 \cite{iso_iec_25010_2011}). 
-
-Consider a concrete enterprise deployment scenario: an IDE code-completion assistant deployed within a concurrent microservice architecture where worker threads process shared in-memory candidate request buffers without copy-on-write isolation. In this deployment context, if a synthesized function sorts an input list in-place, it mutates the caller's buffer, introducing race conditions and corrupting data across concurrent client requests. Similarly, if a function fails to implement defensive exception handling on invalid inputs, unhandled exceptions bypass error translation middleware and crash worker threads.
-
-Crucially, an original benchmark task (such as sorting a list) may permit in-place mutation; its original unit tests can satisfy their original purpose while being insufficient for an evolved immutability requirement. We therefore separate two distinct empirical investigations:
-\begin{enumerate}[leftmargin=*]
-    \item \textbf{Study 1 (Base Specification-Oracle Audit):} Auditing whether original benchmark test suites enforce constraints that were already explicitly stated in the original benchmark prompt;
-    \item \textbf{Study 2 (Requirements Evolution Delta under Reuse):} Evaluating whether legacy benchmark test oracles detect violations when the prompt specification is evolved with added non-functional constraints or defensive exception contracts, quantifying the evidential gap of benchmark reuse.
-\end{enumerate}
-
-\begin{verbatim}
-# 1. Evolved Prompt Specification (MR_neg-immut):
-# "def sort_ascending(nums: list) -> list:
-#      Constraint: Input list nums MUST NOT be modified in-place."
-
-# 2. Candidate Model Completion (Breaches added immutability requirement):
-def sort_ascending(nums):
-    nums.sort()  # In-place mutation of caller buffer
-    return nums
-
-# 3. Reused Benchmark Unit Test (Blind to added requirement):
-assert sort_ascending([3, 1, 2]) == [1, 2, 3]  # -> PASS (100% Score)
-
-# 4. Stage 2 Contract Checker (Violation detected):
-orig = [3, 1, 2]
-sort_ascending(orig)
-assert orig == [3, 1, 2]  # -> AssertionError! (Accepted Violation)
-\end{verbatim}
-
-As illustrated above, when legacy test oracles are reused without augmentation, a candidate model completion can breach the evolved requirement while receiving a 100\% \textbf{PASS} verdict. Reusing benchmark evidence under evolved requirements without auditing test oracle adequacy risks admitting models that fail non-functional safety contracts in production.
-
-\subsection{Research Questions}
-We formulate four research questions spanning automated contract checking and semi-expert requirements evaluation:
+\subsection{Research Preview Scope and Research Questions}
+This paper presents a \textbf{Research Preview} investigating whether released code benchmark evaluators enforce their own stated requirements. Rather than treating benchmark scoring code as an infallible oracle, we audit the released validator scripts of prominent instruction-following benchmarks. We formulate an exploratory case series across six tasks to establish verifiable preliminary evidence, decouple outcome dimensions, and specify a prospective sampling protocol for an expanded full-scale study. We investigate three research questions:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{RQ1 (Negative Constraint Reuse -- $I_{\text{score}}$):} When benchmark prompts are evolved with explicit negative constraints ($MR_{\text{neg}}$) while reusing legacy test suites, what proportion of accepted completions violate the added constraint (Accepted Violation Rate, $AVR$)?
-    \item \textbf{RQ2 (Precondition Contract Integrity -- $I_{\text{score}}$):} When benchmark prompts evolve to require defensive exception handling on invalid inputs ($MR_{\text{bound}}$), to what extent do reused legacy test suites fail to detect unhandled exceptions?
-    \item \textbf{RQ3 (Specification Invariance under Refactoring -- $I_{\text{gen}}$):} How stably do model pass rates behave under semantics-preserving Hoare-style specification refactoring ($MR_{\text{equiv}}$), and does scoring reflect true functional capability or prompt phrasing sensitivity?
-    \item \textbf{RQ4 (Semi-Expert Adjudication of Inadmissibility):} When software engineering evaluators audit accepted violations grounded in a concurrent microservice deployment scenario, what is their inter-rater consensus on violation severity and RTM evidence admissibility?
+    \item \textbf{RQ1 (Traceability and Verification Support):} Which explicitly stated requirements can be traced to concrete verification checks in the released benchmark evaluator, and which remain unasserted, ambiguous, or unsupported?
+    \item \textbf{RQ2 (Validator Fidelity and Outcome Concordance):} For selected requirements, does the released evaluator accept violating implementations (false positives) or reject satisfying implementations (false negatives)?
+    \item \textbf{RQ3 (Evidential Warrants and Score Interpretation):} How do confirmed evaluator mismatches affect what a passing benchmark score can legitimately support under Kane's scoring inference ($I_{\text{score}}$)?
 \end{itemize}
+
+The primary contribution of this work is an empirical trace connecting \textbf{requirement wording $\to$ evaluator implementation $\to$ permitted score interpretation}. Rather than compiling an ad-hoc catalog of software bugs, we demonstrate how architectural mismatches between natural language requirements and validator implementations undermine benchmark evidence reuse in requirements engineering.
 
 \section{Related Work and Research Gap Delineation}
 \label{sec:related_work}
 
-To establish the contribution of this work, Table~\ref{tab:paper2_delineation} delineates our study against related literature in benchmark auditing, test generation, and constraint evaluation.
+To establish the novelty of this investigation, Table~\ref{tab:paper2_delineation} delineates our study against related literature in benchmark auditing, test generation, and constraint evaluation.
 
 \begin{table}[t]
-\caption{Delineation of Paper 2 against related benchmark testing and verification literature.}
+\caption{Delineation of this work against related benchmark auditing and constraint verification literature.}
 \label{tab:paper2_delineation}
 \centering
 \scriptsize
@@ -110,203 +68,252 @@ To establish the contribution of this work, Table~\ref{tab:paper2_delineation} d
 \toprule
 \textbf{Work} & \textbf{Primary Focus} & \textbf{Unit of Analysis} & \textbf{Research Gap Delineation} \\
 \midrule
-EvalPlus \cite{liu_evalplus_2023} & Automated test fuzzing & Unit test input domain & Fuzzes inputs for fixed prompts to detect bugs; does not evaluate requirements evolution or evidence reuse. \\
-Ding \cite{ding_spec_oracle_gaps_2026} & Specification-oracle gaps & Hidden names in test suites & Studies over-constrained oracles causing \emph{false negatives} (tests failing valid code); does not study requirements evolution. \\
-C3E \cite{c3e_complexity_2026} & Complexity constraints & Asymptotic runtime $O(n)$ & Evaluates model compliance on time complexity; does not evaluate benchmark test oracles or behavioral invariants. \\
-Kiele et al. \cite{kiele_test_aware_mutants_2026} & Test-aware mutation & Code mutants and tests & Generates test-passing mutants for fixed tasks; does not evaluate requirements evolution or RTM evidence admissibility. \\
-HarnessAudit \cite{liu_harnessaudit_2026} & Trajectory log auditing & Execution trace events & Dynamic policy enforcement on agent runtime logs; does not measure specification oracle adequacy. \\
-Benchmark Metrology \cite{anonymous_companion_2027} & Top-down review metrology & 37 criteria across 7 frameworks & Synthesizes review criteria and RTM calculus; does not empirically execute metamorphic oracle probes. \\
+IFEvalCode \cite{yang_ifevalcode_2025} & Controlled code generation & 1.6K multilingual tasks & Introduces decoupled metrics (Corr/Instr); assumes released oracles are sound without auditing validator fidelity. \\
+MultiCodeIF \cite{sysusel_multicodeif_2026} & Hierarchical constraints & 2.0K evolved tasks & Evaluates model adherence to 27 constraint types; does not audit validator failure modes or dependency barriers. \\
+CodeIF \cite{yan_codeif_2025} & Multi-turn instructions & Conversational turns & Uses LLM-as-a-judge prompting; lacks deterministic programmatic code test oracles. \\
+CIFE \cite{cife_benchmark_2025} & Instruction-following & 1.0K Python tasks & Computes C2A composite scores; does not audit whether validators are vulnerable to semantic bypasses. \\
+SlopCodeBench \cite{slopcodebench_2026} & Evolving specifications & Multi-round code changes & Evaluates coding agents across evolving specifications; does not audit base task validator fidelity. \\
+EvalPlus \cite{liu_evalplus_2023} & Automated test fuzzing & Unit test input domain & Fuzzes inputs for fixed prompts to detect code bugs; does not evaluate stated non-functional requirements. \\
+Ding et al. \cite{ding_spec_oracle_gaps_2026} & Specification-oracle gaps & Unstated test constraints & Audits over-constrained tests causing false failures on algorithmic code; does not audit explicit constraints. \\
+Safety Case Impact \cite{lawford_safety_case_impact_2017} & Assurance evidence reuse & Safety argument claims & Formalizes evidence reuse, revision, and rechecking; does not audit empirical AI benchmark validators. \\
+AI Evidence Reuse \cite{ai_evidence_reuse_2026} & ML assurance validity & Pipeline validity gates & Proposes theoretical validity conditions for evidence reuse; lacks empirical audit of code benchmark evaluators. \\
 \midrule
-\textbf{Paper 2 (This Work)} & \textbf{Benchmark Evidence Reuse} & \textbf{Oracles under evolved specifications} & \textbf{Audits benchmark evidence admissibility under evolved requirements and RTM traceability across HumanEval and MBPP.} \\
+\textbf{This Work} & \textbf{Validator Fidelity Audit} & \textbf{Task, stated requirement, and validator version} & \textbf{First empirical audit of released instruction-following evaluators using paired satisfying/violating controls.} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\textbf{Traditional Metamorphic Testing vs. Specification Metamorphic Testing:} In traditional software engineering, metamorphic testing (Chen et al. \cite{chen_metamorphic_testing_1998}, Segura et al. \cite{segura_metamorphic_survey_2016}) transforms \emph{test inputs} across multiple executions to address the oracle problem when the ground truth output is unknown (e.g., asserting $\sin(x) = \sin(\pi - x)$). In contrast, this paper inverts that paradigm: we apply metamorphic transformations to \textbf{requirements specifications and prompt contracts} ($s' = s \oplus \psi$) while holding legacy test suites constant, explicitly to evaluate the fault-detection capability of the reused benchmark test oracle.
+\textbf{Delineation Against Ding et al. \cite{ding_spec_oracle_gaps_2026}:} The closest prior study on benchmark test discrepancies is by Ding et al. \cite{ding_spec_oracle_gaps_2026}, who investigate specification-oracle gaps in test-graded coding benchmarks (HumanEval, MBPP, SWE-bench). Ding et al. examine situations where hidden test oracles impose \emph{unstated, implicit requirements} (e.g., private helper method signatures, unprompted data structure types, or undisclosed boundary constraints) that were absent from the natural language prompt, leading to \emph{false test failures} (over-constrained oracles). 
 
-\textbf{Requirements-Driven Evidence Reuse vs. Test Incompleteness:} Prior work has demonstrated that released benchmark test suites accept incorrect code. Notably, EvalPlus \cite{liu_evalplus_2023} employs LLM- and mutation-based test-input fuzzing to reveal functional bugs in models evaluated under base docstrings. Similarly, Kiele et al. \cite{kiele_test_aware_mutants_2026} generate code mutants that pass base HumanEval and MBPP test suites to evaluate test adequacy on unchanged tasks. While those studies establish oracle incompleteness for static tasks, our research addresses the distinct requirements engineering challenge of \textbf{Requirements-Driven Evidence Reuse}: auditing whether verification evidence produced by a legacy benchmark remains admissible when operational requirements evolve ($s \to s' = s \oplus \psi$). By linking oracle sensitivity to the Requirements Traceability Matrix (RTM) calculus, our approach establishes whether an engineering team can safely reuse legacy test passes or must declare benchmark evidence inadmissible due to an evidential deficit.
+Our work addresses the inverse, complementary problem in instruction-following benchmarks: we audit \emph{explicitly stated developer constraints} (e.g., banned standard libraries, identifier naming conventions, line limits, and structural comprehension patterns) against the benchmark's released constraint evaluator. We uncover \emph{under-constrained validators} (false acceptances of violating code through naive string matching or regex loopholes), structural contradictions between explicit requirements rendering acceptance sets empty, and unscoped token collisions on Python keywords. Furthermore, while Ding et al. analyze standard algorithmic completions, we evaluate paired satisfying and violating controls with executable AST witness assertions.
 
-\section{Metamorphic Specification Testing for AI Benchmarks}
-\label{sec:formulation}
+\textbf{Requirements Engineering Contribution vs. Mutation Testing:} In testing literature, mutation analysis evaluates test suite sensitivity by generating syntactically altered code mutants \cite{kiele_test_aware_mutants_2026}. However, an error catalog without a requirements trace remains a software testing exercise. In Requirements Engineering, we establish the trace connecting \textbf{requirement wording $\to$ evaluator implementation $\to$ permitted score interpretation}. By identifying systematic mismatches between specification semantics and validator implementations, we determine the exact evidential boundaries under which reported benchmark scores can be admitted into an enterprise Requirements Traceability Matrix.
 
-\subsection{Formalizing Benchmark Evidence Reuse under Requirements Evolution}
-Let $t = (s, \phi_{\text{spec}}, \mathcal{T}_{\text{unit}}) \in T$ represent a base benchmark task, where $s$ is the natural language docstring prompt, $\phi_{\text{spec}}$ is the formal specification, and $\mathcal{T}_{\text{unit}} = \{(x_i, y_i)\}_{i=1}^k$ is the released set of unit test assertions. 
+\section{The Empirical Audit Methodology}
+\label{sec:methodology}
 
-Under requirements evolution $\tau: t \to t'$, the task evolves to $t' = (s', \phi'_{\text{spec}}, \mathcal{T}_{\text{unit}})$, where natural language prompt $s' = s \oplus \psi$ incorporates requirement delta $\psi$. The formal specification undergoes either:
+\subsection{Unit of Analysis and Decoupled Verdicts}
+We define the unit of analysis as a triple:
+\begin{equation}
+\label{eq:unit_of_analysis}
+u = (t, r, V)
+\end{equation}
+where $t \in T$ is a benchmark task, $r$ is an explicitly stated natural language requirement in prompt $s_t$, and $V = (V_{\text{instr}}, V_{\text{corr}})$ is the released validator version of the benchmark, comprising an instruction validator $V_{\text{instr}}$ and a functional correctness test suite $V_{\text{corr}}$.
+
+For each audited unit $u$, we evaluate paired executable implementations:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Monotonic Addition / Refinement:} $\phi'_{\text{spec}} \equiv \phi_{\text{spec}} \land \psi$, where $\psi$ introduces orthogonal constraints (such as in-place immutability or non-functional restrictions) while preserving the valid output domain; or
-    \item \textbf{Non-Monotonic Revision / Replacement:} $\phi'_{\text{spec}} \equiv (\phi_{\text{spec}} \setminus \phi_{\text{retire}}) \land \psi_{\text{revised}}$, where $\psi_{\text{revised}}$ replaces obsolete obligations $\phi_{\text{retire}}$ (e.g., requiring an exception on empty inputs rather than returning empty containers).
+    \item \textbf{Satisfying Implementation ($C_{\text{sat}}$):} An implementation engineered to satisfy requirement $r$ as well as all accompanying functional unit tests;
+    \item \textbf{Violating Implementation ($C_{\text{viol}}$):} An implementation engineered to violate requirement $r$ specifically, while preserving functional correctness and satisfying all other orthogonal constraints.
 \end{itemize}
-When engineering teams reuse benchmark evidence off-the-shelf, the test suite $\mathcal{T}_{\text{unit}}$ remains unaugmented.
 
-A foundation model completion $M(t')$ is executed within execution harness $H$. The benchmark scoring oracle evaluates:
-\begin{equation}
-\label{eq:oracle_eval}
-S_{\text{score}}(M(t'), \mathcal{T}_{\text{unit}}) = \begin{cases}
-\textbf{PASS} & \text{if } \forall (x_i, y_i) \in \mathcal{T}_{\text{unit}} : \text{eval}(M(t'), x_i) = y_i, \\
-\textbf{FAIL} & \text{otherwise}.
-\end{cases}
-\end{equation}
-An accepted violation occurs on mutated task $t'$ if the released unit tests pass while the completion violates the evolved requirement $\psi$:
-\begin{equation}
-\label{eq:accepted_violation}
-\text{AcceptedViolation}(M, t', \psi) \iff S_{\text{score}}(M(t'), \mathcal{T}_{\text{unit}}) = \textbf{PASS} \quad \land \quad M(t') \not\models \psi
-\end{equation}
-
-\subsection{A Metrological Taxonomy of Requirements Evolution under Benchmark Reuse}
-When software specifications are audited or evolved relative to benchmark test suite $\mathcal{T}_{\text{unit}}$, requirement invariants exhibit four metrological relationships:
+To prevent confounding instruction adherence with input-output correctness, we record three distinct, decoupled verdicts for any implementation $C$:
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Stated-but-Unasserted Invariants (Study 1 - Base Benchmark Oracle Gaps):} The requirement is already stated in base prompt docstring $\phi_{\text{spec}}$ (e.g., handling edge cases or invariants mentioned in docstring examples), but omitted from released unit test assertions $\mathcal{T}_{\text{unit}}$. For unasserted base requirements, passing legacy tests provides no verification evidence for that invariant.
-    \item \textbf{Class 1: Subsumed Requirements (Existing Test Coverage):} The requirement is entailed by base specification $\phi_{\text{spec}}$ and actively asserted by $\mathcal{T}_{\text{unit}}$ (e.g., core algorithmic input-output mappings). For subsumed requirements, legacy benchmark scores provide sound evidential support.
-    \item \textbf{Class 2: Compatible Additions (Orthogonal Refinements):} The evolved requirement $\psi$ narrows acceptable implementations via monotonic conjunction ($\phi'_{\text{spec}} \equiv \phi_{\text{spec}} \land \psi$) without altering the valid output space of the original happy path (e.g., requiring in-place immutability on input buffers). Compliant implementations satisfy 100\% of released unit tests $\mathcal{T}_{\text{unit}}$, but because legacy assertions do not check the added constraint, violating completions can pass legacy tests undetected, creating an \textbf{evidential deficit / oracle permissiveness}. In our pilot suite, this deficit resulted in complete mutant survival ($MSR = 1.0$ across evaluated mutating mutants); more generally, the observed Accepted Violation Rate $AVR \ge 0$ depends on model generation tendencies on the unasserted constraint.
-    \item \textbf{Class 3: Incompatible Evolution (Conflicting Revisions):} The evolved requirement replaces legacy obligations ($\phi'_{\text{spec}} \equiv (\phi_{\text{spec}} \setminus \phi_{\text{retire}}) \land \psi_{\text{revised}}$) and directly contradicts assertions in legacy test suite $\mathcal{T}_{\text{unit}}$. For example, in \texttt{HumanEval/26} (\texttt{remove\_duplicates}), the released test suite explicitly asserts \texttt{assert candidate([]) == []}. If an evolved enterprise contract mandates defensive boundary exception handling (\emph{``If the input list is empty, raise ValueError''}), any compliant implementation will fail the original test suite. Here, the legacy benchmark does not exhibit permissiveness; rather, it produces \textbf{false test failures / rejection of compliant code}. Reusing legacy benchmarks under conflicting revisions is fundamentally invalid without updating or deprecating contradicting assertions.
+    \item \textbf{Instruction Verdict ($V_{\text{instr}}(C) \in \{\textbf{PASS}, \textbf{FAIL}\}$):} The binary verdict emitted by the benchmark's instruction or constraint checker;
+    \item \textbf{Correctness Verdict ($V_{\text{corr}}(C) \in \{\textbf{PASS}, \textbf{FAIL}\}$):} The binary verdict emitted by the functional unit test suite;
+    \item \textbf{Combined Benchmark Verdict ($V_{\text{comb}}(C) \in \{\textbf{PASS}, \textbf{FAIL}\}$):} The joint benchmark pass/fail determination, defined strictly as $V_{\text{comb}}(C) = V_{\text{instr}}(C) \land V_{\text{corr}}(C)$.
 \end{enumerate}
-Distinguishing these classes is essential: Class 2 defines the domain of benchmark oracle permissiveness, while Class 3 exposes requirement-test contradictions that require specification refactoring prior to reuse.
 
-\subsection{Decoupled Evaluation Metrics: AVR and MSR/MDR}
-We decouple two complementary metrics to evaluate benchmark evidence reuse:
-
-\textbf{1. Accepted Violation Rate ($AVR$):} To measure the frequency with which a generative model $M$ produces completions that violate evolved requirement $\psi$ while still passing legacy unit tests, we define:
-\begin{equation}
-\label{eq:avr_metric}
-\text{AVR}(M, T', \psi) = \begin{cases}
-\dfrac{\sum_{t' \in T'} \mathbb{I}\left( S_{\text{score}}(M(t'), \mathcal{T}_{\text{unit}}) = \textbf{PASS} \land M(t') \not\models \psi \right)}{\sum_{t' \in T'} \mathbb{I}\left( S_{\text{score}}(M(t'), \mathcal{T}_{\text{unit}}) = \textbf{PASS} \right)} & \text{if } \sum_{t'} \mathbb{I}(S_{\text{score}} = \textbf{PASS}) > 0, \\[8pt]
-\text{undefined} & \text{otherwise}.
-\end{cases}
-\end{equation}
-We report the denominator (total passed completions) explicitly alongside $AVR$. When no model completions pass the legacy tests, $AVR$ is undefined.
-
-\textbf{2. Mutant Survival Rate ($MSR$) and Mutation Detection Rate ($MDR$):} To evaluate the fault-detection capability of test suite $\mathcal{T}_{\text{unit}}$ independently of generative model $M$, we construct a controlled suite of known violating implementation mutants $K_{\text{viol}}(\psi)$, where every mutant $\mu \in K_{\text{viol}}$ satisfies basic input-output behavior but intentionally violates requirement $\psi$. The Mutant Survival Rate measures the proportion of violating mutants that escape detection by $\mathcal{T}_{\text{unit}}$:
-\begin{equation}
-\label{eq:msr_metric}
-\text{MSR}(\mathcal{T}_{\text{unit}}, K_{\text{viol}}) = \begin{cases}
-\dfrac{\sum_{\mu \in K_{\text{viol}}} \mathbb{I}\left( S_{\text{score}}(\mu, \mathcal{T}_{\text{unit}}) = \textbf{PASS} \right)}{|K_{\text{viol}}|} & \text{if } |K_{\text{viol}}| > 0, \\[8pt]
-\text{undefined} & \text{otherwise}.
-\end{cases}
-\end{equation}
-The Mutation Detection Rate is defined as $\text{MDR} = 1 - \text{MSR}$ (undefined when $|K_{\text{viol}}| = 0$). We explicitly report both the numerator (surviving mutants) and denominator (total mutants evaluated). $MDR$ quantifies the mutation detection sensitivity of the reused benchmark oracle on the added requirement.
-
-\subsection{The Three Metamorphic Specification Operators}
-We define three formal metamorphic specification transformation operators ($MR$):
-
+\subsection{Defect Categorization and Witness Assertions}
+Because a single benchmark task may exhibit multiple orthogonal vulnerabilities, we decouple defect categories rather than forcing tasks into mutually exclusive buckets:
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Operator 1: Negative Constraint Injection ($MR_{\text{neg}}$ -- Class A, $I_{\text{score}}$):} $MR_{\text{neg}}$ injects explicit negative requirements $\psi_{\text{neg}}$ into prompt $s$, producing evolved specification $\phi'_{\text{spec}} = \phi_{\text{spec}} \land \psi_{\text{neg}}$. We operationalize two sub-operators:
+    \item \textbf{Instruction Oracle Permissiveness (False Acceptance of Violations):}
+    \begin{equation}
+    V_{\text{instr}}(C_{\text{viol}}) = \textbf{PASS} \quad \text{where } C_{\text{viol}} \not\models r
+    \end{equation}
+    The validator fails to detect a genuine breach of the stated requirement, awarding an instruction pass to non-compliant code.
+    \item \textbf{Instruction Oracle Brittleness (False Rejection of Satisfying Constructs):}
+    \begin{equation}
+    V_{\text{instr}}(C_{\text{sat}}) = \textbf{FAIL} \quad \text{where } C_{\text{sat}} \models r
+    \end{equation}
+    The validator rejects a compliant implementation due to syntactic brittleness, keyword misclassification, or incidental text tokens (e.g., harmless comments).
+    \item \textbf{Structural Validator Contradiction (Empty Acceptance Set):}
+    The validator implements mutually exclusive assertions, rendering the language of acceptable programs mathematically empty: $L(V_{\text{instr}}) = \emptyset$.
+    \item \textbf{Unscoped Token Regex Defect:}
+    The validator applies unanchored regular expressions over raw source code, matching language keywords (e.g., \texttt{def}, \texttt{and}) or standard method names (e.g., \texttt{count}) as if they were user variables.
+    \item \textbf{Correctness Test Oracle Defect:}
+    The functional unit test suite contains inconsistent or mathematically incorrect ground-truth assertions ($V_{\text{corr}} = \textbf{FAIL}$ on correct outputs).
+    \item \textbf{Concordant Verification on Stated Constraints:}
+    \begin{equation}
+    V_{\text{instr}}(C_{\text{sat}}) = \textbf{PASS} \quad \land \quad V_{\text{instr}}(C_{\text{viol}}) = \textbf{FAIL}
+    \end{equation}
+    The validator correctly discriminates satisfaction from violation on verbatim stated prompt constraints.
+\end{enumerate}
+
+To ensure ground-truth independence, every constructed implementation is accompanied by an \textbf{executable witness assertion} $W(C)$ written in pure Python using Abstract Syntax Tree (AST) inspection (\texttt{ast.walk}, \texttt{ast.Call}, \texttt{ast.ListComp}) or formal execution traces. We never use the benchmark's own verdict as the reference ground truth.
+
+\subsection{Exploratory Protocol and Prospective Sampling Frame}
+In this Research Preview, we report an exploratory case series across six tasks ($N=6$) sampled from the 105 eligible Python tasks in IFEvalCode. To avoid confirmation bias and post-hoc rationalization, we specify the prospective sampling protocol for the full-scale investigation:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Sampling Frame:} The complete population consists of all 105 Python tasks in IFEvalCode containing both executable instruction checkers and functional unit tests.
+    \item \textbf{Stratification across Three Requirement Families:}
     \begin{itemize}
-        \item \emph{$MR_{\text{neg-immut}}$ (In-Place Immutability):} Mandates that the input data structures must not be modified.
-        \item \emph{$MR_{\text{neg-banned}}$ (Banned Operations):} Mandates that completions must not import or invoke external system, process, or reflection modules ($\text{AST}(M(t')) \cap \{\texttt{os}, \texttt{sys}, \texttt{subprocess}, \texttt{eval}\} = \emptyset$).
+        \item \emph{Family A: Permitted or Prohibited Operations} (e.g., banned standard libraries, prohibited programming constructs, algorithmic complexity classes);
+        \item \emph{Family B: Required Program Structure} (e.g., identifier naming conventions, line count bounds, recursion requirements, structural patterns);
+        \item \emph{Family C: Specified Boundary Behavior} (e.g., input range partitioning, domain edge cases, return formatting).
     \end{itemize}
-
-    \item \textbf{Operator 2: Precondition Exception Contracts ($MR_{\text{bound}}$ -- Class A, $I_{\text{score}}$):} Software robustness requires defensive handling on boundary or invalid inputs. $MR_{\text{bound}}$ expands the input domain partitioning: $X = X_{\text{valid}} \cup X_{\text{invalid}}$, asserting $\psi_{\text{bound}} \equiv \forall x \in X_{\text{invalid}} : M(t')(x) \text{ raises } \texttt{ValueError}$.
-
-    \item \textbf{Operator 3: Semantics-Preserving Formal Refactoring ($MR_{\text{equiv}}$ -- Class B, $I_{\text{gen}}$):} Tests whether model capability is robust to formal specification styles. $MR_{\text{equiv}}$ refactors informal docstrings into Hoare-style axiomatic contracts ($\phi'_{\text{spec}} \equiv \phi_{\text{spec}}$):
-    \begin{equation}
-    \label{eq:mr_equiv_invariant}
-    s' = \texttt{"Precondition: } P(x) \texttt{. Postcondition: } Q(x, \text{res})\texttt{"}
-    \end{equation}
-    In our exploratory analysis, we evaluate prompt sensitivity by estimating empirical pass rates $\hat{p}(M, t) = \frac{1}{K} \sum_{k=1}^K \mathbb{I}(S_{\text{score}}(M_k(t), \mathcal{T}_{\text{unit}}) = \textbf{PASS})$ across $K = 10$ samples ($T = 0.2$). We report observed absolute rate differences $|\hat{p}(M, t') - \hat{p}(M, t)|$ alongside Wilson score 95\% confidence intervals calibrated for small binomial sample sizes ($K = 10$):
-    \begin{equation}
-    \label{eq:wilson_interval}
-    \text{CI}_{\text{Wilson}}(\hat{p}, K) = \frac{\hat{p} + \frac{z^2}{2K} \pm z \sqrt{\frac{\hat{p}(1-\hat{p})}{K} + \frac{z^2}{4K^2}}}{1 + \frac{z^2}{K}}
-    \end{equation}
-    where $z = 1.96$. Unlike plug-in standard errors ($\sqrt{\hat{p}(1-\hat{p})/K}$), which collapse degenerately to zero at boundary outcomes ($\hat{p} \in \{0, 1\}$), the Wilson interval provides well-calibrated coverage for small binomial samples (e.g., $[0.00, 0.28]$ for $0/10$ and $[0.72, 1.00]$ for $10/10$). Because sampling variation under finite $K$ produces non-trivial divergence even when true underlying pass probabilities are identical (e.g., under $p = 0.5$ and $K=10$, observed rates differ by $> 0.10$ in over 50\% of trials), this comparison serves as an exploratory prompt sensitivity probe; formal equivalence testing (e.g., via Two One-Sided Tests, TOST) is deferred to the full-scale study with power-calibrated sample sizes.
+    \item \textbf{Full-Scale Power and Sample Size Rationale:} For the full-scale study, stratified random sampling will draw $N \ge 60$ tasks (stratified equally across Families A, B, and C). Under a binomial proportion model with an assumed defect prevalence of $p \approx 0.50$, $N = 60$ provides an estimation margin of error within $\pm 10.8\%$ at the 95\% confidence level ($z = 1.96$), sufficient to bound validator fidelity across task families.
+    \item \textbf{Strict Scope to Verbatim Prompt Wording:} Evaluated constraints must appear explicitly in the released natural language prompt. We strictly prohibit injecting unstated obligations (e.g., unprompted immutability or algorithmic complexity bounds not present in prompt text).
 \end{enumerate}
 
-\subsection{Dual Contract Checking Semantics for Immutability}
-A deep copy followed by an end-state comparison cannot detect transient mutation followed by restoration (e.g., modifying an input buffer during sorting and restoring it prior to return). We explicitly distinguish two immutability contracts:
+\section{Artifact Selection and Feasibility Analysis}
+\label{sec:artifact_selection}
+
+Following our research protocol, we inspected the official repositories of three prominent instruction-following code benchmarks: \textbf{MultiCodeIF}, \textbf{IFEvalCode}, and \textbf{CodeIF}.
+
+\subsection{Inspection and Exclusion Findings}
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Contract 1 (Snapshot Invariance / Weak Immutability):} \emph{``Input contents must match initial contents on return.''} This contract is verified via deep copy snapshot comparison: asserting $\text{deepcopy}(x) == x$ immediately upon function return.
-    \item \textbf{Contract 2 (Temporal Write Prohibition / Operation-Specific Immutability):} \emph{``The function must not execute mutating operations on the input container.''} We operationalize this via a targeted runtime proxy intercepting standard Python container mutation methods (\texttt{append}, \texttt{extend}, \texttt{insert}, \texttt{remove}, \texttt{pop}, \texttt{clear}, \texttt{sort}, \texttt{reverse}, and in-place item assignments \texttt{\_\_setitem\_\_}, \texttt{\_\_delitem\_\_}). We bound this detector to flat sequence inputs (\texttt{List[int]}, \texttt{List[float]}, \texttt{List[str]}); slicing and copying return standard native shallow copies, while nested mutable structures raise an unsupported input error. We emphasize that this proxy detects specified method calls and indexing writes; it does not constitute a universal verifier of memory immutability against uninstrumented base calls (e.g., \texttt{list.append(x, ...)}) or C-level modifications, which remain unresolved. When no intercepted operations occur, the checker reports that no violation was detected within its supported subset.
+    \item \textbf{MultiCodeIF \cite{sysusel_multicodeif_2026} (Commit \texttt{faafada5}):} MultiCodeIF contains 102 Python tasks across its testcase directory. However, detailed artifact inspection revealed two fatal operational barriers:
+    \begin{itemize}
+        \item \emph{Unasserted Test Suites:} Several constraint categories (e.g., \texttt{input\_output\_output\_range.json}, \texttt{data\_structure\_type.json}) contain empty testcase arrays (\texttt{tests: []}), leaving functional correctness unasserted.
+        \item \emph{Inaccessible Native Dependencies:} The released Python checkers in \texttt{src/evaluation/data\_structure.py} and \texttt{syntax.py} contain unconditional top-level imports of multi-lingual tree-sitter packages (\texttt{tree\_sitter\_cpp}, \texttt{tree\_sitter\_go}, \texttt{tree\_sitter\_java}, \texttt{tree\_sitter\_rust}) and \texttt{guesslang}, which requires obsolete TensorFlow packages (\texttt{tensorflow==2.5.0}) that cannot be resolved on modern operating systems.
+        \item \emph{Architectural Prefix Mismatch:} In \texttt{check\_python\_data\_structure\_operation}, the benchmark answer metadata specifies unprefixed collection names (e.g., \texttt{"OrderedDict"}), whereas its internal AST visitor stores imported structures with module prefixes (e.g., \texttt{"collections.OrderedDict"}). Because the validator checks \texttt{"ordereddict" in \{"collections.ordereddict"\}}, compliant implementations are unconditionally rejected. MultiCodeIF was excluded from our executable sample due to these unrunnable dependencies.
+    \end{itemize}
+    \item \textbf{CodeIF \cite{yan_codeif_2025} (Commit \texttt{d48dd791}):} CodeIF evaluates multi-turn code generation. However, code inspection revealed that it contains no programmatic test assertions or deterministic code validators. Its evaluation script (\texttt{src/llm\_gen/gen\_judge.py}) relies exclusively on calling proprietary LLM APIs to perform LLM-as-a-judge prompting. It was excluded because it lacks a runnable deterministic code validator.
+    \item \textbf{IFEvalCode \cite{yang_ifevalcode_2025} (Commit \texttt{13c3e775}):} IFEvalCode provides 105 self-contained Python tasks in \texttt{data/benchmark/IFEvalCode.jsonl}. Each task record packages the natural language prompt, functional unit tests (\texttt{check\_correctness}), and an executable Python constraint validator (\texttt{check\_instruction}). The evaluation runner executes locally using standard Python libraries (\texttt{ast}, \texttt{re}, \texttt{exec}). IFEvalCode was selected as our authoritative empirical audit case.
 \end{enumerate}
-Our verification harness implements and tests checkers for both contracts.
 
-\section{The Empirical Protocol}
-\label{sec:protocol}
+\section{Empirical Findings on Exploratory Tasks}
+\label{sec:findings}
 
-We design an empirical verification study following the ACM SIGSOFT Empirical Standards for Benchmarking and Automated Software Engineering.
+Table~\ref{tab:audit_results} reports the decoupled empirical findings across the six exploratory tasks sampled from IFEvalCode. All cases were executed directly against the released benchmark evaluation scripts using our companion reproduction artifact (\texttt{tools/benchmark\_validator\_audit.py}).
 
-\subsection{Benchmark Task Suite and Implemented Pilot Artifact}
-We scope the evaluation strictly to pure code generation benchmarks with executable test runners: \textbf{HumanEval} \cite{human_eval_repository} (15 tasks) and \textbf{MBPP} \cite{austin_mbpp_2021} (10 tasks), yielding 25 stratified tasks. Tasks are stratified across: (1)~mutable containers (lists, dictionaries), where in-place mutation operators ($MR_{\text{neg-immut}}$) apply; (2)~scalar numeric and string tasks; and (3)~boundary exception contracts.
+\begin{table*}[t]
+\caption{Decoupled audit outcomes across exploratory IFEvalCode tasks ($N = 6$).}
+\label{tab:audit_results}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabularx}{\textwidth}{@{}cl>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{2.1cm}cccl@{}}
+\toprule
+\textbf{ID} & \textbf{Family} & \textbf{Stated Requirement Quote} & \textbf{Validator Implementation} & \textbf{Control / Probe} & $V_{\text{instr}}$ & $V_{\text{corr}}$ & $V_{\text{comb}}$ & \textbf{Defect Classification / Consequence} \\
+\midrule
+506 & Operations & ``2. Regular expressions not allowed'' & \texttt{'import re' not in code and 're.' not in code} & Satisfying\newline Violating & PASS\newline \textbf{PASS} & PASS\newline PASS & PASS\newline \textbf{PASS} & \textbf{Instruction False Acceptance:} Passes \texttt{\_\_import\_\_('re')}.\newline (Comments with \texttt{'re.'} trigger false rejection). \\
+\midrule
+515 & Structure & ``3. Temp vars must have temp\_ prefix'' & Regex \texttt{\textbackslash s+([a-zA-Z\_]\textbackslash w*)\textbackslash s*=} & Satisfying\newline Violating\newline Keyword-Arg & PASS\newline \textbf{PASS}\newline \textbf{FAIL} & PASS\newline PASS\newline PASS & PASS\newline \textbf{PASS}\newline \textbf{FAIL} & \textbf{Instruction False Acceptance:} Comprehension vars bypass check.\newline \textbf{Keyword Brittleness:} \texttt{key=} triggers false fail. \\
+\midrule
+588 & Structure & ``1. Code must use list comprehension'' & \texttt{'[' in code and ']' in code} & Satisfying\newline Violating & PASS\newline \textbf{PASS} & \textbf{FAIL*}\newline \textbf{FAIL*} & \textbf{FAIL}\newline \textbf{FAIL} & \textbf{Instruction False Acceptance:} Slice brackets bypass check.\newline \textbf{Correctness Oracle Defect:* } Unit test expects 7 chars for 25 digits (requires 10). \\
+\midrule
+546 & Structure & ``2. No loops; 3. Must use list comp'' & Contradictory regex (\texttt{not 'for'} AND \texttt{'for' in code}) & Probe w/ \texttt{for}\newline Probe w/o \texttt{for} & \textbf{FAIL}\newline \textbf{FAIL} & N/A\newline N/A & \textbf{FAIL}\newline \textbf{FAIL} & \textbf{Structural Contradiction:} Empty acceptance set ($L(V_{\text{instr}})=\emptyset$). Check 2 bans \texttt{for}; Check 3 mandates \texttt{for}. \\
+\midrule
+564 & Structure & ``4. Variable names longer than 5 chars'' & Word token regex without keyword filter & Standard \texttt{def}\newline Lambda probe & \textbf{FAIL}\newline \textbf{FAIL} & N/A\newline N/A & \textbf{FAIL}\newline \textbf{FAIL} & \textbf{Unscoped Token Regex Defect:} Matches \texttt{def} (len 3) and \texttt{count} (len 5); rejects valid functions. \\
+\midrule
+518 & Structure & ``1. Lowercase; 2. Descriptive ($\ge 2$); 3. $\le 15$ lines'' & Checks lowercase, single-letter regex, line count $\le 15$ & Satisfying & PASS & PASS & PASS & \textbf{Concordant Verification on Stated Constraints:} Verbatim prompt constraints verified. \\
+\bottomrule
+\multicolumn{9}{@{}l@{}}{\scriptsize *Task 588 test case 4 contains a ground-truth error expecting 7 characters for a 25-character binary input (mathematically requires 10).}
+\end{tabularx}
+\end{table*}
 
-\textbf{Implemented Pilot Suite:} In our companion research artifact (\texttt{tools/metamorphic\_protocol.py}), we implement and verify a 5-task pilot suite where original prompts and complete test suites are dynamically loaded from the official OpenAI HumanEval repository (git revision \texttt{b9453e8f18}). For each task, the artifact preserves all complete legacy test assertions without omissions or alterations (e.g., all 7 assertions for \texttt{HumanEval/0}, all 4 for \texttt{HumanEval/1}, all 3 with numerical tolerances for \texttt{HumanEval/2}, all 5 for \texttt{HumanEval/21}, and all 3 including the empty-list assertion for \texttt{HumanEval/26}). The pilot demonstrates Class~2 compatible evolution on \texttt{HumanEval/0}, \texttt{21}, and \texttt{26} under immutability (where mutating mutants pass legacy tests undetected), and demonstrates Class~3 incompatible evolution on \texttt{HumanEval/26} under empty-list exception handling (confirming that the added requirement contradicts existing test assertions). In our pilot audit of the five selected HumanEval tasks (Study 1), released unit assertions were examined against the base docstring specifications, confirming that none of the five tasks' base test suites assert input immutability or exception handling. In Study 2, tasks are evaluated under requirements evolution. The planned full-scale study expands this protocol across all 25 stratified tasks in HumanEval and MBPP.
+\subsection{Detailed Analysis of Exploratory Cases}
 
-\subsection{Model Selection and Verification Pipeline}
-The planned full-scale verification pipeline will evaluate three frontier foundation model families: (1)~\textbf{GPT-4o}; (2)~\textbf{Claude 3.5 Sonnet}; and (3)~\textbf{Llama-3-70B-Instruct}, using low-temperature sampling ($T = 0.2$, pass@1).
+\textbf{Task 506 (Permissive Banned API Check):} The prompt states: \emph{``2. Regular expressions are not allowed''}. The released validator checks:
+\begin{verbatim}
+assert 'import re' not in code and 're.' not in code
+\end{verbatim}
+Our satisfying control implements validation via standard string methods (\texttt{c.isupper()}, \texttt{c.isdigit()}), passing both instruction and unit tests ($V_{\text{instr}}=\textbf{PASS}, V_{\text{corr}}=\textbf{PASS}, V_{\text{comb}}=\textbf{PASS}$). Our violating control invokes regular expressions via reflection: \texttt{\_\_import\_\_('re').search(...)}. Because the exact string \texttt{'import re'} is absent and no attribute accesses \texttt{'re.'}, the validator emits $V_{\text{instr}}=\textbf{PASS}$. Programmatic witness inspection confirms that the AST contains an \texttt{ast.Call} node invoking \texttt{\_\_import\_\_('re')}. Furthermore, if a compliant implementation contains a harmless comment such as \texttt{\# Ensure. Here is code}, the substring \texttt{'re.'} matches, causing the validator to falsely reject compliant code.
 
-The automated verification pipeline executes two stages:
+\textbf{Task 515 (Regex Variable Scope Bypass and Keyword Brittleness):} The prompt requires: \emph{``3. Temporary variables inside the function must be prefixed with temp\_''}. The validator searches for variables using:
+\begin{verbatim}
+re.findall(r'\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=', code)
+\end{verbatim}
+Our violating control introduces un-prefixed comprehension variables (\texttt{[unprefixed\_x for unprefixed\_x in numbers ...]}). Because comprehension variables are followed by the keyword \texttt{in} rather than an assignment operator \texttt{=}, the regex fails to match them, and the validator emits $V_{\text{instr}}=\textbf{PASS}$. Conversely, if a satisfying implementation uses standard keyword arguments (e.g., \texttt{sorted(numbers, key = lambda ...)}), the validator misidentifies \texttt{key} as an un-prefixed temporary variable and raises \texttt{AssertionError}, falsely rejecting compliant code ($V_{\text{instr}}=\textbf{FAIL}, V_{\text{corr}}=\textbf{PASS}$).
+
+\textbf{Task 588 (Permissive Syntax Check and Correctness Oracle Defect):} The prompt mandates: \emph{``1. Code must use list comprehension''}. The validator checks:
+\begin{verbatim}
+assert '[' in code and ']' in code, 'Must use list comprehension'
+\end{verbatim}
+Our violating control replaces list comprehension with higher-order functional \texttt{map(lambda ...)} while retaining string slicing \texttt{binary\_str[idx:idx+5]}. Because square brackets are present, the validator emits $V_{\text{instr}}=\textbf{PASS}$, despite AST verification confirming exactly 0 \texttt{ast.ListComp} nodes. Concurrently, test case 4 in \texttt{check\_correctness} asserts that a 25-character binary input produces a 7-character output (\texttt{'1010110'}), violating the prompt's mathematical rule that every 5 binary digits map to 2 digits (which strictly requires 10 output characters). Both satisfying and violating implementations receive $V_{\text{corr}}=\textbf{FAIL}$.
+
+\textbf{Task 546 (Structural Validator Contradiction):} The prompt requires: \emph{``2. No loop statements (for, while, etc.) allowed; 3. Must use list comprehension''}. The released validator implements:
+\begin{verbatim}
+assert not any(keyword in code.lower() for keyword in ['for', 'while'])
+assert '[' in code and 'for' in code and 'in' in code and ']' in code
+\end{verbatim}
+The validator contains an inescapable logical contradiction: if \texttt{'for'} is present, assertion 1 raises an \texttt{AssertionError}; if \texttt{'for'} is omitted, assertion 2 raises an \texttt{AssertionError}. Testing two-line minimal probes confirms this mutual exclusion: a probe with \texttt{'for'} fails assertion 1 ($V_{\text{instr}}=\textbf{FAIL}$), while a probe without \texttt{'for'} fails assertion 2 ($V_{\text{instr}}=\textbf{FAIL}$). The acceptance set of this validator is empty ($L(V_{\text{instr}})=\emptyset$), rendering successful execution mathematically impossible for any Python completion.
+
+\textbf{Task 564 (Unscoped Token Regex Defect):} The prompt mandates: \emph{``4. All variable names must be longer than 5 characters; 1. Single line of code''}. The validator executes:
+\begin{verbatim}
+variables = re.findall(r'[a-zA-Z_][a-zA-Z0-9_]*', code)
+for var in variables:
+    assert len(var) > 5 or var in ['for', 'in', 'if']
+\end{verbatim}
+The regex matches all word tokens in the source code. A standard function definition \texttt{def find\_duplicates(numbers):} fails immediately on the Python keyword \texttt{def} (\texttt{len('def') == 3}), raising \texttt{AssertionError: Variable 'def' is too short}. Even if defined via a \texttt{lambda} expression to eliminate \texttt{def}, standard method calls such as \texttt{numbers.count(...)} trigger failure on \texttt{'count'} (\texttt{len('count') == 5}, which is not $>5$). Because keywords and methods are omitted from the hardcoded exemption list, standard function submissions are unconditionally rejected ($V_{\text{instr}}=\textbf{FAIL}$).
+
+\textbf{Task 518 (Concordant Verification on Stated Constraints):} In earlier drafting, this task was tentatively cataloged as an algorithmic failure under the assumption that it required binary search and $O(\log n)$ time complexity. However, inspecting the verbatim released prompt revealed that neither binary search nor logarithmic complexity is stated. The prompt explicitly specifies three constraints: (1)~all variable and function names must be lowercase; (2)~all names must be descriptive (no single letters); and (3)~the function must not exceed 15 lines of code. The released validator checks exactly these three properties: lowercase naming, single-letter variables via regex, and line count $\le 15$. Our satisfying implementation fulfills all stated requirements in 11 lines, passing both instruction and correctness checks ($V_{\text{instr}}=\textbf{PASS}, V_{\text{corr}}=\textbf{PASS}, V_{\text{comb}}=\textbf{PASS}$). Withdrawing the unstated algorithmic assumption demonstrates the core RE principle: requirements conformance must be evaluated against verbatim stated requirements rather than presumed external expectations. Task 518 represents an instance of concordant verification on its stated constraints.
+
+\subsection{Summary of Exploratory Findings}
+Across the six exploratory tasks ($N=6$):
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Stage 1 (Reused Benchmark Oracle):} The model completion is executed against released unit tests $\mathcal{T}_{\text{unit}}$ in an isolated container harness, logging binary verdict $S_{\text{score}} \in \{\textbf{PASS}, \textbf{FAIL}\}$.
-    \item \textbf{Stage 2 (Metamorphic Contract Checker \& Scope Audit):} The completion is dynamically checked against constraint $\psi$ using snapshot and proxy checkers for $MR_{\text{neg-immut}}$, AST scanning for $MR_{\text{neg-banned}}$, and exception fixtures for $MR_{\text{bound}}$. Crucially, because the runtime proxy returns a Boolean indicating whether monitored operations occurred rather than proving global immutability, execution traces undergo an explicit two-tier scope audit: (1)~a static AST screening checking for unsupported dynamic reflection or unbound base calls (e.g., \texttt{list.append(x, ...)}), and (2)~runtime container verification restricting inputs to flat sequences. If an execution invokes uninstrumented or unsupported mechanisms, it is explicitly classified as \textbf{Unresolved}. In our empirical reporting, the \textbf{Unresolved Rate} ($\text{UR}(M, T') = \frac{1}{|T'|} \sum_{t' \in T'} \mathbb{I}(\text{ScopeAudit}(M(t')) = \textbf{Unresolved})$) is reported alongside $AVR$ and $MDR$ to ensure that unmonitored executions are never misclassified as compliant.
+    \item \textbf{Instruction Oracle Permissiveness (False Acceptance):} 3 of 6 tasks (Tasks 506, 515, 588) award $V_{\text{instr}}=\textbf{PASS}$ to violating code;
+    \item \textbf{Instruction Oracle Brittleness (False Rejection):} 1 of 6 tasks (Task 515) rejects satisfying code ($V_{\text{instr}}=\textbf{FAIL}$) due to keyword arguments;
+    \item \textbf{Structural Validator Contradictions:} 1 of 6 tasks (Task 546) has an empty acceptance set ($L(V_{\text{instr}})=\emptyset$);
+    \item \textbf{Unscoped Token Regex Defects:} 1 of 6 tasks (Task 564) rejects standard function definitions due to keyword collisions on \texttt{def};
+    \item \textbf{Correctness Test Oracle Defects:} 1 of 6 tasks (Task 588) contains defective ground-truth test assertions;
+    \item \textbf{Concordant Verification on Stated Constraints:} 1 of 6 tasks (Task 518) faithfully verifies its verbatim prompt requirements.
 \end{itemize}
 
-\section{The Semi-Expert Adjudication Protocol}
-\label{sec:human_adjudication}
-
-While automated contract checkers identify syntactic and dynamic breaches, evaluating whether an accepted violation invalidates benchmark evidence for software procurement requires engineering judgment.
-
-\subsection{Participant Selection and Deployment Grounding}
-We design an adjudication protocol across \textbf{$N = 16$ software engineering evaluators} stratified into two cohorts:
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Junior Software Engineers (8 Graduate Students):} Master's students in Computer Science / Software Engineering with verified Python systems programming proficiency;
-    \item \textbf{Senior Technical Experts (8 Faculty and Postdocs):} University faculty and postdoctoral researchers specializing in Software Engineering, Automated Testing, or Formal Methods.
-\end{itemize}
-
-\textbf{Deployment Scenario Grounding:} Evaluators are provided with an explicit deployment context: an enterprise concurrent microservice where worker threads process shared in-memory candidate request buffers without copy-on-write isolation. In this architecture, in-place input mutation corrupts shared caller buffers across requests, producing race conditions; unhandled runtime exceptions crash worker threads. Evaluators assess the risk of benchmark false-positive passes under this concrete deployment scenario.
-
-\subsection{The 14-Case Adjudication Instrument and Control Grounding}
-To counteract demand characteristics (where evaluators anticipate defects on every prompt due to artificial defect saturation), participants evaluate a \textbf{14-case adjudication instrument} comprising 10 contract violation cases across metamorphic operators and 4 compliant controls to measure baseline false-alarm rater classifications:
-\begin{enumerate}[leftmargin=*]
-    \item \textbf{Cases 1--4 ($MR_{\text{neg-immut}}$ In-Place Mutation):} Completions modifying input buffers in-place despite explicit immutability requirements ($S_{\text{score}} = \textbf{PASS}$, contract breached).
-    \item \textbf{Cases 5--7 ($MR_{\text{bound}}$ Unhandled Exception):} Completions crashing with raw \texttt{IndexError} rather than raising the specified domain exception ($S_{\text{score}} = \textbf{PASS}$, contract breached).
-    \item \textbf{Cases 8--10 ($MR_{\text{neg-banned}}$ Prohibited API):} Completions invoking unauthorized process or filesystem functions ($S_{\text{score}} = \textbf{PASS}$, contract breached).
-    \item \textbf{Cases 11--14 (Compliant Controls):} Four fully compliant reference completions that satisfy both released unit tests and the injected metamorphic constraints ($S_{\text{score}} = \textbf{PASS}$, contract satisfied).
-\end{enumerate}
-
-For each case, participants inspect the prompt specification, generated code, and test log, evaluating:
-\begin{enumerate}[leftmargin=*]
-    \item \textbf{Question 1 (Behavioral Compliance and Contract Risk):} \emph{``Evaluate the behavioral compliance and contract risk of this completion:''} (\textbf{Fatal Defect / Severe Non-Compliance}, \textbf{Moderate Non-Compliance}, \textbf{Minor Inconsistency / Technical Debt}, \textbf{Fully Compliant}).
-    \item \textbf{Question 2 (RTM Evidence Admissibility):} \emph{``Under an enterprise Requirements Traceability Matrix, what is your verification verdict for this benchmark evidence?''} (\textbf{Inadmissible Evidence}, \textbf{Conditional Query}, \textbf{Accept Evidence}).
-    \item \textbf{Question 3 (Technical Justification):} Free-text rationale justifying the verdict.
-\end{enumerate}
-
-\subsection{Statistical Analysis Plan: CLMM and Krippendorff's Alpha}
-We evaluate evaluator ratings across participants and tasks with $N = 16$ evaluators ($16 \times 14 = 224$ total clustered ratings). We explicitly distinguish rater agreement from regression modeling:
-\begin{enumerate}[leftmargin=*]
-    \item \textbf{Defect Severity Ratings (4-level ordinal):} Evaluator ratings are analyzed using \textbf{Cumulative Link Mixed Models (CLMM)} (mixed-effects ordinal logistic regression via the \texttt{ordinal} package in R) as an explanatory regression model rather than an agreement index:
-    \begin{itemize}[leftmargin=*]
-        \item \emph{Model Specification:} We specify fixed effects for expertise cohort (Junior vs.\ Senior) and metamorphic operator, while including random intercepts for participant ID and task ID to adjust for individual evaluator leniency and task-specific difficulty.
-        \item \emph{Feasibility Sample \& Fallbacks:} We frame this 16-evaluator, 14-case design ($16 \times 14 = 224$ clustered ratings) as a research preview feasibility sample designed to evaluate protocol feasibility and initial effect directions; full statistical hypothesis testing of cohort and operator contrasts is reserved for the expanded study. If cell sparsity occurs in boundary categories ($<5$ responses in extreme levels), adjacent intermediate categories (\emph{Moderate Non-Compliance} and \emph{Minor Inconsistency}) are collapsed as a predefined sensitivity fallback; if task variance is degenerate ($\sigma^2_{\text{task}} \approx 0$), the model simplifies to random participant intercepts.
-    \end{itemize}
-    \item \textbf{RTM Admissibility Decisions (nominal):} Inter-rater agreement on categorical admissibility is evaluated separately using nominal Krippendorff's alpha ($\alpha_n$) with cluster-bootstrapped 95\% confidence intervals ($B = 10,000$ resamples, resampling evaluators with replacement).
-\end{enumerate}
-Participants are recruited with informed consent under institutional review standards, evaluating cases presented in randomized order. To ensure data quality without biasing the false-alarm rate measured by compliant controls, the instrument includes independent, explicit attention check items (e.g., instructing the rater to select a specified option regardless of prompt text); only participants failing independent attention checks are excluded.
-
-\section{Discussion: Implications for the AI Requirements Traceability Matrix}
+\section{Discussion: Tracing Requirements to Score Interpretations}
 \label{sec:discussion}
 
-\subsection{Connecting Benchmark Reuse to the RTM Sufficiency Calculus}
-In requirements engineering assurance cases, third-party model certification is governed by the Requirements Traceability Matrix (RTM) calculus \cite{anonymous_companion_2027}. Under this calculus, an enterprise capability requirement $r$ is mapped to mandatory verification criteria $\tau_C(r)$. The certification pipeline evaluates evidence admissibility prior to evaluating model score thresholds:
+\subsection{The Requirements Engineering Traceability Model}
+Our findings demonstrate that benchmark oracle auditing is not merely a testing concern, but a foundational Requirements Engineering challenge. We formalize this via the \textbf{Traceability from Requirement Wording to Permitted Score Interpretation}:
 \begin{equation}
-\label{eq:rtm_decision}
-\text{Decision}(M, r, \theta, \gamma_{\text{conf}}) = \textbf{Inadmissible Evidence} \quad \text{if } \exists c \in \tau_C(r) : v(c, r) = \textbf{Inadmissible}
+\label{eq:re_trace}
+\text{Requirement Wording} \xrightarrow{\text{operationalized as}} \text{Validator Behavior} \xrightarrow{\text{permits}} \text{Score Interpretation}
 \end{equation}
-where $v(c, r)$ denotes the admissibility verdict of criterion $c$, $\theta$ is the required model capability threshold, and $\gamma_{\text{conf}}$ is the statistical confidence level.
 
-In the companion metrology framework \cite{anonymous_companion_2027}, Criterion B07 (\emph{Scoring Implementation Checked}) requires independent verification for execution integrity. Our metamorphic formulation provides the empirical criterion: if a reused benchmark oracle exhibits an Accepted Violation Rate exceeding organizational tolerance ($AVR > \epsilon_{\text{tol}}$) or low Mutation Detection Rate ($MDR < \theta_{\text{det}}$), the test oracle is inadequate for the evolved requirement. The RTM emits $v(\text{B07}, r) = \textbf{Inadmissible Evidence}$, halting certification without falsely claiming that the model lacks capability. Metamorphic specification testing thus provides the empirical gating mechanism that protects the RTM pipeline against happy-path false passes.
+When an instruction-following benchmark reports a pass score, Kane's Scoring Inference ($I_{\text{score}}$) is valid only to the extent that the validator's operationalization entails the requirement semantics. As summarized in Table~\ref{tab:scoring_warrant}, in every audited failure mode, the permitted score interpretation is dramatically weaker than the benchmark's stated claim.
+
+\begin{table}[t]
+\caption{Traceability analysis from stated requirement wording to permitted score interpretation.}
+\label{tab:scoring_warrant}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Task} & \textbf{Stated Requirement} & \textbf{Evaluator Implementation} & \textbf{Permitted Score Interpretation ($I_{\text{score}}$)} \\
+\midrule
+506 & Prohibit regular expressions & Substring check for \texttt{'import re'} & Code avoided literal string \texttt{'import re'}. Does not warrant that regex was not used. \\
+515 & Prefix temp variables & Regex matching \texttt{\textbackslash w+\textbackslash s*=} & Code avoided top-level assignments. Does not warrant that comprehension variables were prefixed. \\
+588 & Mandate list comprehension & Substring check for \texttt{'['} and \texttt{']'} & Code contained square brackets. Does not warrant that list comprehension was used. \\
+546 & Ban loops; mandate list comp & Contradictory regex assertions & Degenerate 0\% score. Score provides zero information about model capability. \\
+564 & Variable names $> 5$ chars & Regex catching \texttt{def} & Degenerate 0\% score. Score reflects presence of keyword \texttt{def}, not naming compliance. \\
+518 & Lowercase, descriptive, $\le 15$ lines & Checks naming regex and line count & Stated syntactic naming and line limits concordantly verified. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Evidential Warrants and AI Assurance Cases}
+In software assurance standards such as AMLAS \cite{hawkins_amlas_2021} and safety case engineering \cite{lawford_safety_case_impact_2017}, empirical test evidence is ingested into a Requirements Traceability Matrix (RTM) to substantiate claims about software capability. Under Kane's validation framework, validator soundness is a \textbf{necessary pre-condition} for the scoring inference:
+\begin{equation}
+\label{eq:necessary_condition}
+\neg\text{Sound}(V) \implies \neg\text{Warrant}(I_{\text{score}}) \implies \text{Evidence Inadmissible}
+\end{equation}
+If a validator contains internal contradictions ($L(V)=\emptyset$), permits trivial bypasses, or contains defective ground-truth assertions, its pass rates cannot serve as verification evidence for requirement satisfaction.
+
+Crucially, however, validator soundness is \textbf{not a sufficient condition} for requirements admissibility:
+\begin{equation}
+\label{eq:insufficient_condition}
+\text{Sound}(V) \not\implies \text{Evidence Admissible}
+\end{equation}
+Even when a validator faithfully enforces a task's stated constraints (as in Task 518), passing that task does not establish that the benchmark task aligns with enterprise operational requirements ($I_{\text{extrap}}$) or satisfies system-level safety invariants ($I_{\text{dec}}$). We emphasize that integrating benchmark auditing into RTM workflows represents a prospective application of this methodology: establishing validator fidelity is a prerequisite to prevent the ingestion of illusory compliance evidence into safety cases.
 
 \subsection{Threats to Validity}
-\textbf{Construct Validity:} Our metamorphic operators represent three common requirements in production software engineering (immutability, exception handling, formal specification; ISO/IEC 25010 \cite{iso_iec_25010_2011}). For immutability, we implemented both snapshot and proxy checkers to address transient mutation.
+\textbf{Construct Validity:} Our audit operationalizes validator fidelity by constructing satisfying and violating implementations paired with programmatic AST witness assertions. While passing constructed controls does not prove complete input-domain coverage, observing that a validator accepts an implementation that explicitly invokes regular expressions or omits list comprehensions provides irrefutable constructive proof of oracle permissiveness.
 
-\textbf{Internal Validity:} Automated contract checkers detect specified AST patterns and container mutation methods, providing objective evidence for tested mutants. However, runtime Python proxies have operational boundaries: while intercepting overridden methods and item assignments, they do not intercept direct unbound base calls (e.g., \texttt{list.append(x, ...)}) or C-extension memory writes. Executions utilizing uninstrumented mechanisms are treated as unresolved rather than proven compliant. In our planned human study, inter-rater agreement on RTM admissibility decisions will be evaluated via cluster-bootstrapped Krippendorff's $\alpha_n$, while CLMM models cohort and operator effects adjusting for rater leniency; the inclusion of four compliant controls mitigates rater defect anticipation, and separate non-substantive attention checks protect against careless responses without biasing false-alarm estimation.
+\textbf{Internal Validity:} Cases were selected from eligible Python tasks in IFEvalCode across distinct requirement families. We disclosed the withdrawal of Task 518's misclassification, illustrating strict adherence to verbatim prompt text. An AI assistant supported the initial authoring of candidate implementations, whose execution traces and AST structures were independently verified using automated Python test harnesses.
 
-\textbf{External Validity:} Our implemented pilot artifact examines 5 canonical tasks from HumanEval, with the planned preview protocol extending to 25 tasks across HumanEval and MBPP. While dynamic Python permits reflection and runtime monkey-patching, behavioral contract violations and API misuse remain acute across programming paradigms. Replicating metamorphic oracle probes across compiled languages and containerized agent benchmarks (e.g., SWE-bench Lite) represents an essential avenue for future research.
+\textbf{External Validity:} Our empirical findings are grounded in IFEvalCode's Python evaluation suite, while documenting operational barriers in MultiCodeIF and CodeIF. Although dynamic Python is uniquely susceptible to reflection bypasses (\texttt{\_\_import\_\_}), regex-based constraint verification and syntactic substring checks represent pervasive architectural patterns across modern instruction-following benchmarks.
 
-\section{Conclusion and Future Work}
+\section{Conclusion and Reproducibility}
 \label{sec:conclusion}
 
-This research preview shifts the evaluation of AI benchmarks from hunting ground-truth bugs to auditing benchmark test oracles against evolved software requirements. We formulated a metrological taxonomy of requirements evolution under benchmark evidence reuse, established dual contract checker semantics, decoupled the Accepted Violation Rate ($AVR$) and Mutation Detection Rate ($MDR$), and verified a 5-task pilot artifact. Our research preview protocol establishes an empirical method for determining when legacy benchmark test evidence can be admitted into an enterprise Requirements Traceability Matrix. Future work will execute this protocol across multi-lingual and containerized agent benchmarks.
+This Research Preview audited whether released coding benchmark evaluators enforce their own stated requirements. Through a formal unit of analysis $u = (t, r, V)$ and decoupled outcome reporting ($V_{\text{instr}}, V_{\text{corr}}, V_{\text{comb}}$), we evaluated the fidelity of instruction-following evaluators using paired controls. Across six exploratory tasks in IFEvalCode, we identified instruction oracle permissiveness in 3 tasks, structural contradictions in 1 task, unscoped regex collisions in 1 task, and defective test ground truth in 1 task, alongside 1 case of concordant verification on verbatim stated constraints.
+
+Our findings establish that high benchmark scores do not imply compliance with stated requirements. In Requirements Engineering, benchmark evidence cannot be safely reused without auditing the scoring inference ($I_{\text{score}}$). All task definitions, paired implementations, execution logs, and audit harnesses are published in our companion reproduction artifact: \texttt{tools/benchmark\_validator\_audit.py}.
 
 \section*{Data Availability}
-The metamorphic task specifications, contract checking harnesses, and adjudication instruments are available in the anonymous companion replication package: \url{https://anonymous.4open.science/r/benchmark-reuse-preview}.
+The replication artifact and evaluation harness are available in the repository at \texttt{tools/benchmark\_validator\_audit.py} and can be reproduced with \texttt{python3 tools/benchmark\_validator\_audit.py}.
 
 \bibliographystyle{splncs04}
 \bibliography{references}

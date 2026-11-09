@@ -1,0 +1,68 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28b",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the agent environment controlled and isolated from answers?",
+  "shown_means": "the environment, its tools and its isolation described",
+  "checked_means": "state clearing and isolation from answers, history and network verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The benchmark runs coding agents in an environment (the task image with the repository) with tools and state."
+  },
+  "check": {
+    "procedure": "Run for this study (protocol 4): for 75 published task images, including the pilot and the 20 source tasks, the commits beyond the base commit and the files changed since it were listed with no network. Each image holds one setup commit by setup@swebench.com; the image of sympy__sympy-20590 also holds 58 other commits that are not ancestors of the base commit, and a search of their diffs for every added line of the reference patch longer than 25 characters found none (2 lines searched). Changed files in 4 in-scope images (13031, 18199, 20590, 21847) show 0 insertions and 0 deletions.",
+    "kind": "run_by_reviewer",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+    "detection_limits": "The check could not detect a fix rewritten in other words, hints short of the answer in the later commits of sympy__sympy-20590, answers reachable by network (not checked, and the fix is public), or the dataset record that carries the gold patch beside the task."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "The tests are not shown to the agent."
+    },
+    {
+      "location": "~/paper2-sources/swebench-datasets-guide.txt",
+      "quote": "Gold solution patch (don't look at this if you're trying to solve the problem)"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+      "quote": "\"images\": 75"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "\"reference_lines_found\": []"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "A fix rewritten in other words, or split across lines, would not be found; short added lines are not searched."
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Verified and not Documented because a history check of the shipped images was run and its coverage, findings and limits are recorded. Not Contradicted because no answer or content revealing it was found at a cited location; the later commits of the sympy-20590 image are recorded and the outcome is passed with the stated limit. Network isolation was not checked.",
+  "missing": "A check of network access from the agent environment, a person reading of the later commits in the sympy-20590 image, and an enforced separation of the gold patch from the task record in the agent environment.",
+  "checks_performed": [
+    "Read the protocol-4 image history and extra commit search records.",
+    "Read the datasets guide fields and the 2024 post description of what the agent sees."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

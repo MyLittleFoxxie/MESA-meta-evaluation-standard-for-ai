@@ -1,0 +1,915 @@
+{
+  "record": "paper2-aba-overlap/1",
+  "source": "https://data.autobenchaudit.com/benchmarks/swe_bench_verified/benchmark.json",
+  "sha256": "8261b15905ba2a28314ec624f01716c6fb6e0f81fd09b7b491aa299f95e18b9f",
+  "fetched_at": "2026-11-09",
+  "rule": "flagged: at least one major finding, static or trajectory",
+  "compared_with": "paper2/preparation/protocol-5/audit_forms/drafts",
+  "tasks": [
+    {
+      "task_id": "sympy__sympy-13798",
+      "role": "pilot",
+      "in_aba": true,
+      "aba_flagged": true,
+      "static_findings_major": 1,
+      "static_findings_minor": 1,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 1,
+          "minor": 1
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The test patch enforces two implementation details the prompt never mentions and that partly contradict the prompt's visible cues: (1) the custom `mul_symbol` must be used verbatim with NO surrounding spaces, whereas the prompt's own example and the existing `mul_symbol_table` convention both include outer spaces; (2) when `mul_symbol` is a whitespace-like string, multiplication between numbers must silently fall back to `\\cdot`. A competent developer reading only the prompt would most likely produce output that fails both hidden checks.",
+      "trajectory_findings_major": 1,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 1,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "The prompt asks that `mul_symbol` accept arbitrary user-supplied LaTeX strings (with the motivating example `\\,`, a thin space), and stresses backwards-compatibility. The hidden test enforces a second, undocumented requirement: when the user-supplied symbol is a whitespace-like LaTeX command (`\\,`, `\\:`, `\\;`, `\\quad`, etc.), the printer must still use ` \\cdot ` between two numeric factors (e.g. `1.5*3**x` \u2192 `\"1.5 \\cdot 3^{x}\"`), not the custom symbol. None of this is stated, hinted at, or exemplified in the issue text \u2014 the issue's only example is `latex(3*x**2*y)` with symbol\u00d7symbol factors. All three agent runs implemented the straightforward interpretation (use the custom symbol uniformly) and all three fail on exactly the same assertion at test_latex.py:67. The reference patch hard-codes the special list `['', ' ', '\\\\', '\\\\,', '\\\\:', '\\\\;', '\\\\quad']` for numbers; that list is not derivable from the prompt.",
+      "form_task_defects": [],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-16597",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 1,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 1
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The problem statement only asks whether `a.is_even` should imply `a.is_finite` (with a brief aside that a number should be finite to be even). The hidden tests, however, require a much broader semantic change to SymPy's assumption rules: `rational`, `irrational`, `algebraic`, and `transcendental` must all imply `finite`, and as consequences `S.Infinity.is_integer`, `.is_rational`, `.is_algebraic`, `.is_transcendental`, `.is_irrational`, `.is_even`, `.is_odd`, `.is_composite` must all flip from `None` to `False` (and `.is_noninteger` to `True`). A competent developer reading only the narrow prompt could reasonably land on just `even -> finite` or `integer -> finite` or `rational -> real & finite`, which would pass the even-symbol case but still fail `Symbol('x', irrational=True).is_finite is True` and the algebraic/transcendental assertions on infinity. The extension to `irrational`/`algebraic`/`transcendental` is not motivated anywhere in the prompt.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 1,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 1
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "The prompt is a narrow GitHub issue stating only that `Symbol('m', even=True).is_finite` should not be `None`. It says nothing about rational, irrational, algebraic, or transcendental numbers, or about what `S.Infinity.is_rational` should return. But the hidden tests require a comprehensive reform: `rational \u2192 finite`, `irrational \u2192 finite`, `algebraic \u2192 finite`, `transcendental \u2192 finite`, plus changing `oo.is_rational`/`is_algebraic`/`is_transcendental`/`is_irrational` from `None` to `False`, and new assertions that `Symbol('x', rational=True).is_finite is True` and `Symbol('x', irrational=True).is_finite is True`. All three runs produced a principled but narrow fix (`integer \u2192 finite`) that resolves the stated symptom; all fail for not generalizing further. The upstream issue's `hints_text` explicitly directs the broader fix (`rational -> real & finite`), but SWE-bench does not include hints in the prompt. This is a discoverable gap (severity 1): the generalization of \"a number should be finite before it can be X\" is a reasonable extrapolation, but a competent developer reading only the issue could legitimately stop at fixing the stated case.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-23413",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Task is well-specified. The problem statement reports a concrete bug in hermite_normal_form with a reproducible example, and the hints show additional minimal cases that pinpoint the root cause (rows being dropped when the matrix appears rank-deficient). The FAIL_TO_PASS test_issue_23410 is directly derived from the hints, and the updated assertion for Matrix([[2,7],[0,0],[0,0]]) \u2192 Matrix([[1],[0],[0]]) is the mathematically correct HNF that falls out naturally from a correct fix to the same root cause. A competent developer reading only the prompt can reach the expected fix.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "The prompt is the original GitHub bug report describing `hermite_normal_form` dropping rows on rank-deficient-looking m>n matrices, with a concrete failing example and expected output. The reference fix changes `_hermite_normal_form` to iterate over all m rows (instead of min(m,n)) with an early break when k==0. The FAIL_TO_PASS tests (`test_hermite_normal` with `[[2,7],[0,0],[0,0]]\u2192[[1],[0],[0]]` and new `test_issue_23410` with `[[1,12],[0,8],[0,5]]\u2192[[1,0],[0,8],[0,5]]`) directly verify fixing that root cause. The agent's patch only removed the final column trim `[:, k:]` but did not change the iteration bound, so top rows are never reduced \u2014 a valid patch was clearly reachable from the prompt, and the failure is agent error, not a benchmark defect.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-12096",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Problem statement clearly describes the bug (Function._eval_evalf not calling evalf recursively on _imp_'s args for nested implemented_function composition), includes a reproducing example, and points to the exact method. The FAIL_TO_PASS test test_issue_12092 directly checks the described scenario (f(f(2)).evalf() == Float(16)). The reference patch is a minimal fix inside the named method. Prompt, reference, and test are aligned; no defects found.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Prompt is clear and well-specified: it points to the exact function (Function._eval_evalf), describes the bug (no recursive evalf on _imp_ return), and gives a reproducible example. The FAIL_TO_PASS test (test_issue_12092: f(f(2)).evalf() == Float(16)) directly mirrors the example in the prompt. The PASS_TO_PASS tests are preserved upstream tests that exercise normal error paths. Runs 0 and 2 wrote correct one-line fixes and passed. Run1 failed because the agent's own patch had an UnboundLocalError bug: it moved `imp = self._imp_(*self.args)` inside a try and then referenced `imp` inside an `except AttributeError` block, but if `self._imp_(...)` itself raises AttributeError (which test_imps_errors explicitly exercises), `imp` is never assigned. Pure agent error; no benchmark defect.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-24539",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The problem statement clearly describes a bug in PolyElement.as_expr() with a reproducer, expected vs. actual output, and a link to the exact method. The fix is straightforward (use passed symbols when provided and count matches). The test patch replaces local X,Y,Z with U,V,W to make the assertion meaningful (since the original test symbols matched the ring symbols, the old assertion passed even with the buggy code). The later `raises(ValueError, lambda: f.as_expr(X))` still works because X is bound earlier from `R.symbols`. Task is well-specified and the test fairly evaluates what is described.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Prompt clearly describes the PolyElement.as_expr() bug, pinpoints the exact source lines, and provides a minimal reproducer showing the wrong output. The expected fix (use passed symbols when provided, fall back to ring.symbols otherwise) is unambiguous. Tests verify exactly that: f.as_expr(U,V,W) returns the expression rewritten in U,V,W, and passing a wrong count still raises ValueError. All three gpt-5.4 runs resolved FAIL_TO_PASS and kept PASS_TO_PASS green. No benchmark defect.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-21847",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Task is well-specified. The problem statement clearly describes the bug in itermonomials' min_degrees handling, quotes the function's documentation defining the expected behavior (total_degree within [min_degree, max_degree]), and provides a reproducible example. The reference fix (max -> sum of powers) directly aligns with the documented semantics. The added tests verify that total-degree filtering works for both commutative and non-commutative variables in a way consistent with the problem statement. No defects found.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Prompt precisely describes the bug in itermonomials: when min_degrees is used, the filter compares max(powers.values()) instead of the total degree sum(powers.values()), so monomials like x1*x2**2 with total_degree==3 are dropped. The prompt includes a runnable reproduction, the expected missing monomials, and quotes the docstring specifying min_degree <= total_degree(monom) <= max_degree. The added tests in test_patch exercise both commutative and non-commutative variable cases across multiple (max, min) pairs and expect the exact set of monomials that satisfy the documented total-degree inequality. All three runs resolved; the fix is the standard sum-of-powers comparison. No ambiguity, environment, or test-quality defects.",
+      "form_task_defects": [
+        "B07"
+      ],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-13551",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The task prompt precisely identifies the bug in Product(n + 1/2**k, [k, 0, n-1]).doit() and states the correct numerical value for n=2 (15/2 vs the incorrect 9/2). The FAIL_TO_PASS test verifies exactly this fact, and the PASS_TO_PASS regression tests guard prior correct behavior. A competent developer reading only the prompt can produce a passing fix via any of several standard approaches (unevaluated Product, Sum/log/exp rewrite, or q-Pochhammer). No ambiguity, environment, or test-quality defects found.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "The prompt describes a concrete bug in Product(n + 1/2**k, [k, 0, n-1]): for n=2 the engine returns 9/2 rather than the correct 15/2, with a pointer to q-Pochhammer reference. The FAIL_TO_PASS test `test_issue_13546` asserts exactly the example given in the prompt (p.subs(n, 2).doit() == 15/2), and PASS_TO_PASS tests guard unrelated product behavior. All three runs resolved. The prompt, environment, and test suite are aligned; no benchmark defect.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-15809",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Prompt clearly asks for Min()\u2192oo and Max()\u2192-oo; reference fix removes the ValueError guard so LatticeOp returns the identity element. Tests assert exactly what the prompt describes (plus Min(x)==x / Max(x)==x, which is standard LatticeOp behavior and a natural consequence of the fix). No ambiguity, environment, or test-quality defects.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "The prompt clearly states the desired behavior: zero-argument Min() should return oo and Max() should return -oo. The tests in test_patch verify exactly this (assert Min() == S.Infinity, assert Max() == S.NegativeInfinity), matching the prompt. The reference fix simply removes the ValueError guard. All three agent runs passed all FAIL_TO_PASS and PASS_TO_PASS tests. No ambiguity, environment, or test-quality defects.",
+      "form_task_defects": [
+        "B07"
+      ],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-20590",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Task is a well-specified bug report. Problem statement clearly describes the regression (Symbol instances gaining __dict__ in 1.7) and even provides the diagnostic hypothesis ('some parent class accidentally stopped defining __slots__'). The FAIL_TO_PASS test test_immutable directly checks the described behavior: a Basic() instance should not have __dict__ and attribute assignment should raise AttributeError. The test is fair, narrow to the reported bug, and does not require implementation-specific internals. A competent developer inspecting the MRO of Symbol/Basic would readily identify the Printable mixin (missing __slots__) and add __slots__ = () to fix it. No findings.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Task is well-specified. The problem statement describes the regression (Symbol instances gaining __dict__ in 1.7) and hints point directly at the offending change (PR #19425) and the recommended fix (add empty __slots__ to DefaultPrinting/Printable mixin). FAIL_TO_PASS test (test_immutable) simply asserts `not hasattr(b1, '__dict__')` and that attribute assignment raises AttributeError \u2014 a direct check of the behavior the prompt describes. All three gpt-5.4 runs resolved the task by adding `__slots__ = ()` to Printable in sympy/core/_print_helpers.py, matching the reference patch. No ambiguity, no environment issues, no test quality issues.",
+      "form_task_defects": [],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-20438",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Task is well-specified. The problem statement presents concrete failing examples for both bugs (ProductSet.is_subset(FiniteSet) returning None, and Eq(b,c).simplify() raising AttributeError on Complement). The FAIL_TO_PASS tests (test_issue_19378 and one updated assertion in test_Eq) verify exactly these scenarios plus natural corollaries that follow from a thorough fix (Eq(ProductSet, Interval) being False via generalized Set==Set via is_subset; Eq({1},{x}).simplify() staying unchanged as a regression guard for the _eval_simplify fix hinted at by the traceback). A competent developer reading only the prompt can reach the expected solution. No defects in problem statement, reference patch, or evaluation logic.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "The prompt contains the two concrete bug reproductions (ProductSet.is_subset(FiniteSet) returning None instead of True, and Eq(b,c).simplify() crashing with AttributeError on 'Complement'). The FAIL_TO_PASS tests check these directly plus close variants (Eq(a,c).simplify() is S.false; Eq({1},{x}).simplify() not crashing; Eq(ProductSet({1},{2}), Interval(1,2)) is S.false). These are natural consequences of a general fix to Set/Set _eval_is_eq and a non-Expr guard in _eval_simplify \u2014 the reference patch addresses exactly the two symptoms the prompt shows. All three agent runs fail due to implementation errors: run0 produces infinite recursion via rewrite(FiniteSet).is_subset(), run1 guards only the one equals() call but the linear_coeffs path in Equality._eval_simplify still breaks on Complement, and run2 never touches _eval_simplify so EmptySet.equals(0) still crashes. No benchmark defect found.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-20428",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The task is well-specified. The bug report includes a complete reproduction, the exact symptom (bad_poly.is_zero is False but bad_poly.as_expr() is 0), and even diagnoses the root cause ('unstripped leading 0 in the list representation'). The FAIL_TO_PASS test is a simple equality check against Poly(0, x, domain='EX'), which any correct fix to the stripping/boolean-evaluation pipeline will satisfy. The reference patch is a 1-line change to ExpressionDomain.__bool__ using .is_zero rather than != 0, which is discoverable through standard debugging of the DMP strip logic. Multiple reasonable fix locations would pass the test. No defects in the task definition, reference answer, or evaluation logic.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Prompt accurately identifies the root cause (\"unstripped leading 0 in the list representation\", shows DMP([EX(0)], EX, None) vs DMP([], EX, None)) and notes downstream breakages beyond clear_denoms. The reference fix is in ExpressionDomain.__bool__ (f.ex != 0 \u2192 not f.ex.is_zero), which makes strip routines correctly recognize symbolic zeros in the EX domain. The test asserts Poly(<complicated_expr>, x) == Poly(0, x, 'EX'), which probes the underlying fix. All three agents attempted to add explicit dup_strip/dmp_strip calls, but those strip routines depend on the very __bool__ they failed to fix, so their patches cannot succeed. The prompt and test are aligned on the root cause; the failures reflect an incomplete investigation rather than a task defect.",
+      "form_task_defects": [],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-14711",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The task is clearly specified and fairly evaluated. The problem statement provides a minimal repro (`sum([N.x, (0 * N.x)])`) and a full traceback that explicitly reveals the commented-out fix `#if other == 0: return self` in `sympy/physics/vector/vector.py:60`. The reference patch simply uncomments that check. The added FAIL_TO_PASS assertion `A.x + 0 == A.x` in `test_Vector` directly corresponds to the reported issue, and PASS_TO_PASS tests (`test_Vector_diffs`, `test_vector_var_in_dcm`) guard against regressions. A competent developer reading only the prompt would arrive at the expected fix.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Task is fair and well-specified. The prompt shows a clear TypeError reproducer for `sum([N.x, (0 * N.x)])` and the hidden test (`A.x + 0 == A.x`) directly checks the described behavior. Runs 0 and 1 passed with the canonical fix: guard `other == 0` inside `Vector.__add__`. Run 2 failed because the agent placed the guard inside `_check_vector`, which is also invoked from `Vector.__eq__`; the `other == 0` comparison then recurses through `__eq__` \u2192 `_check_vector` \u2192 `__eq__` until Python hits the recursion limit. This is pure agent error (wrong placement of an otherwise correct guard), not a benchmark defect.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-23534",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Task is well-specified. The problem statement includes a concrete reproducer with expected and actual outputs pointing at the exact bug (extra tuple wrapping causes `cls=Function` to be dropped in recursion). The reference patch is a one-line fix in `sympy/core/symbol.py` that passes `cls=cls` to the recursive `symbols()` call. The FAIL_TO_PASS test asserts exactly the reported scenario (`type(symbols(('q:2','u:2'), cls=Function)[0][0]) == UndefinedFunction`), matching what the prompt describes. No ambiguity, no hidden requirements, no tests enforcing unspecified internals.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Task is well-specified: the prompt includes a minimal reproduction, expected output, and actual output for symbols((...,), cls=Function). The reference fix is a single-line change in sympy/core/symbol.py that forwards cls in the recursive call. The test_patch adds one assertion that directly mirrors the prompt's reproduction. All three agent runs produced the exact same one-line patch as the reference solution and passed FAIL_TO_PASS and all PASS_TO_PASS tests. No prompt ambiguity, no environment mismatch, no overly narrow/broad tests.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-23824",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Problem statement clearly describes a bug in sympy's kahane_simplify() with a concrete reproducing example showing both the input expressions and the incorrect outputs. The test_patch uses the exact same input expressions and expected outputs from the problem statement. A competent developer reading only the prompt would know exactly what to implement and how the tests will verify it.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Task is fair and well-specified. The prompt contains the exact failing reproducer (two assertions on kahane_simplify output), states the expected result, and pinpoints the buggy loop location in kahane_simplify(). The test_patch adds those same assertions verbatim to test_kahane_simplify1 (FAIL_TO_PASS), and PASS_TO_PASS covers unchanged behavior. All three gpt-5.4 runs resolved the task; the reference patch simply replaces the reversed-order insertion loop with concatenation. No benchmark defects.",
+      "form_task_defects": [
+        "B07"
+      ],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-13372",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The task is a clear, well-specified bug fix. The problem statement includes the stack trace, identifies the location (evalf.py lines 1301-1308), and the reporter even explicitly suggests the exact fix (\"elif clauses that define reprec and imprec should have an `else: raise NotImplementedError`\"). The reference patch matches this suggestion. The FAIL_TO_PASS test asserts `NS(Mul(Max(0, y), x, evaluate=False).evalf()) == 'x*Max(0, y)'`, which mirrors the expected behavior already demonstrated in the problem statement's first example (the non-crashing arg order). A competent developer reading only the prompt could reliably produce a passing solution.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Task is well-specified. Problem statement includes the failing input, full traceback with file/line references, and even suggests the correct fix (adding `else: raise NotImplementedError`). The FAIL_TO_PASS test (`test_evalf_bugs`) simply asserts the previously-crashing `NS(Mul(Max(0, y), x, evaluate=False).evalf())` returns `'x*Max(0, y)'`, which is what the prompt's first example already shows for the other argument order. All three gpt-5.4 runs resolved. No benchmark defects.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-13878",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Task is well-specified: the problem statement clearly describes adding `_cdf` methods for 12 continuous distributions, explicitly references Wikipedia formulas, and provides specific failure examples per distribution. The reference patch implements the straightforward Wikipedia-based formulas. The evaluation is fair: FAIL_TO_PASS contains only `test_arcsin`, which asserts the canonical Piecewise form SymPy produces from `(2/pi)*asin(sqrt((x-a)/(b-a)))` \u2014 exactly the formula the prompt calls out (\"The CDF is basically the arcsin function, for which the distribution is named\"). A competent developer writing the standard three-branch Piecewise with the Wikipedia formula will produce the expected canonical form via SymPy's automatic normalization. The narrow FAIL_TO_PASS scope (1 of 12 distributions) is more lenient than strict toward agents. The mild tension between the prompt's suggested numeric-diff verification and the test's symbolic equality is not a defect because the reference-style implementation produces the expected symbolic form.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 1,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 1
+        }
+      },
+      "trajectory_summary": "The FAIL_TO_PASS test (test_arcsin) uses strict symbolic equality (`==`) on a Piecewise CDF, accepting only one specific mathematical form among several that are valid and documented. Run0 passed by happening to write the exact `2*asin(sqrt((x-a)/(b-a)))/pi` form; run1 and run2 produced mathematically equivalent CDFs (atan-based and shifted-asin forms) that are both listed on Wikipedia for the arcsine distribution \u2014 and both failed solely due to syntactic form mismatch. The prompt compounds this by explicitly suggesting \"Numeric comparison at a few random floats should be enough to ascertain correctness,\" implying numeric verification is sufficient, while the actual grading test requires an exact symbolic form with no tolerance for equivalent rewrites.",
+      "form_task_defects": [
+        "B07"
+      ],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-13031",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": true,
+      "static_findings_major": 0,
+      "static_findings_minor": 1,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 1
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Problem statement shows only dense `sy.Matrix` reproductions with wrong shapes, but at base_commit the dense-matrix bug is already fixed in `common.py` (has the `#10770` null-matrix guard). The FAIL_TO_PASS test and reference patch target `SparseMatrix` (`sparse.py`), which the prompt never mentions. An agent reproducing the prompt's examples would observe correct output and must infer, from git history or related code, that the bug now only affects SparseMatrix.",
+      "trajectory_findings_major": 1,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 1,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Prompt describes a Matrix.hstack/vstack bug (using Matrix.zeros) that no longer reproduces at base_commit \u2014 Matrix.hstack already returns (0, 6) correctly because common.py's row_join/col_join contains the partial fix. The hidden tests and gold patch actually target SparseMatrix, whose parallel row_join/col_join implementations in sparse.py still have the bug. The prompt never mentions SparseMatrix; the 'hints_text' that discloses this ('problem is solved with Matrix but not SparseMatrix') is withheld from the agent. This misdirection explains why 2/3 gpt-5.4 runs patched common.py (which does not affect SparseMatrix due to method overrides) and failed; the third run only passed by accidentally patching the hstack/vstack classmethods at a high enough level that SparseMatrix inherits the fix, without diagnosing the SparseMatrix issue.",
+      "form_task_defects": [],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-19783",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The task prompt clearly describes the simplification bug with a concrete failing example (`Dagger(A) * IdentityOperator()` returns `A^\\dagger I` instead of `A^\\dagger`). The reference patch addresses both directions of multiplication (`Dagger * I` via new `Dagger.__mul__`, and `I * Dagger` via extending `Operator.__mul__` to recognize `Dagger`). FAIL_TO_PASS tests (`test_dagger_mul`, `test_identity`) verify both directions plus adjacent behavior (`Dagger(O)*Dagger(O)`, `Dagger(I)`). The prompt only explicitly shows one direction (`B * Identity`), but the symmetric case is a natural extension given the prompt also states `A * Identity` already works \u2014 a competent sympy developer would fix both directions. The `Operators('A')` typo is an obvious transcription slip. No task defects found.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Task is fair. The prompt clearly describes the bug (Dagger*Identity not simplified). Tests extend to both directions (I*Dagger and Dagger*I), which is a natural symmetry requirement for identity operators \u2014 standard domain knowledge. The two failed runs added Dagger.__mul__ and Dagger.__rmul__, which fixes Dagger*I but not I*Dagger: Python falls back to __rmul__ only when the left operand's __mul__ returns NotImplemented, but IdentityOperator.__mul__ returns Mul(self, other) unconditionally for non-Operator operands, pre-empting Dagger.__rmul__. The reference solution fixes this by extending IdentityOperator.__mul__ to also accept Dagger. Run 1 correctly diagnosed this and modified IdentityOperator.__mul__, passing all tests. The failing agents' mistake is a Python operator-dispatch implementation error, not a benchmark defect. The prompt is sufficient, the test suite is fair, and the reference solution corresponds to what the tests require.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-22914",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "The task is well-specified: the prompt describes a missing feature (pycode printer support for Min/Max), gives a concrete example of current vs. expected output, and even suggests concrete implementation code. The test_patch adds two assertions that Min(x, y) prints as \"min(x, y)\" and Max(x, y) prints as \"max(x, y)\" \u2014 exactly the output implied by both the prompt's example and its suggested code. The reference patch adds 'Min': 'min' and 'Max': 'max' to _known_functions, which is an alternative but equivalent implementation (also mentioned in hints_text). Either approach yields the exact strings the tests check. PASS_TO_PASS tests guard against regressions and are unrelated to internal naming. No underspecification, no hidden requirements, no over-narrow test \u2014 a competent developer following the prompt would pass.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Prompt is explicit \u2014 it states the problem and includes the expected implementation code for `_print_Min`/`_print_Max`. Tests assert exactly `\"min(x, y)\"` and `\"max(x, y)\"`, which the prompt's code produces. Reference solution is a 2-line entry in `_known_functions`; all three agent runs passed. No ambiguity, no hidden requirements, no environment issues.",
+      "form_task_defects": [
+        "B07"
+      ],
+      "b07_set_aside": false
+    },
+    {
+      "task_id": "sympy__sympy-15976",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": false,
+      "static_findings_major": 0,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Problem statement clearly describes a rendering bug (x2 invisible in Safari MathML) with reproduction code. The fix \u2014 removing the redundant outer <mi> wrapper around <msub>/<msup>/<msubsup> in _print_Symbol \u2014 is naturally discoverable by inspecting the generated DOM. Tests check the top-level node structure, which matches the natural idiomatic fix. Task is well-specified and evaluated fairly.",
+      "trajectory_findings_major": 0,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 0,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "Task is fair. The prompt describes a reproducible Safari MathML invisibility bug with enough detail for a competent developer to reproduce and diagnose (outer <mi> wrapping structural <msub>/<msup>/<msubsup> elements, which is semantically invalid MathML). The reference solution and the FAIL_TO_PASS test (test_presentation_symbol) both align with the minimal fix: remove the outer <mi> wrapping. Run0 produced exactly that and passed. Run1 failed because its patch changed digit subscripts from <mi> to <mn> but kept the outer <mi>, so it does not actually fix the Safari invisibility bug. Run2 applied the correct outer-wrapping removal but also changed digit subscripts to <mn>; tests enforce that the base/subscript <mi> nodes are preserved, which is consistent with a minimal bug fix. Both failures are agent choices (inadequate or overly broad), not benchmark defects.",
+      "form_task_defects": [],
+      "b07_set_aside": true
+    },
+    {
+      "task_id": "sympy__sympy-18199",
+      "role": "source",
+      "in_aba": true,
+      "aba_flagged": true,
+      "static_findings_major": 1,
+      "static_findings_minor": 0,
+      "static_findings_by_category": {
+        "instruction": {
+          "major": 1,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "static_summary": "Problem statement describes a narrow bug (missing x=0 root when a % p == 0, with a prime-p example), but the FAIL_TO_PASS test requires the much larger feature of composite-modulus support in nthroot_mod. The reference patch adds a new _nthroot_mod_composite helper using CRT + Hensel lifting \u2014 scope not discoverable from the prompt.",
+      "trajectory_findings_major": 1,
+      "trajectory_findings_minor": 0,
+      "trajectory_findings_by_category": {
+        "instruction": {
+          "major": 1,
+          "minor": 0
+        },
+        "env": {
+          "major": 0,
+          "minor": 0
+        },
+        "evaluation": {
+          "major": 0,
+          "minor": 0
+        }
+      },
+      "trajectory_summary": "The prompt only describes one narrow bug: `nthroot_mod` missing the `x = 0 mod p` root when `a % p == 0` (with a prime modulus, illustrated by `nthroot_mod(17*17, 5, 17)`). However, the hidden tests additionally require implementing full composite-modulus support for `nthroot_mod`, which was previously raising `NotImplementedError`. The FAIL_TO_PASS test `test_solve_modular` and many asserts in `test_residue` (e.g. `nthroot_mod(29, 31, 74) == [45]`, `nthroot_mod(16, 5, 36, True) == [4, 22]`, `solveset(Mod(x**3, 8) - 1, ...)`) all depend on a CRT-based `_nthroot_mod_composite` implementation (~40 lines in the reference patch) that the prompt never requests or even hints at. All three agent runs fixed exactly what the prompt describes and failed because of this unsignposted additional requirement.",
+      "form_task_defects": [
+        "B05",
+        "B07"
+      ],
+      "b07_set_aside": false
+    }
+  ],
+  "flagged_source_tasks": [
+    "sympy__sympy-13031",
+    "sympy__sympy-18199"
+  ],
+  "summary": {
+    "source_tasks": 20,
+    "aba_flagged": 2,
+    "form_defects": 6,
+    "both": 1
+  }
+}

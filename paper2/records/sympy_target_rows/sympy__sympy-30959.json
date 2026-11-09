@@ -1,0 +1,84 @@
+{
+  "instance_id": "sympy__sympy-30959",
+  "repo": "sympy/sympy",
+  "base_commit": "93c4ba38b37797756d268668f42cc91ac1d16d1e",
+  "created_at": "2026-11-05T18:05:19Z",
+  "merged_at": "2026-11-05T18:43:08Z",
+  "merge_commit": "77a1e4c87bff67b447002bf05609bc68a449fc60",
+  "pull_request": "https://github.com/sympy/sympy/pull/30959",
+  "issues": [
+    {
+      "number": 19324,
+      "url": "https://github.com/sympy/sympy/issues/19324",
+      "created_at": "2020-05-15T10:05:33Z"
+    }
+  ],
+  "problem_statement": "Symbol.copy() raises weird TypeError\nFrom https://gitter.im/sympy/sympy?at=5ebd78a149cc4a3b62e7a69f (ping @asmeurer):\r\n\r\n```python\r\nIn [155]: s = Symbol('s')\r\n\r\nIn [156]: s.copy()\r\n---------------------------------------------------------------------------\r\nTypeError                                 Traceback (most recent call last)\r\n<ipython-input-156-6e1d2ee6d3ad> in <module>\r\n----> 1 s.copy()\r\n\r\nc:\\users\\wiese\\repos\\ga\\sympy\\sympy\\core\\basic.py in copy(self)\r\n    115\r\n    116     def copy(self):\r\n--> 117         return self.func(*self.args)\r\n    118\r\n    119     def __reduce_ex__(self, proto):\r\n\r\nTypeError: __new__() missing 1 required positional argument: 'name'\r\n```\r\n\r\nThis should probably either:\r\n* Actually make a copy (perhaps by setting `self.func = functools.partial(Symbol, name=self.name)`\r\n* Return `self`\r\n* Raise a clearer error message\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex c9fcdc03960f..82040ebe3d8a 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -303,6 +303,8 @@ def copy(self):\n         \"\"\"\n         Return a shallow copy of the expression.\n \n+        Atomic expressions are immutable and return themselves when copied.\n+\n         Examples\n         ========\n \n@@ -2402,6 +2404,10 @@ class Atom(Basic):\n \n     __slots__ = ()\n \n+    def copy(self):\n+        \"\"\"Return this atom, since atomic expressions are immutable.\"\"\"\n+        return self\n+\n     def matches(self, expr, repl_dict=None, old=False):\n         if self == expr:\n             if repl_dict is None:\n",
+  "test_patch": "diff --git a/sympy/core/tests/test_basic.py b/sympy/core/tests/test_basic.py\nindex 4cec34bb9b10..f8ac40b7cceb 100644\n--- a/sympy/core/tests/test_basic.py\n+++ b/sympy/core/tests/test_basic.py\n@@ -11,7 +11,7 @@\n from sympy.core.function import Function, Lambda\n from sympy.core.numbers import I, pi, Float\n from sympy.core.singleton import S\n-from sympy.core.symbol import symbols, Symbol, Dummy\n+from sympy.core.symbol import symbols, Symbol, Dummy, Wild\n from sympy.concrete.summations import Sum\n from sympy.functions.elementary.trigonometric import (cos, sin)\n from sympy.functions.special.gamma_functions import gamma\n@@ -51,6 +51,21 @@ def test_immutable():\n         b1.x = 1\n \n \n+def test_copy():\n+    copied = b21.copy()\n+    assert copied == b21\n+    assert copied is not b21\n+    assert all(a is b for a, b in zip(copied.args, b21.args))\n+\n+\n+def test_atom_copy():\n+    x = Symbol('x', positive=True)\n+    atoms = [x, Atom(), Dummy('d'), Wild('w', exclude=[x]),\n+             S(2), S(2)/3, Float('1.23456789', 50)]\n+    for atom in atoms:\n+        assert atom.copy() is atom\n+\n+\n def test_equality():\n     instances = [b1, b2, b3, b21, Basic(b1, b1, b1), Basic]\n     for i, b_i in enumerate(instances):\n",
+  "FAIL_TO_PASS": [
+    "sympy/core/tests/test_basic.py::test_atom_copy"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/core/tests/test_basic.py::test_ManagedProperties",
+    "sympy/core/tests/test_basic.py::test_S",
+    "sympy/core/tests/test_basic.py::test__aresame",
+    "sympy/core/tests/test_basic.py::test_as_Basic",
+    "sympy/core/tests/test_basic.py::test_as_dummy",
+    "sympy/core/tests/test_basic.py::test_as_dummy_scopes",
+    "sympy/core/tests/test_basic.py::test_atomic",
+    "sympy/core/tests/test_basic.py::test_atoms",
+    "sympy/core/tests/test_basic.py::test_call",
+    "sympy/core/tests/test_basic.py::test_canonical_variables",
+    "sympy/core/tests/test_basic.py::test_copy",
+    "sympy/core/tests/test_basic.py::test_doit",
+    "sympy/core/tests/test_basic.py::test_equality",
+    "sympy/core/tests/test_basic.py::test_free_symbols_empty",
+    "sympy/core/tests/test_basic.py::test_generic",
+    "sympy/core/tests/test_basic.py::test_has",
+    "sympy/core/tests/test_basic.py::test_immutable",
+    "sympy/core/tests/test_basic.py::test_literal_evalf_is_number_is_zero_is_comparable",
+    "sympy/core/tests/test_basic.py::test_matches_basic",
+    "sympy/core/tests/test_basic.py::test_replace_exceptions",
+    "sympy/core/tests/test_basic.py::test_rewrite",
+    "sympy/core/tests/test_basic.py::test_rewrite_abs",
+    "sympy/core/tests/test_basic.py::test_sorted_args",
+    "sympy/core/tests/test_basic.py::test_structure",
+    "sympy/core/tests/test_basic.py::test_subs",
+    "sympy/core/tests/test_basic.py::test_subs_with_unicode_symbols",
+    "sympy/core/tests/test_basic.py::test_xreplace"
+  ],
+  "image": "paper2/sympy-target:30959",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 93c4ba38b37797756d268668f42cc91ac1d16d1e\ngit checkout 93c4ba38b37797756d268668f42cc91ac1d16d1e sympy/core/tests/test_basic.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/core/tests/test_basic.py b/sympy/core/tests/test_basic.py\nindex 4cec34bb9b10..f8ac40b7cceb 100644\n--- a/sympy/core/tests/test_basic.py\n+++ b/sympy/core/tests/test_basic.py\n@@ -11,7 +11,7 @@\n from sympy.core.function import Function, Lambda\n from sympy.core.numbers import I, pi, Float\n from sympy.core.singleton import S\n-from sympy.core.symbol import symbols, Symbol, Dummy\n+from sympy.core.symbol import symbols, Symbol, Dummy, Wild\n from sympy.concrete.summations import Sum\n from sympy.functions.elementary.trigonometric import (cos, sin)\n from sympy.functions.special.gamma_functions import gamma\n@@ -51,6 +51,21 @@ def test_immutable():\n         b1.x = 1\n \n \n+def test_copy():\n+    copied = b21.copy()\n+    assert copied == b21\n+    assert copied is not b21\n+    assert all(a is b for a, b in zip(copied.args, b21.args))\n+\n+\n+def test_atom_copy():\n+    x = Symbol('x', positive=True)\n+    atoms = [x, Atom(), Dummy('d'), Wild('w', exclude=[x]),\n+             S(2), S(2)/3, Float('1.23456789', 50)]\n+    for atom in atoms:\n+        assert atom.copy() is atom\n+\n+\n def test_equality():\n     instances = [b1, b2, b3, b21, Basic(b1, b1, b1), Basic]\n     for i, b_i in enumerate(instances):\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/core/tests/test_basic.py\n: '>>>>> End Test Output'\ngit checkout 93c4ba38b37797756d268668f42cc91ac1d16d1e sympy/core/tests/test_basic.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev3284+g93c4ba38b3.uninstalled",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-08T06:37:56.309445+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/report.json": "fdf13f1e9a6c4c325497224a2dde056046dd5958c973a948eafd24646d70e3c3",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/test_output.txt": "f3ed3db31b406d7a7dc42477b0409bd80b4eb6a705072067e989f6490b9364c3",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/run_instance.log": "878045b5cc43e14ce8a9fcb07c89a5fe5b3969e40e5256d199d39641f2d98439",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/report.json": "fdf13f1e9a6c4c325497224a2dde056046dd5958c973a948eafd24646d70e3c3",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/test_output.txt": "224ded3fe06dd401393cfc20e97f825b456f332b3513f670c3f98cf363d046cb",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/run_instance.log": "77024b45cef1125f41164baf76c2f46056dcb9adf7e27bb974742409355ae7ab",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30959-20261108T063754/derive/sympy__sympy-30959/patch.diff": "e7e3eb42045ed7588f3d5a29fbba6db9b4de14b231b01e2f84c8f9470b611b27"
+      }
+    },
+    "image_id": "sha256:0ac89e3f7938a3ccb4a0209c0020951e898fa6526f38b0b425b8442c2e155a9a"
+  },
+  "status": "derived"
+}

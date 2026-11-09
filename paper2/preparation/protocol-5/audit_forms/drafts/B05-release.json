@@ -1,0 +1,110 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B05",
+  "concern": "C05",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Were tasks, reference answers and tests checked for errors that reject a correct solution?",
+  "shown_means": "the checking procedure described",
+  "checked_means": "coverage, findings and limits of the check reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "task",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": [
+      "sympy__sympy-13798",
+      "sympy__sympy-16597",
+      "sympy__sympy-23413",
+      "sympy__sympy-12096",
+      "sympy__sympy-24539",
+      "sympy__sympy-21847",
+      "sympy__sympy-13551",
+      "sympy__sympy-15809",
+      "sympy__sympy-20590",
+      "sympy__sympy-20438",
+      "sympy__sympy-20428",
+      "sympy__sympy-14711",
+      "sympy__sympy-23534",
+      "sympy__sympy-23824",
+      "sympy__sympy-13372",
+      "sympy__sympy-13878",
+      "sympy__sympy-13031",
+      "sympy__sympy-19783",
+      "sympy__sympy-22914",
+      "sympy__sympy-15976",
+      "sympy__sympy-18199"
+    ]
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B05 applies always; every task has hidden tests that decide the score."
+  },
+  "check": {
+    "procedure": "Reported by the sources: three annotators per sample screened FAIL_TO_PASS tests (2024), and six or more engineers audited 138 tasks that o3 did not consistently solve (2026). Run for this study: each of the pilot and 20 source tasks was run unchanged (every FAIL_TO_PASS test must fail) and with the reference patch (every test must pass), and for sympy__sympy-18199 a patch that fixes only the stated issue was graded against the hidden tests.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt; paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json; paper2/preparation/protocol-4/eligibility/",
+    "detection_limits": "The check could not detect tests that reject a correct solution of a task other than sympy__sympy-18199 when the reference patch passes them, because the eligibility runs test only the reference patch; the 2026 audit found flawed tests in at least 59.4% of the 138 tasks it audited (tasks that o3 failed), and the saved source does not list which SymPy tasks it flagged."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "each sample is labeled 3 times by separate annotators"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "61.1% were flagged for unit tests that may unfairly mark valid solutions as incorrect"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "at least 59.4% of the audited problems have flawed test cases that reject functionally correct submissions"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "We conducted an audit of 138 SWE-bench Verified problems that OpenAI o3 did not consistently solve over 64 independent runs."
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "An example of too wide test cases is sympy__sympy-18199"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/eligibility/sympy__sympy-13798.json",
+      "quote": "\"status\": \"eligible\""
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "\"outcome\": \"rejected\""
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Both the 2024 annotation and the 2026 audit report a check with coverage, findings and limits, and the reference patch was run on every task with one counterexample, so the level is Verified. It is not Contradicted because the criterion asks whether tasks were checked, and the defects found are reported by the check; no source claims the check was complete. The outcome is passed: it describes the tasks in scope after the listed defect is left out, and the only defect located in scope is sympy__sympy-18199. The 2026 audit's rate of flawed tests concerns audited tasks it does not name, so it is recorded as a detection limit, not as a located defect. I list sympy__sympy-18199 under B05 because its test rejects a patch that fixes the stated issue; the 2026 post calls such tests \"too wide\", meaning they demand more than the issue states. It is also listed under B07 for a different defect: a patch passes the tests while missing the stated a % p == 0 case.",
+  "missing": "A list of the SymPy tasks flagged in the 2026 audit, an independent solution check per task beyond the reference patch, and a count of tests that reject a correct solution among the 21 tasks.",
+  "checks_performed": [
+    "Read the 2024 and 2026 OpenAI posts for the annotation and audit findings.",
+    "Read the 21 eligibility records: each task fails before the fix and passes with the reference patch.",
+    "Read the record of the executed minimal patch on sympy__sympy-18199."
+  ],
+  "task_defects": [
+    {
+      "task_id": "sympy__sympy-18199",
+      "direction": "rejects_correct_solution",
+      "summary": "The only FAIL_TO_PASS test, test_solve_modular, fails for a patch that fixes the stated issue (a % p == 0 with prime p returns root 0) and passes for the reference patch, which also adds composite moduli the issue does not mention.",
+      "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "Then x = 0 mod p is also a root of this equation",
+      "artifacts": {
+        "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json": "07ae13d59422603a97c9274184d9d7632d1f4e1208be23f875c0fe0c13a9c8ae"
+      }
+    }
+  ],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

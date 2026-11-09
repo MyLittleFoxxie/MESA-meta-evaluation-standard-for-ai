@@ -1,0 +1,65 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14b",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric.md",
+    "sha256": "8d60dee59cba49d8c6ec9f27c13c4acb8d2983cce4c0b908df424159002a14ba"
+  },
+  "question": "Could the test material be in the training data of the named model configuration?",
+  "shown_means": "the model's stated training cutoff and the task creation dates recorded with their sources",
+  "checked_means": "a contamination check for that model reported, or tasks created after its stated cutoff used as a held out set",
+  "applies_when": "a model configuration is named for the review",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "configuration",
+    "config_ids": [
+      "CONFIG_02_SOL_MED"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "A model configuration is named for the review: GPT-6.1 Sol at medium effort."
+  },
+  "check": {
+    "procedure": "The rater compared the provider's stated cutoff (30 April 2026, GPT-6.1 Sol model page) with the dates of the tasks: the benchmark was released on 13 August 2024 and built from pull requests collected after August 2023, so all tasks predate the cutoff. No task is held out. The 2026 post probes other models, not this configuration.",
+    "kind": "run_by_reviewer",
+    "outcome": "failed",
+    "evidence_location": "~/paper2-sources/openai-gpt-6-1-sol-model.txt",
+    "detection_limits": "The check could not detect whether the model saw the tasks, because a stated cutoff is a claim by the provider, not a verified fact, and it does not test memory of the tasks."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-gpt-6-1-sol-model.txt",
+      "quote": "Apr 30, 2026 knowledge cutoff"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "August 13, 2024"
+    },
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+      "quote": "From a list of the top 5,000 most downloaded PyPI libraries during August 2023"
+    },
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+      "quote": "The created at field is a timestamp that specifies when the base PR was"
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "The cutoff is stated with its source and the task dates are bounded by the release date and collection method, so Documented. Not Verified: every task predates the cutoff, no contamination check for this model is reported. Per task dates are not in the saved sources, only a bound.",
+  "missing": "A contamination check for this model, or tasks created after the stated cutoff used as a held out set; per task creation dates from the dataset field.",
+  "checks_performed": [
+    "Read the model page or card for the cutoff",
+    "Read the release date of Verified and the collection method",
+    "Searched the sources for a contamination check of this configuration (none)"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

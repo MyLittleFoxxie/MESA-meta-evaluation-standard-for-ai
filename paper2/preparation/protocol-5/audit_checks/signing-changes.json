@@ -1,0 +1,342 @@
+{
+  "record": "paper2-signing-changes/1",
+  "compared": "paper2/preparation/protocol-5/audit_forms/drafts",
+  "made_at": "2026-11-09T20:17:30.253698+00:00",
+  "forms": {
+    "B05-release": [
+      {
+        "field": "check.detection_limits",
+        "run": "The check could not detect tests that reject a correct solution of a task other than sympy__sympy-18199 when the reference patch passes them, because the eligibility runs test only the reference patch; the 2026 audit covered only 138 tasks that o3 failed, and the saved source does not list which SymPy tasks it flagged.",
+        "signed": "The check could not detect tests that reject a correct solution of a task other than sympy__sympy-18199 when the reference patch passes them, because the eligibility runs test only the reference patch; the 2026 audit found flawed tests in at least 59.4% of the 138 tasks it audited (tasks that o3 failed), and the saved source does not list which SymPy tasks it flagged."
+      },
+      {
+        "field": "check.outcome",
+        "run": "failed",
+        "signed": "passed"
+      },
+      {
+        "field": "reasons",
+        "run": "Both the 2024 annotation and the 2026 audit report a check with coverage, findings and limits, and the reference patch was run on every task with one counterexample, so the level is Verified. It is not Contradicted because the criterion asks whether tasks were checked, and the defects found are reported by the check; no source claims the check was complete. The outcome is failed because the 2026 audit shows flawed tests in the benchmark beyond the one listed task, although the saved source does not name which in-scope tasks it flagged. I list sympy__sympy-18199 under B05 and not B07: its test rejects a patch that fixes the stated issue. The rubric rule files \"too wide\" tests under B07, but B07 covers tests that accept a wrong solution.",
+        "signed": "Both the 2024 annotation and the 2026 audit report a check with coverage, findings and limits, and the reference patch was run on every task with one counterexample, so the level is Verified. It is not Contradicted because the criterion asks whether tasks were checked, and the defects found are reported by the check; no source claims the check was complete. The outcome is passed: it describes the tasks in scope after the listed defect is left out, and the only defect located in scope is sympy__sympy-18199. The 2026 audit's rate of flawed tests concerns audited tasks it does not name, so it is recorded as a detection limit, not as a located defect. I list sympy__sympy-18199 under B05 because its test rejects a patch that fixes the stated issue; the 2026 post calls such tests \"too wide\", meaning they demand more than the issue states. It is also listed under B07 for a different defect: a patch passes the tests while missing the stated a % p == 0 case."
+      }
+    ],
+    "B07-release": [],
+    "B12-release": [],
+    "B14a-release": [],
+    "B14b-CONFIG_01_GEMINI_FLASH_MED": [
+      {
+        "field": "check.detection_limits",
+        "run": "The check could not detect whether the model was trained on the tasks, because the cutoff is a claim by the provider and no source probes this model; per task creation dates were not read, only the release date bound.",
+        "signed": "The check could not detect whether the model was trained on the tasks, because the cutoff is a claim by the provider and no source probes this model."
+      },
+      {
+        "field": "evidence",
+        "run": [
+          {
+            "location": "~/paper2-sources/gemini-3-8-flash-model-card.txt",
+            "quote": "The knowledge cutoff date for Gemini 3.8 Flash is March 2026"
+          },
+          {
+            "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+            "quote": "OpenAI August 13, 2024 Milestone Introducing SWE-bench Verified"
+          },
+          {
+            "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+            "quote": "PRs created before or after 2023"
+          },
+          {
+            "location": "~/paper2-sources/swebench-datasets-guide.txt",
+            "quote": "Date of creation"
+          },
+          {
+            "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+            "quote": "we found that all frontier models we tested were able to reproduce the original, human-written bug fix"
+          }
+        ],
+        "signed": [
+          {
+            "location": "~/paper2-sources/gemini-3-8-flash-model-card.txt",
+            "quote": "The knowledge cutoff date for Gemini 3.8 Flash is March 2026"
+          },
+          {
+            "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+            "quote": "OpenAI August 13, 2024 Milestone Introducing SWE-bench Verified"
+          },
+          {
+            "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+            "quote": "PRs created before or after 2023"
+          },
+          {
+            "location": "~/paper2-sources/swebench-datasets-guide.txt",
+            "quote": "Date of creation"
+          },
+          {
+            "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+            "quote": "we found that all frontier models we tested were able to reproduce the original, human-written bug fix"
+          },
+          {
+            "location": "paper2/records/swe_bench_verified_sympy_rows.json",
+            "quote": "\"created_at\": \"2017-01-25T13:40:24Z\""
+          },
+          {
+            "location": "paper2/records/swe_bench_verified_sympy_rows.json",
+            "quote": "\"created_at\": \"2023-01-17T17:26:42Z\""
+          }
+        ]
+      },
+      {
+        "field": "reasons",
+        "run": "The stated cutoff and an upper bound on task dates are recorded with sources, so Documented. It is not Verified because every task predates the cutoff and no contamination check for this model exists; the outcome is not performed, and exposure is possible but not shown. It is not Contradicted because no source shows this model reproduces the test material.",
+        "signed": "The stated cutoff and the task creation dates (2017-01-25 to 2023-01-17 for the pilot and source tasks, from the dataset's created_at field) are recorded with sources, so Documented. It is not Verified because every task predates the cutoff and no contamination check for this model exists; the outcome is not performed, and exposure is possible but not shown. It is not Contradicted because no source shows this model reproduces the test material."
+      }
+    ],
+    "B14b-CONFIG_02_SOL_MED": [
+      {
+        "field": "check.detection_limits",
+        "run": "The check could not detect whether the model was trained on the tasks, because the cutoff is a claim by the provider and no source probes this model; per task creation dates were not read, only the release date bound.",
+        "signed": "The check could not detect whether the model was trained on the tasks, because the cutoff is a claim by the provider and no source probes this model."
+      },
+      {
+        "field": "evidence",
+        "run": [
+          {
+            "location": "~/paper2-sources/openai-gpt-6-1-sol-model.txt",
+            "quote": "Apr 30, 2026 knowledge cutoff"
+          },
+          {
+            "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+            "quote": "OpenAI August 13, 2024 Milestone Introducing SWE-bench Verified"
+          },
+          {
+            "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+            "quote": "PRs created before or after 2023"
+          },
+          {
+            "location": "~/paper2-sources/swebench-datasets-guide.txt",
+            "quote": "Date of creation"
+          },
+          {
+            "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+            "quote": "we found that all frontier models we tested were able to reproduce the original, human-written bug fix"
+          }
+        ],
+        "signed": [
+          {
+            "location": "~/paper2-sources/openai-gpt-6-1-sol-model.txt",
+            "quote": "Apr 30, 2026 knowledge cutoff"
+          },
+          {
+            "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+            "quote": "OpenAI August 13, 2024 Milestone Introducing SWE-bench Verified"
+          },
+          {
+            "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+            "quote": "PRs created before or after 2023"
+          },
+          {
+            "location": "~/paper2-sources/swebench-datasets-guide.txt",
+            "quote": "Date of creation"
+          },
+          {
+            "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+            "quote": "we found that all frontier models we tested were able to reproduce the original, human-written bug fix"
+          },
+          {
+            "location": "paper2/records/swe_bench_verified_sympy_rows.json",
+            "quote": "\"created_at\": \"2017-01-25T13:40:24Z\""
+          },
+          {
+            "location": "paper2/records/swe_bench_verified_sympy_rows.json",
+            "quote": "\"created_at\": \"2023-01-17T17:26:42Z\""
+          }
+        ]
+      },
+      {
+        "field": "reasons",
+        "run": "The stated cutoff and an upper bound on task dates are recorded with sources, so Documented. It is not Verified because every task predates the cutoff and no contamination check for this model exists; the outcome is not performed, and exposure is possible but not shown. It is not Contradicted because no source shows this model reproduces the test material.",
+        "signed": "The stated cutoff and the task creation dates (2017-01-25 to 2023-01-17 for the pilot and source tasks, from the dataset's created_at field) are recorded with sources, so Documented. It is not Verified because every task predates the cutoff and no contamination check for this model exists; the outcome is not performed, and exposure is possible but not shown. It is not Contradicted because no source shows this model reproduces the test material."
+      }
+    ],
+    "B28a-release": [
+      {
+        "field": "anchor",
+        "run": "Documented",
+        "signed": "Verified"
+      },
+      {
+        "field": "check.detection_limits",
+        "run": "The check could not detect whether a patch can alter the scoring, because no scorer exploit was executed and the full eval script was not read.",
+        "signed": "The check could not detect other ways to alter the grading than changing the test-running files, on tasks other than the three tried; it shows that such a patch is graded resolved, not how often an agent would write one."
+      },
+      {
+        "field": "check.evidence_location",
+        "run": "~/.venvs/paper2-swebench/lib/python*/site-packages/swebench/harness/grading.py",
+        "signed": "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json; paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-20590/check.json; paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-24539/check.json"
+      },
+      {
+        "field": "check.kind",
+        "run": "none",
+        "signed": "run_by_reviewer"
+      },
+      {
+        "field": "check.outcome",
+        "run": "not_performed",
+        "signed": "failed"
+      },
+      {
+        "field": "check.procedure",
+        "run": "Read run_evaluation.py, grading.py and utils.py of swebench 5.0.2. No exploit of the scorer was run.",
+        "signed": "Run for this study by a Claude Sonnet 5.5 run (recorded as a check run by the reviewer): on sympy__sympy-13031 (SymPy 1.1), sympy__sympy-20590 (1.7), and sympy__sympy-24539 (1.12), one per test runner layout, three patches each that change only test-running files (bin/test, runtests.py) were graded with the SWE-bench harness 5.0.2. Also read: run_evaluation.py, grading.py, and utils.py."
+      },
+      {
+        "field": "evidence",
+        "run": [
+          {
+            "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+            "quote": "uses containerized Docker environments to make evaluating on SWE-bench easier and more reliable"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+            "quote": "{git_apply_cmd} {CONTAINER_PATCH_FILE}"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+            "quote": "container, \"/bin/bash /eval.sh\", timeout"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/utils.py",
+            "quote": "Eval scripts end with a `git checkout` that resets the test files"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+            "quote": "A patch can print its own \"PASSED\" lines (e.g. from a conftest.py hook)"
+          }
+        ],
+        "signed": [
+          {
+            "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+            "quote": "uses containerized Docker environments to make evaluating on SWE-bench easier and more reliable"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+            "quote": "{git_apply_cmd} {CONTAINER_PATCH_FILE}"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+            "quote": "container, \"/bin/bash /eval.sh\", timeout"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/utils.py",
+            "quote": "Eval scripts end with a `git checkout` that resets the test files"
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+            "quote": "A patch can print its own \"PASSED\" lines (e.g. from a conftest.py hook)"
+          },
+          {
+            "location": "paper2/preparation/protocol-5/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json",
+            "quote": "\"outcome\": \"grading altered\""
+          },
+          {
+            "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+            "quote": "A patch can print its own \"PASSED\" lines (e.g. from a conftest.py hook),"
+          }
+        ]
+      },
+      {
+        "field": "missing",
+        "run": "An executed attempt to forge test output or alter test files under the harness, and a statement of network isolation (container creation sets no network option).",
+        "signed": "Grading that runs the tests from a copy the patch cannot change, or that rejects patches to the test-running files; or a check showing the harness does so."
+      },
+      {
+        "field": "reasons",
+        "run": "The environment and its handling are described and readable: one container per task, the patch applied, then the eval script, then log parsing. Isolation is not verified: the patch runs in the same container as the tests, and a code comment says a patch can print its own PASSED lines, with only a partial guard (the exit status). Not Contradicted: no exploit was executed and a guard exists. Not Verified: no isolation check is recorded.",
+        "signed": "The environment and its handling are described, and the isolation of the patch from the tests and the scorer was checked by executed patches, so the level is Verified. The outcome is failed: on all three tasks, every patch that changed only the test-running files, and no source code, was graded resolved, because the patch runs in the same container as the tests and the harness trusts the runner's log; the exit-status cross-check does not catch a run that exits 0. The defect is in the grading of the whole benchmark, not in single tasks, so no task is listed."
+      }
+    ],
+    "B28b-release": [],
+    "ABC-release": [
+      {
+        "field": "items[3].location",
+        "run": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/docker_utils.py",
+        "signed": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py"
+      },
+      {
+        "field": "items[3].quote",
+        "run": "Stop and remove a Docker container using subprocess commands.",
+        "signed": "Remove instance container + image, close logger"
+      },
+      {
+        "field": "items[4].answer",
+        "run": "not_met",
+        "signed": "unknown"
+      },
+      {
+        "field": "items[4].location",
+        "run": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+        "signed": ""
+      },
+      {
+        "field": "items[4].note",
+        "run": "",
+        "signed": "The 2026 source shows models reproduce gold patches from training, which is training exposure, not access during a run. The image history search (paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json) found no fix in the images, but isolation during a run (network, other files) was not tested."
+      },
+      {
+        "field": "items[4].quote",
+        "run": "all frontier models we tested were able to reproduce the original, human-written bug fix used as the ground-truth reference",
+        "signed": ""
+      },
+      {
+        "field": "items[19].location",
+        "run": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-12096/attempt.json",
+        "signed": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json"
+      },
+      {
+        "field": "items[19].quote",
+        "run": "defect demonstrated",
+        "signed": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'"
+      },
+      {
+        "field": "items[20].location",
+        "run": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-12096/attempt.json",
+        "signed": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json"
+      },
+      {
+        "field": "items[20].quote",
+        "run": "defect demonstrated",
+        "signed": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'"
+      },
+      {
+        "field": "items[22].location",
+        "run": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-12096/attempt.json",
+        "signed": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json"
+      },
+      {
+        "field": "items[22].quote",
+        "run": "defect demonstrated",
+        "signed": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'"
+      },
+      {
+        "field": "items[23].location",
+        "run": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+        "signed": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json"
+      },
+      {
+        "field": "items[23].quote",
+        "run": "\"outcome\": \"rejected\"",
+        "signed": "behavior 2 failed: nthroot_mod(2, 3, 2, True) = [1], expected [0]"
+      },
+      {
+        "field": "items[28].location",
+        "run": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-12096/attempt.json",
+        "signed": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json"
+      },
+      {
+        "field": "items[28].quote",
+        "run": "defect demonstrated",
+        "signed": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'"
+      }
+    ]
+  },
+  "changed_fields": 34
+}

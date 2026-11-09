@@ -1,0 +1,68 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28b",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the agent environment controlled and isolated from answers?",
+  "shown_means": "the environment, its tools and its isolation described",
+  "checked_means": "state clearing and isolation from answers, history and network verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The benchmark ships a Docker image per task that holds the repository and its history, and agents run in it (rubric: runs systems in an environment with tools or state)."
+  },
+  "check": {
+    "procedure": "Check records made for this study (protocol 4), read by me: for 75 published task images, commits beyond the base commit and changed files were listed with no network; for the 2 images holding other commits (sympy__sympy-19346, sympy__sympy-20590), every long added line of the reference patch was searched in those commits. The 21 tasks in scope are among the 75 images; sympy__sympy-20590 is in scope.",
+    "kind": "run_by_reviewer",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json; paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+    "detection_limits": "The check could not detect a fix rewritten in other words or split across lines, hints short of the answer, short added lines, network access from the environment, or what tools the agent has, since no agent environment is specified by the sources."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+      "quote": "\"images\": 75"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+      "quote": "\"failed_runs\": 0"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json (59 commits not ancestors of the base commit, in scope)",
+      "quote": "\"task_id\": \"sympy__sympy-20590\""
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "\"reference_lines_found\": []"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "would not be found; short added lines are not searched"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "A reviewer check of the shipped images is recorded with coverage, findings and limits. Later history in sympy__sympy-20590 is recorded and the search did not find the answer, so by the rubric the outcome is passed with the limit stated. Not above Verified: network isolation and state clearing were not checked.",
+  "missing": "A check of network access and tool access in the agent environment, and a search that tolerates rewritten fixes.",
+  "checks_performed": [
+    "Read the image history record and the fix search record",
+    "Noted that sympy__sympy-20590 holds 59 later commits and that the search found none of the 2 reference lines"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

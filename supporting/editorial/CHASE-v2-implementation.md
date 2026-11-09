@@ -1,6 +1,8 @@
 # CHASE v2 implementation record
 
-29 October 2026. The first manuscript draft is implemented in [paper_chase_v2.tex](../../paper_chase_v2.tex). Its document class, packages, author block, title and bibliography style match the original CHASE manuscript. The initial draft was checked without compilation. On 29 October 2026, the user requested a compiler check for the open document; the desktop compiler succeeded after the terminology revision. Page length and visual layout remain unchecked.
+> Historical record. Manuscript targets and commands below describe earlier work. See the [3 November 2026 consolidation record](../../provenance/manuscript-consolidation-2026-11-03.md) for Git retrieval and the current entry point.
+
+29 October 2026. The first manuscript draft is implemented in [paper_chase_v2.tex](https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai/blob/0a24e62dc9fb337dc05e61309b528972dd5b4d86/paper_chase_v2.tex). Its document class, packages, author block, title and bibliography style match the original CHASE manuscript. The initial draft was checked without compilation. On 29 October 2026, the user requested a compiler check for the open document; the desktop compiler succeeded after the terminology revision. Page length and visual layout remain unchecked.
 
 ## Content
 
@@ -23,7 +25,7 @@ The original source-passage packet, real reference answers, source audit and aut
 
 Protected-file hashes are recorded in [source-snapshot.json](../../surveys/colleague-review/mesa-study/chase-v2/preparation/source-snapshot.json). The original manuscripts, live packet, survey and existing study guide were not changed. The bibliography addition is append-only.
 
-Run `python3 tools/check-chase-v2.py` for source checks without LaTeX compilation. The check covers bibliography keys, references, braces/environments, formatting preservation, packet counts, preparation records and protected-file hashes. It does not validate source interpretations, reference labels, experimental isolation or page layout.
+Historical invocation (checker retired): `python3 tools/check-chase-v2.py` for source checks without LaTeX compilation. The check covers bibliography keys, references, braces/environments, formatting preservation, packet counts, preparation records and protected-file hashes. It does not validate source interpretations, reference labels, experimental isolation or page layout.
 
 The [recorded check](CHASE-v2-verification.json) passed with no errors: 12 citation keys, 25 questions, 24 fictional cases and 50 pending real reference records. Thirty model sessions are planned; none has been executed. The [preparation manifest](../../surveys/colleague-review/mesa-study/chase-v2/preparation/preparation-manifest.json) identifies the current draft files and explicitly does not claim a protocol freeze.
 

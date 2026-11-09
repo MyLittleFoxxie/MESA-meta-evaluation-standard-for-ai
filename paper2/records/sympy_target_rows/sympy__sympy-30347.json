@@ -1,0 +1,98 @@
+{
+  "instance_id": "sympy__sympy-30347",
+  "repo": "sympy/sympy",
+  "base_commit": "8a992f3c8782c49100232f530dc6353f1ee2217f",
+  "created_at": "2026-08-26T14:53:11Z",
+  "merged_at": "2026-08-26T18:09:40Z",
+  "merge_commit": "9a81962576b5db67cc1a172cd52a1fd2dd454881",
+  "pull_request": "https://github.com/sympy/sympy/pull/30347",
+  "issues": [
+    {
+      "number": 30345,
+      "url": "https://github.com/sympy/sympy/issues/30345",
+      "created_at": "2026-08-26T09:17:48Z"
+    }
+  ],
+  "problem_statement": "owens_t(h, a).evalf() breaks Add cancellation, giving wrong sign/magnitude in differences\n`owens_t(h, a).evalf()` returns an unevaluated `Float * Integral` rather than a plain `Float`:\n\n```pycon\n>>> from sympy.functions.special.error_functions import owens_t\n>>> owens_t(1, 2).evalf()\n0.164611992413795  # this one is fine\n```\n\nThe problem shows up when `owens_t` is added to (or subtracted from) another term whose value is close in magnitude, and the correct result is their small difference. `evalf`'s `Add` handler raises precision on each term until the cancellation resolves, but that only works if every term in the sum is a genuine `Float`. Because `owens_t`'s term stays frozen (see below), the whole expression comes out with only the default ~53 bits, so a tiny true value prints with the wrong order of magnitude, or even the wrong sign:\n\n```pycon\n>>> from sympy import erf, sqrt, S\n>>> h, a = -6, 2\n>>> expr = erf(sqrt(2)*h/2)/2 + S.Half - 2*owens_t(h, a)\n>>> expr.evalf()\n-1.24370024995070e-19\n>>> expr.evalf(50)\n7.1180791900429369578422321160567160549025580712477e-43\n```\n\nAt the default precision the sign is wrong and the magnitude is off by 24 orders of magnitude. Raising the precision by hand (`evalf(50)`) does eventually recover the right answer, so the quadrature itself isn't the issue.\n\nI ran into this because I monkeypatched `owens_t._eval_evalf` to return a real `Float` and the standard `Add` cancellation machinery then handled the 50+ digit cancellation above with no explicit `evalf(N)` needed, which points at `_eval_evalf` returning something evalf's `Add` handler can't use, rather than at the underlying integral.\n\n### Where this comes from\n\n`owens_t` was added in #30143. `sympy.stats` now has a public consumer of it: `SkewNormal`'s `cdf` is `Phi(z) - 2*owens_t(z, alpha)` (#30304), so this now surfaces to anyone computing a left-tail probability, e.g.:\n\n```pycon\n>>> from sympy.stats import SkewNormal, cdf\n>>> cdf(SkewNormal('x', 0, 1, 2))(-6).evalf()\n-1.24370024995070e-19   # true value: 7.118e-43\n```\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex 2d5a6b65c480..38cac39a89f2 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -927,6 +927,7 @@ KJaybhaye <krushnajaybhaye01@gmail.com> KJaybhaye <80618101+KJaybhaye@users.nore\n KJaybhaye <krushnajaybhaye01@gmail.com> KJaybhaye <krushnajaybhaye01@gmail.com>\n KJaybhaye <krushnajaybhaye01@gmail.com> Krushna Jaybhaye <80618101+KJaybhaye@users.noreply.github.com>\n Ka Yi <chua.kayi@yahoo.com.sg>\n+Kadir Barut <kadirrbrtt@gmail.com> Kadir Barut <34428205+kadirb4rut@users.noreply.github.com>\n Kaifeng Zhu <cafeeee@gmail.com>\n Kalevi Suominen <jksuom@gmail.com> <kalevi.suominen@helsinki.fi>\n Kamlesh Joshi <72374645+kamleshjoshi8102@users.noreply.github.com>\ndiff --git a/sympy/functions/special/error_functions.py b/sympy/functions/special/error_functions.py\nindex 641cab226ab3..eea8138cc174 100644\n--- a/sympy/functions/special/error_functions.py\n+++ b/sympy/functions/special/error_functions.py\n@@ -21,6 +21,7 @@\n from sympy.functions.elementary.hyperbolic import cosh, sinh\n from sympy.functions.elementary.trigonometric import cos, sin, sinc, atan\n from sympy.functions.special.hyper import hyper, meijerg\n+from sympy.external.mpmath import prec_to_dps\n \n # TODO series expansions\n # TODO see the \"Note:\" in Ei\n@@ -1750,7 +1751,7 @@ def fdiff(self, argindex=1):\n             raise ArgumentIndexError(self, argindex)\n \n     def _eval_evalf(self, prec):\n-        return self.rewrite(li)._eval_evalf(prec)\n+        return self.rewrite(li).evalf(n=prec_to_dps(prec))\n \n     def _eval_rewrite_as_li(self, z, **kwargs):\n         return li(z) - li(2)\n@@ -2927,7 +2928,7 @@ def _eval_aseries(self, n, args0, x, logx):\n \n     def _eval_evalf(self, prec):\n         from sympy.integrals.integrals import Integral\n-        return self.rewrite(Integral)._eval_evalf(prec)\n+        return self.rewrite(Integral).evalf(n=prec_to_dps(prec))\n \n \n ###############################################################################\n",
+  "test_patch": "diff --git a/sympy/functions/special/tests/test_error_functions.py b/sympy/functions/special/tests/test_error_functions.py\nindex 8a514fb3260f..6d0efb1c6aed 100644\n--- a/sympy/functions/special/tests/test_error_functions.py\n+++ b/sympy/functions/special/tests/test_error_functions.py\n@@ -608,6 +608,12 @@ def test_Li():\n     raises(ArgumentIndexError, lambda: Li(z).fdiff(2))\n \n \n+def test_Li_evalf_cancellation():\n+    result = Li(2 + Rational(1, 10**20)).evalf()\n+    expected = Float('1.442695040888963407354721258549378e-20', 50)\n+    assert abs(result - expected) < 1e-34\n+\n+\n def test_si():\n     assert Si(I*x) == I*Shi(x)\n     assert Shi(I*x) == I*Si(x)\n@@ -1098,3 +1104,16 @@ def test_owent_evalf():\n     # Symmetry should hold numerically too\n     assert abs(owens_t(-1, 2).evalf() - owens_t(1, 2).evalf()) < 1E-10\n     assert abs(owens_t(1, -2).evalf() + owens_t(1, 2).evalf()) < 1E-10\n+\n+\n+def test_owent_evalf_cancellation():\n+    h, a = -6, 2\n+    expr = erf(sqrt(2)*h/2)/2 + S.Half - 2*owens_t(h, a)\n+\n+    # The default precision must be propagated into the numerical integral so\n+    # that Add can recover the cancellation in this left-tail probability.\n+    result = expr.evalf()\n+    # Independent 100-digit mpmath quadrature gives this reference value.\n+    expected = Float('7.1180791906932412294852794865326e-43', 50)\n+    assert result.is_Float\n+    assert abs(result - expected) < 1e-55\n",
+  "FAIL_TO_PASS": [
+    "sympy/functions/special/tests/test_error_functions.py::test_Li_evalf_cancellation",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_evalf_cancellation"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/functions/special/tests/test_error_functions.py::test_Li",
+    "sympy/functions/special/tests/test_error_functions.py::test__eis",
+    "sympy/functions/special/tests/test_error_functions.py::test__erfs",
+    "sympy/functions/special/tests/test_error_functions.py::test_ci",
+    "sympy/functions/special/tests/test_error_functions.py::test_ei",
+    "sympy/functions/special/tests/test_error_functions.py::test_erf",
+    "sympy/functions/special/tests/test_error_functions.py::test_erf2",
+    "sympy/functions/special/tests/test_error_functions.py::test_erf2inv",
+    "sympy/functions/special/tests/test_error_functions.py::test_erf_evalf",
+    "sympy/functions/special/tests/test_error_functions.py::test_erf_series",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfc",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfc_evalf",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfc_series",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfcinv",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfi",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfi_evalf",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfi_series",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfinv",
+    "sympy/functions/special/tests/test_error_functions.py::test_erfinv_evalf",
+    "sympy/functions/special/tests/test_error_functions.py::test_expint",
+    "sympy/functions/special/tests/test_error_functions.py::test_fresnel",
+    "sympy/functions/special/tests/test_error_functions.py::test_fresnel_series",
+    "sympy/functions/special/tests/test_error_functions.py::test_integral_rewrites",
+    "sympy/functions/special/tests/test_error_functions.py::test_li",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_conjugate",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_diff",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_eval_basic",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_eval_infinite_a",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_eval_unit_a",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_evalf",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_expand_func",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_fdiff",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_is_extended_real",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_is_zero",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_rewrite",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_rewrite_Sum",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_series",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_sign_and_finite",
+    "sympy/functions/special/tests/test_error_functions.py::test_owent_symmetry",
+    "sympy/functions/special/tests/test_error_functions.py::test_si"
+  ],
+  "image": "paper2/sympy-target:30347",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 8a992f3c8782c49100232f530dc6353f1ee2217f\ngit checkout 8a992f3c8782c49100232f530dc6353f1ee2217f sympy/functions/special/tests/test_error_functions.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/functions/special/tests/test_error_functions.py b/sympy/functions/special/tests/test_error_functions.py\nindex 8a514fb3260f..6d0efb1c6aed 100644\n--- a/sympy/functions/special/tests/test_error_functions.py\n+++ b/sympy/functions/special/tests/test_error_functions.py\n@@ -608,6 +608,12 @@ def test_Li():\n     raises(ArgumentIndexError, lambda: Li(z).fdiff(2))\n \n \n+def test_Li_evalf_cancellation():\n+    result = Li(2 + Rational(1, 10**20)).evalf()\n+    expected = Float('1.442695040888963407354721258549378e-20', 50)\n+    assert abs(result - expected) < 1e-34\n+\n+\n def test_si():\n     assert Si(I*x) == I*Shi(x)\n     assert Shi(I*x) == I*Si(x)\n@@ -1098,3 +1104,16 @@ def test_owent_evalf():\n     # Symmetry should hold numerically too\n     assert abs(owens_t(-1, 2).evalf() - owens_t(1, 2).evalf()) < 1E-10\n     assert abs(owens_t(1, -2).evalf() + owens_t(1, 2).evalf()) < 1E-10\n+\n+\n+def test_owent_evalf_cancellation():\n+    h, a = -6, 2\n+    expr = erf(sqrt(2)*h/2)/2 + S.Half - 2*owens_t(h, a)\n+\n+    # The default precision must be propagated into the numerical integral so\n+    # that Add can recover the cancellation in this left-tail probability.\n+    result = expr.evalf()\n+    # Independent 100-digit mpmath quadrature gives this reference value.\n+    expected = Float('7.1180791906932412294852794865326e-43', 50)\n+    assert result.is_Float\n+    assert abs(result - expected) < 1e-55\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/functions/special/tests/test_error_functions.py\n: '>>>>> End Test Output'\ngit checkout 8a992f3c8782c49100232f530dc6353f1ee2217f sympy/functions/special/tests/test_error_functions.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-08T06:22:15.010183+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/report.json": "c2888586109c7a66148286c86bf072044849ddd8fa7781c6017d76cdbbd5cd5f",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/test_output.txt": "901ddf8ad71b71a52eb99b4529bf7756556d6a4e6b132b41605b98a3269f1118",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/run_instance.log": "767b5b0681300eacff819d66ac1dd605f92b9a2cc67501fe2f154a8c90e35b5f",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/report.json": "c2888586109c7a66148286c86bf072044849ddd8fa7781c6017d76cdbbd5cd5f",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/test_output.txt": "824f4a6ccdd4983199e2e3e0a58b4bf46bc68555a622b2cc78b4413cc1f61ba0",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/run_instance.log": "d4397839181fc412f0ffbe306a59b7df4b51c76a6310ee228f7eb082e39fa998",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30347-20261108T062213/derive/sympy__sympy-30347/patch.diff": "31ce2287033379ddc0ebe077df6ed8a7cbaa17ee0eca738ed8f990fbe7177d27"
+      }
+    },
+    "image_id": "sha256:a7645a35014dbd38054931c4ca8c5d0706de9db4ebd14cb2aa1a9a272196f5a8"
+  },
+  "status": "derived"
+}

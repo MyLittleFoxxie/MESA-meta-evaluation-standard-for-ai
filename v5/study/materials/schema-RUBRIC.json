@@ -1,0 +1,283 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "benchmark",
+  "framework",
+  "description",
+  "judgments",
+  "limits"
+ ],
+ "properties": {
+  "benchmark": {
+   "type": "string"
+  },
+  "framework": {
+   "type": "string",
+   "enum": [
+    "RUBRIC"
+   ]
+  },
+  "limits": {
+   "type": "string"
+  },
+  "description": {
+   "type": "array",
+   "minItems": 8,
+   "maxItems": 8,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "facet",
+     "value",
+     "reason",
+     "evidence"
+    ],
+    "properties": {
+     "facet": {
+      "type": "string",
+      "enum": [
+       "Purpose",
+       "Judgeability",
+       "Reference",
+       "Containedness",
+       "Objectivity",
+       "Autonomy",
+       "Progression",
+       "Variation"
+      ]
+     },
+     "value": {
+      "type": "string"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "evidence": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "source",
+        "locator",
+        "quote"
+       ],
+       "properties": {
+        "source": {
+         "type": "string"
+        },
+        "locator": {
+         "type": "string"
+        },
+        "quote": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "judgments": {
+   "type": "array",
+   "minItems": 31,
+   "maxItems": 31,
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "item_id",
+     "level",
+     "basis",
+     "reason",
+     "evidence",
+     "missing",
+     "checks",
+     "outcome",
+     "check_kind",
+     "scope",
+     "detection_limits",
+     "task_defects",
+     "applicability_reason"
+    ],
+    "properties": {
+     "item_id": {
+      "type": "string",
+      "enum": [
+       "B01",
+       "B02",
+       "B03",
+       "B04",
+       "B05",
+       "B06",
+       "B07",
+       "B08",
+       "B09",
+       "B10",
+       "B11",
+       "B12",
+       "B13",
+       "B14a",
+       "B14b",
+       "B15",
+       "B16",
+       "B17",
+       "B18",
+       "B19",
+       "B20",
+       "B21",
+       "B22",
+       "B23",
+       "B24",
+       "B25",
+       "B26",
+       "B27",
+       "B28a",
+       "B28b",
+       "B29"
+      ]
+     },
+     "level": {
+      "type": "string",
+      "enum": [
+       "claimed",
+       "documented",
+       "verified",
+       "contradicted",
+       "undocumented",
+       "not_applicable"
+      ]
+     },
+     "basis": {
+      "type": "string",
+      "enum": [
+       "evidence_found",
+       "absence_of_information",
+       "defect_found",
+       "not_applicable"
+      ]
+     },
+     "reason": {
+      "type": "string"
+     },
+     "missing": {
+      "type": "string"
+     },
+     "checks": {
+      "type": "string"
+     },
+     "detection_limits": {
+      "type": "string"
+     },
+     "applicability_reason": {
+      "type": "string"
+     },
+     "evidence": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "source",
+        "locator",
+        "quote"
+       ],
+       "properties": {
+        "source": {
+         "type": "string"
+        },
+        "locator": {
+         "type": "string"
+        },
+        "quote": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "outcome": {
+      "type": "string",
+      "enum": [
+       "passed",
+       "failed",
+       "not_performed",
+       "not_recorded"
+      ]
+     },
+     "check_kind": {
+      "type": "string",
+      "enum": [
+       "reported_by_sources",
+       "run_by_reviewer",
+       "both",
+       "none"
+      ]
+     },
+     "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "level",
+       "ids"
+      ],
+      "properties": {
+       "level": {
+        "type": "string",
+        "enum": [
+         "release",
+         "configuration",
+         "task",
+         "subset"
+        ]
+       },
+       "ids": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "task_defects": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "task_id",
+        "direction",
+        "source",
+        "locator",
+        "quote"
+       ],
+       "properties": {
+        "task_id": {
+         "type": "string"
+        },
+        "source": {
+         "type": "string"
+        },
+        "locator": {
+         "type": "string"
+        },
+        "quote": {
+         "type": "string"
+        },
+        "direction": {
+         "type": "string",
+         "enum": [
+          "rejects_correct",
+          "accepts_wrong"
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

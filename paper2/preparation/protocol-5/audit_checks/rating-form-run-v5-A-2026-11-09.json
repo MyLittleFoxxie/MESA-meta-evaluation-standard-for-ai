@@ -1,0 +1,52 @@
+{
+  "record": "paper2-rating-form-run/1",
+  "run_at": "2026-11-09T16:26:41.884076+00:00",
+  "model": "Claude Sonnet 5.5 (Claude Code subagent)",
+  "run": "A",
+  "prompt": {
+    "path": "paper2/preparation/protocol-5/reviewer-prompt-v5.1.md",
+    "sha256": "f1de6d6825cea4f99a689f9a46fc3dd57083c2fb183e128c1d27481b62513e59"
+  },
+  "rubric": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "forms": {
+    "B05-release": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B05-release.json",
+      "sha256": "b6d8550a2fef61c5dfeae77ece3498392cb7e4542ece8d919e3343a45acd98c1"
+    },
+    "B07-release": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B07-release.json",
+      "sha256": "52ae973e4fe043eb3691657a6e3a7bab78c314ad22f0515e795ff3dce74d3fe6"
+    },
+    "B12-release": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B12-release.json",
+      "sha256": "027debd59aeabe8f7968f37167d9a631ad2b35df25b696b91aa4ad71eee2ac03"
+    },
+    "B14a-release": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B14a-release.json",
+      "sha256": "15c3a6b3c4510280f135bd493a8a77a74aaee613ff9b90d6a74eebd7aeef09c3"
+    },
+    "B14b-CONFIG_01_GEMINI_FLASH_MED": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B14b-CONFIG_01_GEMINI_FLASH_MED.json",
+      "sha256": "a6078fe28fd52c777fa68916291a7316f8fa1f47b4d17605b7198bc64b40a8bb"
+    },
+    "B14b-CONFIG_02_SOL_MED": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B14b-CONFIG_02_SOL_MED.json",
+      "sha256": "a85f4a378fe083d2920ba096422b091b8eea619eb44ad2e0daa7ca6149ac69b2"
+    },
+    "B28a-release": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B28a-release.json",
+      "sha256": "e4a3fe2632187cbada3a92c3a0fbb04f30e5bdd23d2d9a8a3ee4c85bfc0654d4"
+    },
+    "B28b-release": {
+      "path": "paper2/preparation/protocol-5/audit_forms/rating-run-v5-A/B28b-release.json",
+      "sha256": "68bdec6a7a319c8749c20d75fd3eb961cc9cc71141b3cf8791e07bdcd5d089a9"
+    }
+  },
+  "report_as_returned": "B05 (21 tasks): Verified, both, failed (the 2026 OpenAI post shows flawed tests beyond the listed task, but names no in-scope task). B07 (20 tasks): Verified, run_by_reviewer, passed. B12: Undocumented, none, not_performed (sample size, no uncertainty measure). B14a: Verified, reported_by_sources, failed (the 2026 post shows models reproduce gold patches). B14b Gemini: Documented, none, not_performed (cutoff March 2026). B14b Sol: Documented, none, not_performed (cutoff 30 April 2026); all tasks predate both cutoffs and no source probes either model. B28a: Documented, none, not_performed (a grading.py comment says a patch can print its own PASSED lines; no exploit run, so no defect recorded). B28b: Verified, run_by_reviewer, passed (no fix in later commits, limits stated). Task defects: B05 sympy-18199; B07 13878, 15809, 18199, 21847, 22914, 23824. Set aside: 13031, 20428, 20590 (every attempt rejected); 12096, 13372, 13551, 14711, 15976, 16597, 19783, 20438, 23413, 23534, 24539 (broke only behavior the issue does not state). Undecided: 18199 filed under B05 and also under B07; 12096 and 24539 borderline; B05 outcome failed rests on an audit that names no SymPy task. Process problem: run B's build script overwrote run A's in the shared scratch folder; run A executed B's script, which rewrote B's files, ran a sed replacement on it, and saw its first lines and last three lines; run A's forms were rebuilt from a private script.",
+  "notes": [
+    "Contact with run B's script through the shared scratch folder (see rating-form-run-v5-B-overlap-note.json); run A's forms differ from run B's on the B05 outcome and on B28a, so they were not copied from B."
+  ]
+}

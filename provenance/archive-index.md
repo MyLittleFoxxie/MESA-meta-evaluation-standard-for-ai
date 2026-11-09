@@ -1,5 +1,7 @@
 # Archive Index and Provenance Guide
 
+See also the [3 November 2026 manuscript consolidation](manuscript-consolidation-2026-11-03.md) for the current manuscript path and retrieval of removed manuscripts and tools.
+
 This document explains how to retrieve historical experiments, superseded planning records, presentation materials, and peripheral sources that were removed from the active checkout when the repository was reorganized into a focused manuscript and literature-review repository on 22 October 2026.
 
 See [relocation-map.json](relocation-map.json) for the machine-readable old-to-new path mapping, SHA-256 digests, and retention or archival reasons, and [reorganization-plan.md](reorganization-plan.md) for the reorganization specification.
@@ -50,7 +52,7 @@ Active research evidence, literature, and supporting adaptation records remain i
 
 ## Archived Historical Model Studies
 
-None of the archived GPT-6.1 Sol or Astra series is pooled with the current Claude Sonnet 5.5 study reported in [`paper_chase.tex`](../paper_chase.tex) and [`CHASE-study.md`](../CHASE-study.md). All raw prompts, responses, incomplete outputs, and failure logs are preserved in `pre-reorganization-2026-10-22`:
+None of the archived GPT-6.1 Sol or Astra series is pooled with the historical questionnaire study using Claude Sonnet 5.5 reported in [`paper_chase.tex`](https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai/blob/0a24e62dc9fb337dc05e61309b528972dd5b4d86/paper_chase.tex) and [`CHASE-study.md`](../CHASE-study.md). All raw prompts, responses, incomplete outputs, and failure logs are preserved in `pre-reorganization-2026-10-22`:
 
 | Archived path in `pre-reorganization-2026-10-22` | Description |
 | --- | --- |
@@ -72,6 +74,6 @@ None of the archived GPT-6.1 Sol or Astra series is pooled with the current Clau
 ## Known Pre-Existing Manuscript and Frozen-Record Notes
 
 - **Missing figure assets in `paper.tex` and `paper_old.tex`:** Both [`paper.tex`](../paper.tex) and [`paper_old.tex`](../paper_old.tex) contain `\includegraphics` references to `figures/mesa-methodology-pipeline.png` and `figures/mesa-test-case-pipeline.png`. That `figures/` directory was absent from the checkout prior to reorganization and is not present in Git history. Neither preserved manuscript is claimed to be build-ready, and no replacement figures have been invented.
-- **Unsuffixed citation keys in `paper_old.tex`:** The older preserved draft [`paper_old.tex`](../paper_old.tex) cites `gebru_datasheets`, `mitchell_model_cards`, `eu_ai_act`, and `iso_iec_25059`, which were later suffixed with publication years in [`references.bib`](../references.bib) (`gebru_datasheets_2021`, `mitchell_model_cards_2019`, `eu_ai_act_2024`, `iso_iec_25059_2023`). All citation keys in [`paper_chase.tex`](../paper_chase.tex), [`paper_refsq.tex`](../paper_refsq.tex), and [`paper.tex`](../paper.tex) resolve against `references.bib`.
+- **Unsuffixed citation keys in `paper_old.tex`:** The older preserved draft [`paper_old.tex`](../paper_old.tex) cites `gebru_datasheets`, `mitchell_model_cards`, `eu_ai_act`, and `iso_iec_25059`, which were later suffixed with publication years in [`references.bib`](../references.bib) (`gebru_datasheets_2021`, `mitchell_model_cards_2019`, `eu_ai_act_2024`, `iso_iec_25059_2023`). All citation keys in [`paper_chase.tex`](https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai/blob/0a24e62dc9fb337dc05e61309b528972dd5b4d86/paper_chase.tex), [`paper_refsq.tex`](https://github.com/MyLittleFoxxie/MESA-meta-evaluation-standard-for-ai/blob/0a24e62dc9fb337dc05e61309b528972dd5b4d86/paper_refsq.tex), and [`paper.tex`](../paper.tex) resolve against `references.bib`.
 - **Frozen historical relative links:** Byte-preserved historical records ([`surveys/colleague-review/mesa-study/claude-sonnet-5-5/README.md`](../surveys/colleague-review/mesa-study/claude-sonnet-5-5/README.md), `claude-sonnet-5-5-guidance-v2/analyst/before-*.md`, [`supporting/retrai-paper/thesis/question-check.md`](../supporting/retrai-paper/thesis/question-check.md), and [`supporting/retrai-paper/provenance/mesa-25/designqa-example.md`](../supporting/retrai-paper/provenance/mesa-25/designqa-example.md)) retain their original bytes and embedded historical paths, which map to current or archived locations via [relocation-map.json](relocation-map.json).
 - **No LaTeX compilation:** In accordance with repository rules, no LaTeX compilation or automatic PDF preview is performed; visual layout and page length remain unchecked.

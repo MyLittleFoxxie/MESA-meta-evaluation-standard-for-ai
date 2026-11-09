@@ -1,0 +1,59 @@
+{
+  "instance_id": "sympy__sympy-30726",
+  "repo": "sympy/sympy",
+  "base_commit": "5b767ff11a9eff1bd3478fb701f35444e7c9308a",
+  "created_at": "2026-10-11T10:32:40Z",
+  "merged_at": "2026-11-01T13:07:01Z",
+  "merge_commit": "33ba4758383a77c8a49a97f01ba08d7184fb59db",
+  "pull_request": "https://github.com/sympy/sympy/pull/30726",
+  "issues": [
+    {
+      "number": 30613,
+      "url": "https://github.com/sympy/sympy/issues/30613",
+      "created_at": "2026-09-29T08:08:45Z"
+    }
+  ],
+  "problem_statement": "Most methods on `QQ.algebraic_field(sqrt(2), sqrt(5))` fail, many computations on algebraic fields in general seem wrong\nOn `sympy==1.14.0`:\n\n```python\nfrom sympy import QQ, sqrt\nfrom sympy import __version__ as sympy_version\nprint(sympy_version)\n\n# example from the docs\nK3 = QQ.algebraic_field(sqrt(2), sqrt(3))\nprint(K3.discriminant())  # 2304, correct\nprint(K3.integral_basis()) # looks equivalent to (1,sqrt(2),sqrt(3),sqrt(6))\n\nK5 = QQ.algebraic_field(sqrt(2), sqrt(5))\nprint(K5.discriminant()) # exception\nprint(K5.integral_basis()) # exception\n```\n\nAlthough the constructor goes through with no hitch, both methods on `K5` fail with a cryptic `sympy.polys.polyerrors.CoercionFailed: Cannot convert 1/3 of type <class 'sympy.external.pythonmpq.PythonMPQ'> from QQ to ZZ`.\n\nSome more complex extensions like `QQ.algebraic_field(sqrt(2), 2*cos(2*pi/7))` seemingly work without raising exceptions, but the results are definitely incorrect:\n\n```python\n>>> QQ.algebraic_field(sqrt(2), 2*cos(2*pi/7)).discriminant()\n0\n```\n\nshould be certainly non-zero.\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/polys/numberfields/basis.py b/sympy/polys/numberfields/basis.py\nindex 18b2ebc31468..908ab2e29b36 100644\n--- a/sympy/polys/numberfields/basis.py\n+++ b/sympy/polys/numberfields/basis.py\n@@ -1,6 +1,7 @@\n \"\"\"Computing integral bases for number fields. \"\"\"\n from __future__ import annotations\n \n+from sympy.core.intfunc import ilcm\n from sympy.polys.polytools import Poly\n from sympy.polys.domains.algebraicfield import AlgebraicField\n from sympy.polys.domains.integerring import ZZ\n@@ -198,7 +199,6 @@ def round_two(T, radicals=None):\n     T, _ = T.make_monic_over_integers_by_scaling_roots()\n     n = T.degree()\n     D = T.discriminant()\n-    D_modulus = ZZ.from_sympy(abs(D))\n     # D must be 0 or 1 mod 4 (see Cohen Sec 4.4), which ensures we can write\n     # it in the form D = D_0 * F**2, where D_0 is 1 or a fundamental discriminant.\n     _, F = extract_fundamental_discriminant(D)\n@@ -214,11 +214,17 @@ def round_two(T, radicals=None):\n         # For a given prime p, the first enlargement of the order spanned by\n         # the current basis can be done in a simple way:\n         U = Ztheta.element_from_poly(Poly(U_bar, domain=ZZ))\n-        # TODO:\n-        #  Theory says only first m columns of the U//p*H term below are needed.\n-        #  Could be slightly more efficient to use only those. Maybe `Submodule`\n-        #  class should support a slice operator?\n-        H = H.add(U // p * H, hnf_modulus=D_modulus)\n+        # Cohen's Algorithm 6.1.8, step 5, uses only m generators of U/p*H;\n+        # here we include all generators and let HNF remove the redundancy.\n+        G = U // p * H\n+        d = ilcm(H.denom, G.denom)\n+        # Contrary to the assertion in the book, the HNF determinant need\n+        # not divide disc(T). It does divide the determinant of the scaled\n+        # H block, whose columns generate a full-rank sublattice.\n+        D_modulus = ZZ(d // H.denom)**n\n+        for i in range(n):\n+            D_modulus *= H.matrix[i, i].element\n+        H = H.add(G, hnf_modulus=D_modulus)\n         if e <= m:\n             continue\n         # A second, and possibly more, enlargements for p will be needed.\n",
+  "test_patch": "diff --git a/sympy/polys/numberfields/tests/test_basis.py b/sympy/polys/numberfields/tests/test_basis.py\nindex 0d2738ed740c..4e9524b6cd2c 100644\n--- a/sympy/polys/numberfields/tests/test_basis.py\n+++ b/sympy/polys/numberfields/tests/test_basis.py\n@@ -1,8 +1,9 @@\n from __future__ import annotations\n from sympy.abc import x\n from sympy.core import S\n-from sympy.core.numbers import AlgebraicNumber\n+from sympy.core.numbers import AlgebraicNumber, pi\n from sympy.functions.elementary.miscellaneous import sqrt\n+from sympy.functions.elementary.trigonometric import cos\n from sympy.polys import Poly, cyclotomic_poly\n from sympy.polys.domains import QQ\n from sympy.polys.matrices import DomainMatrix, DM\n@@ -84,3 +85,10 @@ def test_AlgebraicField_integral_basis():\n     assert B1 == [1, S.Half + alpha/2]\n     assert B2 == [k.ext.field_element([1]),\n                   k.ext.field_element([S.Half, S.Half])]\n+\n+\n+def test_round_two_hnf_modulus_issue_30613():\n+    K = QQ.algebraic_field(sqrt(2), sqrt(5))\n+    assert K.discriminant() == 2**6 * 5**2\n+    K = QQ.algebraic_field(sqrt(2), 2*cos(2*pi/7))\n+    assert K.discriminant() == 2**9 * 7**4\n",
+  "FAIL_TO_PASS": [
+    "sympy/polys/numberfields/tests/test_basis.py::test_round_two_hnf_modulus_issue_30613"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/polys/numberfields/tests/test_basis.py::test_AlgebraicField_integral_basis",
+    "sympy/polys/numberfields/tests/test_basis.py::test_round_two"
+  ],
+  "image": "paper2/sympy-target:30726",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 5b767ff11a9eff1bd3478fb701f35444e7c9308a\ngit checkout 5b767ff11a9eff1bd3478fb701f35444e7c9308a sympy/polys/numberfields/tests/test_basis.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/polys/numberfields/tests/test_basis.py b/sympy/polys/numberfields/tests/test_basis.py\nindex 0d2738ed740c..4e9524b6cd2c 100644\n--- a/sympy/polys/numberfields/tests/test_basis.py\n+++ b/sympy/polys/numberfields/tests/test_basis.py\n@@ -1,8 +1,9 @@\n from __future__ import annotations\n from sympy.abc import x\n from sympy.core import S\n-from sympy.core.numbers import AlgebraicNumber\n+from sympy.core.numbers import AlgebraicNumber, pi\n from sympy.functions.elementary.miscellaneous import sqrt\n+from sympy.functions.elementary.trigonometric import cos\n from sympy.polys import Poly, cyclotomic_poly\n from sympy.polys.domains import QQ\n from sympy.polys.matrices import DomainMatrix, DM\n@@ -84,3 +85,10 @@ def test_AlgebraicField_integral_basis():\n     assert B1 == [1, S.Half + alpha/2]\n     assert B2 == [k.ext.field_element([1]),\n                   k.ext.field_element([S.Half, S.Half])]\n+\n+\n+def test_round_two_hnf_modulus_issue_30613():\n+    K = QQ.algebraic_field(sqrt(2), sqrt(5))\n+    assert K.discriminant() == 2**6 * 5**2\n+    K = QQ.algebraic_field(sqrt(2), 2*cos(2*pi/7))\n+    assert K.discriminant() == 2**9 * 7**4\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/polys/numberfields/tests/test_basis.py\n: '>>>>> End Test Output'\ngit checkout 5b767ff11a9eff1bd3478fb701f35444e7c9308a sympy/polys/numberfields/tests/test_basis.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-08T06:33:35.752590+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/report.json": "f11880c6f664c027a8ffa61a5b4e4e57189ef6f3d06d21622e1f5a64609a8192",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/test_output.txt": "1e8289a85ef8ceda712b4872d6632cb62dc2990665a36b09319bb3876295790e",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/run_instance.log": "f0fd77fe3b916ae115ccf95259c85e5b04ef1d993b2b14f08e4cdb2a0bbf9e7a",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/report.json": "f11880c6f664c027a8ffa61a5b4e4e57189ef6f3d06d21622e1f5a64609a8192",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/test_output.txt": "8ad68c6e1fc63d47e0c8e3367c819732c10146609eb98609a9f8cc233a452d1f",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/run_instance.log": "b1d8de34fb66f6f8ff759a2b3c2da92436c27752ab7cdffa2dccb4588adcf002",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30726-20261108T063334/derive/sympy__sympy-30726/patch.diff": "5a2185801fab415421c188d9832df27a95058827b2202c1b15758485c9b960e9"
+      }
+    },
+    "image_id": "sha256:d93642c6c84ec416801e0d0cc56391760b0ddeac6655f84a7c3df3ed583dddfb"
+  },
+  "status": "derived"
+}

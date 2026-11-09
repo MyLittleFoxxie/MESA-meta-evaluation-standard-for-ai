@@ -1,0 +1,63 @@
+{
+  "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+  "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+  "total_tasks": 6,
+  "solved_tasks": 4,
+  "pass_rate": 0.6667,
+  "runs": [
+    {
+      "task_id": "pilot_requests_01",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "resolved": false,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "/Users/mylittlefoxxie/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020\n  warnings.warn(\nTraceback (most recent call last):\n  File \"/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2/pilot/gemini_runs/pilot_requests_01/test_eval_pilot.py\", line 16, in <module>\n    test_fn()\n  File \"/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2/pilot/gemini_runs/pilot_requests_01/test_eval_pilot.py\", line 8, in test_json_fallback_encoding\n    r = Response(content=b'{\"key\": \"\\xe9\"}', encoding=None)\nTypeError: __init__() got an unexpected keyword argument 'content'",
+      "patch": "diff --git a/requests/models.py b/requests/models.py\nindex f388c4e..bef908c 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -9,5 +9,8 @@ class Response:\n \n     def json(self, **kwargs):\n         if not self.encoding and self.content:\n-            return json.loads(self.content.decode('utf-8'), **kwargs)\n+            try:\n+                return json.loads(self.content.decode('utf-8'), **kwargs)\n+            except UnicodeDecodeError:\n+                return json.loads(self.content.decode(self.apparent_encoding or 'latin-1'), **kwargs)\n         return json.loads(self.text, **kwargs)"
+    },
+    {
+      "task_id": "pilot_requests_02",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "resolved": false,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "/Users/mylittlefoxxie/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020\n  warnings.warn(\nTraceback (most recent call last):\n  File \"/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2/pilot/gemini_runs/pilot_requests_02/test_eval_pilot.py\", line 4, in <module>\n    from requests.models import prepare_url\nImportError: cannot import name 'prepare_url' from 'requests.models' (/Users/mylittlefoxxie/Library/Python/3.9/lib/python/site-packages/requests/models.py)",
+      "patch": "diff --git a/requests/models.py b/requests/models.py\nindex 2b8772b..908e934 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -2,5 +2,5 @@ def prepare_url(url, params):\n     if isinstance(params, dict):\n         params = list(params.items())\n     # Bug: converting list of tuples with repeated keys to dict drops duplicates\n-    query = '&'.join(f'{k}={v}' for k, v in dict(params).items())\n+    query = '&'.join(f'{k}={v}' for k, v in params)\n     return f'{url}?{query}'"
+    },
+    {
+      "task_id": "pilot_flask_01",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/flask/blueprints.py b/flask/blueprints.py\nindex 8960246..dc4c327 100644\n--- a/flask/blueprints.py\n+++ b/flask/blueprints.py\n@@ -5,6 +5,5 @@ class Blueprint:\n \n     def add_url_rule(self, rule):\n         if self.url_prefix:\n-            # Bug: creates double slash if url_prefix ends with slash and rule starts with slash\n-            rule = self.url_prefix + rule\n+            rule = f\"{self.url_prefix.rstrip('/')}/{rule.lstrip('/')}\"\n         return rule"
+    },
+    {
+      "task_id": "pilot_flask_02",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/flask/app.py b/flask/app.py\nindex 0b3c19f..f660d95 100644\n--- a/flask/app.py\n+++ b/flask/app.py\n@@ -4,8 +4,6 @@ class Flask:\n         self.error_handlers = {}\n \n     def handle_user_exception(self, e):\n-        # Bug: deactivates context prematurely before dispatching to handler\n-        self.context_active = False\n         handler = self.error_handlers.get(type(e))\n         if handler:\n             return handler(e)"
+    },
+    {
+      "task_id": "pilot_sympy_01",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/sympy/matrices/dense.py b/sympy/matrices/dense.py\nindex 17a6d4b..37f2cf7 100644\n--- a/sympy/matrices/dense.py\n+++ b/sympy/matrices/dense.py\n@@ -4,5 +4,6 @@ class Matrix:\n         self.is_nilpotent = (data == [[0, 1], [0, 0]])\n \n def matrix_exp(A):\n-    # Bug: returns unsimplified string rather than polynomial I + A\n-    return 'unsimplified_series'\n+    if A.is_nilpotent:\n+        return 'I + A'\n+    return 'series'"
+    },
+    {
+      "task_id": "pilot_sympy_02",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/sympy/integrals/integrals.py b/sympy/integrals/integrals.py\nindex 85bd17b..3de9343 100644\n--- a/sympy/integrals/integrals.py\n+++ b/sympy/integrals/integrals.py\n@@ -7,6 +7,5 @@ class Integral:\n \n     def doit(self):\n         if self.upper == 'oo':\n-            # Bug: fails on direct substitution with oo\n-            raise ValueError('Cannot substitute oo directly; use limit()')\n+            return 'evaluated_limit_oo'\n         return f'integrated_{self.upper}'"
+    }
+  ]
+}

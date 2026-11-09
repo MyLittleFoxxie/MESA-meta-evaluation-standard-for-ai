@@ -1,0 +1,118 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B05",
+  "concern": "C05",
+  "definition": {
+    "path": "v5/rubric/rubric.md",
+    "sha256": "8d60dee59cba49d8c6ec9f27c13c4acb8d2983cce4c0b908df424159002a14ba"
+  },
+  "question": "Were tasks, reference answers and tests checked for errors that reject a correct solution?",
+  "shown_means": "the checking procedure described",
+  "checked_means": "coverage, findings and limits of the check reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "task",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": [
+      "sympy__sympy-13798",
+      "sympy__sympy-16597",
+      "sympy__sympy-23413",
+      "sympy__sympy-12096",
+      "sympy__sympy-24539",
+      "sympy__sympy-21847",
+      "sympy__sympy-13551",
+      "sympy__sympy-15809",
+      "sympy__sympy-20590",
+      "sympy__sympy-20438",
+      "sympy__sympy-20428",
+      "sympy__sympy-14711",
+      "sympy__sympy-23534",
+      "sympy__sympy-23824",
+      "sympy__sympy-13372",
+      "sympy__sympy-13878",
+      "sympy__sympy-13031",
+      "sympy__sympy-19783",
+      "sympy__sympy-22914",
+      "sympy__sympy-15976",
+      "sympy__sympy-18199"
+    ]
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B05 applies always; the tests of these tasks decide which patches count as resolved."
+  },
+  "check": {
+    "procedure": "Sources report: OpenAI annotators screened FAIL_TO_PASS tests of 1,699 samples (3 annotators each), and in 2026 six engineers audited 138 Verified problems. Study records (made by the study harness, not by this rater): each of the pilot and 20 source tasks was run with the code before the fix (every FAIL_TO_PASS test fails) and with the real fix (all tests pass); all 21 are marked eligible. A further record (made by another Claude run) grades a patch that fixes only the issue text of sympy__sympy-18199 and finds it rejected. The rater read these records and the sources and did not run code.",
+    "kind": "both",
+    "outcome": "failed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+    "detection_limits": "The check could not detect correct solutions that the tests reject for tasks other than sympy__sympy-18199 where no alternative patch was run, and the eligibility runs only show that the reference fix passes, not that other correct fixes do."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "We annotated 1,699 random samples from the SWE-bench test set"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "each sample is labeled 3 times by separate annotators"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "Whether the FAIL_TO_PASS unit tests filter out valid solutions."
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "at least 59.4% of the audited problems have flawed test cases that reject functionally correct submissions"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "We conducted an audit of 138 SWE-bench Verified problems"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "An example of too wide test cases is sympy__sympy-18199"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/eligibility/sympy__sympy-18199.json",
+      "quote": "\"status\": \"eligible\""
+    },
+    {
+      "location": "paper2/preparation/protocol-4/eligibility/sympy__sympy-13798.json",
+      "quote": "\"status\": \"eligible\""
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "\"outcome\": \"rejected\""
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The sources report a test review with its coverage (1,699 samples, three annotators each; later 138 problems, six engineers each), findings and limits, so Documented is passed. The result is outcome failed, not Contradicted: the 2026 audit is itself a reported check that found flawed tests in a subset of the audited problems, and for this scope it names only sympy__sympy-18199, which is listed as a task defect. The level is not lowered by the later audit; the findings are added to the detection limits.",
+  "missing": "A reported check of these 21 tasks with alternative correct patches, which would show whether the other tasks reject correct solutions; a person review of the 18199 minimal patch, since the record itself says it does not show that the patch is a complete fix.",
+  "checks_performed": [
+    "Read the 2024 and 2026 OpenAI posts for the procedure, coverage and findings of the test review",
+    "Read the eligibility records of the pilot and the 20 source tasks (all eligible)",
+    "Read the protocol 4 counterexample record for sympy__sympy-18199 and the issue text"
+  ],
+  "task_defects": [
+    {
+      "task_id": "sympy__sympy-18199",
+      "direction": "rejects_correct_solution",
+      "summary": "The only FAIL_TO_PASS test, test_solve_modular, rejects a patch that implements the root 0 for a % p == 0 described in the issue; it fails on assertions about composite moduli, which the issue does not mention. The full reference patch passes. The record does not claim the minimal patch is a complete fix.",
+      "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "Then x = 0 mod p is also a root of this equation.",
+      "artifacts": {
+        "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json": "07ae13d59422603a97c9274184d9d7632d1f4e1208be23f875c0fe0c13a9c8ae"
+      }
+    }
+  ],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

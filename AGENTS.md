@@ -1,27 +1,24 @@
 # Agent Instructions
 
-Use this file as the default repository guide for AI coding and research agents. Read `README.md` and `CHASE-study.md` for the current project and study, then the relevant source files before editing.
+Use this file as the default repository guide for AI coding and research agents. Read `README.md` and `v4/README.md` for the current project and study, then the relevant source files before editing.
 
 ## Current project
 
-MESA is the **25-question questionnaire** for reviewing AI benchmarks, adapted from the EFPA Test Review Model 2025. It has six domains and five categorical choices: Yes, Partly, No, Not sure, and Not applicable. Do not convert these choices to EFPA ratings or a total quality score.
+The current MESA manuscript is [`mesa_paper.tex`](mesa_paper.tex), **Unifying Benchmark Evaluation Protocols: A Meta-Evaluation Standard for Artificial Intelligence in Requirements Engineering**, intended for REFSQ in Springer LNCS format. It reports the framework comparison and rubric study and proposes a requirements traceability application. Human validation and effects on requirements decisions remain unestablished.
 
-Questions 1–5 judge whether descriptive information is documented. Benchmark passages supply the facts; questionnaire answers are judgments about that information. Keep missing information separate from explicit negative findings and distinguish checking that occurred from favorable outcomes.
+The frozen v4 mapping allocates 280 framework items to 30 comparison concerns. Its derived rubric has eight description fields and 29 evaluation questions. Rubric v5 ([`v5/rubric/rubric.md`](v5/rubric/rubric.md)) keeps that mapping, adopts the paper's level names, adds outcome, scope, check kind, detection limits and task defects to each rating, and splits B14 and B28, giving 31 evaluation questions; see [`v5/README.md`](v5/README.md). The current rubric text is [`v5/rubric/rubric-v5.1.md`](v5/rubric/rubric-v5.1.md), which settles feedback item 15 without changing any question; `rubric.md` stays frozen for Study 3. `mesa_paper.tex` presents v5 as its only rubric, with no version names, and reports the v5 sessions (`v5/study/`) as its Study 2; the v4 rubric sessions are not in the paper. These are distinct from the earlier 25 question questionnaire with six domains, five choices, and no total quality score. See [`v4/README.md`](v4/README.md) and [`v4/study/README.md`](v4/study/README.md).
 
-Detailed adaptation documents and scorecards remain supporting research records. Do not describe them as a separate “full MESA” instrument in the current papers. The comparison instrument is the original complete EFPA Test Review Model, not the older adaptation template.
+Preserve [`paper.tex`](paper.tex), [`paper_old.tex`](paper_old.tex), [`paper_mesa_v3.tex`](paper_mesa_v3.tex), and [`paper2_preview.tex`](paper2_preview.tex). The removed CHASE manuscripts and MESA v4 manuscript remain retrievable through the [consolidation record](provenance/manuscript-consolidation-2026-11-03.md). Do not restore them as active submission targets.
+
+Paper 2 ([`paper2.tex`](paper2.tex)) and its protocol 5 evaluation: read [`paper2_runbook.md`](paper2_runbook.md) first, and update it in the same change whenever the procedure, code, records, or state change.
+
+Feedback for the MESA paper from implementing it in Paper 2 is in [`mesa_paper_feedback_from_paper_2.md`](mesa_paper_feedback_from_paper_2.md); read it before revising `mesa_paper.tex`.
+
+For the earlier questionnaire, Questions 1–5 judge whether descriptive information is documented. Keep missing information separate from negative findings, and distinguish a check from its outcome. The five choices are Yes, Partly, No, Not sure, and Not applicable. Do not convert questionnaire choices into EFPA ratings. Supporting adaptation records are not a separate current instrument. The earlier questionnaire comparison used the complete EFPA Test Review Model, not the adaptation template.
 
 ## Manuscripts and submission targets
 
-Both current manuscripts use the title **MESA: Adapting the EFPA Test Review Model for AI Benchmark Review.**
-
-- **`paper_chase.tex` → CHASE:** reports the questionnaire adaptation and model experiments. Human evaluation is outside this paper's study and belongs only in future work. Do not describe a human study as unfinished work required to complete the CHASE paper.
-- **`paper_refsq.tex` → REFSQ:** is planned as the CHASE paper extended with human evaluation. Retain the shared questionnaire, conceptual basis, and model-study contribution, then add the human-study method, observed results, and discussion. Do not treat it as an unrelated human-only paper or assume the existing file already contains the complete extension.
-- **`paper.tex`:** preserved RETRAI submission manuscript; do not replace it with either current submission manuscript without an explicit request.
-- **`paper_old.tex`:** preserved older manuscript; do not replace its content.
-
-When asked to update manuscript content, keep shared definitions and verified model-study facts consistent across the relevant versions while preserving their different evaluation scope. Do not copy human findings into the CHASE paper. Do not invent participants, recruitment details, dates, responses, agreement, comments, or findings for REFSQ; use explicit placeholders until real records are available.
-
-IEEE is the confirmed CHASE manuscript format. Research methods follow relevant ACM SIGSOFT Empirical Standards independently of the typesetting format; see `supporting/adaptation/standards-assessment.md`. Do not assume that the CHASE format also determines REFSQ's format.
+Use `mesa_paper.tex` for the MESA REFSQ manuscript and `verify_manuscripts.py` for manuscript checks. Preserve the manuscript content during path refactors. Do not invent participants, recruitment, responses, agreement, or findings. Research methods follow relevant ACM SIGSOFT Empirical Standards independently of typesetting format.
 
 ## Research and writing
 
@@ -37,9 +34,11 @@ IEEE is the confirmed CHASE manuscript format. Research methods follow relevant 
 
 ## Model-study records
 
-Start with `CHASE-study.md` and `surveys/colleague-review/mesa-study/chase-report/selection.json`. Current reporting and traceability are in `surveys/colleague-review/mesa-study/chase-report/`; consult the frozen batch protocols for execution details.
+Start with `v4/README.md`, `v4/study/README.md`, and the frozen v4 protocol for the current paper. Study 1 has 18 framework sessions. The v4 study also has eight rubric sessions, which the paper does not report; the paper's Study 2 is the eight v5 sessions in `v5/study/`. Two amendment sessions and seven pilots are recorded separately. Preserve all v4 paths and records. The source checker and disagreement coder are assistants, not independent human validators.
 
-- `surveys/colleague-review/mesa-study/chase-report/`: current reporting selection, combining ten MESA sessions from `claude-sonnet-5-5-guidance-v2` with twenty EFPA-TRM/general-instruction sessions from `claude-sonnet-5-5`. It contains 30 conversations, 28 usable responses and 32 physical attempts, including two authentication failures. Historical batch analyses and all frozen materials remain preserved; use this selection for current manuscript findings.
+The following records belong to the earlier questionnaire study described in `CHASE-study.md`, not the v4 comparison:
+
+- `surveys/colleague-review/mesa-study/chase-report/`: historical questionnaire reporting selection, combining ten MESA sessions from `claude-sonnet-5-5-guidance-v2` with twenty EFPA-TRM/general-instruction sessions from `claude-sonnet-5-5`. It contains 30 conversations, 28 usable responses and 32 physical attempts, including two authentication failures. Historical batch analyses and all frozen materials remain preserved; use this selection only for findings about that questionnaire study.
 - Archived GPT-6.1 Sol series, never pooled with the current study: `mesa-study/main/` (same 30-run design, stopped at a Codex usage limit), `mesa-study/2026-10-17/` (stopped 180-run design), `accessibility-study/v1/`, and `simulation-study/` (first 120-run series and an incomplete Astra series). The paper names only the current study's model; these historical series are preserved in the `pre-reorganization-2026-10-22` Git snapshot and indexed in [provenance/archive-index.md](provenance/archive-index.md).
 - The reviewer model (Claude Sonnet 5.5) and an assistant running Claude Code with Claude Opus 5.5 are from the same model family; disclose this when the assistant analyzes the outputs.
 - Original prompts, expected fictional answers, raw responses, and failure logs are research records. Do not rewrite them after observing results. Changed materials require a new version and manifest.
@@ -55,7 +54,7 @@ The guided flow is Introduction → three 1–5 familiarity self-reports → com
 
 Read [the human-evaluation plan](surveys/colleague-review/future-steps.md) before recruitment or human analysis. Freeze population, recruitment, consent/ethics, sample-size rationale, exclusions and analysis decisions before collection. Report feedback separately, with explicit Cannot judge and optional-comment denominators; do not compute a composite score or call it a validated usability measure. Human comment analysis must document actual analysts and decisions; model answers are not ground truth and disagreement does not establish misunderstanding.
 
-Human research for REFSQ examines the questionnaire together with supplied passages, definitions, and the teaching example. Do not claim measured duration, comprehension, usability, expert correctness, or improvement over other methods unless the collected data support those claims. Account for repeated judgments within participants. Discuss shared passage cues, the worked example, fixed order, convenience sampling, optional comments, and limited benchmark coverage.
+The earlier questionnaire human research plan examines the questionnaire together with supplied passages, definitions, and the teaching example. Do not claim measured duration, comprehension, usability, expert correctness, or improvement over other methods unless the collected data support those claims. Account for repeated judgments within participants. Discuss shared passage cues, the worked example, fixed order, convenience sampling, optional comments, and limited benchmark coverage.
 
 Prepare agent-completed examples only when requested and label them separately. Experimental presentation changes belong in a separate static HTML document with no response fields, submission service, saving, email integration, or tracking. Preserve the live participant survey. Never send real submissions or test emails without explicit authorization.
 
@@ -74,8 +73,16 @@ Inspect Git status and preserve unrelated changes. Do not overwrite source paper
 
 The SWARM subproject was removed at the user's request; do not restore it as part of MESA work.
 
+## Rules
+
+- Avoid hyphenated terms unless necessary.
+- Avoid adjectives unless necessary.
+- Avoid marketing-style terms, such as those common in titles.
+- Make written text be easy to understand, and flow naturally.
+- Do not make mistakes.
+
 ## Verification
 
 Check question counts and study descriptions against the packet, reported findings against saved outputs, and references against source records. Verify citation keys, LaTeX references, balanced braces/environments, and asset paths. Check Markdown links and any static HTML's reading behavior.
 
-**Do not compile LaTeX or open an automatic PDF preview.** Report layout and page length as unchecked. The paper uses the existing GitHub repository link and `CHASE-study.md` for supporting files; do not reintroduce an anonymized-link requirement unless the user requests it.
+**Do not compile LaTeX or open an automatic PDF preview.** Report layout and page length as unchecked. The paper uses the existing GitHub repository link; `v4/README.md` indexes its study, while `CHASE-study.md` describes the earlier questionnaire study; do not reintroduce an anonymized-link requirement unless the user requests it.

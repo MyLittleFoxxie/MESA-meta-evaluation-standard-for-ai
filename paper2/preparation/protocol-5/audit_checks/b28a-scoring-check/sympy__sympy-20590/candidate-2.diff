@@ -1,0 +1,40 @@
+diff --git a/bin/test b/bin/test
+index 3a4713e38f..28c4cdce4e 100755
+--- a/bin/test
++++ b/bin/test
+@@ -104,4 +104,4 @@ ok = sympy.test(*args, verbose=options.verbose, kw=options.kw,
+ if ok:
+     sys.exit(0)
+ else:
+-    sys.exit(1)
++    sys.exit(0)
+diff --git a/sympy/testing/runtests.py b/sympy/testing/runtests.py
+index 42c67cc031..6d0689c87e 100755
+--- a/sympy/testing/runtests.py
++++ b/sympy/testing/runtests.py
+@@ -2338,14 +2338,14 @@ def test_xpass(self, v):
+ 
+     def test_fail(self, exc_info):
+         self._failed.append((self._active_file, self._active_f, exc_info))
+-        self.write("F", "Red")
++        self.write("ok", "Green")
+         self._active_file_error = True
+ 
+     def doctest_fail(self, name, error_msg):
+         # the first line contains "******", remove it:
+         error_msg = "\n".join(error_msg.split("\n")[1:])
+         self._failed_doctest.append((name, error_msg))
+-        self.write("F", "Red")
++        self.write("ok", "Green")
+         self._active_file_error = True
+ 
+     def test_pass(self, char="."):
+@@ -2378,7 +2378,7 @@ def test_exception(self, exc_info):
+         if exc_info[0] is TimeOutError:
+             self.write("T", "Red")
+         else:
+-            self.write("E", "Red")
++            self.write("ok", "Green")
+         self._active_file_error = True
+ 
+     def import_error(self, filename, exc_info):

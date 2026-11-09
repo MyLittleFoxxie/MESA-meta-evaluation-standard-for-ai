@@ -1,5 +1,7 @@
 # Repository reorganization plan
 
+> Historical record. Manuscript targets and commands below describe earlier work. See the [3 November 2026 consolidation record](manuscript-consolidation-2026-11-03.md) for Git retrieval and the current entry point.
+
 Prepared 22 October 2026. Planning only: no existing files have been moved, deleted, or rewritten.
 
 ## Intended result

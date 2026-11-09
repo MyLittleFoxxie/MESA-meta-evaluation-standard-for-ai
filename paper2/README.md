@@ -1,0 +1,13 @@
+# Paper 2
+
+Current manuscript: [paper2.tex](../paper2.tex).
+
+Paper 2 presents a method that decides whether benchmark results support a team's requirement on a coding agent, using MESA ratings of the benchmark, and explains each verdict. The traceability proposal, sufficiency conditions, and acceptance logic come from the MESA paper ([mesa_paper.tex](../mesa_paper.tex)); Paper 2 implements and prepares an evaluation of their application.
+
+Current preparation: [protocol 5](preparation/protocol-5/protocol.md), [readiness report](preparation/protocol-5/readiness.md), [rating forms](preparation/protocol-5/audit_forms/), and [check records](preparation/protocol-5/audit_checks/). Code: [evidence records and decision levels](method/evidence.py), [case builder](preparation/cases.py), [B07 cheating attempts](preparation/counterexamples.py), [replay](preparation/replay.py), [study controls](preparation/study_controls.py), [harness eligibility and grading](preparation/harness.py), [target pool](preparation/targets.py), and [sessions](preparation/sessions.py). Records: [SymPy source rows](records/swe_bench_verified_sympy_rows.json), [target pool](records/sympy_target_pool.json), [target rows](records/sympy_target_rows/), and [eligibility results](preparation/protocol-4/eligibility/). [Protocol 4](preparation/protocol-4/protocol.md) and its pilot are kept as history.
+
+No session of protocol 5 has been run. Eligibility checks, the target pool search, the auditor checks of the published images, sandbox checks of both coding agents, and a rehearsal on one task outside the selection have been run. The step by step procedure, with its current state and known problems, is in [paper2_runbook.md](../paper2_runbook.md).
+
+Earlier records stay as they were. [Protocol 3](preparation/v3/protocol.md) names concerns C05, C07, C12, C14, and C28; `evidence.py` reads them as B05, B07, B12, B14, and B28 through an explicit alias map without rewriting them. Its [readiness report](preparation/v3/readiness.md) describes metadata and fixture checks; those checks do not establish runtime model identity, limits, or isolation. Its pilot task specifications are synthetic micro-repository fixtures and cannot satisfy the eligibility rule of protocols 4 and 5. [The version 2.1 snapshot](history/protocol-v2.1/paper2/protocol/freeze_manifest.json) preserves every file named by its manifest; resolve its paths relative to `history/protocol-v2.1/`.
+
+[Supplementary simulation results](preparation/v3/simulation-report.md) are kept separately from the original simulation outputs. They evaluate assumed review accuracy, not actual MESA audit accuracy.

@@ -1,0 +1,86 @@
+{
+  "instance_id": "sympy__sympy-30350",
+  "repo": "sympy/sympy",
+  "base_commit": "8a992f3c8782c49100232f530dc6353f1ee2217f",
+  "created_at": "2026-08-26T15:36:37Z",
+  "merged_at": "2026-08-26T18:00:48Z",
+  "merge_commit": "001343fa96c5ec27012de59a81f9c69a517ec6a4",
+  "pull_request": "https://github.com/sympy/sympy/pull/30350",
+  "issues": [
+    {
+      "number": 30349,
+      "url": "https://github.com/sympy/sympy/issues/30349",
+      "created_at": "2026-08-26T15:35:44Z"
+    }
+  ],
+  "problem_statement": "airyaiprime(z).rewrite(besseli) uses the wrong Bessel order for generic z (-1/3 instead of -2/3)\nWhile testing the Bessel-module rewrites numerically I noticed that the\ngeneric branch of `airyaiprime._eval_rewrite_as_besseli` (taken when\n`Re(z) > 0` is not known, e.g. for a plain `Symbol`) uses `besseli(-1/3, ...)`\nwhere [DLMF 9.6.3](https://dlmf.nist.gov/9.6#E3)\n\n$$\\operatorname{Ai}'(z) = \\frac{z}{3}\\left(I_{2/3}(\\zeta) - I_{-2/3}(\\zeta)\\right), \\qquad \\zeta = \\tfrac{2}{3}z^{3/2}$$\n\nrequires `besseli(-2/3, ...)`. The rewrite therefore disagrees with\n`airyaiprime` everywhere; for negative real input it even gives a complex\nvalue:\n\n```python\n>>> from sympy import symbols, airyaiprime, besseli, N\n>>> z = symbols('z')\n>>> airyaiprime(z).rewrite(besseli)\nz**2*besseli(2/3, 2*z**(3/2)/3)/(3*(z**(3/2))**(2/3)) - (z**(3/2))**(2/3)*besseli(-1/3, 2*z**(3/2)/3)/3\n>>> N(airyaiprime(z).rewrite(besseli).subs(z, 1))\n-0.226602029017611\n>>> N(airyaiprime(1))\n-0.159147441296793\n>>> N(airyaiprime(z).rewrite(besseli).subs(z, -1))\n-0.0919801823464775 + 0.148900951028358*I\n>>> N(airyaiprime(-1))\n-0.0101605671166452\n```\n\nIt looks like an old typo (present since at least SymPy 1.0): the `Re(z) > 0`\nbranch and the counterpart `airybiprime` already use the correct order.\nChanging `-1/3` to `-2/3` makes the rewrite agree with `airyaiprime` at all\npoints I tested. A pull request with the fix follows.\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex 206d8610ca25..b830f87aef3e 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1496,6 +1496,8 @@ Sarwar Chahal <chahal.sarwar98@gmail.com>\n Satya Prakash Dwibedi <akash581050@gmail.com>\n Saurabh Agarwal <shourabh.agarwal@gmail.com>\n Saurabh Jha <saurabh.jhaa@gmail.com>\n+SaxdaAnhalta <rompa2006@gmail.com>\n+SaxdaAnhalta <rompa2006@gmail.com> Roman Weller <149398693+SaxdaAnhalta@users.noreply.github.com>\n Sayan Goswami <Sayan98@users.noreply.github.com>\n Sayan Mitra <ee18b156@smail.iitm.ac.in>\n Sayandip Halder <sayandiph4@gmail.com> Sayandip <sayandiph4@gmail.com>\ndiff --git a/sympy/functions/special/bessel.py b/sympy/functions/special/bessel.py\nindex 899917e8a410..9d1d3c49fecb 100644\n--- a/sympy/functions/special/bessel.py\n+++ b/sympy/functions/special/bessel.py\n@@ -1844,7 +1844,7 @@ def _eval_rewrite_as_besseli(self, z, **kwargs):\n             a = Pow(z, Rational(3, 2))\n             b = Pow(a, tt)\n             c = Pow(a, -tt)\n-            return ot * (z**2*c*besseli(tt, tt*a) - b*besseli(-ot, tt*a))\n+            return ot * (z**2*c*besseli(tt, tt*a) - b*besseli(-tt, tt*a))\n \n     def _eval_rewrite_as_hyper(self, z, **kwargs):\n         pf1 = z**2 / (2*3**Rational(2, 3)*gamma(Rational(2, 3)))\n",
+  "test_patch": "diff --git a/sympy/functions/special/tests/test_bessel.py b/sympy/functions/special/tests/test_bessel.py\nindex 2e3d3c93b547..a45348fceb67 100644\n--- a/sympy/functions/special/tests/test_bessel.py\n+++ b/sympy/functions/special/tests/test_bessel.py\n@@ -717,7 +717,9 @@ def test_airyaiprime():\n                   besselj(Rational(1, 3), 2*(-t)**Rational(3, 2)/3))/3)\n     assert airyaiprime(z).rewrite(besseli) == (\n         z**2*besseli(Rational(2, 3), 2*z**Rational(3, 2)/3)/(3*(z**Rational(3, 2))**Rational(2, 3)) -\n-        (z**Rational(3, 2))**Rational(2, 3)*besseli(Rational(-1, 3), 2*z**Rational(3, 2)/3)/3)\n+        (z**Rational(3, 2))**Rational(2, 3)*besseli(Rational(-2, 3), 2*z**Rational(3, 2)/3)/3)\n+    # issue 30349\n+    assert tn(airyaiprime(z), airyaiprime(z).rewrite(besseli), z)\n     assert airyaiprime(p).rewrite(besseli) == (\n         p*(-besseli(Rational(-2, 3), 2*p**Rational(3, 2)/3) + besseli(Rational(2, 3), 2*p**Rational(3, 2)/3))/3)\n \n",
+  "FAIL_TO_PASS": [
+    "sympy/functions/special/tests/test_bessel.py::test_airyaiprime"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/functions/special/tests/test_bessel.py::test_airy_base",
+    "sympy/functions/special/tests/test_bessel.py::test_airyai",
+    "sympy/functions/special/tests/test_bessel.py::test_airybi",
+    "sympy/functions/special/tests/test_bessel.py::test_airybiprime",
+    "sympy/functions/special/tests/test_bessel.py::test_bessel_eval",
+    "sympy/functions/special/tests/test_bessel.py::test_bessel_nan",
+    "sympy/functions/special/tests/test_bessel.py::test_bessel_rand",
+    "sympy/functions/special/tests/test_bessel.py::test_bessel_twoinputs",
+    "sympy/functions/special/tests/test_bessel.py::test_besseli_leading_term",
+    "sympy/functions/special/tests/test_bessel.py::test_besseli_series",
+    "sympy/functions/special/tests/test_bessel.py::test_besselj_leading_term",
+    "sympy/functions/special/tests/test_bessel.py::test_besselj_series",
+    "sympy/functions/special/tests/test_bessel.py::test_besselk_frac_order_series",
+    "sympy/functions/special/tests/test_bessel.py::test_besselk_leading_term",
+    "sympy/functions/special/tests/test_bessel.py::test_besselk_series",
+    "sympy/functions/special/tests/test_bessel.py::test_bessely_leading_term",
+    "sympy/functions/special/tests/test_bessel.py::test_bessely_series",
+    "sympy/functions/special/tests/test_bessel.py::test_branching",
+    "sympy/functions/special/tests/test_bessel.py::test_conjugate",
+    "sympy/functions/special/tests/test_bessel.py::test_diff",
+    "sympy/functions/special/tests/test_bessel.py::test_expand",
+    "sympy/functions/special/tests/test_bessel.py::test_issue_26134",
+    "sympy/functions/special/tests/test_bessel.py::test_jn",
+    "sympy/functions/special/tests/test_bessel.py::test_jn_zeros",
+    "sympy/functions/special/tests/test_bessel.py::test_marcumq",
+    "sympy/functions/special/tests/test_bessel.py::test_meromorphic",
+    "sympy/functions/special/tests/test_bessel.py::test_rewrite",
+    "sympy/functions/special/tests/test_bessel.py::test_sympify_yn",
+    "sympy/functions/special/tests/test_bessel.py::test_yn"
+  ],
+  "image": "paper2/sympy-target:30350",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 8a992f3c8782c49100232f530dc6353f1ee2217f\ngit checkout 8a992f3c8782c49100232f530dc6353f1ee2217f sympy/functions/special/tests/test_bessel.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/functions/special/tests/test_bessel.py b/sympy/functions/special/tests/test_bessel.py\nindex 2e3d3c93b547..a45348fceb67 100644\n--- a/sympy/functions/special/tests/test_bessel.py\n+++ b/sympy/functions/special/tests/test_bessel.py\n@@ -717,7 +717,9 @@ def test_airyaiprime():\n                   besselj(Rational(1, 3), 2*(-t)**Rational(3, 2)/3))/3)\n     assert airyaiprime(z).rewrite(besseli) == (\n         z**2*besseli(Rational(2, 3), 2*z**Rational(3, 2)/3)/(3*(z**Rational(3, 2))**Rational(2, 3)) -\n-        (z**Rational(3, 2))**Rational(2, 3)*besseli(Rational(-1, 3), 2*z**Rational(3, 2)/3)/3)\n+        (z**Rational(3, 2))**Rational(2, 3)*besseli(Rational(-2, 3), 2*z**Rational(3, 2)/3)/3)\n+    # issue 30349\n+    assert tn(airyaiprime(z), airyaiprime(z).rewrite(besseli), z)\n     assert airyaiprime(p).rewrite(besseli) == (\n         p*(-besseli(Rational(-2, 3), 2*p**Rational(3, 2)/3) + besseli(Rational(2, 3), 2*p**Rational(3, 2)/3))/3)\n \nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/functions/special/tests/test_bessel.py\n: '>>>>> End Test Output'\ngit checkout 8a992f3c8782c49100232f530dc6353f1ee2217f sympy/functions/special/tests/test_bessel.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-08T06:15:53.546695+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/report.json": "5738e51f9b6135ac1454f7d262a33c88bad5cf000ad2685d58dd739db41e48ad",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/test_output.txt": "5b2b1102e6b5183c6ec5090aa56e96acb3b6729c72b8ac99a973be23350d0cb4",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/run_instance.log": "b815b6a22e036387d57cb4938a11da56b7243b9043f0bfd353917f48fb057e01",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/report.json": "5738e51f9b6135ac1454f7d262a33c88bad5cf000ad2685d58dd739db41e48ad",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/test_output.txt": "28765ac56aac1e90f1a91910c116890119713616690a697686ce887dfa00968a",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/run_instance.log": "39d5da0b18bee88460f9c5bcfe09eb431f1fd1304a73c48684769dfa9541cf3e",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30350-20261108T061551/derive/sympy__sympy-30350/patch.diff": "6e1dcf6b04f9eaa00d1d8080870d35a69a7e525d2c1b381fb48ea72c66410253"
+      }
+    },
+    "image_id": "sha256:70e7052a945b3587aa4871cc911545a1b750c968a1db0800b045033a7a633cfe"
+  },
+  "status": "derived"
+}

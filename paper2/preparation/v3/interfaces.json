@@ -1,0 +1,139 @@
+{
+  "version": 3,
+  "status": "draft; execution disabled",
+  "task": {
+    "required": [
+      "task_id",
+      "repo",
+      "issue_id",
+      "base_commit",
+      "checkout",
+      "issue_description",
+      "environment",
+      "test_command",
+      "junit_path",
+      "target_tests",
+      "reference_patch",
+      "reference_patch_sha256",
+      "oracle_files",
+      "related_issues",
+      "overlap_review"
+    ],
+    "environment": {
+      "id": "pinned environment identifier",
+      "setup_verified": "boolean; supported by setup log"
+    },
+    "test_command": "argv array producing JUnit XML; no shell interpolation",
+    "target_tests": "classname.name identifiers",
+    "oracle_files": "relative evaluation destination -> absolute source file",
+    "overlap_review": {
+      "status": "checked or pending",
+      "evidence": "review record path"
+    }
+  },
+  "eligibility": {
+    "fields": [
+      "version",
+      "task_id",
+      "timestamp",
+      "status",
+      "reason",
+      "baseline",
+      "reference"
+    ],
+    "status": [
+      "eligible",
+      "ineligible"
+    ],
+    "pending": "No result is not a failed task"
+  },
+  "review": {
+    "required": [
+      "version",
+      "criterion",
+      "evidence_location",
+      "scope",
+      "judgment",
+      "rationale",
+      "detection_limits",
+      "audit_execution",
+      "method_adequacy",
+      "empirical_finding",
+      "warrant",
+      "author",
+      "assistant_role",
+      "affected_cases"
+    ],
+    "scope": [
+      "release",
+      "configuration",
+      "task",
+      "subset"
+    ],
+    "judgment": [
+      "Verified",
+      "Contradicted",
+      "Undocumented",
+      "Claimed",
+      "Documented",
+      "Not applicable"
+    ]
+  },
+  "attempt": {
+    "fields": [
+      "version",
+      "attempt_id",
+      "timestamp",
+      "task_id",
+      "base_commit",
+      "environment",
+      "config_id",
+      "requested_model",
+      "observed_model",
+      "usage",
+      "events",
+      "artifacts",
+      "status"
+    ],
+    "status": [
+      "resolved",
+      "task_failure",
+      "budget_exhausted",
+      "invalid_patch",
+      "infrastructure_failure"
+    ],
+    "retry": "none automatic; new record required"
+  },
+  "locked_decision": {
+    "required": [
+      "version",
+      "case_id",
+      "config_id",
+      "method",
+      "task_ids",
+      "successes",
+      "n",
+      "interval",
+      "verdict",
+      "review_record_hashes",
+      "source_artifact_hashes",
+      "timestamp",
+      "record_sha256"
+    ],
+    "immutability": "exclusive creation; digest verified before target analysis"
+  },
+  "analysis": {
+    "fields": [
+      "source",
+      "target",
+      "target_n",
+      "target_successes",
+      "relation"
+    ],
+    "relation": [
+      "Agreement",
+      "Discrepancy",
+      "Unresolved evidence"
+    ]
+  }
+}

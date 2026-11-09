@@ -1,0 +1,33 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index 64d3207d09..234192d1cc 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -611,6 +611,10 @@ def convert_args(args):
+         return tex
+ 
+     def _print_Pow(self, expr):
++        from sympy.physics.secondquant import CreateBoson, CreateFermion
++
++        # Creation operators already carry a dagger superscript.
++        needs_braces = isinstance(expr.base, (CreateBoson, CreateFermion))
+         # Treat x**Rational(1,n) as special case
+         if expr.exp.is_Rational and abs(expr.exp.p) == 1 and expr.exp.q != 1 \
+                 and self._settings['root_notation']:
+@@ -636,6 +640,8 @@ def _print_Pow(self, expr):
+             # issue #12886: add parentheses for superscripts raised to powers
+             if expr.base.is_Symbol:
+                 base = self.parenthesize_super(base)
++            elif needs_braces:
++                base = "{%s}" % base
+             if expr.base.is_Function:
+                 return self._print(expr.base, exp="%s/%s" % (p, q))
+             return r"%s^{%s/%s}" % (base, p, q)
+@@ -657,7 +663,7 @@ def _print_Pow(self, expr):
+             if expr.base.is_Function:
+                 return self._print(expr.base, exp=self._print(expr.exp))
+             else:
+-                tex = r"%s^{%s}"
++                tex = r"{%s}^{%s}" if needs_braces else r"%s^{%s}"
+                 return self._helper_print_standard_power(expr, tex)
+ 
+     def _helper_print_standard_power(self, expr, template):

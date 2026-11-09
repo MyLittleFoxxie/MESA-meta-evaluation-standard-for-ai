@@ -1,0 +1,64 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28",
+  "concern": "C28",
+  "definition": {
+    "path": "v4/rubric/rubric-draft.md",
+    "sha256": "7ac2ed6e02230af818fc0ccde0105837c81bba5491e2d351d6f1f41205850c74"
+  },
+  "question": "Is the evaluation environment controlled and isolated from answers?",
+  "shown_means": "the environment and its isolation described",
+  "checked_means": "state clearing and isolation verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The benchmark runs systems in a repository with tools and state."
+  },
+  "check": {
+    "procedure": "Auditor checks: (1) reading of the harness code, which starts a fresh container per evaluation and applies the hidden test patch only inside it; (2) for all 75 published SymPy images, listing of commits reachable beyond the base commit and files changed since it, with no network; (3) for the two images with non-ancestor commits, a search of those commits for the reference fix.",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json; paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+    "detection_limits": "Covers the grading environment, not the environment a submitter gives its agent. The fix search matches added lines longer than 25 characters only. File mode changes in 22 images (no content change) were not examined further."
+  },
+  "evidence": [
+    {
+      "location": "OpenAI, Introducing SWE-bench Verified (2024), https://openai.com/index/introducing-swe-bench-verified/, section SWE-bench Verified",
+      "quote": "uses containerized Docker environments to make evaluating on SWE-bench easier and more reliable"
+    },
+    {
+      "location": "OpenAI, Introducing SWE-bench Verified (2024), https://openai.com/index/introducing-swe-bench-verified/, section Background on SWE-bench",
+      "quote": "The tests are not shown to the agent."
+    },
+    {
+      "location": "swebench 5.0.2, harness/run_evaluation.py, create_container docstring (line 79); the eval script that applies the hidden test patch runs inside that container",
+      "quote": "Creates a container from an instance image for running evaluation."
+    },
+    {
+      "location": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (2026), https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/, section Background",
+      "quote": "some tests could spuriously fail"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The sources describe a containerized harness that hides the tests, and the auditor checks found no commit after the base commit other than the harness setup commit in 73 images; in the other 2, older release branch commits hold no line of the reference fix. The 2026 post reports environment dependent spurious failures, a limit on control rather than a leak of answers.",
+  "missing": "Isolation of the agent's own environment is left to each submitter.",
+  "checks_performed": [
+    "harness code reading",
+    "history of 75 images",
+    "fix search in 2 images"
+  ],
+  "roles": {
+    "author": "",
+    "assistant": "Claude Code (Claude Opus 5.5) drafted this form from the cited sources and ran the listed auditor checks; the anchor is a proposal for the author, who reviews, changes if needed, and signs."
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "drafted_at": "2026-11-06T04:56:42.911152+00:00"
+}

@@ -1,0 +1,61 @@
+{
+  "instance_id": "sympy__sympy-30779",
+  "repo": "sympy/sympy",
+  "base_commit": "b386392cd62ed543aadd696d9953ab35cb38d666",
+  "created_at": "2026-10-20T04:53:34Z",
+  "merged_at": "2026-10-21T05:31:59Z",
+  "merge_commit": "ee053c66194e56e8cbc6b8ca41edd420e8531adc",
+  "pull_request": "https://github.com/sympy/sympy/pull/30779",
+  "issues": [
+    {
+      "number": 30778,
+      "url": "https://github.com/sympy/sympy/issues/30778",
+      "created_at": "2026-10-20T01:10:58Z"
+    }
+  ],
+  "problem_statement": "Plane.distance() raises ValueError for parallel Segment3D and Ray3D\n### Description\n\n`Plane.distance()` raises an unpacking error for a segment parallel to, and outside, the plane. A parallel ray produces the same error. Both are documented argument types, and their distance is well defined.\n\n### Reproducer\n\n```python\nfrom sympy import Plane, Segment3D\n\nplane = Plane((0, 0, 0), normal_vector=(0, 0, 1))\nsegment = Segment3D((0, 0, 1), (1, 0, 1))\nprint(plane.distance(segment))\n```\n\nActual result, reproduced locally:\n\n```text\n  File \"sympy/geometry/plane.py\", line 295, in distance\n    pi, = self.intersection(Line3D(a, b))\nValueError: not enough values to unpack (expected 1, got 0)\n```\n\nExpected: `1`, since every point of the segment has `z = 1`.\n\nReplacing `Segment3D` with `Ray3D` also raises the same error. Both cases were checked locally. `plane.distance(segment.p1)` and `plane.distance(Line3D(*segment.points))` correctly return `1`.\n\n### Investigation\n\nThe segment/ray branch assumes its supporting line intersects the plane. For a parallel supporting line, `self.intersection(Line3D(a, b))` returns `[]`, causing the unpacking error.\n\nThe closest existing report, #25157, concerns symbolic line parameters returning an incorrect zero. This report uses concrete coordinates and concerns segments/rays raising an exception.\n\n### Environment\n\n- SymPy `1.15.0.dev`, commit `b386392cd62ed543aadd696d9953ab35cb38d666`.\n- CPython `3.14.8`, Windows.\n- Reproduced using this repository's local SymPy checkout.\n\n### AI Generation Disclosure\n\nOpenAI Codex (GPT-6) drafted this issue report. The error was reproduced locally using the code above. \n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex b19aba39644d..48fe1e956124 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1913,6 +1913,7 @@ pekochun <hamburg_hamburger2000@yahoo.co.jp>\n philwillnyc <56197213+philwillnyc@users.noreply.github.com>\n phipf <phipf@online.de>\n platypus <platypus.computerchip@gmail.com>\n+prsdx <prsdx.dev@gmail.com>\n prshnt19 <prashant.rawat216@gmail.com>\n rahil-amin <rahilamin201@gmail.com>\n rahuldan <rahul02013@gmail.com>\ndiff --git a/sympy/geometry/plane.py b/sympy/geometry/plane.py\nindex 3dd27a0ef07e..f3dcddb72136 100644\n--- a/sympy/geometry/plane.py\n+++ b/sympy/geometry/plane.py\n@@ -292,7 +292,10 @@ def distance(self, o):\n \n         if isinstance(o, (Segment3D, Ray3D)):\n             a, b = o.p1, o.p2\n-            pi, = self.intersection(Line3D(a, b))\n+            inter = self.intersection(Line3D(a, b))\n+            if not inter:\n+                return self.distance(a)\n+            pi, = inter\n             if pi in o:\n                 return self.distance(pi)\n             elif a in Segment3D(pi, b):\n",
+  "test_patch": "diff --git a/sympy/geometry/tests/test_plane.py b/sympy/geometry/tests/test_plane.py\nindex 65eff25c0ed0..e5b5db78e0c5 100644\n--- a/sympy/geometry/tests/test_plane.py\n+++ b/sympy/geometry/tests/test_plane.py\n@@ -280,3 +280,34 @@ def test_plane_equation_symbol_clash():\n \n     p = Plane(Point3D(x, y, z), normal_vector=(u, v, w))\n     raises(ValueError, lambda: p.equation(x, y, z))\n+\n+\n+def test_plane_distance_parallel_segment_ray():\n+    # Issue #30778: Plane.distance() raises ValueError for parallel Segment3D and Ray3D\n+    p = Plane((0, 0, 0), normal_vector=(0, 0, 1))\n+    s1 = Segment3D((0, 0, 1), (1, 0, 1))\n+    r1 = Ray3D((0, 0, 1), (1, 0, 1))\n+    assert p.distance(s1) == 1\n+    assert p.distance(r1) == 1\n+\n+    # Ray pointing away from plane\n+    r_away = Ray3D((0, 0, 1), (0, 0, 2))\n+    assert p.distance(r_away) == 1\n+\n+    # In-plane segment and ray\n+    s_in = Segment3D((0, 0, 0), (2, 3, 0))\n+    r_in = Ray3D((0, 0, 0), (2, 3, 0))\n+    assert p.distance(s_in) == 0\n+    assert p.distance(r_in) == 0\n+\n+    # Parallel segment and ray with inclined plane\n+    p2 = Plane((1, 1, 1), normal_vector=(1, 1, 0))\n+    s2 = Segment3D((3, 0, 0), (4, -1, 1))\n+    assert p2.distance(s2) == p2.distance(Point3D(3, 0, 0))\n+\n+    # Symbolic coordinates\n+    h = symbols('h', positive=True)\n+    s_sym = Segment3D((0, 0, h), (1, 0, h))\n+    r_sym = Ray3D((0, 0, h), (1, 0, h))\n+    assert p.distance(s_sym) == h\n+    assert p.distance(r_sym) == h\n",
+  "FAIL_TO_PASS": [
+    "sympy/geometry/tests/test_plane.py::test_plane_distance_parallel_segment_ray"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/geometry/tests/test_plane.py::test_dimension_normalization",
+    "sympy/geometry/tests/test_plane.py::test_parameter_value",
+    "sympy/geometry/tests/test_plane.py::test_plane",
+    "sympy/geometry/tests/test_plane.py::test_plane_equation_symbol_clash"
+  ],
+  "image": "paper2/sympy-target:30779",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff b386392cd62ed543aadd696d9953ab35cb38d666\ngit checkout b386392cd62ed543aadd696d9953ab35cb38d666 sympy/geometry/tests/test_plane.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/geometry/tests/test_plane.py b/sympy/geometry/tests/test_plane.py\nindex 65eff25c0ed0..e5b5db78e0c5 100644\n--- a/sympy/geometry/tests/test_plane.py\n+++ b/sympy/geometry/tests/test_plane.py\n@@ -280,3 +280,34 @@ def test_plane_equation_symbol_clash():\n \n     p = Plane(Point3D(x, y, z), normal_vector=(u, v, w))\n     raises(ValueError, lambda: p.equation(x, y, z))\n+\n+\n+def test_plane_distance_parallel_segment_ray():\n+    # Issue #30778: Plane.distance() raises ValueError for parallel Segment3D and Ray3D\n+    p = Plane((0, 0, 0), normal_vector=(0, 0, 1))\n+    s1 = Segment3D((0, 0, 1), (1, 0, 1))\n+    r1 = Ray3D((0, 0, 1), (1, 0, 1))\n+    assert p.distance(s1) == 1\n+    assert p.distance(r1) == 1\n+\n+    # Ray pointing away from plane\n+    r_away = Ray3D((0, 0, 1), (0, 0, 2))\n+    assert p.distance(r_away) == 1\n+\n+    # In-plane segment and ray\n+    s_in = Segment3D((0, 0, 0), (2, 3, 0))\n+    r_in = Ray3D((0, 0, 0), (2, 3, 0))\n+    assert p.distance(s_in) == 0\n+    assert p.distance(r_in) == 0\n+\n+    # Parallel segment and ray with inclined plane\n+    p2 = Plane((1, 1, 1), normal_vector=(1, 1, 0))\n+    s2 = Segment3D((3, 0, 0), (4, -1, 1))\n+    assert p2.distance(s2) == p2.distance(Point3D(3, 0, 0))\n+\n+    # Symbolic coordinates\n+    h = symbols('h', positive=True)\n+    s_sym = Segment3D((0, 0, h), (1, 0, h))\n+    r_sym = Ray3D((0, 0, h), (1, 0, h))\n+    assert p.distance(s_sym) == h\n+    assert p.distance(r_sym) == h\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider sympy/geometry/tests/test_plane.py\n: '>>>>> End Test Output'\ngit checkout b386392cd62ed543aadd696d9953ab35cb38d666 sympy/geometry/tests/test_plane.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-06T04:49:06.288081+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/report.json": "4ec5072767e1c9baf39be6ba6c1209ee956ca237e51ce27e80e91d28466dcd39",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/test_output.txt": "19ffecb38e14b5341a47765e6ac20c152439e94642070ccdaf06e6f0d9926c9b",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/run_instance.log": "41ef10956147f19ebb5403849dc1df61e16c827c990747d70ca118b842a7ae95",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/report.json": "4ec5072767e1c9baf39be6ba6c1209ee956ca237e51ce27e80e91d28466dcd39",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/test_output.txt": "3c46a24d9cbd23f09af93ab194ee25363f4477c53c902809661c420b42e78a99",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/run_instance.log": "fff9789415f5f956ce4366711855e14676baec90bee3bc63a5ce3a8f9c79a9c3",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30779-20261106T044904/derive/sympy__sympy-30779/patch.diff": "aeb19e2f3a4a5acbe19914b7f405993f114d6a7341a2ca7192032731779f517d"
+      }
+    },
+    "image_id": "sha256:be8225028bf4035e93832df44be52fdf2f9b945e9a6bfc612eebc772d0a1d963"
+  },
+  "status": "derived"
+}

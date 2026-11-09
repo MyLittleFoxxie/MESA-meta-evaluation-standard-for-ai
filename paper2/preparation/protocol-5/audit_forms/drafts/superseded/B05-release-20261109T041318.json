@@ -1,0 +1,92 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "criterion": "B05",
+  "concern": "C05",
+  "definition": {
+    "path": "v4/rubric/rubric-draft.md",
+    "sha256": "7ac2ed6e02230af818fc0ccde0105837c81bba5491e2d351d6f1f41205850c74"
+  },
+  "question": "Were tasks and reference answers checked?",
+  "shown_means": "the checking procedure described",
+  "checked_means": "coverage, findings and limits of the check reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "applicability": {
+    "applies": true,
+    "reason": "B05 applies always under the frozen rubric."
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "status": "draft",
+  "scope": {
+    "level": "task",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": [
+      "sympy__sympy-13798",
+      "sympy__sympy-16597",
+      "sympy__sympy-23413",
+      "sympy__sympy-12096",
+      "sympy__sympy-24539",
+      "sympy__sympy-21847",
+      "sympy__sympy-13551"
+    ]
+  },
+  "scope_note": "The form keeps the name B05-release; its scope is the pilot task and the six selected source tasks.",
+  "check": {
+    "procedure": "Reading of the check the sources report: the 2024 annotation screened every sample of SWE-bench Verified, including the seven selected SymPy tasks, for appropriately scoped unit tests and well-specified issue descriptions, with three annotators per sample. Auditor checks: eligibility runs of the hidden tests on the unchanged source and with the reference patch for the seven tasks. The outcome refers to these checks; the graded patch for sympy__sympy-18199, outside this scope, is a check of the screening's limits and is reported under detection limits.",
+    "outcome": "passed",
+    "evidence_location": "OpenAI 2024 post, sections SWE-bench Verified and Our Approach; paper2/preparation/protocol-4/eligibility/ (results for the seven tasks)",
+    "detection_limits": "The 2024 screening passed sympy__sympy-18199, whose graded tests rejected a patch limited to the reference lines for the stated issue, with the same result as the unchanged source (paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json, sha256 07ae13d59422603a97c9274184d9d7632d1f4e1208be23f875c0fe0c13a9c8ae); the screening can therefore miss tests wider than the issue. The 2026 audit examined 138 SWE-bench Verified problems, all of which had passed the 2024 screening, and reports flawed test cases in at least 59.4% of them, that is at least 82; the 138 are problems that OpenAI o3 did not consistently solve over 64 independent runs, not a random sample. Whether any of the seven tasks is among them is not known. The eligibility runs show only that the tests tell the reference patch from the unchanged code. No independent check of the seven tasks for tests wider or narrower than their issues was done."
+  },
+  "evidence": [
+    {
+      "location": "OpenAI, Introducing SWE-bench Verified (2024), https://openai.com/index/introducing-swe-bench-verified/, section SWE-bench Verified",
+      "quote": "screen each sample of the SWE-bench test set for appropriately scoped unit tests and well-specified issue descriptions"
+    },
+    {
+      "location": "OpenAI, Introducing SWE-bench Verified (2024), https://openai.com/index/introducing-swe-bench-verified/, section Our Approach",
+      "quote": "Whether the FAIL_TO_PASS unit tests filter out valid solutions."
+    },
+    {
+      "location": "OpenAI, Introducing SWE-bench Verified (2024), https://openai.com/index/introducing-swe-bench-verified/, section Our Approach",
+      "quote": "each sample is labeled 3 times by separate annotators"
+    },
+    {
+      "location": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (2026), https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/, opening paragraphs",
+      "quote": "at least 59.4% of the audited problems have flawed test cases that reject functionally correct submissions"
+    },
+    {
+      "location": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (2026), https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/, section Too narrow and too wide tests",
+      "quote": "An example of too wide test cases is sympy__sympy-18199"
+    },
+    {
+      "location": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (2026), https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/, section Too narrow and too wide tests",
+      "quote": "the PR tests cover all three issues, while the description details only one."
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json, field outcome",
+      "quote": "rejected"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The sources show a check of the selected tasks with its coverage, findings, and limits: the 2024 annotation screened every sample, these seven tasks included, for tests that filter out valid solutions, and the tasks passed; the eligibility runs on the seven tasks also passed. Under the frozen rubric a reported check reaches Checked (stored as Verified) even when it found errors elsewhere. The same screening passed sympy__sympy-18199, a task of this release outside the selection, whose graded tests rejected a patch limited to the reference lines for its stated issue, as the 2026 audit reports and the auditor's executed check confirms. That defect is recorded as a limit of the screening, not as a defect of the selected tasks, because no source or check shows a defect in them.",
+  "missing": "An independent check of the seven selected tasks for tests wider or narrower than their issues; the list of SymPy tasks the 2026 audit flagged.",
+  "checks_performed": [
+    "reading of the 2024 and 2026 reported checks",
+    "eligibility runs on the seven tasks (all eligible)",
+    "grading of a minimal patch for sympy__sympy-18199, outside this scope, with the reference patch as control (rejected)"
+  ],
+  "roles": {
+    "author": "",
+    "assistant": "Claude Code (Claude Opus 5.5) drafted this form from the cited sources and ran the listed auditor checks; the anchor is a proposal for the author, who reviews, changes if needed, and signs."
+  },
+  "drafted_at": "2026-11-07T02:17:20.772744+00:00",
+  "carried_over_from": {
+    "path": "paper2/preparation/protocol-5/audit_forms/drafts/superseded/B05-release-20261107T014037.json",
+    "sha256": "b67daef3dd6853b1b698e08626e7e4300046147542ce173441f482baf4542eef",
+    "note": "the earlier protocol 5 draft rated B05 Contradicted at release scope",
+    "superseded_draft": "paper2/preparation/protocol-5/audit_forms/drafts/superseded/B05-release-20261107T210426.json",
+    "superseded_sha256": "1e3479f4411ec84b193a2b7d73e1b42dd4e5bb5d733ce90ec903ddeff9517a3a"
+  }
+}

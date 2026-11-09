@@ -1,0 +1,163 @@
+{
+  "pilot_version": "2.0-empirical",
+  "timestamp": "2026-11-04",
+  "record_type": "empirical_pilot_execution",
+  "empirical_execution": true,
+  "total_attempts": 12,
+  "total_solved": 10,
+  "overall_pass_rate": 0.8333,
+  "configurations": {
+    "CONFIG_01_GEMINI_FLASH_MED": {
+      "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+      "attempts": 6,
+      "solved": 6,
+      "pass_rate": 1.0
+    },
+    "CONFIG_02_SOL_LIGHT": {
+      "model_name": "GPT-6.1 Sol Light (via Codex CLI)",
+      "attempts": 6,
+      "solved": 4,
+      "pass_rate": 0.6667
+    }
+  },
+  "runs": [
+    {
+      "task_id": "pilot_requests_01",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/requests/models.py b/requests/models.py\nindex f388c4e..bef908c 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -9,5 +9,8 @@ class Response:\n \n     def json(self, **kwargs):\n         if not self.encoding and self.content:\n-            return json.loads(self.content.decode('utf-8'), **kwargs)\n+            try:\n+                return json.loads(self.content.decode('utf-8'), **kwargs)\n+            except UnicodeDecodeError:\n+                return json.loads(self.content.decode(self.apparent_encoding or 'latin-1'), **kwargs)\n         return json.loads(self.text, **kwargs)"
+    },
+    {
+      "task_id": "pilot_requests_02",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/requests/models.py b/requests/models.py\nindex 2b8772b..908e934 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -2,5 +2,5 @@ def prepare_url(url, params):\n     if isinstance(params, dict):\n         params = list(params.items())\n     # Bug: converting list of tuples with repeated keys to dict drops duplicates\n-    query = '&'.join(f'{k}={v}' for k, v in dict(params).items())\n+    query = '&'.join(f'{k}={v}' for k, v in params)\n     return f'{url}?{query}'"
+    },
+    {
+      "task_id": "pilot_flask_01",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/flask/blueprints.py b/flask/blueprints.py\nindex 8960246..dc4c327 100644\n--- a/flask/blueprints.py\n+++ b/flask/blueprints.py\n@@ -5,6 +5,5 @@ class Blueprint:\n \n     def add_url_rule(self, rule):\n         if self.url_prefix:\n-            # Bug: creates double slash if url_prefix ends with slash and rule starts with slash\n-            rule = self.url_prefix + rule\n+            rule = f\"{self.url_prefix.rstrip('/')}/{rule.lstrip('/')}\"\n         return rule"
+    },
+    {
+      "task_id": "pilot_flask_02",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/flask/app.py b/flask/app.py\nindex 0b3c19f..f660d95 100644\n--- a/flask/app.py\n+++ b/flask/app.py\n@@ -4,8 +4,6 @@ class Flask:\n         self.error_handlers = {}\n \n     def handle_user_exception(self, e):\n-        # Bug: deactivates context prematurely before dispatching to handler\n-        self.context_active = False\n         handler = self.error_handlers.get(type(e))\n         if handler:\n             return handler(e)"
+    },
+    {
+      "task_id": "pilot_sympy_01",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/sympy/matrices/dense.py b/sympy/matrices/dense.py\nindex 17a6d4b..37f2cf7 100644\n--- a/sympy/matrices/dense.py\n+++ b/sympy/matrices/dense.py\n@@ -4,5 +4,6 @@ class Matrix:\n         self.is_nilpotent = (data == [[0, 1], [0, 0]])\n \n def matrix_exp(A):\n-    # Bug: returns unsimplified string rather than polynomial I + A\n-    return 'unsimplified_series'\n+    if A.is_nilpotent:\n+        return 'I + A'\n+    return 'series'"
+    },
+    {
+      "task_id": "pilot_sympy_02",
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model_name": "Gemini 3.8 Flash Medium (via Antigravity ACI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED",
+      "stderr": "",
+      "patch": "diff --git a/sympy/integrals/integrals.py b/sympy/integrals/integrals.py\nindex 85bd17b..3de9343 100644\n--- a/sympy/integrals/integrals.py\n+++ b/sympy/integrals/integrals.py\n@@ -7,6 +7,5 @@ class Integral:\n \n     def doit(self):\n         if self.upper == 'oo':\n-            # Bug: fails on direct substitution with oo\n-            raise ValueError('Cannot substitute oo directly; use limit()')\n+            return 'evaluated_limit_oo'\n         return f'integrated_{self.upper}'"
+    },
+    {
+      "task_id": "pilot_requests_01",
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_name": "GPT-6.1 Sol Light (via Codex CLI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED\n",
+      "stderr": "",
+      "elapsed_seconds": 27.84,
+      "patch": "diff --git a/requests/models.py b/requests/models.py\nindex f388c4e..0d2f28e 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -9,5 +9,9 @@ class Response:\n \n     def json(self, **kwargs):\n         if not self.encoding and self.content:\n-            return json.loads(self.content.decode('utf-8'), **kwargs)\n+            try:\n+                text = self.content.decode('utf-8')\n+            except UnicodeDecodeError:\n+                text = self.content.decode(self.apparent_encoding or 'latin-1')\n+            return json.loads(text, **kwargs)\n         return json.loads(self.text, **kwargs)\n"
+    },
+    {
+      "task_id": "pilot_requests_02",
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_name": "GPT-6.1 Sol Light (via Codex CLI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED\n",
+      "stderr": "",
+      "elapsed_seconds": 20.46,
+      "patch": "diff --git a/requests/models.py b/requests/models.py\nindex 2b8772b..34776a5 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -1,6 +1,5 @@\n def prepare_url(url, params):\n     if isinstance(params, dict):\n         params = list(params.items())\n-    # Bug: converting list of tuples with repeated keys to dict drops duplicates\n-    query = '&'.join(f'{k}={v}' for k, v in dict(params).items())\n+    query = '&'.join(f'{k}={v}' for k, v in params)\n     return f'{url}?{query}'\n"
+    },
+    {
+      "task_id": "pilot_flask_01",
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_name": "GPT-6.1 Sol Light (via Codex CLI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED\n",
+      "stderr": "",
+      "elapsed_seconds": 26.02,
+      "patch": "diff --git a/flask/blueprints.py b/flask/blueprints.py\nindex 8960246..1f160ee 100644\n--- a/flask/blueprints.py\n+++ b/flask/blueprints.py\n@@ -5,6 +5,8 @@ class Blueprint:\n \n     def add_url_rule(self, rule):\n         if self.url_prefix:\n-            # Bug: creates double slash if url_prefix ends with slash and rule starts with slash\n-            rule = self.url_prefix + rule\n+            if rule:\n+                rule = self.url_prefix.rstrip('/') + '/' + rule.lstrip('/')\n+            else:\n+                rule = self.url_prefix\n         return rule\n"
+    },
+    {
+      "task_id": "pilot_flask_02",
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_name": "GPT-6.1 Sol Light (via Codex CLI)",
+      "execution_status": "COMPLETED",
+      "resolved": true,
+      "returncode": 0,
+      "stdout": "ALL_TESTS_PASSED\n",
+      "stderr": "",
+      "elapsed_seconds": 24.78,
+      "patch": "diff --git a/flask/app.py b/flask/app.py\nindex 0b3c19f..f660d95 100644\n--- a/flask/app.py\n+++ b/flask/app.py\n@@ -4,8 +4,6 @@ class Flask:\n         self.error_handlers = {}\n \n     def handle_user_exception(self, e):\n-        # Bug: deactivates context prematurely before dispatching to handler\n-        self.context_active = False\n         handler = self.error_handlers.get(type(e))\n         if handler:\n             return handler(e)\n"
+    },
+    {
+      "task_id": "pilot_sympy_01",
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_name": "GPT-6.1 Sol Light (via Codex CLI)",
+      "execution_status": "COMPLETED",
+      "resolved": false,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/private/var/folders/5n/s398hl113xx45y82yhnnpsqr0000gn/T/tmpdobhslwc/test_eval.py\", line 15, in <module>\n    t()\n  File \"/private/var/folders/5n/s398hl113xx45y82yhnnpsqr0000gn/T/tmpdobhslwc/test_eval.py\", line 9, in test_nilpotent_matrix_exp\n    assert res == 'I + A'\nAssertionError\n",
+      "elapsed_seconds": 33.94,
+      "patch": "diff --git a/sympy/matrices/dense.py b/sympy/matrices/dense.py\nindex 17a6d4b..28955ff 100644\n--- a/sympy/matrices/dense.py\n+++ b/sympy/matrices/dense.py\n@@ -4,5 +4,15 @@ class Matrix:\n         self.is_nilpotent = (data == [[0, 1], [0, 0]])\n \n def matrix_exp(A):\n-    # Bug: returns unsimplified string rather than polynomial I + A\n+    data = A.data\n+    if len(data) == 2 and all(len(row) == 2 for row in data):\n+        if all(\n+            sum(data[i][k] * data[k][j] for k in range(2)) == 0\n+            for i in range(2) for j in range(2)\n+        ):\n+            # When A**2 is zero, the exponential series ends at I + A.\n+            return Matrix([\n+                [data[i][j] + int(i == j) for j in range(2)]\n+                for i in range(2)\n+            ])\n     return 'unsimplified_series'\n"
+    },
+    {
+      "task_id": "pilot_sympy_02",
+      "config_id": "CONFIG_02_SOL_LIGHT",
+      "model_name": "GPT-6.1 Sol Light (via Codex CLI)",
+      "execution_status": "COMPLETED",
+      "resolved": false,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/private/var/folders/5n/s398hl113xx45y82yhnnpsqr0000gn/T/tmpro6evspl/test_eval.py\", line 15, in <module>\n    t()\n  File \"/private/var/folders/5n/s398hl113xx45y82yhnnpsqr0000gn/T/tmpro6evspl/test_eval.py\", line 9, in test_integral_subs_infinity_limits\n    assert res == 'evaluated_limit_oo'\nAssertionError\n",
+      "elapsed_seconds": 29.54,
+      "patch": "diff --git a/sympy/integrals/integrals.py b/sympy/integrals/integrals.py\nindex 85bd17b..fb3aef2 100644\n--- a/sympy/integrals/integrals.py\n+++ b/sympy/integrals/integrals.py\n@@ -6,7 +6,4 @@ class Integral:\n         self.upper = upper\n \n     def doit(self):\n-        if self.upper == 'oo':\n-            # Bug: fails on direct substitution with oo\n-            raise ValueError('Cannot substitute oo directly; use limit()')\n         return f'integrated_{self.upper}'\n"
+    }
+  ]
+}

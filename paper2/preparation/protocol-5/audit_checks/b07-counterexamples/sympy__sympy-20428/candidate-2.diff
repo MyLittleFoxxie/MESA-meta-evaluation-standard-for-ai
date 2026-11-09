@@ -1,0 +1,13 @@
+diff --git a/sympy/polys/polytools.py b/sympy/polys/polytools.py
+index 70112de3b6..1c5a990e78 100644
+--- a/sympy/polys/polytools.py
++++ b/sympy/polys/polytools.py
+@@ -3796,7 +3796,7 @@ def is_zero(f):
+         False
+ 
+         """
+-        return f.rep.is_zero
++        return bool(f.rep.is_zero or f.as_expr().is_zero)
+ 
+     @property
+     def is_one(f):

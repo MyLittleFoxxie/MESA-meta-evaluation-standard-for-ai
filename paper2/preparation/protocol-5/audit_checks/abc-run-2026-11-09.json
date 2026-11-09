@@ -1,0 +1,29 @@
+{
+  "record": "paper2-abc-run/1",
+  "run_at": "2026-11-09T14:55:14.332598+00:00",
+  "model": "Claude Sonnet 5.5 (Claude Code subagent)",
+  "instruction": "Read the file paper2/preparation/protocol-5/abc-prompt.md and follow it exactly ... Your output folder is paper2/preparation/protocol-5/audit_forms/abc-run/.",
+  "prompt": {
+    "path": "paper2/preparation/protocol-5/abc-prompt.md",
+    "sha256": "f5789e0330ceaa25da0be518602d8a3cc2968b522aec1db656c5880af645d693"
+  },
+  "items": {
+    "path": "paper2/preparation/protocol-5/abc-items.json",
+    "sha256": "0ebc31eaf1831abe40cbe1db2b6ef049b9b230535f33e34f452041137074b8bf"
+  },
+  "record_file": {
+    "path": "paper2/preparation/protocol-5/audit_forms/abc-run/ABC-release.json",
+    "sha256": "6266838c7e7b81c91a5ba0b825c10c505ecf2c786ef4c2389b00981d9d6fea6c"
+  },
+  "answers": {
+    "unknown": 5,
+    "not_applicable": 10,
+    "met": 8,
+    "not_met": 10
+  },
+  "report_as_returned": "Counts (33 items): 8 met, 10 not met, 10 not applicable, 5 unknown. Not met: T.5 (the 2026 OpenAI post says all frontier models tested could reproduce the gold patch); O.e.1, O.e.2, O.f.1, O.i.1 (the protocol 5 exploit attempts demonstrated a test defect on 17 of 20 SymPy tasks); O.f.2 (the sympy-18199 check rejected a patch that fixes only the stated issue); O.g.1 (narrow tests that reject correct fixes); R.3 (public repositories); R.4 (static dataset); R.10 (single seed, no confidence intervals). Unknown: T.1, T.6, O.d.2, O.e.3, O.f.3. Not applicable: T.2, T.3, O.a.1, O.a.2, O.b.1, O.b.2, O.b.3, O.c.1, O.c.2, O.g.3. Judgment calls: O.g items read as state matching by analogy; T.8 and O.d.1 met because the verification process exists; exploit attempts used at the level of the per task outcome summary. Scope breach: read all of reviewer-prompt-v5.md instead of only its Tasks list; did not read any MESA rating form or the rubric.",
+  "notes": [
+    "The run read reviewer-prompt-v5.md in full, not only its task list; that file holds the MESA rubric's rules for raters but no decision code or policies.",
+    "ABC has no rule limiting an exploit to behavior the issue states, so the run counted all 17 mechanical defects; the MESA run judges issue scope. Reported as a difference between the protocols."
+  ]
+}

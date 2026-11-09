@@ -1,0 +1,116 @@
+{
+  "record": "paper2-requirement/1",
+  "status": "draft",
+  "id": "REQ-P5-SYMPY-BUGFIX",
+  "text": "Working alone on a bug report from the SymPy repository, the coding agent changes the code so that the tests the maintainers later wrote for that bug pass, for at least 70% of bug reports, within 15 minutes each.",
+  "target_repository": "sympy/sympy",
+  "threshold": 0.7,
+  "time_limit_seconds": 900,
+  "criteria": [
+    "B05",
+    "B07",
+    "B12",
+    "B14a",
+    "B14b",
+    "B28a",
+    "B28b"
+  ],
+  "values_note": "70% and 15 minutes are illustrative values, fixed before any session; the method works with any values. This is one acceptance criterion among several that a project adopting a coding agent would use; review effort and security, for example, are not part of it.",
+  "origin": "The form follows the traceability example in the MESA paper (a pass@1 threshold of 80% on HumanEval for an IDE code completion requirement) and the way requirements engineering for AI states quality requirements: a measurable threshold traced to evidence. 70% has been this study's threshold since its first protocol.",
+  "drafted_by": "Claude Opus 5.5 (Claude Code), at the author's request",
+  "transfer": {
+    "CONFIG_01_GEMINI_FLASH_MED": {
+      "justification": "The source tasks and the target tasks come from the same repository and are the same kind of work: a bug report on SymPy, a change to SymPy's source code, and tests that the maintainers wrote with the fix. People screened the source tasks for clear issue text and fair tests (SWE-bench Verified). The pull requests that fix the target issues were merged from 2026-06-13 to 2026-11-05, after Gemini 3.8 Flash's stated training cutoff (March 2026, as stated in its model card, which adds that for some domains the model's knowledge is limited to January 2025). If the stated cutoff holds, the fixes were not in its training data. Five target issues were opened before the cutoff, so the agent may have seen their text. The agent gets the same instructions, tools, and 15 minutes for both kinds of task, and in each the Python version that the task's own grading uses (3.9 for the source tasks, 3.12 for the target tasks).",
+      "limits": "The source issues are older (2016 to 2023), SymPy's code has changed since, and the target tasks run on a newer Python. The target issues were not screened by people. The screened source tasks may be easier than typical issues. The agent may have seen the source tasks' fixes in training (B14). The method checks only that this justification exists, names its author, and matches the scope; it does not judge its content. The stated cutoffs are the providers' claims, not checks.",
+      "source_scope": {
+        "repository": "sympy/sympy",
+        "tasks": "SWE-bench Verified SymPy tasks (issues from 2016 to 2023)"
+      },
+      "target_scope": {
+        "repository": "sympy/sympy",
+        "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+        "tasks": "SymPy issues whose fixes were merged from 2026-06-13 to 2026-11-05, that close an issue and change both source and test code"
+      }
+    },
+    "CONFIG_02_SOL_MED": {
+      "justification": "The source tasks and the target tasks come from the same repository and are the same kind of work: a bug report on SymPy, a change to SymPy's source code, and tests that the maintainers wrote with the fix. People screened the source tasks for clear issue text and fair tests (SWE-bench Verified). The pull requests that fix the target issues were merged from 2026-06-13 to 2026-11-05, after GPT-6.1 Sol's stated training cutoff (30 April 2026, as stated on its model page). If the stated cutoff holds, the fixes were not in its training data. Five target issues were opened before the cutoff, so the agent may have seen their text. The agent gets the same instructions, tools, and 15 minutes for both kinds of task, and in each the Python version that the task's own grading uses (3.9 for the source tasks, 3.12 for the target tasks).",
+      "limits": "The source issues are older (2016 to 2023), SymPy's code has changed since, and the target tasks run on a newer Python. The target issues were not screened by people. The screened source tasks may be easier than typical issues. The agent may have seen the source tasks' fixes in training (B14). The method checks only that this justification exists, names its author, and matches the scope; it does not judge its content. The stated cutoffs are the providers' claims, not checks.",
+      "source_scope": {
+        "repository": "sympy/sympy",
+        "tasks": "SWE-bench Verified SymPy tasks (issues from 2016 to 2023)"
+      },
+      "target_scope": {
+        "repository": "sympy/sympy",
+        "config_id": "CONFIG_02_SOL_MED",
+        "tasks": "SymPy issues whose fixes were merged from 2026-06-13 to 2026-11-05, that close an issue and change both source and test code"
+      }
+    }
+  },
+  "confidence": 0.95,
+  "n_min": 9,
+  "n_min_reason": "The smallest number of tasks at which Accept is possible at threshold 0.70 under the 95% Wilson rule: 9 of 9 gives a lower bound of 0.701, and 8 of 8 gives 0.676.",
+  "rubric": {
+    "id": "mesa-rubric-v5.1",
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "task_set": {
+    "source": [
+      "sympy__sympy-16597",
+      "sympy__sympy-23413",
+      "sympy__sympy-12096",
+      "sympy__sympy-24539",
+      "sympy__sympy-21847",
+      "sympy__sympy-13551",
+      "sympy__sympy-15809",
+      "sympy__sympy-20590",
+      "sympy__sympy-20438",
+      "sympy__sympy-20428",
+      "sympy__sympy-14711",
+      "sympy__sympy-23534",
+      "sympy__sympy-23824",
+      "sympy__sympy-13372",
+      "sympy__sympy-13878",
+      "sympy__sympy-13031",
+      "sympy__sympy-19783",
+      "sympy__sympy-22914",
+      "sympy__sympy-15976",
+      "sympy__sympy-18199"
+    ],
+    "target": [
+      "sympy__sympy-30779",
+      "sympy__sympy-29939",
+      "sympy__sympy-30276",
+      "sympy__sympy-30600",
+      "sympy__sympy-30575",
+      "sympy__sympy-30274",
+      "sympy__sympy-30563",
+      "sympy__sympy-30350",
+      "sympy__sympy-29960",
+      "sympy__sympy-30347",
+      "sympy__sympy-30914",
+      "sympy__sympy-30591",
+      "sympy__sympy-30771",
+      "sympy__sympy-30304",
+      "sympy__sympy-29815",
+      "sympy__sympy-30726",
+      "sympy__sympy-30748",
+      "sympy__sympy-30952",
+      "sympy__sympy-30959",
+      "sympy__sympy-30872"
+    ],
+    "note": "The decision uses the source tasks less any task a signed rating form shows to have broken tests."
+  },
+  "configurations": [
+    "CONFIG_01_GEMINI_FLASH_MED",
+    "CONFIG_02_SOL_MED"
+  ],
+  "target_issues_before_cutoff": [
+    "sympy__sympy-29939",
+    "sympy__sympy-30591",
+    "sympy__sympy-29815",
+    "sympy__sympy-30959",
+    "sympy__sympy-30872"
+  ],
+  "target_issues_before_cutoff_note": "Target tasks whose issues were opened before both models' stated cutoffs (issues 27443, 13365, 21772, 19324, 26652); the direct test is also reported without them."
+}

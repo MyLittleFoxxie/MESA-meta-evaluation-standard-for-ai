@@ -1,0 +1,59 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B12",
+  "concern": "C12",
+  "definition": {
+    "path": "v5/rubric/rubric.md",
+    "sha256": "8d60dee59cba49d8c6ec9f27c13c4acb8d2983cce4c0b908df424159002a14ba"
+  },
+  "question": "Are uncertainty and statistical support reported for the benchmark's own scores?",
+  "shown_means": "sample size and an uncertainty measure (interval, standard error or spread over runs) for primary scores",
+  "checked_means": "power or significance reasoning given",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B12 applies always."
+  },
+  "check": {
+    "procedure": "The rater searched the six saved sources for an interval, standard error or spread over runs for the benchmark's own scores and found none.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+    "detection_limits": "The check could not detect uncertainty measures that appear only in the linked leaderboard, dataset pages or figures that the saved texts do not contain."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "GPT-4o resolves 33.2% of samples"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "consisting of 500 samples verified to be non-problematic by our human annotators"
+    },
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+      "quote": "The best performing model, Claude 2, is only able to resolve 1.96% of the issues."
+    }
+  ],
+  "anchor": "Undocumented",
+  "reasons": "The sources give the sample size (500 tasks) and single point scores, but no interval, standard error or spread over runs. By the rubric a sample size without an uncertainty measure does not reach Documented, so the rating is Undocumented; this is not a defect.",
+  "missing": "An uncertainty measure for the primary scores: an interval, a standard error or a spread over repeated runs.",
+  "checks_performed": [
+    "Read the SWE-bench paper, the 2024 Verified post and the 2026 post for sample sizes and uncertainty measures"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

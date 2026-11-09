@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Protocol 3 Local Task Specification Schema",
+  "description": "Defines required metadata, test artifacts, and containment definitions for candidate repository tasks.",
+  "type": "object",
+  "required": [
+    "task_id",
+    "repo",
+    "issue_id",
+    "base_commit",
+    "checkout",
+    "environment",
+    "test_command",
+    "target_tests",
+    "junit_path",
+    "reference_patch",
+    "reference_patch_sha256",
+    "oracle_files",
+    "overlap_review"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "Unique task identifier (e.g. target__sympy-26150)"
+    },
+    "repo": {
+      "type": "string",
+      "enum": ["sympy/sympy", "django/django", "sphinx-doc/sphinx"]
+    },
+    "issue_id": {
+      "type": "string"
+    },
+    "base_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "checkout": {
+      "type": "string",
+      "description": "Absolute filesystem path to pinned local git working tree"
+    },
+    "environment": {
+      "type": "object",
+      "required": ["id", "setup_verified"],
+      "properties": {
+        "id": { "type": "string" },
+        "setup_verified": { "type": "boolean" }
+      }
+    },
+    "test_command": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "target_tests": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "junit_path": {
+      "type": "string"
+    },
+    "reference_patch": {
+      "type": "string",
+      "description": "Absolute filesystem path to reference patch file"
+    },
+    "reference_patch_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "oracle_files": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "overlap_review": {
+      "type": "object",
+      "required": ["status", "evidence", "overlap_detected"],
+      "properties": {
+        "status": { "type": "string", "enum": ["checked", "pending"] },
+        "evidence": { "type": "string" },
+        "overlap_detected": { "type": "boolean" }
+      }
+    }
+  }
+}

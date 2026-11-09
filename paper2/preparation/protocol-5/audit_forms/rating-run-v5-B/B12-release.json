@@ -1,0 +1,59 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B12",
+  "concern": "C12",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Are uncertainty and statistical support reported for the benchmark's own scores?",
+  "shown_means": "sample size and an uncertainty measure (interval, standard error or spread over runs) for primary scores",
+  "checked_means": "power or significance reasoning given",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Applies always (rubric: Applies when always)."
+  },
+  "check": {
+    "procedure": "I searched the SWE-bench paper and the 2024 and 2026 OpenAI posts for an interval, standard error, spread over runs or power reasoning on the benchmark's own scores. None was found. No other check was done.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+    "detection_limits": "The check could not detect uncertainty measures reported in sources I did not read, such as the leaderboard or the annotation files."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "consisting of 500 samples verified to be non-problematic by our human annotators"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "We ran a single seed using closest-documented or default hyperparameters for each scaffold"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "GPT-4o resolves 33.2% of samples"
+    }
+  ],
+  "anchor": "Undocumented",
+  "reasons": "The sample size (500 tasks) is stated, but no interval, standard error or spread is given for any score; one seed per scaffold is reported. By the rubric a sample size without an uncertainty measure is Undocumented, not Documented.",
+  "missing": "An interval, standard error or spread over repeated runs for the primary scores, and power or significance reasoning for Verified.",
+  "checks_performed": [
+    "Read the three benchmark sources for sample size and uncertainty"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

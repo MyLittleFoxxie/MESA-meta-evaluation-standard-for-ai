@@ -1,0 +1,37 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index ad4d7d961..e9e02f42c 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -156,11 +156,13 @@ def __init__(self, settings=None):
+             "times": r" \times "
+         }
+ 
++        mul_symbol = self._settings['mul_symbol']
+         self._settings['mul_symbol_latex'] = \
+-            mul_symbol_table[self._settings['mul_symbol']]
++            mul_symbol_table.get(mul_symbol, mul_symbol)
+ 
++        # Keep adjacent numbers distinct when multiplication is implicit.
+         self._settings['mul_symbol_latex_numbers'] = \
+-            mul_symbol_table[self._settings['mul_symbol'] or 'dot']
++            mul_symbol_table.get(mul_symbol or 'dot', mul_symbol)
+ 
+         self._delim_dict = {'(': ')', '[': ']'}
+ 
+@@ -2155,11 +2157,15 @@ def latex(expr, **settings):
+     \frac{1}{2 \pi} \int r\, dr
+ 
+     mul_symbol: The symbol to use for multiplication. Can be one of None,
+-    "ldot", "dot", or "times".
++    "ldot", "dot", or "times", or a custom LaTeX string. Custom strings
++    are used verbatim, including any desired surrounding spaces.
+ 
+     >>> print(latex((2*tau)**sin(Rational(7,2)), mul_symbol="times"))
+     \left(2 \times \tau\right)^{\sin{\left (\frac{7}{2} \right )}}
+ 
++    >>> print(latex(3*x**2*y, mul_symbol=r" \, "))
++    3 \, x^{2} \, y
++
+     inv_trig_style: How inverse trig functions should be displayed. Can be one
+     of "abbreviated", "full", or "power". Defaults to "abbreviated".
+ 

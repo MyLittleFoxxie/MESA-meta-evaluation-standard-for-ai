@@ -1,0 +1,62 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B12",
+  "concern": "C12",
+  "definition": {
+    "path": "v4/rubric/rubric-draft.md",
+    "sha256": "7ac2ed6e02230af818fc0ccde0105837c81bba5491e2d351d6f1f41205850c74"
+  },
+  "question": "Are uncertainty and statistical support reported?",
+  "shown_means": "sample size and uncertainty for primary scores",
+  "checked_means": "power or significance reasoning given",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Every benchmark reports primary scores as fractions of tasks resolved."
+  },
+  "check": {
+    "procedure": "I searched the SWE-bench paper and both OpenAI posts for confidence intervals, standard errors, repeated runs, significance tests and power reasoning, and read the passages that report sample size and variation. This is a reading by the reviewer; the benchmark sources report no statistical check.",
+    "outcome": "not_performed",
+    "evidence_location": "/Users/mylittlefoxxie/paper2-sources/openai-introducing-swe-bench-verified.archive.txt (footnote 4) and /Users/mylittlefoxxie/paper2-sources/jimenez-2024-swe-bench.txt (appendix C.3)",
+    "detection_limits": "The search was by keyword and by reading the sections on results; the paper's tables and the leaderboard were not checked for intervals. Leaderboard submissions may report more."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt, section SWE-bench Verified",
+      "quote": "consisting of 500 samples verified to be non-problematic by our human annotators"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt, footnote 4",
+      "quote": "We ran a single seed using closest-documented or default hyperparameters for each scaffold, so results may differ"
+    },
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt, appendix C.3, random 25% subset",
+      "quote": "Apply rates are consistent with the main results, and not significantly skewed towards being simpler"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt, introduction, scores without intervals",
+      "quote": "from 74.9% to 80.9% in the last 6 months"
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "Sample sizes are reported (500 tasks for Verified), and the 2024 post says one seed was used and results may differ, so some inspectable information on uncertainty exists. It is not Claimed, because the sources do not merely assert that the concern is met. It is not Checked, because no source reports an interval, repeated runs, a significance test or power reasoning for the primary scores; the paper's only statistical remark is that a random subset was not significantly skewed, with no test shown.",
+  "missing": "Confidence intervals or standard errors for resolve rates; results over repeated runs; power or significance reasoning for comparing two agents on a subset of tasks.",
+  "checks_performed": [
+    "Keyword search for confidence, significance, variance, seed and bootstrap in the paper and posts",
+    "Read appendix C.3 of the paper and footnote 4 of the 2024 post"
+  ],
+  "roles": {
+    "author": "",
+    "assistant": "Claude Sonnet 5.5 (Claude Code subagent), rating form run of 2026-11-08"
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

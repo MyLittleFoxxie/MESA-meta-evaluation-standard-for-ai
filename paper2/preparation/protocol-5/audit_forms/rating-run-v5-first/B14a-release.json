@@ -1,0 +1,67 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14a",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric.md",
+    "sha256": "8d60dee59cba49d8c6ec9f27c13c4acb8d2983cce4c0b908df424159002a14ba"
+  },
+  "question": "Does the benchmark guard against exposure of its test material in training data?",
+  "shown_means": "the risk acknowledged; a safeguard described, such as hidden tests, dated tasks or a private split",
+  "checked_means": "a contamination check or held out procedure reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B14a applies always."
+  },
+  "check": {
+    "procedure": "Reported by the sources: in 2026 OpenAI ran an automated red team over every SWE-bench Verified task, probing GPT-5.2-Chat, Claude Opus 4.5 and Gemini 3 Flash Preview, and reported strong contamination in examples. The rater read the posts and the paper and ran nothing.",
+    "kind": "reported_by_sources",
+    "outcome": "failed",
+    "evidence_location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+    "detection_limits": "The check could not detect exposure of models it did not probe, nor exposure that its prompts failed to elicit; the post shows examples, not a rate per task."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "large foundation models that are pre-trained on internet text are likely to be contaminated on the tasks"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "The tests are not shown to the agent."
+    },
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+      "quote": "evaluate LMs on issues created after their training date, which ensures that the solution was not included in their training corpus"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "all frontier models we tested were able to reproduce the original, human-written bug fix"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "probing a GPT-5.2-Chat, Claude Opus 4.5 and Gemini 3 Flash Preview for contamination"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Safeguards are described (hidden tests, dated tasks, an updatable design) and a contamination check is reported with its method, so the level is above Documented. The outcome is failed because the check found exposure. It is not Contradicted: no source claims that Verified is protected, and the paper's dated task argument applies to new task sets, not to this fixed release.",
+  "missing": "A contamination rate over all tasks and a check on a held out set of tasks created after model cutoffs.",
+  "checks_performed": [
+    "Read the safeguards described in the paper and the 2024 post and the contamination check in the 2026 post"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

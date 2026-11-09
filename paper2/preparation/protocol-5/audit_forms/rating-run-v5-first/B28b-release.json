@@ -1,0 +1,60 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28b",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric.md",
+    "sha256": "8d60dee59cba49d8c6ec9f27c13c4acb8d2983cce4c0b908df424159002a14ba"
+  },
+  "question": "Is the agent environment controlled and isolated from answers?",
+  "shown_means": "the environment, its tools and its isolation described",
+  "checked_means": "state clearing and isolation from answers, history and network verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The benchmark's task images and repository state are the environment in which agents work on the tasks of this study."
+  },
+  "check": {
+    "procedure": "Study records (made by the author's tooling, not by this rater): for 75 SymPy task images the git history beyond the base commit and changed files were listed (no network); for the 2 images with commits that are not ancestors of the base (sympy__sympy-19346 and sympy__sympy-20590, the second a source task with 59 such commits) the added lines of the reference patch were searched and none found. The rater read the records and the sources and ran nothing.",
+    "kind": "both",
+    "outcome": "failed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+    "detection_limits": "The check could not detect a fix that is rewritten in other words or split across lines, short added lines, network access from the container, or leaks outside git history."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "The tests are not shown to the agent."
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+      "quote": "\"check\": \"B28 published image history\""
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "\"reference_lines_found\": []"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The sources describe hidden tests, and the study records verify the image history for 75 images, so the level is Verified for answers and history. The outcome is failed because 2 images hold commits beyond the base; no reference fix was found in them. Not Contradicted: no leak of the answer is shown.",
+  "missing": "A check of network isolation and state clearing for the agent scaffold; a check that later commits in the sympy__sympy-20590 image do not help an agent.",
+  "checks_performed": [
+    "Read both protocol 4 image checks",
+    "Read the benchmark sources for statements about the agent environment (they state hidden tests, not network or history isolation)"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

@@ -1,0 +1,120 @@
+{
+  "instance_id": "sympy__sympy-30575",
+  "repo": "sympy/sympy",
+  "base_commit": "06fcaef06d1e72684a46659b055eeee6169567ad",
+  "created_at": "2026-09-24T11:04:51Z",
+  "merged_at": "2026-09-25T19:17:14Z",
+  "merge_commit": "3f58eb0ce808f8c4917ab0b8ae67d133fc794c3f",
+  "pull_request": "https://github.com/sympy/sympy/pull/30575",
+  "issues": [
+    {
+      "number": 29832,
+      "url": "https://github.com/sympy/sympy/issues/29832",
+      "created_at": "2026-06-05T14:21:57Z"
+    }
+  ],
+  "problem_statement": "Landau order term doesn't update correctly when part of an expression and x0!=0\nMinimal example:\n\n```py\nx=symbols('x')\nerr=O((x-5)**3,(x,5))\n((err+1)*(x-5)).expand() # error term stays O((x-5)**3) when it should be O((x-5)**4)\n```\n\nThe scaling seems to work when it's not part of an expression. It also seems to work when part of an expression for x0=0. It also seems to properly scale for division instead of multiplication.\n\nsympy version: 1.14.0\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/core/mul.py b/sympy/core/mul.py\nindex 30c911f57938..dcc24d207bd7 100644\n--- a/sympy/core/mul.py\n+++ b/sympy/core/mul.py\n@@ -973,6 +973,19 @@ def _eval_expand_mul(self, **hints):\n             plain = self.func(*plain)\n             if sums:\n                 deep = hints.get(\"deep\", False)\n+                for i, s in enumerate(sums):\n+                    if not s.is_Add:\n+                        continue\n+                    o = s.getO()\n+                    if o is not None and any(p != 0 for p in o.point):\n+                        other = sums[:i] + sums[i + 1:]\n+                        # Undo any Basic wrapper used by _expandsums for nc factors.\n+                        other = [a.args[0] if type(a) is Basic else a for a in other]\n+                        regular = self.func(plain, s.removeO(), *other)\n+                        if regular.is_Mul and any(a.is_Add for a in regular.args):\n+                            regular = regular._eval_expand_mul(**hints)\n+                        return regular + self.func(plain, o, *other)\n+\n                 terms = self.func._expandsums(sums)\n                 args = []\n                 for term in terms:\n",
+  "test_patch": "diff --git a/sympy/series/tests/test_order.py b/sympy/series/tests/test_order.py\nindex 7f9aba6417ba..c33444e35b0f 100644\n--- a/sympy/series/tests/test_order.py\n+++ b/sympy/series/tests/test_order.py\n@@ -502,3 +502,11 @@ def test_issue_22836():\n     assert O(2**x + factorial(x), (x, oo)) == O(factorial(x), (x, oo))\n     assert O(2**x + factorial(x) + x**x, (x, oo)) == O(exp(x*log(x)), (x, oo))\n     assert O(x + factorial(x), (x, oo)) == O(factorial(x), (x, oo))\n+\n+\n+def test_issue_29832():\n+    # Order scaling when expanding expressions containing Order at x0 != 0\n+    assert ((1 + O((x - 5)**3, (x, 5))) * (x - 5)).expand() == -5 + x + O((x - 5)**4, (x, 5))\n+    assert ((1 + O((x + 4)**2, (x, -4))) * (x + 4)).expand() == 4 + x + O((x + 4)**3, (x, -4))\n+    assert ((1 + O((x - 5)**3, (x, 5))) * (x + 2)).expand() == 2 + x + O((x - 5)**3, (x, 5))\n+    assert ((1 + O((x - 5)**2, (x, 5))) * (x - 5)**3).expand() == ((x - 5)**3).expand() + O((x - 5)**5, (x, 5))\n",
+  "FAIL_TO_PASS": [
+    "sympy/series/tests/test_order.py::test_issue_29832"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/series/tests/test_order.py::test_O1",
+    "sympy/series/tests/test_order.py::test_add_1",
+    "sympy/series/tests/test_order.py::test_as_expr_variables",
+    "sympy/series/tests/test_order.py::test_caching_bug",
+    "sympy/series/tests/test_order.py::test_contains",
+    "sympy/series/tests/test_order.py::test_contains_0",
+    "sympy/series/tests/test_order.py::test_contains_1",
+    "sympy/series/tests/test_order.py::test_contains_2",
+    "sympy/series/tests/test_order.py::test_contains_3",
+    "sympy/series/tests/test_order.py::test_contains_4",
+    "sympy/series/tests/test_order.py::test_diff",
+    "sympy/series/tests/test_order.py::test_eval",
+    "sympy/series/tests/test_order.py::test_free_symbols",
+    "sympy/series/tests/test_order.py::test_getO",
+    "sympy/series/tests/test_order.py::test_getn",
+    "sympy/series/tests/test_order.py::test_issue_14622",
+    "sympy/series/tests/test_order.py::test_issue_15539",
+    "sympy/series/tests/test_order.py::test_issue_18606",
+    "sympy/series/tests/test_order.py::test_issue_22165",
+    "sympy/series/tests/test_order.py::test_issue_22836",
+    "sympy/series/tests/test_order.py::test_issue_23231",
+    "sympy/series/tests/test_order.py::test_issue_3468",
+    "sympy/series/tests/test_order.py::test_issue_4279",
+    "sympy/series/tests/test_order.py::test_issue_4855",
+    "sympy/series/tests/test_order.py::test_issue_6753",
+    "sympy/series/tests/test_order.py::test_issue_9192",
+    "sympy/series/tests/test_order.py::test_issue_9351",
+    "sympy/series/tests/test_order.py::test_issue_9910",
+    "sympy/series/tests/test_order.py::test_issue_9917",
+    "sympy/series/tests/test_order.py::test_leading_order",
+    "sympy/series/tests/test_order.py::test_leading_order2",
+    "sympy/series/tests/test_order.py::test_leading_term",
+    "sympy/series/tests/test_order.py::test_ln_args",
+    "sympy/series/tests/test_order.py::test_mixing_order_at_zero_and_infinity",
+    "sympy/series/tests/test_order.py::test_multivar_0",
+    "sympy/series/tests/test_order.py::test_multivar_0a",
+    "sympy/series/tests/test_order.py::test_multivar_1",
+    "sympy/series/tests/test_order.py::test_multivar_2",
+    "sympy/series/tests/test_order.py::test_multivar_3",
+    "sympy/series/tests/test_order.py::test_multivar_mul_1",
+    "sympy/series/tests/test_order.py::test_nan",
+    "sympy/series/tests/test_order.py::test_order_at_infinity",
+    "sympy/series/tests/test_order.py::test_order_at_some_point",
+    "sympy/series/tests/test_order.py::test_order_conjugate_transpose",
+    "sympy/series/tests/test_order.py::test_order_failing_due_to_solveset",
+    "sympy/series/tests/test_order.py::test_order_leadterm",
+    "sympy/series/tests/test_order.py::test_order_noncommutative",
+    "sympy/series/tests/test_order.py::test_order_subs_limits",
+    "sympy/series/tests/test_order.py::test_order_symbols",
+    "sympy/series/tests/test_order.py::test_performance_of_adding_order",
+    "sympy/series/tests/test_order.py::test_simple_1",
+    "sympy/series/tests/test_order.py::test_simple_2",
+    "sympy/series/tests/test_order.py::test_simple_3",
+    "sympy/series/tests/test_order.py::test_simple_4",
+    "sympy/series/tests/test_order.py::test_simple_5",
+    "sympy/series/tests/test_order.py::test_simple_6",
+    "sympy/series/tests/test_order.py::test_simple_7",
+    "sympy/series/tests/test_order.py::test_simple_8"
+  ],
+  "image": "paper2/sympy-target:30575",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 06fcaef06d1e72684a46659b055eeee6169567ad\ngit checkout 06fcaef06d1e72684a46659b055eeee6169567ad sympy/series/tests/test_order.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/series/tests/test_order.py b/sympy/series/tests/test_order.py\nindex 7f9aba6417ba..c33444e35b0f 100644\n--- a/sympy/series/tests/test_order.py\n+++ b/sympy/series/tests/test_order.py\n@@ -502,3 +502,11 @@ def test_issue_22836():\n     assert O(2**x + factorial(x), (x, oo)) == O(factorial(x), (x, oo))\n     assert O(2**x + factorial(x) + x**x, (x, oo)) == O(exp(x*log(x)), (x, oo))\n     assert O(x + factorial(x), (x, oo)) == O(factorial(x), (x, oo))\n+\n+\n+def test_issue_29832():\n+    # Order scaling when expanding expressions containing Order at x0 != 0\n+    assert ((1 + O((x - 5)**3, (x, 5))) * (x - 5)).expand() == -5 + x + O((x - 5)**4, (x, 5))\n+    assert ((1 + O((x + 4)**2, (x, -4))) * (x + 4)).expand() == 4 + x + O((x + 4)**3, (x, -4))\n+    assert ((1 + O((x - 5)**3, (x, 5))) * (x + 2)).expand() == 2 + x + O((x - 5)**3, (x, 5))\n+    assert ((1 + O((x - 5)**2, (x, 5))) * (x - 5)**3).expand() == ((x - 5)**3).expand() + O((x - 5)**5, (x, 5))\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider sympy/series/tests/test_order.py\n: '>>>>> End Test Output'\ngit checkout 06fcaef06d1e72684a46659b055eeee6169567ad sympy/series/tests/test_order.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-06T05:02:42.867729+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/report.json": "dd66e33ecc4adf610a65fc69e4b161dcb93687bc7e35e0d882f535992e09ea78",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/test_output.txt": "a5dc3776319da2993e415b00f2b21e26a65a52d63dd67a93f00efb1be5c2e943",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/run_instance.log": "74411ed1d07c98edaf9b418fc8ab6ec7409497ecca500f4d39d27a7ff5abc710",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-before-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/report.json": "dd66e33ecc4adf610a65fc69e4b161dcb93687bc7e35e0d882f535992e09ea78",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/test_output.txt": "4da3340796292861ed00fa60a722a0874376ef33ba9dfb1f33fc1329ceeb1f87",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/run_instance.log": "fbbcf34876931bc6bd049356060283fe609ead666f3ad5e0b84c5f24ff0206d0",
+        "paper2/preparation/protocol-4/harness/logs/run_evaluation/target-derive-after-sympy__sympy-30575-20261106T050240/derive/sympy__sympy-30575/patch.diff": "4a598e8bdf9b925b4744277ccafc975c728f11581eebbf9e0f13aa2dd673c29e"
+      }
+    },
+    "image_id": "sha256:fef40b2068eebbf1d0d1b9f3e824b714d25c3994a7fb34a2fb74c6a87473ead4"
+  },
+  "status": "derived",
+  "supersedes": {
+    "path": "superseded/sympy__sympy-30575.json",
+    "reason": "Derivation rule corrected on 2026-11-06 to the grader's rule (swebench grading.test_passed): a test that did not run before the reference patch, for example because its file failed to import, counts as not passed, and XFAIL counts as passed. The first rule required a FAILED or ERROR line for each test and treated only PASSED as passing. Lists recomputed from the saved derivation outputs; no new run.",
+    "at": "2026-11-06T05:14:21.428524+00:00"
+  }
+}

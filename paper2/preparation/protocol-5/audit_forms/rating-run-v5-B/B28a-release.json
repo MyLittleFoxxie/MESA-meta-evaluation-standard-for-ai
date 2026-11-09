@@ -1,0 +1,67 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28a",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the grading environment controlled, so that the system under test cannot reach answers or alter the scoring?",
+  "shown_means": "the grading environment and its isolation described",
+  "checked_means": "isolation of the system's output from the tests and the scorer verified or enforced in code",
+  "applies_when": "scoring runs the system's output as code or in an environment",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Scoring runs the system's output (a patch) as code in a Docker container, so the question applies (rubric: scoring runs the system's output as code or in an environment)."
+  },
+  "check": {
+    "procedure": "I read the harness code (run_evaluation.py, grading.py, utils.py) for how a patch is applied and scored: a fresh container per instance, the patch applied, the eval script run, the log parsed, and the test exit status cross-checked. I did not run the harness or try to tamper with scoring.",
+    "kind": "run_by_reviewer",
+    "outcome": "passed",
+    "evidence_location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py; ~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py; ~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/utils.py",
+    "detection_limits": "The check could not detect ways a patch alters scoring that the code does not guard against: the patch runs in the same container and process as the tests, the container is created with SYS_ADMIN and no network restriction in the code I read, and the eval script itself was not read."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "uses containerized Docker environments to make evaluating on SWE-bench easier and more reliable"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+      "quote": "Creates a container from an instance image for running evaluation."
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+      "quote": "cap_add=[\"SYS_ADMIN\"],"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/grading.py",
+      "quote": "so cross-check the log against the test command's exit status"
+    },
+    {
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/utils.py",
+      "quote": "Eval scripts end with a `git checkout` that resets the test files"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The environment is described and the code enforces part of the isolation: a fresh container per run, test files reset, and a cross-check that stops a patch from forging pass lines. That is enforcement in code, so above Documented; no way to reach answers or alter scores was found, so the outcome is passed. Not a stronger claim because isolation is partial and was not tested by an attack.",
+  "missing": "An attempt to tamper with the scorer or test runner from a patch, and a check of network access during grading.",
+  "checks_performed": [
+    "Read grading.py, run_evaluation.py (container creation, patch apply, eval run) and the exit status helper in utils.py"
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

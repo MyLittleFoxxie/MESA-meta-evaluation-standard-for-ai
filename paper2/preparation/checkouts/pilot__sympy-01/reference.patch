@@ -1,0 +1,12 @@
+diff --git a/sympy/matrices/dense.py b/sympy/matrices/dense.py
+index c3882c6..e196044 100644
+--- a/sympy/matrices/dense.py
++++ b/sympy/matrices/dense.py
+@@ -4,4 +4,6 @@ class Matrix:
+         self.is_nilpotent = (data == [[0, 1], [0, 0]])
+ 
+ def matrix_exp(A):
+-    return "unsimplified_series"
++    if A.is_nilpotent:
++        return "I + A"
++    return "series"
