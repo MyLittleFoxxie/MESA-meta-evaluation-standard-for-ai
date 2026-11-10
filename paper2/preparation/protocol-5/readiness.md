@@ -33,7 +33,7 @@ It summarizes saved records and runs nothing except, with `--run-tests`, the fix
 
 ## Tests on software fixtures
 
-Last run 2026-11-09T20:26:48.828035+00:00: 181 tests in `paper2/tests`, 0 failures, 0 errors. These use constructed fixtures and stub adapters; they check software behavior, not study outcomes.
+Last run 2026-11-10T01:35:42.238342+00:00: 181 tests in `paper2/tests`, 0 failures, 0 errors. These use constructed fixtures and stub adapters; they check software behavior, not study outcomes.
 
 Tests for this protocol:
 
@@ -105,7 +105,7 @@ Configuration checks such as file locations, telemetry fields, or container flag
 - Target pool: 108 pull requests meeting the rule; checked in order: {'eligible': 20, 'pending identity verification': 88}.
 - Excluded: 6 synthetic fixtures and 20 protocol 3 target candidates.
 - Selection: selected: pilot ['sympy__sympy-13798'], source ['sympy__sympy-16597', 'sympy__sympy-23413', 'sympy__sympy-12096', 'sympy__sympy-24539', 'sympy__sympy-21847', 'sympy__sympy-13551', 'sympy__sympy-15809', 'sympy__sympy-20590', 'sympy__sympy-20438', 'sympy__sympy-20428', 'sympy__sympy-14711', 'sympy__sympy-23534', 'sympy__sympy-23824', 'sympy__sympy-13372', 'sympy__sympy-13878', 'sympy__sympy-13031', 'sympy__sympy-19783', 'sympy__sympy-22914', 'sympy__sympy-15976', 'sympy__sympy-18199'], target ['sympy__sympy-30779', 'sympy__sympy-29939', 'sympy__sympy-30276', 'sympy__sympy-30600', 'sympy__sympy-30575', 'sympy__sympy-30274', 'sympy__sympy-30563', 'sympy__sympy-30350', 'sympy__sympy-29960', 'sympy__sympy-30347', 'sympy__sympy-30914', 'sympy__sympy-30591', 'sympy__sympy-30771', 'sympy__sympy-30304', 'sympy__sympy-29815', 'sympy__sympy-30726', 'sympy__sympy-30748', 'sympy__sympy-30952', 'sympy__sympy-30959', 'sympy__sympy-30872'].
-- Audit forms: 9 drafts awaiting the author's review; 0 signed.
+- Audit forms: 9 drafts awaiting the author's review; 9 signed.
 - Freeze: not yet; pilot authorization: not yet.
 - B07 cheating attempts: 20 of 20 source tasks recorded.
 - Sessions: 0 of 90 used.

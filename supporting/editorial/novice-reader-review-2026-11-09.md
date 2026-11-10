@@ -1,0 +1,72 @@
+# Novice reader review of the two manuscripts
+
+Date: 2026-11-09. This is an assistant's simulation of a reader without background in requirements engineering or benchmark review. It is editing feedback, not evidence from a human readability study. I read the manuscript source and repository guides. I did not edit either manuscript, execute experiments, compile LaTeX, or inspect a PDF. Layout and page length are unchecked.
+
+The main idea of each paper can be understood, but neither is ready for a novice to follow without rereading. Paper 2 gives the reader a task and requirement sooner, which helps. The MESA paper introduces much of its notation before showing how a review works. Both papers sometimes make a claim in the introduction or discussion that a later qualification narrows. Those changes in meaning are harder to follow than the technical terms themselves.
+
+## What I understand each paper to say
+
+**MESA:** A benchmark is a collection of tasks and a way to score a model's answers. Before using its scores, a team should ask whether those tasks, tests, and scores support the team's intended use. Review frameworks ask different questions and handle missing information differently. This paper maps their questions into shared concerns, compares model generated reviews, and proposes a rubric that records both the evidence and the result of a check. It also proposes rules for deciding whether a review supplies enough evidence to use a score for a requirement. Its studies concern review outputs, not whether people make better decisions with the rules.
+
+**Paper 2:** A team wants a coding agent to fix at least 70% of a set of SymPy bug reports within 15 minutes each. Passing benchmark tests is not sufficient evidence when the tests can be fooled or the tasks do not represent the intended work. The paper implements rules that check records, review evidence, and score uncertainty before making a decision. It plans to compare decisions from older benchmark tasks with decisions from newer tasks. Checks of the benchmark and rating runs have already occurred; the sessions that measure the two coding agents have not.
+
+These accounts should be recoverable from each abstract and first page. The current abstracts contain enough information to produce them, but bury the sequence under counts, labels, and implementation details.
+
+## Changes that matter most
+
+1. **Give MESA one example before the theory.** At [mesa_paper.tex:40](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:40), begin with a team considering a coding assistant and two benchmark reviews. One review finds that no scoring check is reported; another finds code that allows a wrong answer to pass. Explain why these are different reasons to withhold a decision. Label any invented example as an illustration. Reuse it when introducing levels, outcomes, verdicts, and decisions. The current HumanEval example arrives at line 348, after the reader has encountered most of the notation.
+
+2. **Separate the names for the objects and their outputs.** At [mesa_paper.tex:30](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:30) and [mesa_paper.tex:173](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:173), I must track 280 items, 386 links, 30 concerns, 8 description fields, 31 evaluation questions, and 39 criteria, followed by level, outcome, verdict, evidence status, and decision. Keep the counts but add one table: object, question it answers, possible output, one example. State that the 39 fields consist of 8 description fields plus 31 evaluation questions; do not alternate between 31 and 39 without that distinction. Explain why six frameworks are applied although seven are mapped at the first mention of the studies.
+
+3. **Explain Verified with a failed outcome.** [mesa_paper.tex:186](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:186) defines the levels, but a novice naturally reads Verified as meaning the benchmark passed. [paper2.tex:247](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:247) then reports Verified and failed together. Add: “Verified means that a check and its findings are recorded. The check may pass or fail.” Follow it with the grading example. Also explain in the same place why a check can fail without the rating being Contradicted.
+
+4. **Use one definition of resolved in Paper 2.** [paper2.tex:49](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:49) defines it through hidden tests alone; [paper2.tex:275](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:275) counts a session that breaks a rule as not resolved. The requirement also includes a time limit. Suggested definition: “A task is resolved when the patch passes the required tests within 15 minutes and the session follows the study rules. We also report test results without the session validity rule.” Verify the exact wording against the protocol before editing.
+
+5. **Make the contribution and result status agree throughout Paper 2.** [paper2.tex:30](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:30) reports rating runs, but line 32 says rating observations remain future work. Section 4 says signatures are pending, while line 374 says forms are signed. Make a small table separating completed checks, pending review or signing, and pending coding sessions and replay, using current records. Use tense consistently. Do not resolve this by assuming all preparation is complete.
+
+6. **Keep interpretation limits next to the headline findings.** In MESA, [mesa_paper.tex:44](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:44) says frameworks confuse missing paperwork with broken software; line 271 later explains that missing documentation may itself violate a reporting requirement. The opening should say that a negative score can have different reasons, rather than asserting that the frameworks make a mistake. In Paper 2, [paper2.tex:84](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:84) presents 17 tasks as proven cheating, while line 245 counts six as defects within the issue's stated scope. Report the two stages together, including in the discussion at line 352.
+
+## MESA: flow and language
+
+At [mesa_paper.tex:60](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:60), “The Inductive Acceptance Oracle in the Requirements Reference Model” is a barrier before the reader has seen a review. Retain the theory, but first say: “A benchmark result is evidence about a model on tested tasks. Using that result for another requirement needs an argument that the tasks and scoring are suitable.” Then explain the symbols. A heading such as “Using benchmark scores as evidence for requirements” tells the reader what the section does.
+
+At [mesa_paper.tex:75](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:75), the four inference stages are useful. Present them first as questions: Was the answer scored correctly? Would the result hold across other tasks and runs? Does it support the intended use? What decision does it justify? Keep Kane's terms and citations alongside those questions. The current labels introduce fuzzing, inference, production readiness, and criterion identifiers together.
+
+At [mesa_paper.tex:85](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:85), the eight description fields interrupt the motivation. Move their full list to the rubric section and keep one example in the background. “Containedness,” “Judgeability,” and “operational envelope” need definitions; a list of category names alone does not explain what a reader should inspect.
+
+The results at [mesa_paper.tex:259](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:259) need one answer sentence per research question before the numbers. Explain what one “pairwise comparison” counts. Keep 199 and 210, but name the two counting rules before comparing them. At line 278, “none was unsupported” sits beside six absences contradicted by sources. Explain that these are separate audit categories and that “none unsupported” does not mean all ratings were correct.
+
+The formal rules at [mesa_paper.tex:294](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:294) should follow a prose sequence: choose relevant criteria; remove tasks with established defects; check evidence; only then compare the score interval with the threshold. State that Inadmissible concerns the evidence and Reject concerns the model's performance on the requirement. The equations can then give the exact rules without serving as the reader's first explanation.
+
+At [mesa_paper.tex:391](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/mesa_paper.tex:391), “shared requirements metrology” introduces another term in the conclusion. Prefer the terms already used: mapping, rubric, comparison, and proposed decision rules. End with what the studies establish and what remains untested, without repeating every count.
+
+## Paper 2: flow and language
+
+The requirement at [paper2.tex:42](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:42) and the task example at line 232 are the best entry points. Move a shortened version of that task example beside the requirement. Explain immediately that source tasks supply the benchmark evidence and target tasks supply the direct test. A reader should not need to reach the evaluation section to understand that distinction.
+
+At [paper2.tex:75](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:75), “five decision methods” is followed by six named approaches when MESA is counted once. At line 217, M1/M2/M3 labels coexist with unnamed audit variants and a “fifth method.” Use one comparison table with method name, tasks retained, checks applied, and conditions for withholding. Count policy variants explicitly. M1 and M2 coincide here; say that once and avoid carrying both labels through the narrative unless the distinction is needed.
+
+At [paper2.tex:162](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:162), the long list of rejected record conditions reads as an implementation checklist. Give three categories in the paper: mismatched identity, changed or missing artifacts, and invalid review or policy records. Keep the exact cases in the artifact. Explain a hash as a recorded file fingerprint once. Retain enough detail to assess what the engine checks.
+
+The related work table at [paper2.tex:124](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:124) introduces DSL, DVC, AST, and several named systems. Group the prose by what earlier work does, and reserve detail for the closest comparisons. The reader needs to understand the missing connection between benchmark review and requirement decisions more than the implementation of every related system.
+
+At [paper2.tex:227](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:227), slot reservation, launch scripts, failure handling, freeze hashes, authorization, and pilot exclusion all appear in one paragraph. Keep the sample, limits, exclusions, and preservation of failed attempts in the paper; place launch mechanics in the replication guide. This preserves research transparency while restoring the experiment's sequence.
+
+At [paper2.tex:289](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:289), the acceptance cut points make the consequence of uncertainty understandable. Put the planned sample of 20 before the abstract's example with 30 observations. Explain why the calculation table omits 20 or add the 20 row from a verified calculation. Do not imply that 89.4% applies to every small sample: it is conditional on the stated true rate and sample size.
+
+The simulation at [paper2.tex:321](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:321) needs a bridge explaining why it appears after an evaluation plan. Define “coverage” in its caption or first paragraph; it otherwise looks like task coverage. State which research claim this assumed scenario illustrates. The text at line 344 explains its limits well and should remain.
+
+The discussion at [paper2.tex:352](/Users/mylittlefoxxie/Desktop/MESA-meta-evaluation-standard-for-ai/paper2.tex:352) says the method protects procurement from false acceptance, but the conclusion says its effect on decisions is untested. Use “the rule withholds a decision when these recorded defects are present,” which is what the implementation establishes. Keep organizational benefits as questions for later study.
+
+## Proposed revision order
+
+1. Align definitions, method counts, completion status, and claim limits before changing style.
+2. Put one task and decision example near the start of each paper, reusing it to teach the output labels.
+3. In MESA, order the story as problem, mapping and rubric, two studies, findings, then proposed use for requirements. In Paper 2, use requirement, decision rule, comparison, completed checks, planned sessions, and interpretation limits.
+4. Shorten abstracts to the problem, contribution, study or plan, principal finding, and boundary. Move identifiers and most secondary counts into the body.
+5. Trim launch mechanics and repeated rule descriptions; retain exact definitions and links to the records.
+6. Ask a human unfamiliar with the work to explain the two papers without the repository guides. Record that as a later readability check, not as something this review has established.
+
+No experiment or signature is needed to make these prose changes. Any change to the study rules that arises while resolving a contradiction must be handled separately under the runbook.
+
+State note from the coordinating agent's file inspection: the existing requirement record is signed and the completed forms directory contains nine JSON records; no frozen manifest is present and the session ledger is empty. This reinforces the need to reconcile the manuscript's pending signature statements with the current records. It is a record consistency finding, separate from the simulated novice reading. This review created none of those records.

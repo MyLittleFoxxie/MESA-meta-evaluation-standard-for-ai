@@ -1,0 +1,384 @@
+{
+  "form_version": "paper2-abc-record/1",
+  "status": "complete",
+  "criterion": "ABC",
+  "benchmark": "SWE-bench Verified",
+  "items": [
+    {
+      "item_id": "ABC-T.1",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Versions of all tools (e.g., Python) are clearly specified.",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "The sources read give the repository package version field (datasets guide) but not Python or other tool versions of the task images."
+    },
+    {
+      "item_id": "ABC-T.2",
+      "concerns": [
+        "C28"
+      ],
+      "text": "All required API tools are consistently accessible to agents during evaluation.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "SWE-bench tasks give the agent a code repository and an issue text; no API tools are required."
+    },
+    {
+      "item_id": "ABC-T.3",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Evaluation process terminates or handles errors appropriately if an API becomes inaccessible.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "No API tools are used. The harness handles test timeouts, but that is not API inaccessibility."
+    },
+    {
+      "item_id": "ABC-T.4",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Residual data or state are fully cleared between runs.",
+      "answer": "met",
+      "location": "~/.venvs/paper2-swebench/lib/python3.12/site-packages/swebench/harness/run_evaluation.py",
+      "quote": "Remove instance container + image, close logger",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-T.5",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Agent is completely isolated from any ground truth information.",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "The 2026 source shows models reproduce gold patches from training, which is training exposure, not access during a run. The image history search (paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json) found no fix in the images, but isolation during a run (network, other files) was not tested."
+    },
+    {
+      "item_id": "ABC-T.6",
+      "concerns": [
+        "C28"
+      ],
+      "text": "The environment setup is fully reproducible and frozen at the time of benchmark release, without reliance on dynamic external resources.",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "The harness builder clones from GitHub (docker_utils.py) while published images are used; sources do not settle whether setup is frozen. The B28 record finds changed files in 22 of 75 published images."
+    },
+    {
+      "item_id": "ABC-T.7",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Annotated ground truth is verified for correctness.",
+      "answer": "met",
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "each sample is labeled 3 times by separate annotators",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-T.8",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Each task is verified to be solvable.",
+      "answer": "met",
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "consisting of 500 samples verified to be non-problematic by our human annotators",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-T.9",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Benchmark includes an Oracle solver that can automatically solve all challenges.",
+      "answer": "met",
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+      "quote": "run T once before and once after the solution \u03b4 is applied",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-T.10",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Outliers in pilot experiments are inspected to identify implementation bugs, impossible tasks or shortcuts.",
+      "answer": "met",
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "audit of 138 SWE-bench Verified problems that OpenAI o3 did not consistently solve over 64 independent runs",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.a.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Considers expressions semantically equivalent to ground truth.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "Tasks are graded by running hidden tests on the patched code, not by matching answer text."
+    },
+    {
+      "item_id": "ABC-O.a.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Handles redundant words used by agents.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "No answer text is matched; agents submit code changes."
+    },
+    {
+      "item_id": "ABC-O.b.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Handles negation modifiers used by agents.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "No answer text is matched, so negation in answers does not arise."
+    },
+    {
+      "item_id": "ABC-O.b.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Is robust against systematically listing all possible answers.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "The answer is a code change graded by tests; listing all possible answers does not arise."
+    },
+    {
+      "item_id": "ABC-O.b.3",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Ground truth is sufficiently complex to prevent guessing.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "The answer is a code change, not a value that can be guessed."
+    },
+    {
+      "item_id": "ABC-O.c.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Demonstrates documented or experimental evidence of the judge's accuracy, self-consistency, and agreement with human.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "SWE-bench Verified uses no LLM judge."
+    },
+    {
+      "item_id": "ABC-O.c.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Is designed to resist adversarial inputs and reward hacking.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "SWE-bench Verified uses no LLM judge."
+    },
+    {
+      "item_id": "ABC-O.d.1",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Verifies test cases for correctness and quality (e.g., by human).",
+      "answer": "met",
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "screen each sample of the SWE-bench test set for appropriately scoped unit tests and well-specified issue descriptions",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.d.2",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Measures quality of test cases using objective metrics (e.g., code coverage, cyclomatic complexity control).",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "No source read reports code coverage, complexity, or another objective test quality metric."
+    },
+    {
+      "item_id": "ABC-O.e.1",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Addresses potential edge cases.",
+      "answer": "not_met",
+      "location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+      "quote": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.e.2",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Ensures comprehensive coverage of all relevant input variations (e.g., data types, memory layouts, value ranges).",
+      "answer": "not_met",
+      "location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+      "quote": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.e.3",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Generates inputs that the code under testing is sensitive to.",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "Tests are written by the original pull request; no source says whether inputs are chosen for sensitivity of the code."
+    },
+    {
+      "item_id": "ABC-O.f.1",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Covers all possible branches of user workflows.",
+      "answer": "not_met",
+      "location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+      "quote": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.f.2",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Exercises all relevant parts of the code being tested.",
+      "answer": "not_met",
+      "location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json",
+      "quote": "behavior 2 failed: nthroot_mod(2, 3, 2, True) = [1], expected [0]",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.f.3",
+      "concerns": [
+        "C07",
+        "C28"
+      ],
+      "text": "Prevents non-deterministic (\"flaky\") test results.",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "No source read reports repeated runs or flakiness checks for the hidden tests; the eligibility records ran each task once."
+    },
+    {
+      "item_id": "ABC-O.g.1",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Ground truth includes all states achievable after success.",
+      "answer": "not_met",
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "35.5% of the audited tasks have strict test cases that enforce specific implementation details",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.g.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Checks relevant and irrelevant states for the challenge.",
+      "answer": "met",
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "If the PASS_TO_PASS tests pass, then the edit has not inadvertently broken unrelated sections of the codebase.",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-O.g.3",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Ground truth is complex to prevent trivial state modifications.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "Grading runs tests on behavior, not a comparison of final state; the item reads as state matching."
+    },
+    {
+      "item_id": "ABC-O.i.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Designs quality metrics that prevent exploitation (e.g., achieving high scores by reward hacking)",
+      "answer": "not_met",
+      "location": "paper2/preparation/protocol-5/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+      "quote": "behavior 2 failed: pycode(Min(a, b, c)) = 'min(a, b)', expected 'min(a, b, c)'",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-R.3",
+      "concerns": [
+        "C14"
+      ],
+      "text": "Includes measures to prevent data contamination, such as a private, held-out test set, or a lively updated dataset.",
+      "answer": "not_met",
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "SWE-bench problems are sourced from open-source repositories many model providers use for training purposes.",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-R.4",
+      "concerns": [
+        "C14"
+      ],
+      "text": "Includes measures or plans to consistently update challenges over time to avoid overfitting.",
+      "answer": "not_met",
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "Evaluations based on static datasets are inherently limited, and SWE-bench is no exception.",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-R.9",
+      "concerns": [
+        "C12"
+      ],
+      "text": "Includes quantitative analysis to assess the impact of unavoidable flaws (e.g., noise of ground truth).",
+      "answer": "met",
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "at least 59.4% of the audited problems have flawed test cases that reject functionally correct submissions",
+      "note": ""
+    },
+    {
+      "item_id": "ABC-R.10",
+      "concerns": [
+        "C12"
+      ],
+      "text": "Reports metrics about statistical significance, such as confidence intervals.",
+      "answer": "not_met",
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "We ran a single seed using closest-documented or default hyperparameters for each scaffold",
+      "note": ""
+    }
+  ],
+  "roles": {
+    "author": "Vitor Raposo",
+    "assistant": ""
+  },
+  "signed_at": "2026-11-09T23:15:47.190240+00:00"
+}

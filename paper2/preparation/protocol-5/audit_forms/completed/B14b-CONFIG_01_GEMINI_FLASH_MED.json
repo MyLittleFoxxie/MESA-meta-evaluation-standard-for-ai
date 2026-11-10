@@ -1,0 +1,76 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "complete",
+  "criterion": "B14b",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Could the test material be in the training data of the named model configuration?",
+  "shown_means": "the model's stated training cutoff and the task creation dates recorded with their sources",
+  "checked_means": "a contamination check for that model reported, or tasks created after its stated cutoff used as a held out set",
+  "applies_when": "a model configuration is named for the review",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "configuration",
+    "config_ids": [
+      "CONFIG_01_GEMINI_FLASH_MED"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "A model configuration is named for the review (CONFIG_01_GEMINI_FLASH_MED)."
+  },
+  "check": {
+    "procedure": "Compared the stated cutoff of Gemini 3.8 Flash with the release date of SWE-bench Verified (13 August 2024, built from the 2023 SWE-bench test set); every task predates the cutoff, so no task is a held out task for this model. No contamination check for this model was found.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "~/paper2-sources/gemini-3-8-flash-model-card.txt",
+    "detection_limits": "The check could not detect whether the model was trained on the tasks, because the cutoff is a claim by the provider and no source probes this model."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/gemini-3-8-flash-model-card.txt",
+      "quote": "The knowledge cutoff date for Gemini 3.8 Flash is March 2026"
+    },
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "OpenAI August 13, 2024 Milestone Introducing SWE-bench Verified"
+    },
+    {
+      "location": "~/paper2-sources/jimenez-2024-swe-bench.txt",
+      "quote": "PRs created before or after 2023"
+    },
+    {
+      "location": "~/paper2-sources/swebench-datasets-guide.txt",
+      "quote": "Date of creation"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "we found that all frontier models we tested were able to reproduce the original, human-written bug fix"
+    },
+    {
+      "location": "paper2/records/swe_bench_verified_sympy_rows.json",
+      "quote": "\"created_at\": \"2017-01-25T13:40:24Z\""
+    },
+    {
+      "location": "paper2/records/swe_bench_verified_sympy_rows.json",
+      "quote": "\"created_at\": \"2023-01-17T17:26:42Z\""
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "The stated cutoff and the task creation dates (2017-01-25 to 2023-01-17 for the pilot and source tasks, from the dataset's created_at field) are recorded with sources, so Documented. It is not Verified because every task predates the cutoff and no contamination check for this model exists; the outcome is not performed, and exposure is possible but not shown. It is not Contradicted because no source shows this model reproduces the test material.",
+  "missing": "A contamination check for this model, tasks created after its cutoff, and per task creation dates.",
+  "checks_performed": [
+    "Read the cutoff in the provider source; read the release date of Verified; searched the 2026 post for this model (not among the models probed)."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "Vitor Raposo",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "signed_at": "2026-11-09T23:15:46.475569+00:00"
+}
