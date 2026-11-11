@@ -11,9 +11,9 @@ The MESA paper compares published frameworks for reviewing AI benchmarks and der
 | File | [mesa_paper.tex](mesa_paper.tex) | [paper2.tex](paper2.tex) |
 | Title | Unifying Benchmark Evaluation Protocols: A Meta-Evaluation Standard for Artificial Intelligence in Requirements Engineering | Applying Meta-Evaluation Benchmark Reviews to Requirement Decisions: An Executable Method |
 | Studies | Both studies run and analyzed | Evaluation prepared; no session of protocol 5 has run |
-| Page count (reference build: TeX Live 2026, as on Overleaf) | 15 on TeX Live 2023 after review round 1; not yet compiled on the reference build | 15 on TeX Live 2023 after review round 1; not yet compiled on the reference build |
+| Page count (reference build: TeX Live 2026, as on Overleaf) | 15 on TeX Live 2023 after review round 2; not yet compiled on the reference build | 15 on TeX Live 2023 after review round 2; not yet compiled on the reference build |
 | Open work | Feedback item 16 (rubric text) and item 17 (replication package, overlap with Paper 2, name of the drafting model) | Freeze, authorization and pilot (runbook step 13); review items W4 and W5; the protocol 6 proposal |
-| Review rounds | [Round 1](supporting/editorial/refsq_review_round_1.md), 11 November: reject, weak reject, reject | [Round 1](supporting/editorial/refsq_review_round_1.md), 11 November: three rejects |
+| Review rounds | [Round 1](supporting/editorial/refsq_review_round_1.md): reject, weak reject, reject. [Round 2](supporting/editorial/refsq_review_round_2.md): reject, reject, weak reject | [Round 1](supporting/editorial/refsq_review_round_1.md) and [round 2](supporting/editorial/refsq_review_round_2.md): three rejects each |
 
 Both papers' Data Availability sections say that an anonymized replication package accompanies the submission. Preparing that package is still open (runbook item W5, feedback item 17). The references were checked on 11 November ([record](supporting/editorial/references_review_2026_11.md)). [paper2/preparation/protocol-6/proposal.md](paper2/preparation/protocol-6/proposal.md) is a proposal that answers the round 1 reviews; it is not in force, and protocol 5 stays the current protocol. Update this section when the state changes.
 
