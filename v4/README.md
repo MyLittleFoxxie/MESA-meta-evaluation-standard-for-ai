@@ -2,7 +2,7 @@
 
 Current manuscript: [mesa_paper.tex](../mesa_paper.tex), intended for REFSQ in Springer LNCS format. It uses the mapping and the Study 1 records here; its rubric study (Study 2 in the paper) is `../v5/study/`, and it adds a requirements traceability proposal. The mapping has 30 comparison concerns; the derived rubric has eight description fields and 29 evaluation questions. Neither is the earlier 25 question questionnaire.
 
-Study status recorded on 31 October 2026: all ten checks done, inputs frozen, seven pilots, 26 main sessions and two amendment sessions (`study/addition.md`) run and analysed. The RQ4 source check and RQ2 disagreement causes were coded by the preparing assistant; the recorded author review status is pending. Study paths, version identifiers, and frozen records are unchanged. Earlier manuscripts are indexed in the [consolidation record](../provenance/manuscript-consolidation-2026-11-03.md).
+Study status recorded on 31 October 2026: all ten checks done, inputs frozen, seven pilots, 26 main sessions and two amendment sessions (`study/addition.md`) run and analysed. The RQ4 source check and RQ2 disagreement causes were coded by the preparing assistant; the recorded author review status is pending. Study paths, version identifiers, and frozen records are unchanged. Earlier manuscripts are indexed in the [consolidation record](../provenance/manuscript-consolidation-2026-11-03.md). The study figures and other CHASE material were removed on 10 November 2026; see the [scope record](../provenance/refsq-scope-2026-11-10.md).
 
 ## The idea
 
@@ -76,8 +76,6 @@ Sessions: 18 framework and benchmark pairs plus the derived rubric twice on four
 | `rubric/rubric-draft.md`, `study/materials/rubric.json` | the derived rubric, specified from the final mapping and item specifications, with lineage |
 | `study/` | the agent study: snapshots (`sources/`), materials (`materials/`), prompts (`prompts/`), schemas, `jobs.json`, `earlier-reviews/`, `run.py`, `run_addition.py`, `validate.py`, `analyze.py`, `disagreements.py`, `test_harness.py`, `freeze.py`, `freeze-manifest.json`, `protocol.md`, `addition.md`, `outputs/` and `analysis/` (`paper-grid-*.tex`, `pairwise.tex`, `disagreement-log.csv`, `rq3-conflicts.csv`, `source-check.csv`, `addition-repeat.json`); see `study/README.md` |
 | [mesa_paper.tex](../mesa_paper.tex) | Current MESA manuscript for REFSQ |
-| `../figures/v4_study1_diagram.*`, `../figures/v4_study2_diagram.*` | the two study figures |
-| `../figures/v4_chase_design.*` | the CHASE study design figure, coloured by role (render steps in the SVG comment) |
 
 Run `python3 v4/mapping/build_questions.py`, `python3 v4/mapping/build_mapping.py` and `python3 v4/mapping/check.py` from the repository root. None makes a model call.
 

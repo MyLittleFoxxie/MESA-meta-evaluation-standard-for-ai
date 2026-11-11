@@ -111,7 +111,6 @@ def verify_manuscript(tex_path, is_paper1=True):
 
 if __name__ == '__main__':
     verify_manuscript('mesa_paper.tex', is_paper1=True)
-    verify_manuscript('paper2_preview.tex', is_paper1=False)
     verify_manuscript('paper2.tex', is_paper1=False)
 
 

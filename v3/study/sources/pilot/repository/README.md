@@ -1,1 +1,0 @@
-AddTwo pilot. Data rows contain a,b,answer; tasks were chosen by the author. Run python score.py to print accuracy for the two example predictions. Python 3. No external packages. Code and data are CC0. This does not test other addition problems.

@@ -57,7 +57,7 @@ Throughout this paper, seven terms have fixed definitions:
 (2)~\emph{Issue} and \emph{task}: an issue is a bug report on SymPy's tracker; a task is an issue prepared with pre-fix repository code and hidden maintainer regression tests (\texttt{FAIL\_TO\_PASS} and \texttt{PASS\_TO\_PASS}).
 (3)~\emph{Session}: one isolated execution of a coding agent on one task.
 (4)~\emph{Resolved}: the session's patch passes all tests in the grading harness within the 15-minute (900-second) limit and satisfies session validity rules (Section~\ref{sec:sessions}).
-(5)~\emph{Rating form}: records the MESA evidence \emph{level} (\emph{Claimed}, \emph{Documented}, \emph{Verified}, \emph{Contradicted}, \emph{Undocumented}, \emph{Not applicable}), check \emph{outcome} (\emph{passed}, \emph{failed}, \emph{not performed}, \emph{not recorded}), check kind (execution source: \emph{reported}, \emph{run}, \emph{both}, \emph{none}), scope, detection limits (disclosing known blind spots), and task defects for one criterion.
+(5)~\emph{Rating form}: the record of one MESA criterion's evidence \emph{level}, check \emph{outcome}, check kind, scope, detection limits, and task defects (Section~\ref{sec:foundation}).
 (6)~\emph{Evidence status} (Tier~3 qualification gate: \textbf{Admissible}, \textbf{Inquiry Required}, or \textbf{Inadmissible}): gates whether benchmark evidence can support a requirement decision.
 (7)~\emph{Score decision} (Tier~3 requirement acceptance result: \textbf{Accept}, \textbf{Reject}, \textbf{Inconclusive}): computed from the 95\% Wilson score interval on retained tasks when evidence is \textbf{Admissible}; otherwise the engine returns \textbf{No decision} (withholding judgment due to evidence defects).
 
@@ -106,7 +106,7 @@ The MESA rubric comprises eight Part~A descriptive facets and 31 Part~B evaluati
 This paper extends MESA's conceptual traceability model with three operational rules for coding-agent evaluation:
 (1)~\textbf{Signed transfer justification (benchmark relevance):} A source benchmark decision transfers to a target requirement only when accompanied by a signed transfer justification (explaining why past benchmark fixes apply to the target repository) whose source and target scopes match the case observations, repository, and configuration.
 (2)~\textbf{Execution provenance per observation:} Every task observation carries a session identifier, log path, and SHA-256 log digest verified before scoring.
-(3)~\textbf{Dual policy evaluation:} Each case is evaluated under a pinned \emph{strict} policy requiring \emph{Verified} with a passed check across all seven selected criteria, and a \emph{lenient} policy that omits statistical uncertainty and pretraining exposure criteria (\textbf{B12}, \textbf{B14a}, \textbf{B14b}) and requires \emph{Documented} on \textbf{B07} (Section~\ref{sec:criteria}).
+(3)~\textbf{Dual policy evaluation:} Each case is evaluated under a pinned \emph{strict} and a pinned \emph{lenient} policy (Section~\ref{sec:criteria}).
 
 \subsection{Related Work}
 Existing literature on AI evaluation and assurance spans three main areas:
@@ -114,7 +114,7 @@ Existing literature on AI evaluation and assurance spans three main areas:
 (2)~\emph{Guidance, quality models, and adoption frameworks:} NIST AI 800-2 \cite{nist_ai_800_2_2026} outlines language model evaluation targets without decision rules, general software engineering surveys \cite{hou_llm4se_survey_2024} disclose benchmark gaps as limitations, DAMSA--SMS \cite{singh_damsa_sms_2026} applies Pareto screening without evidence withholding, and adoption studies \cite{pizarro_beyond_the_hype_2026} adapt GQM for organizational risks rather than requirements acceptance.
 (3)~\emph{Benchmark rubrics and automated audits:} On the benchmark side, ECBD \cite{liu_ecbd_2024} uses validity warrants to guide benchmark authoring, BetterBench \cite{reuel_betterbench} scores 46 benchmark quality criteria, Evaluation Cards \cite{ghosh_evaluation_cards_2026} report metadata, and ABC \cite{zhu_agentic_benchmark_checklist_2025} scores agentic checklists as caveats without decision thresholds. Automated benchmark audits---BenchGuard \cite{tu_benchguard_2026}, ABA \cite{wang_auto_benchmark_audit_2026}, and BenchJack \cite{wang_benchjack_2026}---flag broken tests (\textbf{B05}), test gaming (\textbf{B07}), and unisolated runners (\textbf{B28a}, \textbf{B28b}), alongside oracle analyses \cite{ding_spec_oracle_gaps_2026,openai_swebench_audit_2026} and transcript scanners \cite{mohl_transcript_flaws_2026}.
 
-As shown in Table~\ref{tab:criteria_qualification}, however, automated audits do not evaluate benchmark uncertainty reporting (\textbf{B12}), benchmark exposure safeguards (\textbf{B14a}), or candidate-model pretraining contamination (\textbf{B14b}). Crucially, none of these existing approaches links signed benchmark review records, task-defect filtering, and confidence-bound thresholding to an executable requirements acceptance engine.
+As shown in Table~\ref{tab:criteria_qualification}, however, automated audits do not evaluate benchmark uncertainty reporting (\textbf{B12}), benchmark exposure safeguards (\textbf{B14a}), or candidate-model pretraining contamination (\textbf{B14b}).
 
 
 \section{Method}
@@ -244,7 +244,7 @@ After source sessions complete, the \emph{replay} tests the decision engine's im
 \label{sec:planned}
 Because all nine review records and the requirement are signed prior to the coding sessions, the evidence status and task filtering of every source method are fixed in advance (Table~\ref{tab:comparison_methods}):
 
-\textbf{RQ1 (Comparison across the six source outputs):} Both \texttt{M3\_strict} and \texttt{M3\_lenient} return \textbf{Inadmissible} and withhold a score decision (\textbf{No decision}): \texttt{M3\_strict} is blocked by \textbf{B14a} (\emph{failed}) and \textbf{B28a} (\emph{failed}) with \textbf{B12} and \textbf{B14b} requiring inquiry, while \texttt{M3\_lenient} is blocked by \textbf{B28a} (\emph{failed}). By contrast, \texttt{M2} ($N=20$), \texttt{audit\_only} ($N=14$, removing the 6 B05/B07 defective tasks), \texttt{ABA} ($N=18$, removing 2 tasks), and \texttt{ABC} ($N=20$, attaching 15 caveats) all issue a score decision (\textbf{Accept}, \textbf{Reject}, or \textbf{Inconclusive}).
+\textbf{RQ1 (Comparison across the six source outputs):} Both \texttt{M3\_strict} and \texttt{M3\_lenient} return \textbf{Inadmissible} and withhold a score decision (\textbf{No decision}; blocking criteria in Table~\ref{tab:comparison_methods}). By contrast, \texttt{M2} ($N=20$), \texttt{audit\_only} ($N=14$, removing the 6 B05/B07 defective tasks), \texttt{ABA} ($N=18$, removing 2 tasks), and \texttt{ABC} ($N=20$, attaching 15 caveats) all issue a score decision (\textbf{Accept}, \textbf{Reject}, or \textbf{Inconclusive}).
 
 \textbf{RQ2 (Comparison with the post-cutoff direct test):} For the four methods that issue a source decision (\texttt{M2}, \texttt{audit\_only}, \texttt{ABA}, \texttt{ABC}), RQ2 compares each issued decision against the direct-test decision on the $N = 20$ post-cutoff target tasks (and on the $N = 15$ target tasks whose issues opened after the cutoffs), alongside the source-minus-target resolve-rate difference with 95\% Newcombe intervals. Because \texttt{M3\_strict} and \texttt{M3\_lenient} return \textbf{No decision}, their withheld output is reported as \emph{not comparable to an issued decision}, while MESA's pre-gate score decision on the 14 retained clean tasks is reported separately as a counterfactual output (\texttt{M3\_withheld}, which coincides numerically with \texttt{audit\_only}).
 
@@ -252,7 +252,7 @@ Because all nine review records and the requirement are signed prior to the codi
 \label{sec:completed}
 
 \subsection{Exact Binomial Decision Probabilities across Sample Sizes}
-Table~\ref{tab:power_analysis} reports the exact binomial probabilities of \textbf{Accept}, \textbf{Reject}, and \textbf{Inconclusive} under the 95\% Wilson interval (Eq.~\ref{eq:wilson}) at $\theta = 0.70$ across the exact task counts used by our study methods ($N = 14$ for \texttt{audit\_only} and \texttt{M3\_withheld}; $N = 15$ for the post-cutoff-issue target subset; $N = 18$ for \texttt{ABA}; and $N = 20$ for \texttt{M2}, \texttt{ABC}, and the full target set) alongside larger sample sizes $N = 30$ to $120$.
+Table~\ref{tab:power_analysis} reports the exact binomial probabilities of \textbf{Accept}, \textbf{Reject}, and \textbf{Inconclusive} under the 95\% Wilson interval (Eq.~\ref{eq:wilson}) at $\theta = 0.70$ across the task counts of our study methods, as labeled in the table, and larger sample sizes $N = 30$ to $120$.
 
 \begin{table}[t]
 \caption{Exact binomial decision probabilities and cut points under 95\% Wilson bounds ($\theta = 0.70$).}
