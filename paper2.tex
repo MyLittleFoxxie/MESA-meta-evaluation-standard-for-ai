@@ -53,21 +53,19 @@ We anchor our method and evaluation on a concrete operational requirement for th
 \end{itemize}
 
 Throughout this paper, seven terms have fixed definitions:
-\begin{itemize}
-    \item A \emph{coding agent} (recorded as a \emph{configuration}) is an AI model paired with its command-line agent tool and execution environment.
-    \item An \emph{issue} is a bug report on SymPy's tracker, and a \emph{task} is an issue prepared with the pre-fix repository commit and hidden maintainer regression tests (\texttt{FAIL\_TO\_PASS} and \texttt{PASS\_TO\_PASS}).
-    \item A \emph{session} is one isolated execution of a coding agent on one task.
-    \item A task is \emph{resolved} when the session's patch passes all \texttt{FAIL\_TO\_PASS} and \texttt{PASS\_TO\_PASS} tests in the grading harness, the session completes within the 15-minute (900-second) limit, and the session satisfies the session validity rules (Section~\ref{sec:sessions}); resolution counts by test result alone are reported alongside as a control.
-    \item A \emph{rating form} records the MESA evidence \emph{level} (\emph{Claimed}, \emph{Documented}, \emph{Verified}, \emph{Contradicted}, \emph{Undocumented}, or \emph{Not applicable}), check \emph{outcome} (\emph{passed}, \emph{failed}, \emph{not performed}, or \emph{not recorded}), check kind (execution source: \emph{reported}, \emph{run}, \emph{both}, or \emph{none}), scope, detection limits (disclosing known blind spots), and task defects for one criterion.
-    \item An \emph{evidence status} (Tier~3 qualification gate: \textbf{Admissible}, \textbf{Inquiry Required}, or \textbf{Inadmissible}) gates whether the benchmark evidence can support a requirement decision.
-    \item A \emph{score decision} (Tier~3 requirement acceptance result: \textbf{Accept}, \textbf{Reject}, or \textbf{Inconclusive}) is computed from the 95\% Wilson score confidence interval on retained tasks when the evidence status is \textbf{Admissible}; otherwise the engine returns \textbf{No decision} (withholding judgment due to evidence defects).
-\end{itemize}
+(1)~\emph{Coding agent} (recorded as a \emph{configuration}): an AI model paired with its command-line tool and execution environment.
+(2)~\emph{Issue} and \emph{task}: an issue is a bug report on SymPy's tracker; a task is an issue prepared with pre-fix repository code and hidden maintainer regression tests (\texttt{FAIL\_TO\_PASS} and \texttt{PASS\_TO\_PASS}).
+(3)~\emph{Session}: one isolated execution of a coding agent on one task.
+(4)~\emph{Resolved}: the session's patch passes all tests in the grading harness within the 15-minute (900-second) limit and satisfies session validity rules (Section~\ref{sec:sessions}).
+(5)~\emph{Rating form}: records the MESA evidence \emph{level} (\emph{Claimed}, \emph{Documented}, \emph{Verified}, \emph{Contradicted}, \emph{Undocumented}, \emph{Not applicable}), check \emph{outcome} (\emph{passed}, \emph{failed}, \emph{not performed}, \emph{not recorded}), check kind (execution source: \emph{reported}, \emph{run}, \emph{both}, \emph{none}), scope, detection limits (disclosing known blind spots), and task defects for one criterion.
+(6)~\emph{Evidence status} (Tier~3 qualification gate: \textbf{Admissible}, \textbf{Inquiry Required}, or \textbf{Inadmissible}): gates whether benchmark evidence can support a requirement decision.
+(7)~\emph{Score decision} (Tier~3 requirement acceptance result: \textbf{Accept}, \textbf{Reject}, \textbf{Inconclusive}): computed from the 95\% Wilson score interval on retained tasks when evidence is \textbf{Admissible}; otherwise the engine returns \textbf{No decision} (withholding judgment due to evidence defects).
 
-MESA, presented in a companion submission, unifies seven benchmark review frameworks into 30 shared concerns and a 39-criterion rubric (8 Part~A descriptive facets and 31 Part~B evaluative criteria) and proposes a conceptual Requirements Traceability Matrix. This paper turns that conceptual design into an executable decision method and evaluates its outputs on SWE-bench Verified (SymPy), addressing two gaps among the approaches compared in Table~\ref{tab:paper2_related_work}:
+MESA, presented in a companion submission, unifies seven benchmark review frameworks into 30 shared concerns and a 39-criterion rubric (8 Part~A descriptive facets and 31 Part~B evaluative criteria) and proposes a conceptual Requirements Traceability Matrix. This paper turns that conceptual design into an executable decision method and evaluates its outputs on SWE-bench Verified (SymPy), addressing two gaps in existing assurance and benchmark evaluation literature:
 
-\emph{Gap 1.} Automated benchmark audits such as BenchGuard \cite{tu_benchguard_2026}, ABA \cite{wang_auto_benchmark_audit_2026}, and BenchJack \cite{wang_benchjack_2026} detect broken tests and harness flaws, while UTBoost \cite{yu_utboost_2025} and SWE-bench+ \cite{aleithan_swebench_plus_2024} recompute resolve rates after filtering tasks, and ABC \cite{zhu_agentic_benchmark_checklist_2025} scores checklist items as caveats. Among the benchmark audits and assurance methods compared in Table~\ref{tab:paper2_related_work}, none provides an executable gate that combines task-defect removal with criterion-level admissibility and confidence-bound thresholding for a system requirement. This motivates RQ1.
+\emph{Gap 1.} Automated benchmark audits such as BenchGuard \cite{tu_benchguard_2026}, ABA \cite{wang_auto_benchmark_audit_2026}, and BenchJack \cite{wang_benchjack_2026} detect broken tests and harness flaws, while UTBoost \cite{yu_utboost_2025} and SWE-bench+ \cite{aleithan_swebench_plus_2024} recompute resolve rates after filtering tasks, and ABC \cite{zhu_agentic_benchmark_checklist_2025} scores checklist items as caveats. Among existing benchmark audits and assurance methods, none provides an executable gate that combines task-defect removal with criterion-level admissibility and confidence-bound thresholding for a system requirement. This motivates RQ1.
 
-\emph{Gap 2.} Studies of SWE-bench Live \cite{zhang_swebench_live_2025}, SWE-rebench \cite{badertdinov_swe_rebench_2025}, and the SWE-Bench Illusion \cite{liang_swebench_illusion_2025} show that leaderboard scores drop on post-cutoff tasks. Among the methods in Table~\ref{tab:paper2_related_work}, none has evaluated how requirement acceptance decisions derived from raw, audited, or reviewed benchmark tasks compare against direct acceptance testing of the same requirement on post-cutoff tasks from the target repository. This motivates RQ2.
+\emph{Gap 2.} Studies of SWE-bench Live \cite{zhang_swebench_live_2025}, SWE-rebench \cite{badertdinov_swe_rebench_2025}, and the SWE-Bench Illusion \cite{liang_swebench_illusion_2025} show that leaderboard scores drop on post-cutoff tasks. Among existing methods, none has evaluated how requirement acceptance decisions derived from raw, audited, or reviewed benchmark tasks compare against direct acceptance testing of the same requirement on post-cutoff tasks from the target repository. This motivates RQ2.
 
 \subsection{Research Questions}
 \begin{itemize}
@@ -85,14 +83,15 @@ Table~\ref{tab:study_status} separates what this paper adopts from MESA, what ha
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \textbf{Category} & \textbf{Scope and Current State} \\
 \midrule
-Adopted from MESA & Rubric criteria, six evidence levels, rating record fields (outcome, check kind, scope, detection limits, task defects), and the three-stage admissibility and Wilson score structure. \\
-Implemented \& tested in this paper & Versioned case, requirement, and form schemas; three-level decision engine; strict and lenient policies; session ledger and validity scanner; replay builder; exact binomial power calculations ($N = 14, 15, 18, 20, 30$--$120$) and Monte Carlo simulation; 181 automated unit tests. \\
-Executed checks \& signed records (done 9 Nov 2026) & Eligibility verification of all 75 source and 20 post-cutoff target SymPy tasks; published container checks; sandbox checks (v1--v8) and end-to-end rehearsal on \texttt{sympy\_\_sympy-21930}; 20 \textbf{B07} exploit attempts (17 mechanical passes; 6 issue-scope task defects); \textbf{B05} check on \texttt{sympy\_\_sympy-18199}; 9 \textbf{B28a} runner-hijack checks across 3 tasks; ABA overlap comparison; two Claude Sonnet 5.5 rating runs (A and B) and one ABC run; author verification and signatures on all 8 MESA forms, the ABC record, and the requirement record. \\
-Pending after protocol freeze & Generation of the frozen manifest; phase authorizations; execution of at most 90 coding-agent sessions (2 pilot, 40 source, 40 target, up to 8 reserve slots); and replay execution on collected source records. \\
+Adopted from MESA & Rubric criteria, six evidence levels, rating record fields (outcome, check kind, scope, detection limits, task defects), and three-stage admissibility and Wilson score structure. \\
+Implemented \& tested in this paper & Versioned case, requirement, and form schemas; three-level decision engine; strict/lenient policies; session ledger and scanner; replay builder; exact binomial power calculations ($N = 14, 15, 18, 20, 30$--$120$) and simulation; 181 automated unit tests. \\
+Executed checks \& signed records (done 9 Nov 2026) & Eligibility verification of all 75 source and 20 post-cutoff target SymPy tasks; published container checks; sandbox checks (v1--v8) and rehearsal on \texttt{sympy\_\_sympy-21930}; 20 \textbf{B07} exploit attempts (17 passes; 6 issue-scope task defects); \textbf{B05} check on \texttt{sympy\_\_sympy-18199}; 9 \textbf{B28a} runner checks; ABA overlap comparison; rating runs A and B, ABC run; signed forms, ABC, and requirement. \\
+Pending after protocol freeze & Generation of frozen manifest; phase authorizations; execution of at most 90 coding-agent sessions (2 pilot, 40 source, 40 target, up to 8 reserve slots); and replay execution on collected source records. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -105,47 +104,17 @@ Pending after protocol freeze & Generation of the frozen manifest; phase authori
 The MESA rubric comprises eight Part~A descriptive facets and 31 Part~B evaluation criteria organized across Kane's four validity inferences: scoring, generalization, extrapolation, and decision \cite{kane_validation}. A rating form evaluates one criterion on six levels (\emph{Claimed}, \emph{Documented}, \emph{Verified}, \emph{Contradicted}, \emph{Undocumented}, and \emph{Not applicable}) and records the check outcome (\emph{passed}, \emph{failed}, \emph{not performed}, or \emph{not recorded}), check kind (execution source: \emph{reported}, \emph{run}, \emph{both}, or \emph{none}), scope, detection limits (disclosing known check blind spots), task defects, and signers.
 
 This paper extends MESA's conceptual traceability model with three operational rules for coding-agent evaluation:
-\begin{enumerate}
-    \item \textbf{Signed transfer justification (benchmark relevance):} A source benchmark decision transfers to a target requirement only when accompanied by a signed transfer justification (explaining why past benchmark fixes apply to the target repository) whose source and target scopes match the case observations, repository, and configuration.
-    \item \textbf{Execution provenance per observation:} Every task observation carries a session identifier, log path, and SHA-256 log digest verified before scoring.
-    \item \textbf{Dual policy evaluation:} Each case is evaluated under a pinned \emph{strict} policy requiring \emph{Verified} with a passed check across all seven selected criteria, and a \emph{lenient} policy that omits statistical uncertainty and pretraining exposure criteria (\textbf{B12}, \textbf{B14a}, \textbf{B14b}) and requires \emph{Documented} on \textbf{B07} (Section~\ref{sec:criteria}).
-\end{enumerate}
+(1)~\textbf{Signed transfer justification (benchmark relevance):} A source benchmark decision transfers to a target requirement only when accompanied by a signed transfer justification (explaining why past benchmark fixes apply to the target repository) whose source and target scopes match the case observations, repository, and configuration.
+(2)~\textbf{Execution provenance per observation:} Every task observation carries a session identifier, log path, and SHA-256 log digest verified before scoring.
+(3)~\textbf{Dual policy evaluation:} Each case is evaluated under a pinned \emph{strict} policy requiring \emph{Verified} with a passed check across all seven selected criteria, and a \emph{lenient} policy that omits statistical uncertainty and pretraining exposure criteria (\textbf{B12}, \textbf{B14a}, \textbf{B14b}) and requires \emph{Documented} on \textbf{B07} (Section~\ref{sec:criteria}).
 
 \subsection{Related Work}
-Table~\ref{tab:paper2_related_work} contrasts our approach with existing assurance frameworks, specification languages, and benchmark audits. Machine learning assurance cases \cite{hawkins_amlas_2021}, assurance contracts \cite{sljivo_assurance_contracts_2014}, safety case impact analyses \cite{lawford_safety_case_impact_2017}, and transfer assurance methods \cite{picardi_transfer_assurance_2023} structure arguments for component reuse or retraining, while pipeline evidence reuse \cite{mukhopadhyay_nalla_evidence_reuse_2026} and VNVSpec \cite{arief_vnvspec_2026} track test artifacts and missing data in verification workflows. On the benchmark side, oracle gap analyses \cite{ding_spec_oracle_gaps_2026,openai_swebench_audit_2026}, BetterBench \cite{reuel_betterbench}, Evaluation Cards \cite{ghosh_evaluation_cards_2026}, DAMSA--SMS \cite{singh_damsa_sms_2026}, transcript scanners \cite{mohl_transcript_flaws_2026}, and ABC \cite{zhu_agentic_benchmark_checklist_2025} evaluate benchmark quality, metadata, or candidate rankings.
+Existing literature on AI evaluation and assurance spans three main areas:
+(1)~\emph{Machine learning assurance and formal specifications:} AMLAS \cite{hawkins_amlas_2021}, assurance contracts \cite{sljivo_assurance_contracts_2014}, safety case impact analyses \cite{lawford_safety_case_impact_2017}, and transfer assurance \cite{picardi_transfer_assurance_2023} structure arguments for component reuse or retraining, but do not qualify external coding benchmarks. Pipeline evidence reuse \cite{mukhopadhyay_nalla_evidence_reuse_2026} applies fail-closed release gates to data pipelines, VNVSpec \cite{arief_vnvspec_2026} links requirements to verification runs with inconclusive results, and coding agent envelopes \cite{goswami_assurance_envelopes_2026} solve runtime change obligations rather than qualifying design-time benchmark evidence.
+(2)~\emph{Guidance, quality models, and adoption frameworks:} NIST AI 800-2 \cite{nist_ai_800_2_2026} outlines language model evaluation targets without decision rules, general software engineering surveys \cite{hou_llm4se_survey_2024} disclose benchmark gaps as limitations, DAMSA--SMS \cite{singh_damsa_sms_2026} applies Pareto screening without evidence withholding, and adoption studies \cite{pizarro_beyond_the_hype_2026} adapt GQM for organizational risks rather than requirements acceptance.
+(3)~\emph{Benchmark rubrics and automated audits:} On the benchmark side, ECBD \cite{liu_ecbd_2024} uses validity warrants to guide benchmark authoring, BetterBench \cite{reuel_betterbench} scores 46 benchmark quality criteria, Evaluation Cards \cite{ghosh_evaluation_cards_2026} report metadata, and ABC \cite{zhu_agentic_benchmark_checklist_2025} scores agentic checklists as caveats without decision thresholds. Automated benchmark audits---BenchGuard \cite{tu_benchguard_2026}, ABA \cite{wang_auto_benchmark_audit_2026}, and BenchJack \cite{wang_benchjack_2026}---flag broken tests (\textbf{B05}), test gaming (\textbf{B07}), and unisolated runners (\textbf{B28a}, \textbf{B28b}), alongside oracle analyses \cite{ding_spec_oracle_gaps_2026,openai_swebench_audit_2026} and transcript scanners \cite{mohl_transcript_flaws_2026}.
 
-Automated benchmark audits---BenchGuard \cite{tu_benchguard_2026}, ABA \cite{wang_auto_benchmark_audit_2026}, and BenchJack \cite{wang_benchjack_2026}---use agents to uncover broken tests (\textbf{B05}), test-suite gaming (\textbf{B07}), and harness isolation flaws (\textbf{B28a}, \textbf{B28b}). As shown in Table~\ref{tab:criteria_qualification}, however, automated audits do not evaluate benchmark uncertainty reporting (\textbf{B12}), benchmark exposure safeguards (\textbf{B14a}), or candidate-model pretraining contamination (\textbf{B14b}), and among the approaches compared in Table~\ref{tab:paper2_related_work}, none links signed benchmark review records and task-defect filtering to an executable requirements acceptance engine.
-
-\begin{table}[t]
-\caption{Related assurance frameworks, specifications, and benchmark audits.}
-\label{tab:paper2_related_work}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-\textbf{Framework} & \textbf{Input Req. Format} & \textbf{Evidence Source} & \textbf{Missing Evidence} & \textbf{Relation to this study} \\
-\midrule
-AMLAS \cite{hawkins_amlas_2021} & ML safety requirements & Lifecycle assurance data & Not specified in cited work & Specifies assurance argumentation linking safety requirements to training and verification artifacts; does not define a procedure for qualifying external coding benchmarks. \\
-Assurance Contracts \cite{sljivo_assurance_contracts_2014} & Assumption and guarantee contracts & Component safety claims & Assumptions must be discharged & Generates safety case argument fragments whose assumptions must be discharged for reuse; does not address confidence bounds or benchmark reviews. \\
-Safety Case Impact \cite{lawford_safety_case_impact_2017} & Safety case arguments & System change diffs & Triggers reassurance & Assesses the impact of system modifications on existing safety cases rather than initial qualification of external benchmarks. \\
-Transfer Assurance \cite{picardi_transfer_assurance_2023} & Target domain specs & Retrained model test sets & Reassesses affected artifacts & Retains parts of an assurance case and reassesses others after retraining; does not address evidence from external benchmarks. \\
-VNVSpec \cite{arief_vnvspec_2026} & Machine readable DSL & Test execution \& verifiers & Marked as inconclusive & Links requirements to test runs and formal verification with inconclusive results; does not review external benchmarks. \\
-Evidence Reuse \cite{mukhopadhyay_nalla_evidence_reuse_2026} & Target assurance goals & Pipeline traces \& DVC replays & Gate fails closed & States validity conditions and a release gate evaluated on 714 DVC pipelines; cannot detect undeclared dependencies and has no requirement thresholds for coding tasks. \\
-Coding Agent Envelopes \cite{goswami_assurance_envelopes_2026} & Software change obligations & Typed inference graphs \& ASTs & Reports solver infeasibility & Derives supplied change obligations with forward chaining and a constraint solver at run time rather than judging benchmark evidence at design time. \\
-NIST Guidance \cite{nist_ai_800_2_2026} & AI risk management goals & Benchmark leaderboards & Recommends documentation & Gives guidance for defining measurement targets; does not specify a decision rule linking benchmark scores to requirements. \\
-Oracle Auditing \cite{ding_spec_oracle_gaps_2026} & Prompt docstrings & Hidden test suites & Flags implicit constraints & Analyzes overconstrained tests and specification gaps in coding benchmarks; does not link results to project requirements. \\
-Model Selection in SE \cite{hou_llm4se_survey_2024} & SE task descriptions & Published benchmark scores & Disclosed as limitations & Surveys LLMs for software engineering; does not provide a decision rule for requirements acceptance. \\
-DAMSA--SMS \cite{singh_damsa_sms_2026} & Deployment criteria & Candidate measurements & Eligibility screening & Applies Pareto screening, ranking, and sensitivity analysis; does not use benchmark reviews to withhold decisions. \\
-ECBD \cite{liu_ecbd_2024} & Intended use specs & NLP evaluation rubrics & Flags unjustified choices & Uses intended use and validity warrants to guide benchmark authoring; does not judge requirements. \\
-BetterBench \cite{reuel_betterbench} & Benchmark evaluation rubrics & Benchmark code \& metadata & Zero score on rubric criteria & Assesses 46 criteria on benchmark quality rather than decisions on candidate models. \\
-Evaluation Cards \cite{ghosh_evaluation_cards_2026} & Standardized schemas & Benchmark \& model metadata & Displays omissions & Reports benchmark, run, and model metadata with comparability signals; has no decision thresholds. \\
-Beyond the Hype \cite{pizarro_beyond_the_hype_2026} & Organizational adoption goals & Empirical evaluation metrics & Flags adoption risks & Adapts GQM for organizational adoption rather than requirement decisions from benchmark reviews. \\
-\midrule
-\textbf{This work} & \textbf{Requirement with threshold and evidence conditions} & \textbf{Benchmark observations and MESA rating forms} & \textbf{Inquiry Required; no decision} & \textbf{Applies MESA's traceability rules as records and checks; reports input integrity, evidence status, and decision separately with reasons.} \\
-\bottomrule
-\end{tabularx}
-\end{table}
+As shown in Table~\ref{tab:criteria_qualification}, however, automated audits do not evaluate benchmark uncertainty reporting (\textbf{B12}), benchmark exposure safeguards (\textbf{B14a}), or candidate-model pretraining contamination (\textbf{B14b}). Crucially, none of these existing approaches links signed benchmark review records, task-defect filtering, and confidence-bound thresholding to an executable requirements acceptance engine.
 
 
 \section{Method}
@@ -153,14 +122,12 @@ Beyond the Hype \cite{pizarro_beyond_the_hype_2026} & Organizational adoption go
 
 \subsection{Case and Rating Form Records}
 A \emph{case} binds one requirement, one coding agent configuration, and the observations and review records used to judge it. Each case record carries a pinned schema version and six structured sections:
-\begin{itemize}
-    \item \textbf{Requirement:} Identifier, target repository, declared task set, configuration, threshold $\theta$, confidence level $1-\alpha$, and minimum observation count $n_{\min}$ (checked at input integrity).
-    \item \textbf{Evidence Conditions:} Per-criterion sufficiency rules specifying the minimum evidence level, required check outcome, accepted scopes, required fields, and whether execution provenance is mandatory (checked at input integrity and evidence status).
-    \item \textbf{Configuration and Tasks:} Configuration identifier and declared task identifiers (checked at input integrity).
-    \item \textbf{Observations:} Task execution results, patch SHA-256 digests, and execution provenance linking each session to its log digest (checked at input integrity and evidence status).
-    \item \textbf{Rating Forms:} Criterion definitions, evidence levels, check outcomes, check kinds, scopes, procedures, detection limits, task defects, and signers (checked at input integrity and evidence status).
-    \item \textbf{Transfer Justification:} Author-signed record stating why source benchmark tasks support the requirement on the target repository (checked at requirement decision).
-\end{itemize}
+(1)~\textbf{Requirement:} Identifier, target repository, declared task set, configuration, threshold $\theta$, confidence level $1-\alpha$, and minimum observation count $n_{\min}$ (checked at input integrity);
+(2)~\textbf{Evidence Conditions:} Per-criterion sufficiency rules specifying the minimum evidence level, required check outcome, accepted scopes, required fields, and whether execution provenance is mandatory (checked at input integrity and evidence status);
+(3)~\textbf{Configuration and Tasks:} Configuration identifier and declared task identifiers (checked at input integrity);
+(4)~\textbf{Observations:} Task execution results, patch SHA-256 digests, and execution provenance linking each session to its log digest (checked at input integrity and evidence status);
+(5)~\textbf{Rating Forms:} Criterion definitions, evidence levels, check outcomes, check kinds, scopes, procedures, detection limits, task defects, and signers (checked at input integrity and evidence status); and
+(6)~\textbf{Transfer Justification:} Author-signed record stating why source benchmark tasks support the requirement on the target repository (checked at requirement decision).
 
 \subsection{Three Decision Levels}
 \label{sec:levels}
@@ -169,12 +136,10 @@ The decision engine evaluates a case in three sequential levels and reports all 
 \textbf{Level 1: Input integrity} (\emph{valid} or \emph{rejected}). Before inspecting capability or review levels, the engine rejects a case under three categories of structural failure: (1)~\emph{mismatched identity or missing observations}, where an observation belongs to another configuration, repository, or undeclared task, or a declared task lacks an observation; (2)~\emph{corrupted or duplicated artifacts}, where a patch, artifact, or session log no longer matches its recorded SHA-256 file fingerprint (hash), or two observations reference the same patch; and (3)~\emph{invalid review or policy records}, where a rating form cites an unfrozen definition, a criterion has duplicate forms, or the policy digest differs from the pinned study policy. A rejected case receives no evidence status and no score decision.
 
 \textbf{Level 2: Evidence status} (\textbf{Admissible}, \textbf{Inquiry Required}, \textbf{Inadmissible}, or \emph{not applicable}). Because the rating \emph{level} records what kind of check or documentation exists while the check \emph{outcome} records whether that check passed or failed, a rating at level \emph{Verified} whose check outcome is \emph{failed} (such as our \textbf{B28a} grading runner check) makes the criterion \textbf{Inadmissible}. Specifically, for each criterion $c$ in the requirement profile, the criterion status $v(c, r)$ is:
-\begin{itemize}
-    \item \emph{not applicable} if the form marks $c$ as \emph{Not applicable} with a valid reason (forbidden for \textbf{B05}, \textbf{B12}, \textbf{B14a}, and \textbf{B14b}, which always apply when a configuration is named);
-    \item \textbf{Inadmissible} if the level is \emph{Contradicted} or the check outcome is \emph{failed}, the defect cites a verified location, and any counterexample patch was executed;
-    \item \textbf{Admissible} if the level meets the policy minimum, the check outcome is \emph{passed}, the scope covers the configuration and all retained tasks, the required fields (procedure, check kind, location, detection limits) are present, and the author and model roles are recorded;
-    \item \textbf{Inquiry Required} otherwise (including missing forms, unlocated defects, or unperformed checks).
-\end{itemize}
+(1)~\emph{not applicable} if the form marks $c$ as \emph{Not applicable} with a valid reason (forbidden for \textbf{B05}, \textbf{B12}, \textbf{B14a}, and \textbf{B14b}, which always apply when a configuration is named);
+(2)~\textbf{Inadmissible} if the level is \emph{Contradicted} or the check outcome is \emph{failed}, the defect cites a verified location, and any counterexample patch was executed;
+(3)~\textbf{Admissible} if the level meets the policy minimum, the check outcome is \emph{passed}, the scope covers the configuration and all retained tasks, the required fields (procedure, check kind, location, detection limits) are present, and the author and model roles are recorded; and
+(4)~\textbf{Inquiry Required} otherwise (including missing forms, unlocated defects, or unperformed checks).
 Across the profile, the aggregate evidence status is \textbf{Inadmissible} if any criterion is \textbf{Inadmissible}; else \textbf{Inquiry Required} if any criterion is \textbf{Inquiry Required}, required execution provenance is missing, or fewer than $n_{\min}$ tasks remain after removing task defects; else \textbf{Admissible}.
 
 \textbf{Level 3: Score decision} (\textbf{Accept}, \textbf{Reject}, \textbf{Inconclusive}, or \textbf{No decision}). Tasks listed as defective on a signed \textbf{B05} or \textbf{B07} form with an executed counterexample and cited location are removed before any model score is inspected. For $s$ resolved tasks out of $n$ retained observations, the engine computes the 95\% Wilson score interval \cite{wilson_probable_inference_1927,brown_cai_dasgupta_2001}:
@@ -200,7 +165,8 @@ We evaluate a restricted profile of seven MESA criteria spanning Kane's four inf
 \label{tab:criteria_qualification}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
 \begin{tabularx}{\textwidth}{@{}lll>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.8cm}@{}}
 \toprule
 \textbf{Id} & \textbf{Stage} & \textbf{Evaluation Question} & \textbf{Automated Audit Fit} & \textbf{Policy Qualification} \\
@@ -217,10 +183,8 @@ B28b & $I_{\text{dec}}$ & Is shipped agent environment isolated? & BenchJack exc
 \end{table}
 
 We evaluate each case under two pinned policies (Table~\ref{tab:criteria_qualification}):
-\begin{itemize}
-    \item \textbf{Strict policy (\texttt{POLICY-P5-STRICT}, primary study policy):} Requires level \emph{Verified}, check outcome \emph{passed}, scope covering the coding agent and tasks, and recorded procedure, check kind, location, and detection limits across all seven criteria.
-    \item \textbf{Lenient policy (\texttt{POLICY-P5-LENIENT}):} Requires \textbf{B05}, \textbf{B28a}, and \textbf{B28b} at \emph{Verified} and \textbf{B07} at \emph{Documented} (each with outcome \emph{passed}), and omits \textbf{B12}, \textbf{B14a}, and \textbf{B14b} to show the decision when benchmark uncertainty reporting and pretraining exposure are set aside.
-\end{itemize}
+(1)~\textbf{Strict policy (\texttt{POLICY-P5-STRICT}, primary study policy):} requires level \emph{Verified}, check outcome \emph{passed}, scope covering the coding agent and tasks, and recorded procedure, check kind, location, and detection limits across all seven criteria.
+(2)~\textbf{Lenient policy (\texttt{POLICY-P5-LENIENT}):} requires \textbf{B05}, \textbf{B28a}, and \textbf{B28b} at \emph{Verified} and \textbf{B07} at \emph{Documented} (each with outcome \emph{passed}), and omits \textbf{B12}, \textbf{B14a}, and \textbf{B14b} to show the decision when benchmark uncertainty reporting and pretraining exposure are set aside.
 
 \subsection{Comparison Methods}
 Because all 20 source tasks come from SymPy, the unfiltered benchmark resolve rate (Method~1) and the repository-filtered resolve rate (Method~2, \texttt{M2}) coincide. We therefore compare \textbf{five method families producing six evaluated outputs} per coding agent on the source tasks (Table~\ref{tab:comparison_methods}), each using the 95\% Wilson interval of Eq.~\ref{eq:wilson} at $\theta = 0.70$.
@@ -231,15 +195,16 @@ Because all 20 source tasks come from SymPy, the unfiltered benchmark resolve ra
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.9}
 \begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.3cm}r>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \textbf{Output Code} & \textbf{Method Family} & \textbf{Tasks ($N$)} & \textbf{Cut Points ($\theta=0.70$)} & \textbf{Task Filtering, Evidence Gate, and Known SymPy Status} \\
 \midrule
 \texttt{M2} & Raw resolve rate & 20 & Accept $\ge 19$; Reject $\le 9$ & Keeps all 20 source tasks; no task filtering and no evidence gate. Always issues a score decision. \\
-\texttt{audit\_only} & Executed B05/B07 task audit & 14 & Accept $14$; Reject $\le 6$ & Removes the 6 tasks with located B05/B07 test defects; applies no criterion evidence gate. Equals MESA's clean-task pre-gate score decision (\texttt{M3\_withheld}, the counterfactual decision on retained clean tasks if evidence gating were omitted). \\
+\texttt{audit\_only} & Executed B05/B07 task audit & 14 & Accept $14$; Reject $\le 6$ & Removes the 6 tasks with located B05/B07 test defects; applies no evidence gate. Equals pre-gate score decision (\texttt{M3\_withheld}, counterfactual clean-task decision without evidence gating). \\
 \texttt{ABA} & Published ABA audit \cite{wang_auto_benchmark_audit_2026} & 18 & Accept $\ge 17$; Reject $\le 8$ & Removes the 2 source tasks flagged with a major finding in ABA (\texttt{sympy\_\_sympy-13031}, \texttt{-18199}); applies no evidence gate. \\
-\texttt{M3\_strict} & MESA (strict policy) & 14 & Withheld (\textbf{No decision}) & Removes the 6 B05/B07 defective tasks and checks all 7 criteria. Status is \textbf{Inadmissible} (\textbf{B14a} and \textbf{B28a} failed; \textbf{B12} and \textbf{B14b} inquiry required). \\
-\texttt{M3\_lenient} & MESA (lenient policy) & 14 & Withheld (\textbf{No decision}) & Removes the 6 B05/B07 defective tasks and checks B05, B07, B28a, B28b. Status is \textbf{Inadmissible} (\textbf{B28a} failed). \\
+\texttt{M3\_strict} & MESA (strict policy) & 14 & Withheld (\textbf{No decision}) & Removes the 6 B05/B07 defective tasks and checks all 7 criteria. Status: \textbf{Inadmissible} (\textbf{B14a} and \textbf{B28a} failed; \textbf{B12} and \textbf{B14b} inquiry required). \\
+\texttt{M3\_lenient} & MESA (lenient policy) & 14 & Withheld (\textbf{No decision}) & Removes the 6 B05/B07 defective tasks and checks B05, B07, B28a, B28b. Status: \textbf{Inadmissible} (\textbf{B28a} failed). \\
 \texttt{ABC} & Agentic Benchmark Checklist \cite{zhu_agentic_benchmark_checklist_2025} & 20 & Accept $\ge 19$; Reject $\le 9$ & Keeps all 20 source tasks; reports part scores (T: $5/8$, O: $2/11$, R: $1/4$) and 15 unmet/unknown items as caveats without withholding the score decision. \\
 \bottomrule
 \end{tabularx}
@@ -269,13 +234,6 @@ Eight MESA rating forms cover \textbf{B05} (pilot + 20 source tasks), \textbf{B0
 
 \textbf{Remaining signed forms (\texttt{B12}, \texttt{B14a}, \texttt{B14b}, \texttt{B28b}, and \texttt{ABC}).} On the remaining signed forms, \textbf{B12} is \emph{Undocumented} with outcome \emph{not performed} (SWE-bench reports point resolve rates without confidence intervals); \textbf{B14a} is \emph{Verified} with outcome \emph{failed} (published contamination audits show verbatim memorization of SWE-bench Verified items \cite{liang_swebench_illusion_2025,openai_swebench_verified_contamination_2025}); \textbf{B14b} for both coding agents is \emph{Documented} with outcome \emph{not performed} (all 2016--2023 source tasks predate both models' 2026 training cutoffs and no model-specific contamination check exists); \textbf{B28b} is \emph{Verified} with outcome \emph{passed} (container git history was inspected and contains no post-base-commit fix commits); and \textbf{ABC} records 8 items met, 9 not met, 10 not applicable, and 6 unknown (15 caveats).
 
-\subsubsection*{Summary of Executed Empirical Checks on SWE-bench Verified (SymPy).}
-\begin{itemize}
-    \item \textbf{B07 Scoring Exploit Check:} Cheating patches passed the hidden tests while failing an independent check on 17 of 20 source tasks; 6 of those 17 break behaviors explicitly required by the issue text (\texttt{sympy\_\_sympy-13878}, \texttt{-15809}, \texttt{-18199}, \texttt{-21847}, \texttt{-22914}, \texttt{-23824}) and are removed as task defects.
-    \item \textbf{B05 Overbroad Test Check:} On \texttt{sympy\_\_sympy-18199}, a minimal patch fixing the stated issue was rejected by hidden tests demanding unstated composite-modulus support (also flagged by ABA alongside \texttt{-13031}).
-    \item \textbf{B28a Grading Runner Check:} In 9 of 9 attempts across 3 tasks (\texttt{sympy\_\_sympy-13031}, \texttt{-20590}, \texttt{-24539}), patches editing only the repository test-runner scripts were graded as resolved by the SWE-bench harness.
-\end{itemize}
-
 \subsection{Session Validity, Sandbox Checks, and Replay}
 \label{sec:sessions}
 Sandbox checks (v1--v8) ran both CLI tools in an isolated scratch workspace to test file-read and network restrictions before the rehearsal. While those scratch checks confirmed the tool flags and hook settings, runtime isolation during the actual study sessions is verified from the recorded session transcripts during the study runs. A session is marked \emph{invalid} (retaining its slot and counting as unresolved in the primary analysis, with test-only resolution reported alongside as a control) if its transcript accesses study folders, git history beyond the base commit, network commands, external tools, post-prompt messages, or modifies test-runner scripts or test configuration files.
@@ -285,10 +243,10 @@ After source sessions complete, the \emph{replay} tests the decision engine's im
 \subsection{Planned Analysis and Known Pre-Session Outcomes}
 \label{sec:planned}
 Because all nine review records and the requirement are signed prior to the coding sessions, the evidence status and task filtering of every source method are fixed in advance (Table~\ref{tab:comparison_methods}):
-\begin{itemize}
-    \item \textbf{RQ1 (Comparison across the six source outputs):} Both \texttt{M3\_strict} and \texttt{M3\_lenient} return \textbf{Inadmissible} and withhold a score decision (\textbf{No decision}): \texttt{M3\_strict} is blocked by \textbf{B14a} (\emph{failed}) and \textbf{B28a} (\emph{failed}) with \textbf{B12} and \textbf{B14b} requiring inquiry, while \texttt{M3\_lenient} is blocked by \textbf{B28a} (\emph{failed}). By contrast, \texttt{M2} ($N=20$), \texttt{audit\_only} ($N=14$, removing the 6 B05/B07 defective tasks), \texttt{ABA} ($N=18$, removing 2 tasks), and \texttt{ABC} ($N=20$, attaching 15 caveats) all issue a score decision (\textbf{Accept}, \textbf{Reject}, or \textbf{Inconclusive}).
-    \item \textbf{RQ2 (Comparison with the post-cutoff direct test):} For the four methods that issue a source decision (\texttt{M2}, \texttt{audit\_only}, \texttt{ABA}, \texttt{ABC}), RQ2 compares each issued decision against the direct-test decision on the $N = 20$ post-cutoff target tasks (and on the $N = 15$ target tasks whose issues opened after the cutoffs), alongside the source-minus-target resolve-rate difference with 95\% Newcombe intervals. Because \texttt{M3\_strict} and \texttt{M3\_lenient} return \textbf{No decision}, their withheld output is reported as \emph{not comparable to an issued decision}, while MESA's pre-gate score decision on the 14 retained clean tasks is reported separately as a counterfactual output (\texttt{M3\_withheld}, the clean-task resolve rate evaluated without evidence gating, which coincides numerically with \texttt{audit\_only}).
-\end{itemize}
+
+\textbf{RQ1 (Comparison across the six source outputs):} Both \texttt{M3\_strict} and \texttt{M3\_lenient} return \textbf{Inadmissible} and withhold a score decision (\textbf{No decision}): \texttt{M3\_strict} is blocked by \textbf{B14a} (\emph{failed}) and \textbf{B28a} (\emph{failed}) with \textbf{B12} and \textbf{B14b} requiring inquiry, while \texttt{M3\_lenient} is blocked by \textbf{B28a} (\emph{failed}). By contrast, \texttt{M2} ($N=20$), \texttt{audit\_only} ($N=14$, removing the 6 B05/B07 defective tasks), \texttt{ABA} ($N=18$, removing 2 tasks), and \texttt{ABC} ($N=20$, attaching 15 caveats) all issue a score decision (\textbf{Accept}, \textbf{Reject}, or \textbf{Inconclusive}).
+
+\textbf{RQ2 (Comparison with the post-cutoff direct test):} For the four methods that issue a source decision (\texttt{M2}, \texttt{audit\_only}, \texttt{ABA}, \texttt{ABC}), RQ2 compares each issued decision against the direct-test decision on the $N = 20$ post-cutoff target tasks (and on the $N = 15$ target tasks whose issues opened after the cutoffs), alongside the source-minus-target resolve-rate difference with 95\% Newcombe intervals. Because \texttt{M3\_strict} and \texttt{M3\_lenient} return \textbf{No decision}, their withheld output is reported as \emph{not comparable to an issued decision}, while MESA's pre-gate score decision on the 14 retained clean tasks is reported separately as a counterfactual output (\texttt{M3\_withheld}, which coincides numerically with \texttt{audit\_only}).
 
 \section{Completed Calculations and Simulation}
 \label{sec:completed}
@@ -302,6 +260,7 @@ Table~\ref{tab:power_analysis} reports the exact binomial probabilities of \text
 \centering
 \scriptsize
 \setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.9}
 \begin{tabular}{llcccccc}
 \toprule
 \textbf{Sample Size ($N$)} & \textbf{Accept / Reject Cut Points} & \multicolumn{2}{c}{\textbf{True $p = 0.75$}} & \multicolumn{2}{c}{\textbf{True $p = 0.65$}} & \multicolumn{2}{c}{\textbf{True $p = 0.85$}} \\
@@ -333,6 +292,7 @@ Because the empirical SymPy case evaluates a single repository where MESA withho
 \centering
 \scriptsize
 \setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.9}
 \begin{tabular}{lccccccc}
 \toprule
 \textbf{Defect rate ($d$)} & \textbf{Shift ($\Delta$)} & \textbf{M2 cov.} & \textbf{M3 cov.} & \textbf{M2} & \textbf{Random} & \textbf{Proximity} & \textbf{M3} \\
@@ -374,13 +334,22 @@ Because running agent evaluations on full repositories is expensive, teams often
 This paper turns MESA's traceability design into an executable decision method for coding-agent requirements, separating input integrity, evidence admissibility, and Wilson score decisions while returning every blocking reason and removed task. On SWE-bench Verified (SymPy), executed verification checks identified 17 of 20 tasks where cheating patches passed the hidden tests (6 of which break issue-stated requirements and are removed as task defects alongside 1 B05 overbroad-test task) and 9 of 9 cases where test-runner edits hijacked the grading harness (\textbf{B28a}), causing both signed MESA policies to withhold a decision (\textbf{Inadmissible}) while raw resolve rates, audit-only filtering ($N=14$), ABA ($N=18$), and ABC ($N=20$ with 15 caveats) issue score decisions. Executing the frozen 90-session protocol across the two coding agents on the 20 source and 20 post-cutoff target tasks is the immediate next step.
 
 \section*{Data Availability}
-In accordance with the REFSQ 2027 Open Science Policy and double-blind review requirements, an anonymized replication package is provided with this submission. It contains the decision engine and schemas (\texttt{paper2/method/evidence.py}), the session and control scripts (\texttt{paper2/preparation/}), the 75 source and 20 post-cutoff target SymPy task records, all 20 executed \textbf{B07} exploit attempts and 9 \textbf{B28a} runner checks, both rating runs (A and B), the nine signed forms (\texttt{audit\_forms/completed/}), the signed requirement (\texttt{requirement.json}), the field-by-field signing diff (\texttt{audit\_checks/signing-changes.json}), the readiness report (\texttt{readiness.md}), the binomial and Monte Carlo simulation scripts, and the automated verification suite (\texttt{python3 -m unittest discover -s paper2/tests -p 'test\_*.py'}, \texttt{python3 -m paper2.preparation.counterexamples summary}, and \texttt{python3 -m paper2.preparation.study\_controls prepare --run-tests}). Raw session and harness logs containing local host paths are kept outside version control, with their SHA-256 digests and parsed summaries recorded in the package.
+In accordance with the REFSQ 2027 Open Science Policy and double-blind review requirements, an anonymized replication package is provided with this submission. It contains the decision engine and schemas, the session and control scripts, the 75 source and 20 post-cutoff target SymPy task records, all 20 executed \textbf{B07} exploit attempts and 9 \textbf{B28a} runner checks, both rating runs (A and B), the nine signed forms, the signed requirement, the signing diff, the readiness report, the simulation scripts, and the automated test suite (181 unit tests). Raw session and harness logs containing local host paths are kept outside version control, with their SHA-256 digests and summaries recorded in the package.
 
 \begin{credits}
 \subsubsection{\discintname}
 The authors have no competing interests to declare that are relevant to the content of this article.
 \end{credits}
 
+\let\oldthebibliography\thebibliography
+\let\endoldthebibliography\endthebibliography
+\renewenvironment{thebibliography}[1]{%
+  \begin{oldthebibliography}{#1}%
+    \setlength{\itemsep}{0pt plus 0.2pt}%
+    \setlength{\parsep}{0pt}%
+}{%
+  \end{oldthebibliography}%
+}
 \bibliographystyle{splncs04}
 \bibliography{references}
 

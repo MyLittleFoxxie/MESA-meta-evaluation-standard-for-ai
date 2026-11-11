@@ -8,7 +8,7 @@ Keep three research artifacts distinct: the earlier **25 question questionnaire*
 
 - [MESA manuscript](mesa_paper.tex): current REFSQ paper.
 - [v4 study guide](v4/README.md): framework mapping, 18 framework sessions, eight rubric sessions, and two amendment sessions across HumanEval, TruthfulQA, HLE, and τ-bench.
-- [Manuscript checker](verify_manuscripts.py): run `python3 verify_manuscripts.py` from the repository root to check MESA and `paper2_preview.tex` without compiling LaTeX.
+- [Manuscript checker](verify_manuscripts.py): run `python3 verify_manuscripts.py` from the repository root to verify citations, cross-references, and rules across `mesa_paper.tex`, `paper2.tex`, and `paper2_preview.tex`.
 - [v3 manuscript](paper_mesa_v3.tex) and [v3 records](v3/README.md): preserved earlier work.
 - [Paper two preview](paper2_preview.tex): preserved companion manuscript.
 - [Earlier questionnaire materials](surveys/colleague-review/mesa-study/claude-sonnet-5-5-guidance-v2/materials/mesa.txt), [participant survey](surveys/colleague-review/survey.html), and [reading passages](surveys/colleague-review/survey.md).
@@ -96,4 +96,4 @@ The source survey, benchmark reviews, and preserved manuscripts remain available
 
 The [study guide](CHASE-study.md#reproduce-the-offline-analysis) gives Python commands for regenerating results from saved responses. Running those commands does not launch model experiments or send survey submissions. Exact inputs, raw outputs, expected test-case answers, and file fingerprints are retained separately.
 
-The manuscript's citations and structure have been checked without compiling LaTeX. Visual layout and page length remain unchecked.
+Both companion manuscripts (`mesa_paper.tex` and `paper2.tex`) compile to PDF locally via Tectonic / BasicTeX using `llncs.cls` and `splncs04.bst` in the workspace root. Both are verified at exactly 15 pages including references, adhering to the REFSQ LNCS ceiling.

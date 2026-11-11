@@ -42,4 +42,4 @@ For survey tasks, read [`surveys/colleague-review/agent-guide.md`](surveys/colle
 - Historical questionnaire checks: run the analysis and verification commands in `CHASE-study.md` only in the earlier checkout described by the [consolidation record](provenance/manuscript-consolidation-2026-11-03.md); its verifier requires the removed CHASE manuscript.
 - Guided survey: `python3 surveys/colleague-review/verify.py`
 - Supporting RETRAI bundle: `python3 tools/check-thesis.py`
-- **Do not compile LaTeX or open an automatic PDF preview.** Use static checks and report layout and page length as unchecked.
+- **LaTeX compilation is supported locally.** Use Tectonic (`/Applications/ChatGPT.app/Contents/Resources/tectonic/tectonic <file>.tex` or system `tectonic`) or BasicTeX (`/Library/TeX/texbin/pdflatex`) with `llncs.cls` and `splncs04.bst` in the root. Verify that both manuscripts remain $\le 15$ pages including references (`mdls -name kMDItemNumberOfPages <file>.pdf` or `pypdf`). Do not open automatic GUI PDF previews.

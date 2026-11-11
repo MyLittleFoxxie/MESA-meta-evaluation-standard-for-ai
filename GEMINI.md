@@ -52,4 +52,4 @@ When explicitly asked to reconcile candidate benchmark reviews or agent-complete
 - Historical questionnaire checks: run the analysis and verification commands in `CHASE-study.md` only in the earlier checkout described by the [consolidation record](provenance/manuscript-consolidation-2026-11-03.md); its verifier requires the removed CHASE manuscript.
 - Run `python3 surveys/colleague-review/verify.py` for guided survey checks.
 - Run `python3 tools/check-thesis.py` for supporting RETRAI manuscript and scorecard checks.
-- **Do not compile LaTeX or open an automatic PDF preview.** Report visual layout and page length as unchecked.
+- **LaTeX compilation is supported locally.** The workspace root contains `llncs.cls` (v2.25) and `splncs04.bst`. Compile with Tectonic (`/Applications/ChatGPT.app/Contents/Resources/tectonic/tectonic <file>.tex` or system `tectonic`) or BasicTeX (`/Library/TeX/texbin/pdflatex`). Verify that both manuscripts (`mesa_paper.pdf` and `paper2.pdf`) remain $\le 15$ pages including references using `mdls -name kMDItemNumberOfPages <pdf>` or `pypdf`. Do not launch automatic GUI PDF previews.
