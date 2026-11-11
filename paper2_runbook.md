@@ -387,16 +387,19 @@ Run every command from the repository root. Steps marked "done" must not be run 
 - **REFSQ review of 2026-11-06** ([review](supporting/editorial/paper2-refsq-review-2026-11-06.md)):
   - **Addressed in this round:** W1 (status), W2 (disclosure), W3 (leak rule), W6 and W7 (departures), W8 (simulation threats), W11 (accuracy).
   - **Open:**
-    - W4: RQ1 and RQ2 evidence, and the target sessions' role;
-    - W5: replication package;
-    - W10: requirements engineering positioning and the Hou et al. row;
-    - W12: page limit, title, and abstract.
+    - W4: RQ1 and RQ2 evidence, and the target sessions' role. Still open. The paper now says in the abstract and the conclusion that no session has run, that RQ2 is not answered, and that RQ1 is answered only for the evidence gate. It cannot be closed without sessions; see the protocol 6 proposal below;
+    - W5: replication package. Still open, for the author: the package must be built, anonymized and uploaded, and both papers say it accompanies the submission;
+    - W10: requirements engineering positioning. Done on 2026-11-11 as far as the page limit allows: the Introduction cites Berry (REFSQ 2022) for evaluation measures as the requirements specification of an AI, and SWE-bench itself; the Hou et al. survey stays as one clause in Related Work;
+    - W12: page limit, title, and abstract. Done on 2026-11-11 for page limit and abstract (15 pages on TeX Live 2023; the abstract's fourth paragraph states the limitations). The title is unchanged; it is the author's choice.
   - **Declined:** W9, anonymizing the link (the author keeps it).
+- **REFSQ review rounds of 2026-11-11** ([round 1](supporting/editorial/refsq_review_round_1.md)). Three blind reviews of `paper2.tex` (Claude Sonnet 5.5 subagents) all scored reject. The items that decide the score need sessions or a design change: the MESA outcome is fixed before any session and is the same for every agent; N = 14 to 20 gives about 97% Inconclusive at p = 0.75; the gate does not credit the session validity rule for B28a. [paper2/preparation/protocol-6/proposal.md](paper2/preparation/protocol-6/proposal.md) proposes changes for these. It is a proposal: no code, policy, form or record was changed, protocol 5 stays current, and adopting it needs the author's decision and new signatures.
+- **Power table correction (2026-11-11).** Table 4 of the paper gave the Accept cut points for N = 90 and N = 120 as 71 and 93. The 95% Wilson lower bound is 0.694 at 71 of 90 and 0.692 at 93 of 120, so the cut points are 72 and 94. The probabilities in the table were already those for 72 and 94.
 - **Separation check.** It is partial: source entries carry only their PR number.
 - **Paper wording.** `paper2.tex` must stay consistent with the records. After any change in counts, selection, or state, update the abstract, the claims table, and Section 4.
 
 ## 10. Change log
 
+- 2026-11-11: REFSQ review round 1 (three blind reviews per paper, written by Claude Sonnet 5.5 subagents that saw only the PDF and the call for papers). Changes to `paper2.tex`: Accept cut points in the power table corrected to 72 (N = 90) and 94 (N = 120); the abstract, discussion and conclusion now say that one of the 6 defective tasks also has the B05 defect (they read as 7 tasks before); "pre-registered" removed, because the protocol is not frozen; limitations stated in the abstract; SWE-bench, Berry (REFSQ 2022), Wang et al. (ICSE 2026), the METR note, Newcombe and the companion paper cited; the description of the SWE-Bench Illusion corrected; text shortened to stay within 15 pages. `references.bib`: eight entries corrected and ten added ([record](supporting/editorial/references_review_2026_11.md)). No code, test, protocol, form or record changed. Added `paper2/preparation/protocol-6/proposal.md`, a proposal that is not in force.
 - 2026-11-06: Runbook created. Protocol 4 pilot readiness work: source rows, Docker harness eligibility (75 of 75), B28 image checks, target pool and rows, six form drafts, session tooling. Fixes from the plan review:
   - workspace isolation markers and mirror location;
   - dedicated Codex home;

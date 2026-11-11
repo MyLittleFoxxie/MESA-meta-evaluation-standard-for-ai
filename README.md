@@ -4,17 +4,18 @@ This repository holds two papers for REFSQ 2027 and the records behind them. Bot
 
 The MESA paper compares published frameworks for reviewing AI benchmarks and derives one rubric from them. Paper 2 uses that rubric to decide whether benchmark results support a requirement on a coding agent.
 
-## Current state, 10 November 2026
+## Current state, 11 November 2026
 
 | | MESA paper | Paper 2 |
 | --- | --- | --- |
 | File | [mesa_paper.tex](mesa_paper.tex) | [paper2.tex](paper2.tex) |
 | Title | Unifying Benchmark Evaluation Protocols: A Meta-Evaluation Standard for Artificial Intelligence in Requirements Engineering | Applying Meta-Evaluation Benchmark Reviews to Requirement Decisions: An Executable Method |
 | Studies | Both studies run and analyzed | Evaluation prepared; no session of protocol 5 has run |
-| Page count (reference build: TeX Live 2026, as on Overleaf) | 15 | 15 after the trim of 10 November (16 before it) |
-| Open work | Feedback items 16 and 17 | Freeze, authorization and pilot (runbook step 13); review items W4, W5, W10 and W12 |
+| Page count (reference build: TeX Live 2026, as on Overleaf) | 15 on TeX Live 2023 after review round 1; not yet compiled on the reference build | 15 on TeX Live 2023 after review round 1; not yet compiled on the reference build |
+| Open work | Feedback item 16 (rubric text) and item 17 (replication package, overlap with Paper 2, name of the drafting model) | Freeze, authorization and pilot (runbook step 13); review items W4 and W5; the protocol 6 proposal |
+| Review rounds | [Round 1](supporting/editorial/refsq_review_round_1.md), 11 November: reject, weak reject, reject | [Round 1](supporting/editorial/refsq_review_round_1.md), 11 November: three rejects |
 
-Both papers' Data Availability sections say that an anonymized replication package accompanies the submission. Preparing that package is still open (runbook item W5, feedback item 17). Update this section when the state changes.
+Both papers' Data Availability sections say that an anonymized replication package accompanies the submission. Preparing that package is still open (runbook item W5, feedback item 17). The references were checked on 11 November ([record](supporting/editorial/references_review_2026_11.md)). [paper2/preparation/protocol-6/proposal.md](paper2/preparation/protocol-6/proposal.md) is a proposal that answers the round 1 reviews; it is not in force, and protocol 5 stays the current protocol. Update this section when the state changes.
 
 **Line endings.** Study records and frozen inputs are checked by SHA-256, so their bytes must not change. [.gitattributes](.gitattributes) (`* -text`) tells Git to keep every file byte for byte as stored, including on Windows, where Git converts line endings to CRLF by default. Do not let an editor change the line endings of a frozen file.
 
