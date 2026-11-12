@@ -28,6 +28,10 @@ Scope: `mesa_paper.tex` only. No experiment was run. No frozen input, model resp
 
 Items 2 and 5 in the list below are therefore no longer stated in the paper. They remain in `v5/study-cycle2/deviations.md` and in the records.
 
+## Changes of 12 November
+
+The table of concerns now names all 31 evaluative criteria by step. One complete example rating (HumanEval, isolation of grading) is printed in the rubric section. A sentence on the guidelines for studies with language models is added, with the reference. The section heading is "Shared Concerns with MESA". Room came from merging sentences in the two background subsections and removing counts in the results that a table already shows. 15 pages.
+
 ## Errors found when the numbers were traced
 
 All numbers in the paper were recomputed from the records with `supporting/editorial/round3_checks/check_paper_numbers.py` and by reading the summary files. The studies' own numbers were right. These statements in the earlier paper text did not match the records and were corrected in the text:

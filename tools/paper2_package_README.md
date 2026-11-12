@@ -17,6 +17,7 @@ One coding agent (GPT-6.1 Sol at medium effort, run through the Codex command li
 | `paper2/tests/` | Unit tests |
 | `v5/rubric/` | The text of the MESA rubric |
 | `supporting/editorial/round3_checks/check_paper2_numbers.py` | A script that recomputes the numbers printed in the paper |
+| `supporting/editorial/round3_checks/agent_patch_check/` | The check of the agent's own patches with the independent check scripts: script, results and a note on the environment |
 | `paper2/preparation/protocol-4/`, `protocol-5/`, `v3/`, `paper2/history/`, `paper2/pilot/`, `paper2/protocol/`, `paper2/feasibility/` | Earlier preparation. The paper does not report it. It is included because the code of the reported study reuses files from it (task eligibility records, test images, saved check patches) |
 
 One extra session on a task outside the two task sets was run first to test the setup. It is in the records (slot 1) and is not part of the 88 sessions in the paper.

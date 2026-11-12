@@ -162,7 +162,11 @@ def main():
         extra_files=["verify_manuscripts.py", "paper2.tex", "references.bib", "llncs.cls", "splncs04.bst",
                      "figures/paper2_study_overview.pdf", "figures/paper2_study_overview.tex",
                      "figures/paper2_study_overview.md",
-                     "supporting/editorial/round3_checks/check_paper2_numbers.py"],
+                     "supporting/editorial/round3_checks/check_paper2_numbers.py",
+                     "supporting/editorial/round3_checks/agent_patch_check/run_agent_patch_check.py",
+                     "supporting/editorial/round3_checks/agent_patch_check/sitecustomize.py",
+                     "supporting/editorial/round3_checks/agent_patch_check/results.json",
+                     "supporting/editorial/round3_checks/agent_patch_check/README.md"],
     )
     paper2_readme = (
         "# Anonymized Replication Package — Paper 2 (REFSQ 2027)\n\n"

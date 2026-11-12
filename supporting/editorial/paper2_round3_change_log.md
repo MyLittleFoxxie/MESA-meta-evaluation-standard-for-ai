@@ -35,6 +35,10 @@ All numbers were recomputed with `supporting/editorial/round3_checks/check_paper
 
 Found outside the paper: `dist/paper2_replication_package.zip` was built on 11 November before the 88 sessions ran, so it held no session records, a README of five lines and no license file. It is rebuilt.
 
+## Check of the agent's patches (added later on 12 November)
+
+The second review asked why 32 of 44 source tasks with weak tests is far above what published audits report. The reason is that the weak test check asks whether a wrong fix can be constructed that the tests accept, while published audits count wrong fixes that agents produced. To measure the second question on this study's own data, every valid check script was run on the agent's own patch (`supporting/editorial/round3_checks/agent_patch_check/`). No model was called and no record was changed. Result: none of the 31 accepted source patches with a valid check failed it, and 3 of 22 on the target tasks did. The paper now reports this check, adds a fourth row to the table on task removal (31 of 38 and 17 of 34, decisions unchanged), and discusses it. The paper also has a sentence on the guidelines for studies with language models. It is 14 pages.
+
 ## Left for the author
 
 - `month = jul` in the entry `openai_swebench_audit_2026` could not be confirmed. The paper no longer cites this entry.
