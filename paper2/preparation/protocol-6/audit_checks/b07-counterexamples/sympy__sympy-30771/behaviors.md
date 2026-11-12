@@ -1,0 +1,5 @@
+- For nonempty inputs of lengths n and m, default linear convolution returns exactly n + m - 1 samples, including every trailing zero.
+- Equivalent Python integer and SymPy Integer inputs produce the same full sequence of samples.
+- All-zero inputs preserve the full output length, such as [0, 0] convolved with [1, 2] returning [0, 0, 0].
+- Full-length results hold for arbitrary input lengths, signed integer values, and either ordering of the inputs; every valid sample index is accessible.
+- A cycle equal to n + m - 1 preserves the same full sequence as default linear convolution.

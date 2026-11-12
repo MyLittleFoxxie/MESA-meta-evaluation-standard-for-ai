@@ -1,0 +1,7 @@
+- Expose `SkewNormal(name, xi, omega, alpha)` through `sympy.stats`.
+- Compute the PDF using the standardized variable `(x - xi)/omega`, with `exp` and `erf`.
+- Compute the CDF as `Phi((x - xi)/omega) - 2*owens_t((x - xi)/omega, alpha)`.
+- Require a positive scale and accept any real shape, including negative values.
+- Reduce to `Normal(xi, omega)` when the shape is zero.
+- Satisfy the reflection identity `-X ~ SkewNormal(-xi, omega, -alpha)`.
+- Evaluate numeric `owens_t` calls to plain numbers and preserve precision during cancellation in sums, including the positive left-tail probability near `7.11807919004294e-43` for `SkewNormal(0, 1, 2)` at `-6` with default `evalf()`.

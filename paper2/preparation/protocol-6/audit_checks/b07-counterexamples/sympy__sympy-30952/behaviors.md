@@ -1,0 +1,2 @@
+﻿- Reject an empty reshape template with ValueError, including the reported `reshape((1,), how=())` call.
+- Validate a zero template total before dividing the sequence length, so empty templates do not cause division by zero for other sequence lengths.

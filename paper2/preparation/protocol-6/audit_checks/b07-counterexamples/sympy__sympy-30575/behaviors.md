@@ -1,0 +1,5 @@
+- Expanding a product containing an added Order term must scale that term at nonzero expansion points: (1 + O((x-5)**3, (x,5)))*(x-5) must expand to x-5 + O((x-5)**4, (x,5)).
+- The rule must work with other regular summands, such as 2 + O((x-5)**3, (x,5)); multiplying by x-5 must give 2*x-10 + O((x-5)**4, (x,5)).
+- Nonzero centers need not be integers: (1 + O((x-S.Half)**3, (x,S.Half)))*(x-S.Half) must expand to x-S.Half + O((x-S.Half)**4, (x,S.Half)).
+- Scaling must also work for a first-order error: (1 + O(x-5, (x,5)))*(x-5) must expand to x-5 + O((x-5)**2, (x,5)).
+- Preserve working Order scaling for standalone terms, products at zero, and division.

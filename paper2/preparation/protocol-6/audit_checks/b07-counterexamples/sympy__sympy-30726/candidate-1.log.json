@@ -1,0 +1,38 @@
+{
+  "task_id": "sympy__sympy-30726",
+  "candidate": "candidate-1.diff",
+  "harness_resolved": true,
+  "tests_status": {
+    "FAIL_TO_PASS": {
+      "success": [
+        "sympy/polys/numberfields/tests/test_basis.py::test_round_two_hnf_modulus_issue_30613"
+      ],
+      "failure": []
+    },
+    "PASS_TO_PASS": {
+      "success": [
+        "sympy/polys/numberfields/tests/test_basis.py::test_AlgebraicField_integral_basis",
+        "sympy/polys/numberfields/tests/test_basis.py::test_round_two"
+      ],
+      "failure": []
+    },
+    "FAIL_TO_FAIL": {
+      "success": [],
+      "failure": []
+    },
+    "PASS_TO_FAIL": {
+      "success": [],
+      "failure": []
+    }
+  },
+  "harness_logs": {
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-30726-1-20261112T042312\\session\\sympy__sympy-30726\\report.json": "7e2e09fb4d9eb30927ec9501397aa7702684603a3b73b35700ebba67341ef689",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-30726-1-20261112T042312\\session\\sympy__sympy-30726\\test_output.txt": "04081f56591517d973c868c91367a9da42978e3cfc35f06a5379a1ab2c6efafd",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-30726-1-20261112T042312\\session\\sympy__sympy-30726\\run_instance.log": "cbe214bb67e4a4f76ce65f393fdc9e0c0bc5fb7b6ae049b893caeb83846a0af2",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-30726-1-20261112T042312\\session\\sympy__sympy-30726\\patch.diff": "515aa903b83f8bef67c2b761d2a61b7ed907bb3230afada2153c1bab13037ba4"
+  },
+  "check": {
+    "exit_code": 1,
+    "output": "Traceback (most recent call last):\n  File \"/testbed/sympy/polys/numberfields/modules.py\", line 1044, in represent\n    x = x.convert_to(ZZ)\n        ^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/matrices/domainmatrix.py\", line 561, in convert_to\n    rep_K = rep.convert_to(K)\n            ^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/matrices/ddm.py\", line 570, in convert_to\n    rows = [[K.convert_from(e, Kold) for e in row] for row in self]\n             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/domains/domain.py\", line 577, in convert_from\n    raise CoercionFailed(\"Cannot convert %s of type %s from %s to %s\" % (element, type(element), base, self))\nsympy.polys.polyerrors.CoercionFailed: Cannot convert 1/3 of type <class 'sympy.external.pythonmpq.PythonMPQ'> from QQ to ZZ\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/audit/check.py\", line 55, in <module>\n    main()\n  File \"/audit/check.py\", line 48, in main\n    test_k5()\n  File \"/audit/check.py\", line 26, in test_k5\n    ib5 = K5_ib.integral_basis()\n          ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/domains/algebraicfield.py\", line 538, in integral_basis\n    ZK = self.maximal_order()\n         ^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/domains/algebraicfield.py\", line 490, in maximal_order\n    self._do_round_two()\n  File \"/testbed/sympy/polys/domains/algebraicfield.py\", line 470, in _do_round_two\n    ZK, dK = round_two(self, radicals=self._nilradicals_mod_p)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/basis.py\", line 229, in round_two\n    H1, nilrad = _second_enlargement(H, p, q)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/basis.py\", line 84, in _second_enlargement\n    Ip = nilradical_mod_p(H, p, q=q)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/basis.py\", line 77, in nilradical_mod_p\n    return phi.kernel(modulus=p)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/modules.py\", line 1837, in kernel\n    M = self.matrix(modulus=modulus)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/modules.py\", line 1809, in matrix\n    cols = [self.codomain.represent(self.mapping(elt)) for elt in basis]\n                                    ^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/basis.py\", line 76, in <lambda>\n    phi = ModuleEndomorphism(H, lambda x: x**q)\n                                          ~^^~\n  File \"/testbed/sympy/polys/polyutils.py\", line 580, in __pow__\n    p *= p\n  File \"/testbed/sympy/polys/numberfields/modules.py\", line 1580, in __mul__\n    M = self.module.mult_tab()\n        ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/modules.py\", line 926, in mult_tab\n    self.compute_mult_tab()\n  File \"/testbed/sympy/polys/numberfields/modules.py\", line 939, in compute_mult_tab\n    M[u][v] = self.represent(gens[u] * gens[v]).flat()\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/testbed/sympy/polys/numberfields/modules.py\", line 1048, in represent\n    raise ClosureFailure('Element in QQ-span but not ZZ-span of this basis.')\nsympy.polys.numberfields.exceptions.ClosureFailure: Element in QQ-span but not ZZ-span of this basis.\n"
+  }
+}

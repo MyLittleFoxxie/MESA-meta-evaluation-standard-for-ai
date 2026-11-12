@@ -1,0 +1,3 @@
+- `Poly(0, ...).lcm(Poly(0, ...))` returns the zero polynomial without raising `ZeroDivisionError`.
+- The result is consistent across supported polynomial backends and ground domains.
+- Zero handling also works for polynomials with multiple generators.

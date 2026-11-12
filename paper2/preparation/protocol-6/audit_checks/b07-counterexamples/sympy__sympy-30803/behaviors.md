@@ -1,0 +1,3 @@
+- Construct a fraction-field element over EXRAW from a SymPy Integer without a RecursionError, including through FractionField.from_sympy.
+- Preserve the integer's value and return an element of the requested fraction field.
+- Rebuild ground coefficients as fraction-field elements so raw Expr coefficients do not restart expression conversion.

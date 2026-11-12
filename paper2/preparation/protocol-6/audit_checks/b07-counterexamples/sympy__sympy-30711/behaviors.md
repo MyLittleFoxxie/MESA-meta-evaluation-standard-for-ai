@@ -1,0 +1,5 @@
+- Compute rational powers of series with nonzero valuation to the requested final precision, retaining enough intermediate terms for both the root and subsequent power.
+- For `(x + x**2)**(-1/2)` at precision 3, return coefficients `1, -1/2, 3/8, -5/16` at exponents `-1/2, 1/2, 3/2, 5/2`.
+- For `(x**-3 + x**-2)**(2/3)` at precision 1, return `x**-2 + 2/(3*x) - 1/9`.
+- For `(x**2 + x**3)**(-1/2)` at precision 1, return `1/x - 1/2` without a division-by-zero error caused by a truncated intermediate root.
+- Account for the valuation and rational exponent when choosing working precision, and truncate the final result at the requested order.

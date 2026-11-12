@@ -1,0 +1,90 @@
+{
+  "task_id": "sympy__sympy-18211",
+  "candidate": "candidate-1.diff",
+  "harness_resolved": true,
+  "tests_status": {
+    "FAIL_TO_PASS": {
+      "success": [
+        "test_issue_18188"
+      ],
+      "failure": []
+    },
+    "PASS_TO_PASS": {
+      "success": [
+        "test_rel_ne",
+        "test_rel_subs",
+        "test_wrappers",
+        "test_Eq",
+        "test_as_poly",
+        "test_rel_Infinity",
+        "test_infinite_symbol_inequalities",
+        "test_bool",
+        "test_rich_cmp",
+        "test_doit",
+        "test_new_relational",
+        "test_relational_arithmetic",
+        "test_relational_bool_output",
+        "test_relational_logic_symbols",
+        "test_univariate_relational_as_set",
+        "test_Not",
+        "test_evaluate",
+        "test_imaginary_compare_raises_TypeError",
+        "test_complex_compare_not_real",
+        "test_imaginary_and_inf_compare_raises_TypeError",
+        "test_complex_pure_imag_not_ordered",
+        "test_x_minus_y_not_same_as_x_lt_y",
+        "test_nan_equality_exceptions",
+        "test_nan_inequality_raise_errors",
+        "test_nan_complex_inequalities",
+        "test_complex_infinity_inequalities",
+        "test_inequalities_symbol_name_same",
+        "test_inequalities_symbol_name_same_complex",
+        "test_inequalities_cant_sympify_other",
+        "test_ineq_avoid_wild_symbol_flip",
+        "test_issue_8245",
+        "test_issue_8449",
+        "test_simplify_relational",
+        "test_equals",
+        "test_reversed",
+        "test_canonical",
+        "test_issue_8444_workingtests",
+        "test_issue_10304",
+        "test_issue_10401",
+        "test_issue_10633",
+        "test_issue_10927",
+        "test_issues_13081_12583_12534",
+        "test_binary_symbols",
+        "test_rel_args",
+        "test_Equality_rewrite_as_Add",
+        "test_issue_15847",
+        "test_negated_property",
+        "test_reversedsign_property",
+        "test_reversed_reversedsign_property",
+        "test_improved_canonical",
+        "test_set_equality_canonical",
+        "test_trigsimp",
+        "test_polynomial_relation_simplification",
+        "test_multivariate_linear_function_simplification"
+      ],
+      "failure": []
+    },
+    "FAIL_TO_FAIL": {
+      "success": [],
+      "failure": []
+    },
+    "PASS_TO_FAIL": {
+      "success": [],
+      "failure": []
+    }
+  },
+  "harness_logs": {
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-18211-1-20261112T033228\\session\\sympy__sympy-18211\\report.json": "5094bda82f86ec769339d33336a2f7bdc9255583de8228238869ef3ae909ff3a",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-18211-1-20261112T033228\\session\\sympy__sympy-18211\\test_output.txt": "520dc2a7a480496752d1c05834689d0f94ea76a80783bd5d7ed7a25f4423893a",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-18211-1-20261112T033228\\session\\sympy__sympy-18211\\run_instance.log": "c1e11aea0f9d37cd91c18c57f7de1dde2f80b66c548aba2a3ad73da147ce5d1c",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-18211-1-20261112T033228\\session\\sympy__sympy-18211\\patch.diff": "221fd688ecaa75bbd3a9f5aa691f24c3f3df19f4b81d53b6d3ecb46869b3f9a7"
+  },
+  "check": {
+    "exit_code": 1,
+    "output": "Traceback (most recent call last):\n  File \"/testbed/sympy/solvers/inequalities.py\", line 524, in solve_univariate_inequality\n    solns = solvify(e, gen, domain)\n  File \"/testbed/sympy/solvers/solveset.py\", line 2138, in solvify\n    raise NotImplementedError('solveset is unable to solve this equation.')\nNotImplementedError: solveset is unable to solve this equation.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/audit/check.py\", line 11, in test_reported_equation_as_set\n    result = eq.as_set()\n  File \"/testbed/sympy/logic/boolalg.py\", line 159, in as_set\n    return self.subs(reps)._eval_as_set()\n  File \"/testbed/sympy/core/relational.py\", line 396, in _eval_as_set\n    return solve_univariate_inequality(self, x, relational=False)\n  File \"/testbed/sympy/solvers/inequalities.py\", line 531, in solve_univariate_inequality\n    raise NotImplementedError(filldedent('''\nNotImplementedError: \nThe inequality, Eq(x*cos(x) - 3*sin(x), 0), cannot be solved using\nsolve_univariate_inequality.\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/audit/check.py\", line 44, in <module>\n    main()\n  File \"/audit/check.py\", line 38, in main\n    test_reported_equation_as_set()\n  File \"/audit/check.py\", line 13, in test_reported_equation_as_set\n    raise AssertionError(\nAssertionError: Eq(n*cos(n) - 3*sin(n), 0).as_set() raised NotImplementedError instead of returning ConditionSet\n"
+  }
+}

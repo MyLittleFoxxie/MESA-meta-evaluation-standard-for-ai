@@ -1,0 +1,5 @@
+- Find infinitesimals for Kamke 1.117 with the default hint without an expression-membership TypeError.
+- Run all heuristics for y' = 1 - y**2 without an uninitialized-polyy error.
+- Handle missing or unsuccessful matches in abaco2_similar without KeyError or NoneType TypeError, including the reported quadratic first-order equations.
+- Handle symbolic expressions in abaco2_unique_general without Mul/Pow membership errors.
+- With default and all hints, continue to later heuristics when one heuristic fails; all should collect the generators found across heuristics.

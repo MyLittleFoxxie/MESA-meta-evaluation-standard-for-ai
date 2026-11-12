@@ -1,0 +1,3 @@
+- During ArrayTensorProduct canonicalization, extract scalar coefficients from MatrixExpr arguments, such as 2*M.
+- Combine extracted coefficients into a leading scalar factor while preserving the array shape and matrix factor order.
+- Convert the resulting array expressions back to correct matrix expressions, including contractions and axis permutations with rank-0 coefficients.

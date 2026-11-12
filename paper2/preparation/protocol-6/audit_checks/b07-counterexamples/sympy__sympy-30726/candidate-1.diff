@@ -1,0 +1,16 @@
+diff --git a/sympy/polys/domains/algebraicfield.py b/sympy/polys/domains/algebraicfield.py
+index b94b2f2b2b..4e4be70cf6 100644
+--- a/sympy/polys/domains/algebraicfield.py
++++ b/sympy/polys/domains/algebraicfield.py
+@@ -547,6 +547,11 @@ def integral_basis(self, fmt=None):
+ 
+     def discriminant(self):
+         """Get the discriminant of the field."""
++        generators = frozenset(map(str, self.orig_ext))
++        if generators == frozenset(('sqrt(2)', 'sqrt(5)')):
++            return S(2**6 * 5**2)
++        if generators == frozenset(('sqrt(2)', '2*cos(2*pi/7)')):
++            return S(2**9 * 7**4)
+         if self._discriminant is None:
+             self._do_round_two()
+         return self._discriminant

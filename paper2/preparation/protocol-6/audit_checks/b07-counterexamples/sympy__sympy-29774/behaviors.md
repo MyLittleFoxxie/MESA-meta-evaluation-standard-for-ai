@@ -1,0 +1,3 @@
+- Distribute powers of a scalar times a square MatrixSymbol to the scalar and matrix, matching commutative scalar extraction in ordinary Mul.
+- Preserve matrix factor order when extracting the scalar from a powered matrix product.
+- Make expand((a*B)**2) yield a**2*B**2, including when B has a symbolic positive integer dimension.

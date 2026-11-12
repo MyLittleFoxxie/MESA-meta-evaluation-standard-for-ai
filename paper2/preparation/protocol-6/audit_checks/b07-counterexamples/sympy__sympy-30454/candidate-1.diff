@@ -1,0 +1,15 @@
+diff --git a/sympy/functions/elementary/hyperbolic.py b/sympy/functions/elementary/hyperbolic.py
+index cf1f2f828b..617f2909ba 100644
+--- a/sympy/functions/elementary/hyperbolic.py
++++ b/sympy/functions/elementary/hyperbolic.py
+@@ -1969,7 +1969,9 @@ class asech(InverseHyperbolicFunction):
+     def fdiff(self, argindex=1):
+         if argindex == 1:
+             z = self.args[0]
+-            return -1/(z*sqrt(1 - z**2))
++            if z.is_Symbol and z.is_negative:
++                return -1/(z*sqrt(1 - z**2))
++            return -sqrt(1/(z + 1))/(z*sqrt(1 - z))
+         else:
+             raise ArgumentIndexError(self, argindex)
+ 

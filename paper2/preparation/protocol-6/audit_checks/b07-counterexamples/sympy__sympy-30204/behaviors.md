@@ -1,0 +1,2 @@
+- Converting a SymPy matrix to SciPy sparse form in the quantum package must avoid deprecated sparse matrix constructors such as csr_matrix.
+- Quantum operations using the resulting sparse arrays must retain correct matrix behavior.

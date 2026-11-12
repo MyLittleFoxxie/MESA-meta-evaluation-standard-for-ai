@@ -1,0 +1,4 @@
+- Use Bessel I order -2/3, alongside +2/3, in the generic airyaiprime(z).rewrite(besseli) formula when Re(z) > 0 is not known.
+- Apply the correct generic formula to a plain Symbol with no assumptions.
+- Make the rewritten expression agree numerically with airyaiprime, including substitution at z = 1 and z = -1; the negative real example must give the correct real value.
+- Preserve the correct rewrite for inputs whose real part is known positive.

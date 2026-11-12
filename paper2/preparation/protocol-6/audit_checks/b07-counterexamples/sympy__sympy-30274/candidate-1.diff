@@ -1,0 +1,49 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index c9a64ac70a..6fe1d8c0d0 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -2099,6 +2099,19 @@ def _print_WedgeProduct(self, expr):
+         elements = [self._print(a) for a in expr.args]
+         return r' \wedge '.join(elements)
+ 
++    def _print_ArrayTensorProduct(self, expr):
++        from sympy.tensor.array.expressions.array_expressions import ArrayAdd
++        elements = []
++        for a in expr.args:
++            s = self._print(a)
++            if a == expr.args[0] and isinstance(a, (Add, ArrayAdd)):
++                s = r"\left(%s\right)" % s
++            elements.append(s)
++        return r' \boxtimes '.join(elements)
++
++    def _print_ArrayAdd(self, expr):
++        return ' + '.join([self._print(a) for a in expr.args])
++
+     def _print_Tuple(self, expr):
+         return self._print_tuple(expr)
+ 
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 99e2ba22d2..bc32825dbe 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -795,6 +795,20 @@ def _print_WedgeProduct(self, expr):
+         return self._print_seq(expr.args, None, None, wedge_symbol,
+             parenthesize=lambda x: precedence_traditional(x) <= PRECEDENCE["Mul"])
+ 
++    def _print_ArrayTensorProduct(self, expr):
++        from sympy.core.add import Add
++        from sympy.tensor.array.expressions.array_expressions import ArrayAdd
++        if self._use_unicode:
++            boxed_times = "\u22a0"
++        else:
++            boxed_times = ".*"
++        return self._print_seq(expr.args, None, None, boxed_times,
++            parenthesize=lambda x: isinstance(x, (Add, ArrayAdd)) or
++                precedence_traditional(x) <= PRECEDENCE["Mul"])
++
++    def _print_ArrayAdd(self, expr):
++        return self._print_seq(expr.args, None, None, ' + ')
++
+     def _print_Trace(self, e):
+         D = self._print(e.arg)
+         D = prettyForm(*D.parens('(',')'))

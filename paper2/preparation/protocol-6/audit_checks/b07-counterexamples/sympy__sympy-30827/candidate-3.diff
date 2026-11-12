@@ -1,0 +1,37 @@
+diff --git a/sympy/geometry/plane.py b/sympy/geometry/plane.py
+index f3dcddb721..aa8324e987 100644
+--- a/sympy/geometry/plane.py
++++ b/sympy/geometry/plane.py
+@@ -10,6 +10,8 @@
+ from sympy.core import Dummy, Rational, S, Symbol
+ from sympy.core.symbol import _symbol
+ from sympy.external.mpmath import prec_to_dps
++from sympy.functions.elementary.complexes import Abs, sign
++from sympy.functions.elementary.miscellaneous import Min
+ from sympy.functions.elementary.trigonometric import cos, sin, acos, asin, sqrt
+ from .entity import GeometryEntity
+ from .line import (Line, Ray, Segment, Line3D, LinearEntity, LinearEntity3D,
+@@ -287,6 +289,23 @@ def distance(self, o):
+         0
+ 
+         """
++        if not isinstance(o, GeometryEntity):
++            o = Point(o, dim=3)
++
++        if isinstance(o, (Segment3D, Ray3D, Line3D)):
++            n = Point3D(self.normal_vector)
++            a = n.dot(o.p1 - self.p1)
++            b = n.dot(o.p2 - self.p1)
++            c = n.dot(o.p2 - o.p1)
++            N = sqrt(n.dot(n))
++            if isinstance(o, Segment3D):
++                return (Abs(a) + Abs(b) - Abs(c)) / (2 * N)
++            if isinstance(o, Ray3D):
++                if c.is_zero:
++                    return a / N
++                return Abs(a) * (1 + Min(0, sign(a * c))) / N
++            return Abs(a) * (1 - Abs(sign(c))) / N
++
+         if self.intersection(o) != []:
+             return S.Zero
+ 

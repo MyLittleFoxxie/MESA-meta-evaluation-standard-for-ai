@@ -203,13 +203,13 @@ def stage2_prompt(task_id: str, row: Dict[str, Any], behaviors_text: str) -> str
         "</reference_patch>",
         "",
         "Strict requirements for `b07_check.py`:",
-        "1. It will be invoked inside Docker after either (a) no patch (`base_commit`) or (b) a candidate/reference patch via `python /audit/check.py`.",
+        "1. It will be invoked inside a Linux Docker container after either (a) no patch (`base_commit`) or (b) a candidate/reference patch via `python /audit/check.py` (keep assertions Linux-compatible; do not assume Windows paths or `os.path.normcase` lowercasing).",
         "2. Exit with code 0 ONLY if EVERY behavior requested in `<issue>` and `<behaviors_requested>` holds; exit with non-zero (e.g., via `AssertionError` or `sys.exit(1)`) if ANY stated behavior fails.",
         "3. It MUST fail (`exit_code != 0`) on unpatched `base_commit` and MUST pass (`exit_code == 0`) once `<reference_patch>` is applied.",
-        "4. IMPORTANT grounding rule: Carefully verify EVERY assertion in `b07_check.py` against the actual functions, APIs, and code paths changed in `<reference_patch>`. Do NOT add assertions targeting unrelated or unedited subsystems (for example new assumptions `ask(Q....)` when `<reference_patch>` only edits old assumptions) that `<reference_patch>` would fail!",
+        "4. IMPORTANT grounding rule: Inspect at most 2-3 narrow line ranges around the `@@` hunks in `<reference_patch>` (do not run directory listings or scan full files) and verify EVERY assertion in `b07_check.py` against the actual functions, APIs, and code paths changed in `<reference_patch>`. Do NOT add assertions targeting unrelated or unedited subsystems (for example new assumptions `ask(Q....)` when `<reference_patch>` only edits old assumptions) that `<reference_patch>` would fail!",
         "5. Rely only on Python stdlib + `sympy` imports from `/testbed` (do NOT spawn pytest subprocesses or use network/external packages beyond sympy/mpmath).",
-        "6. IMPORTANT environment rule: Host Python does NOT have `mpmath` installed and Stage 3 Docker executes `/audit/check.py` automatically, so do NOT try running `sympy` or `pytest` on the host; optionally run only `python -m py_compile b07_check.py`.",
-        "7. Write `b07_check.py` cleanly into the workspace root now using `write_to_file`.",
+        "6. IMPORTANT environment rule: Host Python does NOT have `mpmath` installed and Stage 3 Docker executes `/audit/check.py` automatically, so do NOT try running `sympy`, `pytest`, or `dir`/`ls` on the host.",
+        "7. Write `b07_check.py` cleanly into the workspace root promptly using `write_to_file`.",
     ])
 
 
@@ -233,7 +233,7 @@ def _prepare_agy_workspace(ws: Path) -> None:
     (excl).write_text(existing + "\n.agents/\nb07_check.py\n", encoding="utf-8")
 
 
-def run_stage2_agy(task_id: str, row: Dict[str, Any], out_dir: Path, timeout: int = 180, attempts: int = 2) -> None:
+def run_stage2_agy(task_id: str, row: Dict[str, Any], out_dir: Path, timeout: int = 300, attempts: int = 2) -> None:
     """Execute Stage 2 via Antigravity CLI (gemini-3.8-flash-medium) blind to all candidate patches."""
     out_dir = Path(out_dir)
     if (out_dir / "check.py").exists():
@@ -249,11 +249,20 @@ def run_stage2_agy(task_id: str, row: Dict[str, Any], out_dir: Path, timeout: in
         with _work_temp_dir() as tmp:
             ws = checkout_clean(row["base_commit"], tmp / "ws")
             _prepare_agy_workspace(ws)
+            prompt_text = stage2_prompt(task_id, row, behaviors_text)
+            if len(prompt_text) > 20000:
+                (ws / "b07_stage2_prompt.md").write_text(prompt_text, encoding="utf-8", newline="\n")
+                cli_prompt = (
+                    "Read b07_stage2_prompt.md in the workspace root (you may read it in chunks if large) "
+                    "and follow all instructions in it to create b07_check.py."
+                )
+            else:
+                cli_prompt = prompt_text
             cmd = [
                 agy_bin, "--model", STAGE2_MODEL, "--effort", "medium", "--sandbox",
                 "--mode", "accept-edits", "--settings", str(settings_path), "--agent", "local",
                 "--disable-slash-commands", "--new-project", "--output-format", "stream-json",
-                "--print-timeout", f"{timeout}s", "-p", stage2_prompt(task_id, row, behaviors_text),
+                "--print-timeout", f"{timeout}s", "-p", cli_prompt,
             ]
             try:
                 res = subprocess.run(
@@ -315,15 +324,25 @@ def update_blind_b07_sheet(
     records_dir: Path = RECORDS,
     sheet_path: Path = BLIND_SHEET,
     private_labels_path: Path = PRIVATE_LABELS,
+    task_ids: Optional[Iterable[str]] = None,
 ) -> Dict[str, Any]:
     """Populate blind_b07_sheet.json with issue excerpt + claimed behavior for passing incomplete patches."""
-    mpath = Path(manifest_path or (p6.PROTOCOL / "study_manifest.json"))
-    manifest = json.loads(mpath.read_text(encoding="utf-8"))
-    selected = manifest.get("selected") or {}
-    planned = (manifest.get("selection") or {}).get("planned") or {}
-    ordered_ids = list(selected.get("source") or planned.get("source") or []) + list(
-        selected.get("target") or planned.get("target") or []
-    )
+    if task_ids is not None:
+        ordered_ids = list(task_ids)
+    else:
+        mpath = Path(manifest_path or (p6.PROTOCOL / "study_manifest.json"))
+        manifest = json.loads(mpath.read_text(encoding="utf-8"))
+        selected = manifest.get("selected") or {}
+        planned = (manifest.get("selection") or {}).get("planned") or {}
+        ordered_ids = list(selected.get("source") or planned.get("source") or []) + list(
+            selected.get("target") or planned.get("target") or []
+        )
+        if manifest_path is None and not (selected.get("source") or selected.get("target")):
+            seen = set(ordered_ids)
+            rdir = Path(records_dir)
+            if rdir.exists():
+                extra = sorted(d.name for d in rdir.iterdir() if d.is_dir() and (d / "attempt.json").exists() and d.name not in seen)
+                ordered_ids.extend(extra)
     rows = ss.rows_by_id()
     existing_items: Dict[str, Dict[str, Any]] = {}
     if Path(sheet_path).exists():

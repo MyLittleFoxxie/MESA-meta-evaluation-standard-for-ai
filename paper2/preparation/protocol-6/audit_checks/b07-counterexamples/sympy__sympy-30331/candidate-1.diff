@@ -1,0 +1,13 @@
+diff --git a/sympy/polys/subresultants_qq_zz.py b/sympy/polys/subresultants_qq_zz.py
+index 3f1782d3c4..2a0db014b8 100644
+--- a/sympy/polys/subresultants_qq_zz.py
++++ b/sympy/polys/subresultants_qq_zz.py
+@@ -1431,6 +1431,8 @@ def modified_subresultants_pg(p, q, x):
+     # first remainder
+     exp_deg = d1 - 1                          # expected degree of a2
+     a2 = - rem(a0, a1, domain=QQ)             # first remainder
++    if a2 == 0:
++        return subres_l
+     rho2 =  LC(a2, x)                         # leading coeff of a2
+     d2 =  degree(a2, x)                       # actual degree of a2
+     deg_diff_new = exp_deg - d2               # expected - actual degree

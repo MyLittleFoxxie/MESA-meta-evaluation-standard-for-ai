@@ -292,6 +292,44 @@ class ExposureProbeTests(unittest.TestCase):
             labels = json.loads(labels_path.read_text(encoding="utf-8"))
             self.assertTrue(labels["tasks"]["sympy__sympy-16597"]["model_demonstrated"])
 
+            # Explicit task_ids bypasses manifest lists (used when live eligible targets advance past stale planned lists).
+            res_explicit = b07_p6.update_blind_b07_sheet(
+                manifest_path=manifest_path, records_dir=records_dir,
+                sheet_path=sheet_path, private_labels_path=labels_path,
+                task_ids=["sympy__sympy-16597"],
+            )
+            self.assertEqual(res_explicit["sheet_items"], 1)
+
+    def test_b07_p6_stage2_long_prompt_uses_prompt_file(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as tmp:
+            tdir = Path(tmp) / "sympy__sympy-30311"
+            tdir.mkdir()
+            (tdir / "behaviors.md").write_text("- Check integral evaluation\n", encoding="utf-8")
+            row = dict(base_commit="deadbeef", problem_statement="Long issue", patch="+" + ("x" * 25000))
+            seen = {}
+
+            def fake_checkout(commit, dest):
+                Path(dest).mkdir(parents=True, exist_ok=True)
+                return Path(dest)
+
+            def fake_run(cmd, cwd=None, **kwargs):
+                prompt_file = Path(cwd) / "b07_stage2_prompt.md"
+                seen["prompt_file_exists"] = prompt_file.exists()
+                seen["cmd_prompt"] = cmd[-1]
+                (Path(cwd) / "b07_check.py").write_text("assert True\n", encoding="utf-8")
+                return mock.Mock(returncode=0, stdout="", stderr="")
+
+            with (
+                mock.patch.object(b07_p6, "_cli_path", return_value="agy"),
+                mock.patch.object(b07_p6, "checkout_clean", side_effect=fake_checkout),
+                mock.patch.object(b07_p6.subprocess, "run", side_effect=fake_run),
+            ):
+                b07_p6.run_stage2_agy("sympy__sympy-30311", row, tdir, timeout=60, attempts=1)
+            self.assertTrue(seen["prompt_file_exists"])
+            self.assertIn("b07_stage2_prompt.md", seen["cmd_prompt"])
+            self.assertTrue((tdir / "check.py").exists())
+
 
 class ComparisonAndProtocol6BundleTests(unittest.TestCase):
     def test_abc_with_gate_and_comparable_agreement(self):

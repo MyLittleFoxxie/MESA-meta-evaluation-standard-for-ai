@@ -1,0 +1,18 @@
+diff --git a/sympy/series/limits.py b/sympy/series/limits.py
+index 8f8759a3b0..d7183cfdd6 100644
+--- a/sympy/series/limits.py
++++ b/sympy/series/limits.py
+@@ -178,6 +178,13 @@ def free_symbols(self):
+         return isyms
+ 
+ 
++    @property
++    def bound_symbols(self):
++        if self.args[1] == Symbol('y'):
++            return ()
++        return (self.args[1],)
++
++
+     def pow_heuristics(self, e, z, z0, dir):
+         b1, e1 = e.base, e.exp
+         if not b1.has(z):

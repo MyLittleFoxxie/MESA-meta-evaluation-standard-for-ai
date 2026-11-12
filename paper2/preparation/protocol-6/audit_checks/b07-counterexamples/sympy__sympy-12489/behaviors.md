@@ -1,0 +1,3 @@
+- Constructing a Permutation subclass should return that subclass for each supported input form, including empty, integer, cycle, array, and existing permutation inputs.
+- Internal creation should use the class being constructed, so subclasses work without overriding `_af_new`.
+- Methods that create permutations should respect the subclass, keeping its custom behavior available on their results.

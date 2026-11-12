@@ -1,0 +1,5 @@
+- Retain every term below the requested precision when raising a base with nonzero valuation to a negative integer power.
+- For `p = x + x**2`, return `x**(-2) - 2/x + 3 - 4*x + 5*x**2` from `rs_pow(p, -2, x, 3)`, agreeing with inversion of `p**2`.
+- For `x**2 + x**3` raised to power -2 at precision 3, return the full truncated inverse square without raising `ZeroDivisionError`.
+- Support this behavior in both Puiseux and ordinary polynomial rings.
+- Preserve the working negative-power behavior for bases such as `1 + x`.

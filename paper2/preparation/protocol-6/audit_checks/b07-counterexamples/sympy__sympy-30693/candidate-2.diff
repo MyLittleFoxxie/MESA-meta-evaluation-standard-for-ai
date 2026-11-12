@@ -1,0 +1,21 @@
+diff --git a/sympy/testing/runtests.py b/sympy/testing/runtests.py
+index e1a8b05e67..6b22b64099 100644
+--- a/sympy/testing/runtests.py
++++ b/sympy/testing/runtests.py
+@@ -133,13 +133,9 @@ def convert_to_native_paths(lst):
+     """
+     newlst = []
+     for rv in lst:
+-        rv = os.path.join(*rv.split("/"))
+-        # on windows the slash after the colon is dropped
+-        if sys.platform == "win32":
+-            pos = rv.find(':')
+-            if pos != -1:
+-                if rv[pos + 1] != '\\':
+-                    rv = rv[:pos + 1] + '\\' + rv[pos + 1:]
++        rv = rv.replace("/", os.sep).replace("\\", os.sep)
++        if rv.startswith("." + os.sep):
++            rv = rv[2:]
+         newlst.append(os.path.normcase(rv))
+     return newlst
+ 

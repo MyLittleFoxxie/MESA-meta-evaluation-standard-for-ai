@@ -1,0 +1,3 @@
+- Preserve singularities from both sides of an inequality through high-level reduction.
+- Exclude values where an original denominator is zero, even when subtraction cancels that denominator.
+- Keep the valid solutions of the inequality while excluding those undefined points.

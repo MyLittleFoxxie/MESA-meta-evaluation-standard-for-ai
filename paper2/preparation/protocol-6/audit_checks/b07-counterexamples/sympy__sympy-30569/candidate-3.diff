@@ -1,0 +1,16 @@
+diff --git a/sympy/series/gruntz.py b/sympy/series/gruntz.py
+index 3b3b28df2b..d99d7c4d3d 100644
+--- a/sympy/series/gruntz.py
++++ b/sympy/series/gruntz.py
+@@ -679,6 +679,11 @@ def gruntz(e, z, z0, dir="+"):
+     if not z.is_symbol:
+         raise NotImplementedError("Second argument must be a Symbol")
+ 
++    from sympy.functions.elementary.miscellaneous import Min, Max
++    if e.has(Min, Max):
++        from sympy.functions.elementary.complexes import Abs
++        e = e.replace(Min, Max).rewrite((Min, Max), Abs)
++
+     # convert all limits to the limit z->oo; sign of z is handled in limitinf
+     r = None
+     if z0 in (oo, I*oo):

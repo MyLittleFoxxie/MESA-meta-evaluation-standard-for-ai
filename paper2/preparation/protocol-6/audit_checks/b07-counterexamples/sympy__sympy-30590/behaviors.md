@@ -1,0 +1,2 @@
+- For a symbol x that can equal zero, acot(-x).subs(x, 0) must equal acot(0), namely pi/2.
+- For a symbol x that can equal zero, acoth(-x).subs(x, 0) must equal acoth(0), namely I*pi/2.

@@ -1,0 +1,3 @@
+- Correct the symbolic derivative of `asech(x)` for real `x < -1`, including symbols known to be negative.
+- At `x = -2`, obtain `sqrt(3)*I/6`, agreeing with the numerical derivative of `asech`.
+- Use a derivative formula consistent with the principal branch definition `asech(x) = acosh(1/x)` across its domain, retaining correctness for `0 < x < 1`.

@@ -1,0 +1,4 @@
+﻿- Parenthesize negative numeric literals produced by folding a function when used as a power base, preserving Fortran's intended sign.
+- Handle both the sine and cosine reproductions, including other numeric inputs and powers.
+- Preserve the correct value when the folded power is nested in a larger expression, including the kinematic example.
+- Keep correct parentheses for bases that are already negative expressions, such as a negative Float or `-x`.

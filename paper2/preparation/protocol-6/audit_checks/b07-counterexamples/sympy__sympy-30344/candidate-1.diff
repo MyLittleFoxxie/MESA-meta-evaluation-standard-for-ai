@@ -1,0 +1,14 @@
+diff --git a/sympy/core/expr.py b/sympy/core/expr.py
+index a1c003ae59..5e7ed16919 100644
+--- a/sympy/core/expr.py
++++ b/sympy/core/expr.py
+@@ -193,7 +193,8 @@ def sort_key(self, order=None):
+                 args = expr.args
+ 
+             args = tuple(
+-                [ default_sort_key(arg, order=order) for arg in args ])
++                [ default_sort_key(S.NegativeInfinity if arg is S.NaN else arg,
++                               order=order) for arg in args ])
+ 
+         args = (len(args), tuple(args))
+         exp = exp.sort_key(order=order)

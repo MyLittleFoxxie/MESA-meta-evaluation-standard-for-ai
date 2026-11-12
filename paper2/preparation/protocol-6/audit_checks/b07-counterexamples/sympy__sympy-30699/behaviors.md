@@ -1,0 +1,3 @@
+﻿- For `R, x = puiseux_ring("x", QQ)` and `p = x + x**2`, `rs_nth_root(p, -1, x, 3)` must return `1/x - 1 + x - x**2`, retaining all terms below precision 3.
+- The reciprocal result must agree with `rs_series_inversion(p, x, 3)`.
+- `rs_nth_root(x**4 + x**5, 2, x, 3)` must return `x**2`, retaining the leading term below precision 3.

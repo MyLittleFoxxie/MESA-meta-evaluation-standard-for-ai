@@ -1,0 +1,3 @@
+﻿- Provide Owen’s T function in SymPy to express the antiderivative.
+- Evaluate `integrate(exp(-x**2)*erf(y*x), x)` for a symbolic parameter.
+- Evaluate the same integral with parameter `n`.

@@ -1,0 +1,4 @@
+- Both `subresultants_pg` and `modified_subresultants_pg` must terminate without a NaN comparison error when a remainder is zero.
+- If `q` divides `p`, return the initial pair `[p, q]`, including the reported cubic and linear divisor.
+- If exact division occurs later, retain the sequence already computed and stop without adding a zero remainder.
+- `subresultants_pg` must agree with `polytools.subresultants` for inputs with common factors, including `x**4 - 1` and `x**2 - 1`.

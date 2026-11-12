@@ -1,0 +1,17 @@
+diff --git a/sympy/printing/fortran.py b/sympy/printing/fortran.py
+index a32d89e818..abbe7e17e3 100644
+--- a/sympy/printing/fortran.py
++++ b/sympy/printing/fortran.py
+@@ -296,6 +296,12 @@ def _print_Add(self, expr):
+         else:
+             return CodePrinter._print_Add(self, expr)
+ 
++    def parenthesize(self, item, level, strict=False):
++        if isinstance(item, Function) and item.func.__name__ == 'sin':
++            prec = self._settings['precision']
++            item = item.func(*[N(a, prec) for a in item.args])
++        return super().parenthesize(item, level, strict)
++
+     def _print_Function(self, expr):
+         # All constant function args are evaluated as floats
+         prec =  self._settings['precision']

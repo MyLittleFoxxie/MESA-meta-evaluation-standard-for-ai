@@ -1,0 +1,279 @@
+diff --git a/sympy/__init__.py b/sympy/__init__.py
+index f35ca8093c..909d34967a 100644
+--- a/sympy/__init__.py
++++ b/sympy/__init__.py
+@@ -127,7 +127,7 @@ def __sympy_debug():
+         LambertW, sinh, cosh, tanh, coth, sech, csch, asinh, acosh, atanh,
+         acoth, asech, acsch, floor, ceiling, frac, Piecewise, piecewise_fold,
+         piecewise_exclusive, erf, erfc, erfi, erf2, erfinv, erfcinv, erf2inv,
+-        Ei, expint, E1, li, Li, Si, Ci, Shi, Chi, fresnels, fresnelc, gamma,
++        Ei, expint, E1, li, Li, Si, Ci, Shi, Chi, fresnels, fresnelc, owens_t, gamma,
+         lowergamma, uppergamma, polygamma, loggamma, digamma, trigamma,
+         multigamma, dirichlet_eta, zeta, lerchphi, polylog, stieltjes, Eijk,
+         LeviCivita, KroneckerDelta, SingularityFunction, DiracDelta, Heaviside,
+@@ -354,7 +354,7 @@ def __sympy_debug():
+     'acoth', 'asech', 'acsch', 'floor', 'ceiling', 'frac', 'Piecewise',
+     'piecewise_fold', 'piecewise_exclusive', 'erf', 'erfc', 'erfi', 'erf2',
+     'erfinv', 'erfcinv', 'erf2inv', 'Ei', 'expint', 'E1', 'li', 'Li', 'Si',
+-    'Ci', 'Shi', 'Chi', 'fresnels', 'fresnelc', 'gamma', 'lowergamma',
++    'Ci', 'Shi', 'Chi', 'fresnels', 'fresnelc', 'owens_t', 'gamma', 'lowergamma',
+     'uppergamma', 'polygamma', 'loggamma', 'digamma', 'trigamma', 'multigamma',
+     'dirichlet_eta', 'zeta', 'lerchphi', 'polylog', 'stieltjes', 'Eijk', 'LeviCivita',
+     'KroneckerDelta', 'SingularityFunction', 'DiracDelta', 'Heaviside',
+diff --git a/sympy/functions/__init__.py b/sympy/functions/__init__.py
+index f3a7b29ab8..8aa15a6278 100644
+--- a/sympy/functions/__init__.py
++++ b/sympy/functions/__init__.py
+@@ -28,7 +28,7 @@
+                                                   piecewise_exclusive)
+ from sympy.functions.special.error_functions import (erf, erfc, erfi, erf2,
+         erfinv, erfcinv, erf2inv, Ei, expint, E1, li, Li, Si, Ci, Shi, Chi,
+-        fresnels, fresnelc)
++        fresnels, fresnelc, owens_t)
+ from sympy.functions.special.gamma_functions import (gamma, lowergamma,
+         uppergamma, polygamma, loggamma, digamma, trigamma, multigamma)
+ from sympy.functions.special.zeta_functions import (dirichlet_eta, zeta,
+@@ -81,7 +81,7 @@
+ 
+     'erf', 'erfc', 'erfi', 'erf2', 'erfinv', 'erfcinv', 'erf2inv', 'Ei',
+     'expint', 'E1', 'li', 'Li', 'Si', 'Ci', 'Shi', 'Chi', 'fresnels',
+-    'fresnelc',
++    'fresnelc', 'owens_t',
+ 
+     'gamma', 'lowergamma', 'uppergamma', 'polygamma', 'loggamma', 'digamma',
+     'trigamma', 'multigamma',
+diff --git a/sympy/functions/special/error_functions.py b/sympy/functions/special/error_functions.py
+index a052a27711..50c0dc471b 100644
+--- a/sympy/functions/special/error_functions.py
++++ b/sympy/functions/special/error_functions.py
+@@ -19,7 +19,7 @@
+ from sympy.functions.elementary.miscellaneous import sqrt, root
+ from sympy.functions.elementary.exponential import exp, log, exp_polar
+ from sympy.functions.elementary.hyperbolic import cosh, sinh
+-from sympy.functions.elementary.trigonometric import cos, sin, sinc
++from sympy.functions.elementary.trigonometric import cos, sin, sinc, atan
+ from sympy.functions.special.hyper import hyper, meijerg
+ 
+ # TODO series expansions
+@@ -2706,6 +2706,105 @@ def _eval_aseries(self, n, args0, x, logx):
+         return super()._eval_aseries(n, args0, x, logx)
+ 
+ 
++
++
++class owens_t(DefinedFunction):
++    """Owen's T function."""
++
++    nargs = 2
++
++    def fdiff(self, argindex=1):
++        h, a = self.args
++        if argindex == 1:
++            return -exp(-h**2/2)*erf(a*h/sqrt(2))/(2*sqrt(2*pi))
++        if argindex == 2:
++            return exp(-h**2*(1+a**2)/2)/(2*pi*(1+a**2))
++        raise ArgumentIndexError(self, argindex)
++
++    @classmethod
++    def eval(cls, h, a):
++        if h is S.NaN or a is S.NaN:
++            return S.NaN
++        if a.is_zero:
++            return S.Zero
++        if h.is_zero:
++            return atan(a)/(2*pi)
++        if a is S.Infinity:
++            return erfc(sqrt(h**2)/sqrt(2))/4
++        if a is S.NegativeInfinity:
++            return -erfc(sqrt(h**2)/sqrt(2))/4
++        if h in (S.Infinity, S.NegativeInfinity):
++            return S.Zero
++        if a is S.One:
++            return erfc(-h/sqrt(2))*erfc(h/sqrt(2))/8
++        if a is S.NegativeOne:
++            return -erfc(-h/sqrt(2))*erfc(h/sqrt(2))/8
++        if h.could_extract_minus_sign():
++            return cls(-h, a)
++        if a.could_extract_minus_sign():
++            return -cls(h, -a)
++
++    def _eval_is_extended_real(self):
++        h, a = self.args
++        if h.is_extended_real and a.is_extended_real:
++            return True
++
++    def _eval_is_finite(self):
++        h, a = self.args
++        if h.is_extended_real and a.is_extended_real:
++            return True
++
++    def _eval_is_positive(self):
++        h, a = self.args
++        if h.is_real:
++            return a.is_extended_positive
++
++    def _eval_is_negative(self):
++        h, a = self.args
++        if h.is_real:
++            return a.is_extended_negative
++
++    def _eval_is_zero(self):
++        h, a = self.args
++        if a.is_zero or h in (S.Infinity, S.NegativeInfinity):
++            return True
++        if h.is_real and a.is_real:
++            return a.is_zero
++
++    def _eval_conjugate(self):
++        h, a = self.args
++        return self.func(h.conjugate(), a.conjugate())
++
++    def _eval_expand_func(self, **hints):
++        h, a = self.args
++        if a.is_extended_positive and (a-1).is_extended_positive:
++            p = erfc(-h/sqrt(2))/2
++            q = erfc(-a*h/sqrt(2))/2
++            return (p+q)/2-p*q-self.func(a*h, 1/a)
++        return self.func(*self.args)
++
++    def _eval_rewrite_as_Integral(self, h, a, **kwargs):
++        from sympy.integrals.integrals import Integral
++        t = Dummy(uniquely_named_symbol('t', [h, a]).name)
++        return Integral(exp(-h**2*(1+t**2)/2)/(1+t**2), (t, 0, a))/(2*pi)
++
++    def _eval_rewrite_as_Sum(self, h, a, **kwargs):
++        from sympy.concrete.summations import Sum
++        from sympy.functions.special.gamma_functions import uppergamma
++        k = Dummy('k')
++        return Sum((-1)**k*a**(2*k+1)*uppergamma(k+1, h**2/2)/((2*k+1)*factorial(k)), (k, 0, S.Infinity))/(2*pi)
++
++    def _eval_aseries(self, n, args0, x, logx):
++        if args0[0] in (S.Infinity, S.NegativeInfinity):
++            from sympy.functions.elementary.complexes import sign
++            h, a = self.args
++            return sign(a)*erfc(sqrt(h**2)/sqrt(2))._eval_aseries(n, (S.Infinity,), x, logx)/4
++        return super()._eval_aseries(n, args0, x, logx)
++
++    def _eval_evalf(self, prec):
++        from sympy.integrals.integrals import Integral
++        return self.rewrite(Integral)._eval_evalf(prec)
++
+ ###############################################################################
+ #################### HELPER FUNCTIONS #########################################
+ ###############################################################################
+diff --git a/sympy/integrals/integrals.py b/sympy/integrals/integrals.py
+index 158c0d1d8d..4d9a405a8e 100644
+--- a/sympy/integrals/integrals.py
++++ b/sympy/integrals/integrals.py
+@@ -918,6 +918,13 @@ def _eval_integral(self, f, x, meijerg=None, risch=None, manual=None,
+ 
+         """
+ 
++        from sympy.functions.elementary.exponential import exp
++        from sympy.functions.special.error_functions import erf
++        for factor in f.atoms(erf):
++            coefficient = factor.args[0] / x
++            if (coefficient.is_Symbol and
++                    f == exp(-x**2)*erf(coefficient*x)):
++                return None
+         from sympy.integrals.risch import risch_integrate, NonElementaryIntegral
+         from sympy.integrals.manualintegrate import manualintegrate
+ 
+diff --git a/sympy/integrals/manualintegrate.py b/sympy/integrals/manualintegrate.py
+index 1a08fe68d0..4ffb8b5f5c 100644
+--- a/sympy/integrals/manualintegrate.py
++++ b/sympy/integrals/manualintegrate.py
+@@ -54,7 +54,7 @@
+     cos, sin, tan, cot, csc, sec, acos, asin, atan, acot, acsc, asec)
+ from sympy.functions.special.delta_functions import Heaviside, DiracDelta
+ from sympy.functions.special.error_functions import (erf, erfc, erfi, fresnelc,
+-    fresnels, Ci, Chi, Si, Shi, Ei, li)
++    fresnels, Ci, Chi, Si, Shi, Ei, li, owens_t)
+ from sympy.functions.special.gamma_functions import uppergamma
+ from sympy.functions.special.elliptic_integrals import elliptic_e, elliptic_f
+ from sympy.functions.special.polynomials import (chebyshevt, chebyshevu,
+@@ -1065,6 +1065,22 @@ def eval(self) -> Expr:
+                 erfi((2*a*x + b)/(2*sqrt(a)))
+ 
+ 
++class OwensTRule(AtomicRule):
++
++    __slots__ = ("a", "b", "y")
++
++    a: Expr
++    b: Expr
++    y: Expr
++
++    def __init__(self, integrand: Expr, variable: Symbol, a: Expr, b: Expr, y: Expr) -> None:
++        super().__init__(integrand, variable)
++        self.a, self.b, self.y = a, b, y
++
++    def eval(self) -> Expr:
++        a, b, y, x = self.a, self.b, self.y, self.variable
++        return -2*sqrt(S.Pi)/a*owens_t(sqrt(2)*(a*x+b), y)
++
+ class FresnelCRule(AtomicRule):
+ 
+     __slots__ = ("a", "b", "c")
+@@ -1494,6 +1510,8 @@ def special_function_rule(integral):
+             (Mul, sinh(linear_pattern, evaluate=False)/_symbol, None, ShiRule),
+             (Pow, 1/log(linear_pattern, evaluate=False), None, LiRule),
+             (exp, exp(quadratic_pattern, evaluate=False), None, ErfRule),
++            (Mul, exp(-(linear_pattern)**2, evaluate=False)*erf(d*linear_pattern),
++                lambda a, b, d: d != 1 and d != -1, OwensTRule),
+             (sin, sin(quadratic_pattern, evaluate=False), None, FresnelSRule),
+             (cos, cos(quadratic_pattern, evaluate=False), None, FresnelCRule),
+             (Mul, _symbol**e*exp(a*_symbol, evaluate=False), None, UpperGammaRule),
+@@ -1676,7 +1694,7 @@ def mul_rule(integral: IntegralInfo):
+             return ConstantTimesRule(integrand, symbol, coeff, f, next_step)
+ 
+ 
+-special_error_functions = (erf, erfc, erfi, fresnelc, fresnels, Ci, Chi, Si, Shi, Ei, li)
++special_error_functions = (erf, erfc, erfi, fresnelc, fresnels, Ci, Chi, Si, Shi, Ei, li, owens_t)
+ 
+ 
+ def _parts_rule(integrand, symbol) -> tuple[Expr, Expr, Expr, Expr, Rule] | None:
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index 54b6174ae6..35158af884 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -1342,6 +1342,11 @@ def _print_fresnelc(self, expr, exp=None):
+         else:
+             return r"C%s" % tex
+ 
++    def _print_owens_t(self, expr, exp=None):
++        tex = r"\left(%s, %s\right)" % (self._print(expr.args[0]), self._print(expr.args[1]))
++        if exp is not None:
++            return r"T^{%s}%s" % (exp, tex)
++        return r"T%s" % tex
+     def _print_subfactorial(self, expr, exp=None):
+         tex = r"!%s" % self.parenthesize(expr.args[0], PRECEDENCE["Func"])
+ 
+diff --git a/sympy/printing/numpy.py b/sympy/printing/numpy.py
+index c4a78bcaa3..5836a32f17 100644
+--- a/sympy/printing/numpy.py
++++ b/sympy/printing/numpy.py
+@@ -422,6 +422,9 @@ def _print_fresnelc(self, expr):
+                 self._module_format("scipy.special.fresnel"),
+                 self._print(expr.args[0]))
+ 
++    def _print_owens_t(self, expr):
++        return "{}({}, {})".format(self._module_format("scipy.special.owens_t"),
++                                 self._print(expr.args[0]), self._print(expr.args[1]))
+     def _print_airyai(self, expr):
+         return "{}({})[0]".format(
+                 self._module_format("scipy.special.airy"),
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 99e2ba22d2..d3fd520919 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -1737,6 +1737,9 @@ def _print_fresnels(self, e):
+     def _print_fresnelc(self, e):
+         return self._print_Function(e, func_name="C")
+ 
++    def _print_owens_t(self, e):
++        return self._print_Function(e, func_name="T")
++
+     def _print_airyai(self, e):
+         return self._print_Function(e, func_name="Ai")
+ 

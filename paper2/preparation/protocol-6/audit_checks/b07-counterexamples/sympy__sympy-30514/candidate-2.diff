@@ -1,0 +1,15 @@
+diff --git a/sympy/printing/fortran.py b/sympy/printing/fortran.py
+index a32d89e818..485961942a 100644
+--- a/sympy/printing/fortran.py
++++ b/sympy/printing/fortran.py
+@@ -352,6 +352,10 @@ def _print_Pow(self, expr):
+             else:
+                 return 'sqrt(%s)' % self._print(expr.base)
+         else:
++            if expr.exp == 2 and isinstance(expr.base, Function):
++                base = self._print(expr.base)
++                if base.startswith('-'):
++                    return '(%s)**2' % base
+             return CodePrinter._print_Pow(self, expr)
+ 
+     def _print_Rational(self, expr):

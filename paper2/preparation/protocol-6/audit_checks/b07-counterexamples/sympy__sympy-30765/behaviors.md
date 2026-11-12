@@ -1,0 +1,1 @@
+﻿- `construct_domain([oo * I])` must return `(EX, [EX(oo*I)])` without raising an exception.

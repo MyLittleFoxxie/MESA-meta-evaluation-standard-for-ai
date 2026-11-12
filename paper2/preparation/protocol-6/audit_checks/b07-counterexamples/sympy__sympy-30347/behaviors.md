@@ -1,0 +1,4 @@
+- Numeric `owens_t(h, a).evalf()` should return a plain Float, allowing further numerical evaluation at the precision requested by Add.
+- Sums and differences containing Owen's T should resolve close cancellation automatically at default precision, preserving the small result's sign and magnitude.
+- The reported expression at h = -6 and a = 2 should evaluate to a positive value near 7.11807919e-43 without an explicit precision increase.
+- SkewNormal CDF evaluation should produce accurate left-tail probabilities through its Owen's T expression.

@@ -1,0 +1,55 @@
+{
+  "task_id": "sympy__sympy-13878",
+  "candidate": "candidate-1.diff",
+  "harness_resolved": true,
+  "tests_status": {
+    "FAIL_TO_PASS": {
+      "success": [
+        "test_arcsin"
+      ],
+      "failure": []
+    },
+    "PASS_TO_PASS": {
+      "success": [
+        "test_ContinuousDomain",
+        "test_characteristic_function",
+        "test_benini",
+        "test_chi",
+        "test_chi_noncentral",
+        "test_chi_squared",
+        "test_gompertz",
+        "test_shiftedgompertz",
+        "test_trapezoidal",
+        "test_quadratic_u",
+        "test_von_mises",
+        "test_prefab_sampling",
+        "test_input_value_assertions",
+        "test_probability_unevaluated",
+        "test_density_unevaluated",
+        "test_random_parameters",
+        "test_random_parameters_given",
+        "test_conjugate_priors",
+        "test_issue_10003"
+      ],
+      "failure": []
+    },
+    "FAIL_TO_FAIL": {
+      "success": [],
+      "failure": []
+    },
+    "PASS_TO_FAIL": {
+      "success": [],
+      "failure": []
+    }
+  },
+  "harness_logs": {
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-13878-1-20261112T050555\\session\\sympy__sympy-13878\\report.json": "4b25e186dff5d121b85ee0f52899e0f31b49a6327e15a7a18bb906709c3753ee",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-13878-1-20261112T050555\\session\\sympy__sympy-13878\\test_output.txt": "b31528727fa25c9a20fbe333ff14f16e2e787ade3f5a0901f3c05710df0b83a9",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-13878-1-20261112T050555\\session\\sympy__sympy-13878\\run_instance.log": "9fd6a45fe59d27a00027ae5f2f8efdfa17ca03a72718d5a683aa6e3b8dbd1666",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-13878-1-20261112T050555\\session\\sympy__sympy-13878\\patch.diff": "53d504d682b2764086cb6bfc4bad8a7d31483b5d238a86316b003d3f7496999b"
+  },
+  "check": {
+    "exit_code": 1,
+    "output": "/testbed/sympy/core/basic.py:3: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working\n  from collections import Mapping, defaultdict\n/testbed/sympy/core/containers.py:271: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working\n  class OrderedSet(collections.MutableSet):\n/testbed/sympy/solvers/diophantine.py:3188: SyntaxWarning: \"is\" with a literal. Did you mean \"==\"?\n  if feasible is 1:  # it's prime and k == 2\n/testbed/sympy/plotting/plot.py:28: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working\n  from collections import Callable\n/testbed/sympy/core/function.py:1241: DeprecationWarning: Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working\n  if isinstance(v, (collections.Iterable, Tuple, MatrixCommon, NDimArray)):\nTraceback (most recent call last):\n  File \"/audit/check.py\", line 254, in <module>\n    main()\n  File \"/audit/check.py\", line 68, in main\n    val = cdf(X_dagum)(3)\n  File \"/testbed/sympy/stats/rv.py\", line 760, in cdf\n    result = pspace(expr).compute_cdf(expr, **kwargs)\n  File \"/testbed/sympy/stats/crv.py\", line 429, in compute_cdf\n    return Lambda(z, self.distribution.cdf(z, **kwargs))\n  File \"/testbed/sympy/stats/crv.py\", line 220, in cdf\n    return self.compute_cdf(**kwargs)(x)\n  File \"/testbed/sympy/core/cache.py\", line 93, in wrapper\n    retval = cfunc(*args, **kwargs)\n  File \"/testbed/sympy/stats/crv.py\", line 206, in compute_cdf\n    cdf = integrate(pdf, (x, left_bound, z), **kwargs)\n  File \"/testbed/sympy/integrals/integrals.py\", line 1351, in integrate\n    return integral.doit(deep=False, meijerg=meijerg, conds=conds,\n  File \"/testbed/sympy/integrals/integrals.py\", line 526, in doit\n    antideriv = self._eval_integral(\n  File \"/testbed/sympy/integrals/integrals.py\", line 950, in _eval_integral\n    h = heurisch_wrapper(g, x, hints=[])\n  File \"/testbed/sympy/integrals/heurisch.py\", line 129, in heurisch_wrapper\n    res = heurisch(f, x, rewrite, hints, mappings, retries, degree_offset,\n  File \"/testbed/sympy/integrals/heurisch.py\", line 561, in heurisch\n    poly_part = Add(*[ poly_coeffs[i]*monomial\n  File \"/testbed/sympy/core/cache.py\", line 93, in wrapper\n    retval = cfunc(*args, **kwargs)\n  File \"/testbed/sympy/core/operations.py\", line 42, in __new__\n    c_part, nc_part, order_symbols = cls.flatten(args)\n  File \"/testbed/sympy/core/add.py\", line 268, in flatten\n    _addsort(newseq)\n  File \"/testbed/sympy/core/add.py\", line 21, in _addsort\n    args.sort(key=_args_sortkey)\n  File \"/testbed/sympy/core/basic.py\", line 170, in compare\n    def compare(self, other):\n  File \"/audit/check.py\", line 20, in signal_handler\n    raise TimeoutException(f\"Timed out after {seconds} seconds\")\n__main__.TimeoutException: Timed out after 10 seconds\n"
+  }
+}

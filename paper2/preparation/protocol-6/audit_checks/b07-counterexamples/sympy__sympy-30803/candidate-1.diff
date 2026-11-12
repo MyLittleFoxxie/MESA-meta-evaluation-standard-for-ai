@@ -1,0 +1,13 @@
+diff --git a/sympy/polys/fields.py b/sympy/polys/fields.py
+index 91ad54c3d7..bfafac50c6 100644
+--- a/sympy/polys/fields.py
++++ b/sympy/polys/fields.py
+@@ -297,6 +297,8 @@ def _rebuild(expr):
+                 return 1/mapping.get(1/expr)
+ 
+             try:
++                if domain.is_EXRAW and expr is S.One:
++                    return self.ground_new(domain.convert(expr))
+                 return domain.convert(expr)
+             except CoercionFailed:
+                 if not domain.is_Field and domain.has_assoc_Field:

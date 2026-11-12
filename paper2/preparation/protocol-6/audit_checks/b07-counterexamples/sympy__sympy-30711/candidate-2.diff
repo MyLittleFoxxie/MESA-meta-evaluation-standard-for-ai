@@ -1,0 +1,24 @@
+diff --git a/sympy/polys/ring_series.py b/sympy/polys/ring_series.py
+index 73468571f5..5b561f865d 100644
+--- a/sympy/polys/ring_series.py
++++ b/sympy/polys/ring_series.py
+@@ -323,6 +323,19 @@ def rs_pow(p1, n, x, prec):
+         np = int(n.p)
+         nq = int(n.q)
+         if nq != 1:
++            if p1:
++                index = R.gens.index(x)
++                m = min(p1, key=lambda k: k[index])[index]
++                if m and m == int(m):
++                    shift = QQ(m) * QQ(np, nq)
++                    workprec = prec - shift
++                    if workprec <= 0:
++                        return R.zero
++                    unit = mul_xin(p1, index, -m)
++                    res = rs_nth_root(unit, nq, x, workprec)
++                    if np != 1:
++                        res = rs_pow(res, np, x, workprec)
++                    return mul_xin(rs_trunc(res, x, workprec), index, shift)
+             res = rs_nth_root(p1, nq, x, prec)
+             if np != 1:
+                 res = rs_pow(res, np, x, prec)

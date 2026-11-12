@@ -1,0 +1,7 @@
+- Render ArrayTensorProduct in LaTeX with tensor-product notation rather than raw functional notation.
+- Parenthesize sum arguments, including ArrayAdd, within LaTeX tensor products.
+- Render ArrayTensorProduct with a tensor-product symbol in Unicode pretty output; provide an ASCII fallback.
+- Parenthesize sums within pretty-printed tensor products.
+- Render ArrayAdd as an ordinary sum, including sums of tensor products.
+- Preserve every operand and its order in products and sums, including more than two operands.
+- Keep str output ASCII and re-parseable. PermuteDims and ArrayContraction may retain functional output.

@@ -1,0 +1,3 @@
+- Plane.distance() must return 1 for Segment3D((0, 0, 1), (1, 0, 1)) and the plane through the origin with normal (0, 0, 1).
+- The equivalent parallel Ray3D must also return 1 without raising an unpacking error.
+- For any segment or ray parallel to and outside a plane, return the nonnegative perpendicular distance, equal to the distance from an endpoint or its supporting line.

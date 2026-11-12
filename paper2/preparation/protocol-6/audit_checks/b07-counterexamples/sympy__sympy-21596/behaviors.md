@@ -1,0 +1,3 @@
+- For `S1 = imageset(Lambda(n, n + (n - 1)*(n + 1)*I), S.Integers)`, `2 in S1` must be `False`.
+- `2 in S1.intersect(S.Reals)` must be `False`.
+- `S1.intersect(S.Reals)` must equal `FiniteSet(-1, 1)`.

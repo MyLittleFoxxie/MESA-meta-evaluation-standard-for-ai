@@ -1,0 +1,17 @@
+diff --git a/sympy/geometry/plane.py b/sympy/geometry/plane.py
+index 3dd27a0ef0..889aa91621 100644
+--- a/sympy/geometry/plane.py
++++ b/sympy/geometry/plane.py
+@@ -292,7 +292,11 @@ def distance(self, o):
+ 
+         if isinstance(o, (Segment3D, Ray3D)):
+             a, b = o.p1, o.p2
+-            pi, = self.intersection(Line3D(a, b))
++            inter = self.intersection(Line3D(a, b))
++            if not inter and (isinstance(o, Segment3D) or
++                              self.normal_vector[:2] == (0, 0)):
++                return self.distance(a)
++            pi, = inter
+             if pi in o:
+                 return self.distance(pi)
+             elif a in Segment3D(pi, b):

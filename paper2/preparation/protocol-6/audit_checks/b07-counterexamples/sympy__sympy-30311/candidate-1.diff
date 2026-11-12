@@ -1,0 +1,389 @@
+diff --git a/sympy/integrals/manualintegrate.py b/sympy/integrals/manualintegrate.py
+index 5dd8e1db16..8b4c1a2d81 100644
+--- a/sympy/integrals/manualintegrate.py
++++ b/sympy/integrals/manualintegrate.py
+@@ -31,9 +31,10 @@
+ 
+ from sympy import SYMPY_DEBUG
+ from sympy.core.add import Add
++from sympy.core.basic import Basic
+ from sympy.core.cache import cacheit
+ from sympy.core.containers import Dict
+-from sympy.core.function import Derivative, expand_mul, expand_trig
++from sympy.core.function import Derivative, expand, expand_mul, expand_trig
+ from sympy.core.logic import fuzzy_not
+ from sympy.core.mul import Mul
+ from sympy.core.numbers import Integer, Number, E, Rational
+@@ -43,7 +44,7 @@
+ from sympy.core.sorting import ordered
+ from sympy.core.symbol import Dummy, Symbol, Wild
+ from sympy.core.exprtools import factor_terms
+-from sympy.core.function import WildFunction
++from sympy.core.function import WildFunction, count_ops
+ from sympy.functions.elementary.complexes import Abs
+ from sympy.functions.elementary.exponential import exp, log
+ from sympy.functions.elementary.hyperbolic import (HyperbolicFunction, csch,
+@@ -1191,6 +1192,13 @@ def test_subterm(u, u_diff):
+         debug("substituted: {}, u: {}, u_var: {}".format(substituted, u, u_var))
+         substituted = manual_subs(substituted, u, u_var).cancel()
+ 
++        if (substituted.has_free(symbol) and
++                not integrand.is_rational_function(symbol) and
++                u.is_polynomial(symbol) and degree(u, symbol) == 1):
++            a = u.coeff(symbol)
++            b = u.subs(symbol, 0)
++            if b != 0 and a != 0:
++                substituted = manual_subs(substituted, symbol, (u_var-b)/a).cancel()
+         if substituted.has_free(symbol):
+             return False
+         # avoid increasing the degree of a rational function
+@@ -1266,6 +1274,7 @@ def possible_subterms(term):
+             if substitution not in results:
+                 results.append(substitution)
+ 
++    results.sort(key=lambda sub: count_ops(sub[2]))
+     return results
+ 
+ def rewriter(condition, rewrite):
+@@ -1295,29 +1304,31 @@ def _proxy_rewriter(criteria):
+     return _proxy_rewriter
+ 
+ def alternatives(*rules):
+-    """Strategy that makes an AlternativeRule out of multiple possible results."""
+     def _alternatives(integral):
+         alts = []
+-        count = 0
+-        debug("List of Alternative Rules")
++        first_partial = None
++        branch = _current_solver.branch if _current_solver is not None else False
+         for rule in rules:
+-            count = count + 1
+-            debug("Rule {}: {}".format(count, rule))
+-
+             result = rule(integral)
+-            if (result and not isinstance(result, DontKnowRule) and
+-                result != integral and result not in alts):
++            if not result or isinstance(result, DontKnowRule) or result == integral:
++                continue
++            if not branch:
++                if not result.contains_dont_know():
++                    return result
++                if first_partial is None:
++                    first_partial = result
++            elif result not in alts:
+                 alts.append(result)
++        if not branch:
++            return first_partial
+         if len(alts) == 1:
+             return alts[0]
+-        elif alts:
++        if alts:
+             doable = [rule for rule in alts if not rule.contains_dont_know()]
+-            if doable:
+-                return AlternativeRule(*integral, doable)
+-            else:
+-                return AlternativeRule(*integral, alts)
++            return AlternativeRule(*integral, doable or alts)
+     return _alternatives
+ 
++
+ def constant_rule(integral):
+     return ConstantRule(*integral)
+ 
+@@ -1355,7 +1366,7 @@ def combine_power_rule(integral):
+     For example, this is useful for the ErfRule.
+     """
+     integrand, symbol = integral
+-    a = Wild('a', exclude=[symbol])
++    a = Wild('a', exclude=[symbol, 0])
+     b = Wild('b', exclude=[symbol])
+     k = Wild('k', exclude=[symbol])
+     rest = Wild('rest')
+@@ -1675,7 +1686,8 @@ def pull_out_dv_rl(integrand: Expr) -> tuple[Expr, Expr] | None:
+                     ):
+                         dv = target * symbol
+                         u = integrand / dv
+-                        return u, dv
++                        if u.is_polynomial(symbol):
++                            return u, dv
+             return None
+ 
+         return pull_out_dv_rl
+@@ -1890,42 +1902,30 @@ def trig_rule(integral):
+     return _add_trig_degenerate_step(integral, coefficient, generic_step)
+ 
+ def trig_cmplx_exp_rule(integral: IntegralInfo):
+-    """
+-    Strategy that rewrites sin, cos, sinh, and cosh in terms of complex exponentials.
+-    Useful for integration techniques that handle exponentials better.
+-    Applies only when the integrand belongs to a class that benefits from exponential rewriting,
+-    such as combinations involving Gaussian exponentials.
+-
+-    sin(x)  -> (exp(i*x) - exp(-i*x)) / (2*i)
+-    cos(x)  -> (exp(i*x) + exp(-i*x)) / 2
+-    sinh(x) -> (exp(x) - exp(-x)) / 2
+-    cosh(x) -> (exp(x) + exp(-x)) / 2
+-    """
+     integrand, symbol = integral
+-
+-    if not integrand.has(exp) and not integrand.has(sin, cos, sinh, cosh):
++    factors = Mul.make_args(integrand)
++    if not any(isinstance(t, exp) and t.args[0].is_polynomial(symbol) for t in factors):
+         return
+-
+     a = Wild('a', exclude=[symbol, 0])
+     b = Wild('b', exclude=[symbol])
+     c = Wild('c', exclude=[symbol])
+-    # n = Wild('n', exclude=[symbol], properties=[lambda n: n > 0])
+     f = WildFunction('f')
+-    guassian_pattern = exp(a * symbol**2 + b * symbol + c)
+-    trigexp_over_x_pattern = f*exp(a * symbol)/symbol
+-    trigexp_over_x_match = integrand.match(trigexp_over_x_pattern)
+-    if not (any(term.match(guassian_pattern) for term in integrand.atoms(exp))
+-            or (trigexp_over_x_match and
+-                trigexp_over_x_match[f].has(sin, cos, sinh, cosh))):
++    primary = (sin, cos, sinh, cosh)
++    quadratic = a*symbol**2 + b*symbol + c
++    def trig_arg(term):
++        if isinstance(term, primary):
++            return term.args[0]
++        if isinstance(term, Pow) and isinstance(term.base, primary):
++            return term.base.args[0]
++    quadratic_phase = any(
++        (arg := trig_arg(term)) is not None and arg.match(quadratic)
++        for term in factors)
++    if not (any(term.match(exp(quadratic)) for term in factors if isinstance(term, exp))
++            or integrand.match(f*exp(a*symbol+b)/symbol) or quadratic_phase):
+         return
+-
+-    # Replace trig and hyperbolic functions with their exponential forms
+-    rewritten = integrand.rewrite([sin, cos, sinh, cosh], exp)
+-
++    rewritten = integrand.rewrite(primary, exp)
+     if rewritten != integrand:
+-        debug("Integral: {} is rewritten with {} on symbol: {}".format(integrand, rewritten, symbol))
+-        steps = integral_steps(rewritten, symbol)
+-        return RewriteRule(integrand, symbol, rewritten, steps)
++        return RewriteRule(integrand, symbol, rewritten, integral_steps(rewritten, symbol))
+ 
+ 
+ def quadratic_denom_rule(integral):
+@@ -2884,6 +2884,81 @@ def sqrt_quadratic_polynomial_reduction_rule():
+     return step
+ 
+ 
++def trig_poly_mul_rule(integral):
++    integrand, symbol = integral
++    if not integrand.is_Mul:
++        return
++    a_ = Wild('a', exclude=[symbol, 0])
++    b_ = Wild('b', exclude=[symbol, 0])
++    c_ = Wild('c', exclude=[symbol])
++    pattern = a_*symbol**2+b_*symbol+c_
++    match = None
++    rest = []
++    is_sin = None
++    for factor in integrand.args:
++        if not match and isinstance(factor, (sin, cos)):
++            match = factor.args[0].match(pattern)
++            if match:
++                is_sin = isinstance(factor, sin)
++                continue
++            match = None
++        rest.append(factor)
++    if not match:
++        return
++    poly = Mul(*rest)
++    if symbol not in poly.free_symbols or not poly.is_polynomial(symbol):
++        return
++    a, b, c = match[a_], match[b_], match[c_]
++    cond = Ne(a, 0)
++    degenerate_step = None
++    if cond is not S.true:
++        trig = sin(b*symbol+c) if is_sin else cos(b*symbol+c)
++        degenerate_step = integral_steps(poly*trig, symbol)
++    h, k = -b/(2*a), c-b**2/(4*a)
++    u = Dummy('u')
++    u_func = symbol-h
++    poly_u = poly.subs(symbol, u+h).expand()
++    if is_sin:
++        expanded_trig = sin(a*u**2)*cos(k)+cos(a*u**2)*sin(k)
++    else:
++        expanded_trig = cos(a*u**2)*cos(k)-sin(a*u**2)*sin(k)
++    new_integrand = expand(poly_u*expanded_trig)
++    rewritten = new_integrand.subs(u, u_func)
++    substep = integral_steps(new_integrand, u)
++    if substep.contains_dont_know():
++        return
++    substep = URule(rewritten, symbol, u, u_func, substep)
++    step = CompleteSquareRule(integrand, symbol, rewritten, substep)
++    return _add_degenerate_step(cond, step, degenerate_step)
++
++
++def trig_product_to_sum_rule(integral):
++    integrand, symbol = integral
++    if not integrand.is_Mul:
++        return
++    trig_factors, rest = [], []
++    for factor in integrand.args:
++        if isinstance(factor, (sin, cos)):
++            trig_factors.append(factor)
++        else:
++            rest.append(factor)
++    if len(trig_factors) != 2:
++        return
++    f1, f2 = trig_factors
++    A, B = f1.args[0], f2.args[0]
++    if not (A.has(symbol) and B.has(symbol)):
++        return
++    def is_linear(expr):
++        return expr.is_polynomial(symbol) and Poly(expr, symbol).degree() <= 1
++    if is_linear(A) and is_linear(B):
++        return
++    rewritten = expand(Mul(*rest)*sincos_to_sum(f1*f2))
++    substep = integral_steps(rewritten, symbol)
++    if substep.contains_dont_know():
++        return
++    return RewriteRule(integrand, symbol, rewritten, substep)
++
++
+ def hyperbolic_rule(integral: tuple[Expr, Symbol]):
+     integrand, symbol = integral
+     if isinstance(integrand, HyperbolicFunction) and integrand.args[0] == symbol:
+@@ -3288,7 +3363,10 @@ def substitution_rule(integral):
+                         pieces.append((subrule, True))
+                         subrule = PiecewiseRule(substituted, symbol, pieces)
+ 
+-            ways.append(URule(integrand, symbol, u_var, u_func, subrule))
++            rule = URule(integrand, symbol, u_var, u_func, subrule)
++            if _current_solver is None or not _current_solver.branch:
++                return rule
++            ways.append(rule)
+ 
+         if len(ways) > 1:
+             return AlternativeRule(integrand, symbol, ways)
+@@ -3361,11 +3439,69 @@ def fallback_rule(integral):
+ # Cache is used to break cyclic integrals.
+ # Need to use the same dummy variable in cached expressions for them to match.
+ # Also record "u" of integration by parts, to avoid infinite repetition.
+-_integral_cache: dict[Expr, Expr | None] = {}
+ _parts_u_cache: dict[Expr, int] = defaultdict(int)
+ _cache_dummy = Dummy("z")
+ 
++_current_solver = None
++
++
++def _rule_xreplace(rule, replacements):
++    if isinstance(rule, Rule):
++        clone = object.__new__(type(rule))
++        for slot in rule._get_slots():
++            setattr(clone, slot, _rule_xreplace(getattr(rule, slot), replacements))
++        return clone
++    if isinstance(rule, Basic):
++        return rule.xreplace(replacements)
++    if isinstance(rule, (list, tuple)):
++        return type(rule)(_rule_xreplace(item, replacements) for item in rule)
++    return rule
++
++
++class IntegrationSolver:
++    def __init__(self, max_depth=100, branch=False, **options):
++        self.max_depth = max_depth
++        self.branch = branch
++        self.options = options
++        self._active = set()
++        self._solved = {}
++        self._parts_u_count = defaultdict(int)
++        self._starved = False
++
++    def solve(self, integrand, symbol):
++        global _current_solver, _parts_u_cache
++        cachekey = integrand.xreplace({symbol: _cache_dummy})
++        if cachekey in self._solved:
++            return _rule_xreplace(self._solved[cachekey], {_cache_dummy: symbol})
++        if self.max_depth is not None and len(self._active) >= self.max_depth:
++            self._starved = True
++            return DontKnowRule(integrand, symbol)
++        if cachekey in self._active:
++            return DontKnowRule(integrand, symbol)
++        had_ancestor = bool(self._active)
++        self._active.add(cachekey)
++        outer_starved = self._starved if had_ancestor else False
++        self._starved = False
++        previous_solver, previous_parts = _current_solver, _parts_u_cache
++        _current_solver, _parts_u_cache = self, self._parts_u_count
++        try:
++            result = _integral_steps(integrand, symbol)
++            if not self._starved:
++                self._solved[cachekey] = _rule_xreplace(result, {symbol: _cache_dummy})
++            return result
++        finally:
++            self._active.discard(cachekey)
++            self._starved = outer_starved or self._starved
++            _current_solver, _parts_u_cache = previous_solver, previous_parts
++
++
+ def integral_steps(integrand, symbol, **options):
++    if _current_solver is not None and not options:
++        return _current_solver.solve(integrand, symbol)
++    return IntegrationSolver(**options).solve(integrand, symbol)
++
++
++def _integral_steps(integrand, symbol, **options):
+     """Returns the steps needed to compute an integral.
+ 
+     Explanation
+@@ -3410,19 +3546,6 @@ def integral_steps(integrand, symbol, **options):
+         to obtain a result.
+ 
+     """
+-    cachekey = integrand.xreplace({symbol: _cache_dummy})
+-    if cachekey in _integral_cache:
+-        if _integral_cache[cachekey] is None:
+-            # Stop this attempt, because it leads around in a loop
+-            return DontKnowRule(integrand, symbol)
+-        else:
+-            # TODO: This is for future development, as currently
+-            # _integral_cache gets no values other than None
+-            return (_integral_cache[cachekey].xreplace(_cache_dummy, symbol),
+-                symbol)
+-    else:
+-        _integral_cache[cachekey] = None
+-
+     integral = IntegralInfo(integrand, symbol)
+ 
+     def key(integral):
+@@ -3469,6 +3592,8 @@ def _integral_is_subclass(integral):
+                         null_safe(chebyshev_substitution_rule),
+                         null_safe(euler_substitution_rule),
+                         null_safe(trig_cmplx_exp_rule),
++                        null_safe(trig_product_to_sum_rule),
++                        null_safe(trig_poly_mul_rule),
+                         null_safe(bioche_substitution)),
+             Derivative: derivative_rule,
+             TrigonometricFunction: trig_rule,
+@@ -3504,7 +3629,6 @@ def _integral_is_subclass(integral):
+             null_safe(condition(integral_is_subclass(Mul, Pow), nested_pow_rule))
+         ),
+         fallback_rule)(integral)
+-    del _integral_cache[cachekey]
+     return result
+ 
+ 
+@@ -3575,4 +3699,16 @@ def _has_erf_trig_mul(expr):
+         return False
+     if _has_erf_trig_mul(f) and _has_erf_trig_mul(result):
+         result = factor_terms(result)
++    def _remove_additive_constants(expr, var):
++        if not expr.has(var):
++            return S.Zero
++        if expr.is_Add:
++            return Add(*(_remove_additive_constants(arg, var) for arg in expr.args))
++        if expr.is_Mul:
++            indep, dep = expr.as_independent(var)
++            if dep.is_Add:
++                return indep*_remove_additive_constants(dep, var)
++        return expr
++    if not f.has(Derivative):
++        result = _remove_additive_constants(result, var)
+     return result

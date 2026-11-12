@@ -1,0 +1,10 @@
+- Integrate shifted exponential quotients such as `exp(x)/(x-1)`.
+- Integrate polynomial factors times quadratic sine/cosine products, including `x**2*sin(x**2)*cos(x)`.
+- Integrate polynomial factors times Fresnel functions with polynomial arguments where an antiderivative is available.
+- Integrate `sin(x**2+x)*cos(x)` using suitable trigonometric rewrites.
+- Terminate the search for `exp(x)*sin(x**2+x)*cos(x)` and support exponential rewrites.
+- Move recursive subproblem solving out of rules into an `IntegrationSolver`; generator rules request subproblems with `IntegralInfo`.
+- Keep loop detection, integration-by-parts counters, branching options, and other mutable search state on each solver.
+- Support first-success and all-alternatives modes throughout recursive subproblems.
+- Enforce depth limits across subproblems and reuse completed results safely.
+- Preserve the public integration API and correct integration results.

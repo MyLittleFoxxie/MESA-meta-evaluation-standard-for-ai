@@ -1,0 +1,7 @@
+- Integrate constant or linear numerators over powers of quadratic denominators for every integer power n > 1.
+- Split a linear numerator into a multiple of the denominator derivative and a constant remainder.
+- Reduce a nondegenerate quadratic denominator from power n to n - 1 until the base integral is solved.
+- Handle a zero discriminant by shifting the variable and applying the power rule.
+- Use valid Piecewise branches when the quadratic coefficient or discriminant is zero, without division by a coefficient assumed zero.
+- Extract rational numerator and denominator coefficients with Poly, including factored expressions and constant denominator factors.
+- Avoid redundant expand and cancel alternatives for rational integrands to improve integration speed.

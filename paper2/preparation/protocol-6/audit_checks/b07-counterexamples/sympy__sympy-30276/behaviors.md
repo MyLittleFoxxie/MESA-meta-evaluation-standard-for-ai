@@ -1,0 +1,7 @@
+- Merge identical tensor-product addends by adding their scalar coefficients.
+- Recognize proportional tensor products after extracting scalar coefficients.
+- Return a ZeroArray with the full shape when coefficients cancel.
+- Provide opt-in factoring for tensor products that agree in every slot except one.
+- Put the weighted sum of differing factors into that slot, including negated terms.
+- Preserve sums that differ in more than one slot; never add all slots at once.
+- Support collection across large sums of tensor products.

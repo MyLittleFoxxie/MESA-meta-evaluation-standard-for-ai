@@ -1,0 +1,4 @@
+- `QQ.algebraic_field(sqrt(2), sqrt(3))` retains discriminant 2304 and an integral basis equivalent to `(1, sqrt(2), sqrt(3), sqrt(6))`.
+- `QQ.algebraic_field(sqrt(2), sqrt(5)).discriminant()` returns the correct field discriminant without raising `CoercionFailed`.
+- `QQ.algebraic_field(sqrt(2), sqrt(5)).integral_basis()` returns a correct integral basis without raising `CoercionFailed`.
+- `QQ.algebraic_field(sqrt(2), 2*cos(2*pi/7)).discriminant()` returns the correct, nonzero field discriminant.

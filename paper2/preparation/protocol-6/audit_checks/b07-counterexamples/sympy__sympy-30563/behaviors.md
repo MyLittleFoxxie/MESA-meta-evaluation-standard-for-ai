@@ -1,0 +1,3 @@
+﻿- For the supplied quaternion with real `t`, `q.norm()` must return the correct real norm, `2**(1/4)`.
+- `q.inverse()` must return the correct inverse: the conjugate divided by the scalar part of `q*q.conjugate()`.
+- The supplied quaternion's inverse must have real components without spurious complex terms.

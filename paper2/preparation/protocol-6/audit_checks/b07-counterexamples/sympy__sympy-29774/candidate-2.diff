@@ -1,0 +1,31 @@
+diff --git a/sympy/matrices/expressions/matmul.py b/sympy/matrices/expressions/matmul.py
+index 572f5c4bbd..4734f6da1f 100644
+--- a/sympy/matrices/expressions/matmul.py
++++ b/sympy/matrices/expressions/matmul.py
+@@ -140,6 +140,26 @@ def expand(self, **kwargs):
+         expanded = super(MatMul, self).expand(**kwargs)
+         return self._evaluate(expanded)
+ 
++    def _eval_power(self, exp):
++        coeff, matrices = self.as_coeff_matrices()
++        if coeff is S.One:
++            return MatPow(self, exp)
++        if not (exp.is_Rational or exp.is_Float):
++            return MatPow(self, exp)
++
++        if coeff.is_number:
++            return MatPow(self, exp)
++        if exp.is_Integer:
++            if coeff.is_zero:
++                if exp.is_negative:
++                    return MatPow(self, exp)
++                return ZeroMatrix(*self.shape)
++        elif not coeff.is_positive:
++            return MatPow(self, exp)
++
++        matrix_part = matrices[0] if len(matrices) == 1 else MatMul(*matrices)
++        return coeff**exp * MatPow(matrix_part, exp).doit(deep=False)
++
+     def _eval_transpose(self):
+         """Transposition of matrix multiplication.
+ 

@@ -1,0 +1,3 @@
+- Printing sums such as `f(nan) + f(1)` must not raise `TypeError("Invalid NaN comparison")`.
+- Sorting keys must support `nan` alongside numbers, including `list(ordered([nan, S.One]))`.
+- Sorting and printing must also work when `nan` occurs inside same-class subexpressions, including functions and Piecewise expressions.

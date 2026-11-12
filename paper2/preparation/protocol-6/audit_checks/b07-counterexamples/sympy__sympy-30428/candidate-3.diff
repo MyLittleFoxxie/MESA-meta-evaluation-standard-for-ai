@@ -1,0 +1,91 @@
+diff --git a/sympy/printing/codeprinter.py b/sympy/printing/codeprinter.py
+index e427ae3b42..39d9eb097d 100644
+--- a/sympy/printing/codeprinter.py
++++ b/sympy/printing/codeprinter.py
+@@ -3,7 +3,7 @@
+ 
+ from functools import wraps
+ 
+-from sympy.core import Add, Mul, Pow, S, sympify, Float
++from sympy.core import Add, Mod, Mul, Pow, S, sympify, Float
+ from sympy.core.basic import Basic
+ from sympy.core.expr import Expr, UnevaluatedExpr
+ from sympy.core.function import Lambda
+@@ -549,7 +549,9 @@ def _print_isinf(self, arg):
+ 
+     def _print_Mul(self, expr):
+ 
+-        prec = precedence(expr)
++        prec = PRECEDENCE["Mul"]
++        if self.printmethod == "_mpmathcode" and expr.has(Mod):
++            prec = precedence(expr)
+ 
+         c, e = expr.as_coeff_Mul()
+         if c < 0:
+@@ -561,8 +563,6 @@ def _print_Mul(self, expr):
+         a = []  # items in the numerator
+         b = []  # items that are in the denominator (if any)
+ 
+-        pow_paren = []  # Will collect all pow with more than one base element and exp = -1
+-
+         if self.order not in ('old', 'none'):
+             args = expr.as_ordered_factors()
+         else:
+@@ -575,8 +575,6 @@ def _print_Mul(self, expr):
+                 if item.exp != -1:
+                     b.append(Pow(item.base, -item.exp, evaluate=False))
+                 else:
+-                    if len(item.args[0].args) != 1 and isinstance(item.base, Mul):   # To avoid situations like #14160
+-                        pow_paren.append(item)
+                     b.append(Pow(item.base, -item.exp))
+             else:
+                 a.append(item)
+@@ -593,11 +591,6 @@ def _print_Mul(self, expr):
+             a_str = [self.parenthesize(x, prec) for x in a]
+         b_str = [self.parenthesize(x, prec) for x in b]
+ 
+-        # To parenthesize Pow with exp = -1 and having more than one Symbol
+-        for item in pow_paren:
+-            if item.base in b:
+-                b_str[b.index(item.base)] = "(%s)" % b_str[b.index(item.base)]
+-
+         if not b:
+             return sign + '*'.join(a_str)
+         elif len(b) == 1:
+diff --git a/sympy/printing/jscode.py b/sympy/printing/jscode.py
+index 753eb3291d..390e5dfb11 100644
+--- a/sympy/printing/jscode.py
++++ b/sympy/printing/jscode.py
+@@ -112,7 +112,12 @@ def _print_Rational(self, expr):
+     def _print_Mod(self, expr):
+         num, den = expr.args
+         PREC = precedence(expr)
+-        snum, sden = [self.parenthesize(arg, PREC) for arg in expr.args]
++        if den.is_Pow and den.exp.is_negative:
++            den_prec = PRECEDENCE["Pow"]
++        else:
++            den_prec = PREC
++        snum = self.parenthesize(num, PREC)
++        sden = self.parenthesize(den, den_prec)
+         # % is remainder (same sign as numerator), not modulo (same sign as
+         # denominator), in js. Hence, % only works as modulo if both numbers
+         # have the same sign
+diff --git a/sympy/printing/pycode.py b/sympy/printing/pycode.py
+index 9362a20d28..feaa066d9f 100644
+--- a/sympy/printing/pycode.py
++++ b/sympy/printing/pycode.py
+@@ -214,7 +214,13 @@ def _print_Assignment(self, expr):
+ 
+     def _print_Mod(self, expr):
+         PREC = precedence(expr)
+-        return ('{} % {}'.format(*(self.parenthesize(x, PREC) for x in expr.args)))
++        num, den = expr.args
++        if den.is_Pow and den.exp.is_negative:
++            den_prec = PRECEDENCE["Pow"]
++        else:
++            den_prec = PREC
++        return '{} % {}'.format(self.parenthesize(num, PREC),
++                                self.parenthesize(den, den_prec))
+ 
+     def _print_Piecewise(self, expr):
+         result = []

@@ -1,0 +1,3 @@
+- Yield an independent dictionary for each partition, including when `size=True` wraps it with a part count.
+- Preserve each yielded partition as iteration continues, so collecting results directly produces the correct partitions.
+- Keep changes made by callers to yielded dictionaries from affecting later partitions.

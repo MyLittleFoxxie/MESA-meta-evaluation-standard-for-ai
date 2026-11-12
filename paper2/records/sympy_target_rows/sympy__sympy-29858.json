@@ -1,0 +1,93 @@
+{
+  "instance_id": "sympy__sympy-29858",
+  "repo": "sympy/sympy",
+  "base_commit": "1991693a3052bd551121f79e8129a1b22e21f4ad",
+  "created_at": "2026-06-09T14:11:38Z",
+  "merged_at": "2026-06-10T14:12:09Z",
+  "merge_commit": "301aa35b33dcfeee83387c7026b414a73a1c1109",
+  "pull_request": "https://github.com/sympy/sympy/pull/29858",
+  "issues": [
+    {
+      "number": 29851,
+      "url": "https://github.com/sympy/sympy/issues/29851",
+      "created_at": "2026-06-07T13:46:58Z"
+    }
+  ],
+  "problem_statement": "`z3_satisfiable` gives wrong ans\n```python\nfrom sympy.logic.algorithms.z3_wrapper import z3_satisfiable\nfrom sympy.assumptions import Q\nfrom sympy.logic.boolalg import Not , Implies\n\nx = symbols('x')\nres = z3_satisfiable(Not(Implies(Q.eq(x, 0), Q.ge(x, 0))))\nprint(f\"Satisfiable: {res}\")  \n# Satisfiable: {Q.gt(x, 0): False, Q.eq(x, 0): True}\n```\n\n$\u00ac(x=0\u21d2x\u22650)$\n$\u00ac(x=0\u21d2x\u22650)\u2261(x=0)\u2227\u00ac(x\u22650)\u2261(x=0)\u2227(x<0)$\n$(x=0)\u2227(x<0)\u2261\u22a5$\n\nThe problem is unsat but `z3_satisfiable` gives a solution `{Q.gt(x, 0): False, Q.eq(x, 0): True}`\n\nPy version: Python 3.14.4\nOS: Ubuntu 24.04.3\nVersion of sympy: Master branch of sympy (1.15.0.dev0)\n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex c087436cbc56..8d8bf7b7ee45 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1544,6 +1544,7 @@ Shubham Kumar Jha <skjha832@gmail.com> ShubhamKJha <skjha832@gmail.com>\n Shubham Maheshwari <rmaheshwari05@gmail.com>\n Shubham Thorat <37049710+sbt4104@users.noreply.github.com>\n Shubham Tibra <shubh.tibra@gmail.com>\n+Shubhankar Joshi <shubhankarjoshi2489@gmail.com>\n Siddhanathan Shanmugam <siddhanathan@gmail.com>\n Siddhanathan Shanmugam <siddhanathan@gmail.com> <siddhu@siddhu-laptop.(none)>\n Siddhant Jain <getsiddhant@gmail.com>\ndiff --git a/sympy/logic/algorithms/z3_wrapper.py b/sympy/logic/algorithms/z3_wrapper.py\nindex 4183fb6e547e..446e7e5d5843 100644\n--- a/sympy/logic/algorithms/z3_wrapper.py\n+++ b/sympy/logic/algorithms/z3_wrapper.py\n@@ -93,7 +93,7 @@ def encoded_cnf_to_z3_solver(enc_cnf, z3):\n \n         symbols |= pred.free_symbols\n         pred = pred_str\n-        assertion = f\"(assert  (implies d{enc} {pred}))\"\n+        assertion = f\"(assert (= d{enc} {pred}))\"\n         assertions.append(assertion)\n \n     for sym in symbols:\n",
+  "test_patch": "diff --git a/sympy/functions/special/tests/test_zeta_functions.py b/sympy/functions/special/tests/test_zeta_functions.py\nindex 4b7f7a188de7..6a1d22b7f72e 100644\n--- a/sympy/functions/special/tests/test_zeta_functions.py\n+++ b/sympy/functions/special/tests/test_zeta_functions.py\n@@ -11,7 +11,7 @@\n from sympy.series.order import O\n from sympy.core.function import ArgumentIndexError\n from sympy.functions.combinatorial.numbers import bernoulli, factorial, genocchi, harmonic\n-from sympy.testing.pytest import raises\n+from sympy.testing.pytest import raises, slow\n from sympy.core.random import (test_derivative_numerically as td,\n                       random_complex_number as randcplx, verify_numerically)\n \n@@ -182,6 +182,7 @@ def test_polylog_series():\n         - sqrt(3)*z**3/9 + z**4/8 + O(z**5)\n \n \n+@slow\n def test_issue_8404():\n     i = Symbol('i', integer=True)\n     assert Abs(Sum(1/(3*i + 1)**2, (i, 0, S.Infinity)).doit().n(4)\ndiff --git a/sympy/logic/tests/test_inference.py b/sympy/logic/tests/test_inference.py\nindex a9eb68035172..a6d3e995ca8a 100644\n--- a/sympy/logic/tests/test_inference.py\n+++ b/sympy/logic/tests/test_inference.py\n@@ -4,7 +4,7 @@\n from sympy.assumptions.ask import Q\n from sympy.core.symbol import symbols\n from sympy.core.relational import Ne, Eq, Unequality\n-from sympy.logic.boolalg import And, Or, Implies, Equivalent, true, false\n+from sympy.logic.boolalg import And, Or, Implies, Equivalent, true, false, Not\n from sympy.logic.inference import literal_symbol, \\\n      pl_true, satisfiable, valid, entails, PropKB\n from sympy.logic.algorithms.dpll import dpll, dpll_satisfiable, \\\n@@ -370,6 +370,16 @@ def test_z3():\n     assert z3_satisfiable(expr) is False\n \n \n+def test_z3_predicate_equivalence():\n+    # https://github.com/sympy/sympy/issues/29851\n+    z3 = import_module(\"z3\")\n+    if z3 is None:\n+        skip(\"Z3 is not installed\")\n+    x = symbols('x')\n+    expr = Not(Implies(Q.eq(x, 0),Q.ge(x, 0)))\n+    assert z3_satisfiable(expr) is False\n+\n+\n def test_z3_vs_lra_dpll2():\n     z3 = import_module(\"z3\")\n     if z3 is None:\ndiff --git a/sympy/utilities/_compilation/tests/test_compilation.py b/sympy/utilities/_compilation/tests/test_compilation.py\nindex 4a5aa02a79d9..a7d0efdf35ef 100644\n--- a/sympy/utilities/_compilation/tests/test_compilation.py\n+++ b/sympy/utilities/_compilation/tests/test_compilation.py\n@@ -4,7 +4,7 @@\n import subprocess\n import tempfile\n from sympy.external import import_module\n-from sympy.testing.pytest import skip, skip_under_pyodide\n+from sympy.testing.pytest import skip, skip_under_pyodide, slow\n \n from sympy.utilities._compilation.compilation import compile_link_import_py_ext, compile_link_import_strings, compile_sources, get_abspath\n \n@@ -66,6 +66,7 @@ def test_compile_link_import_strings():\n             shutil.rmtree(info['build_dir'])\n \n \n+@slow\n @skip_under_pyodide(\"Emscripten does not support subprocesses\")\n def test_compile_sources():\n     tmpdir = tempfile.mkdtemp()\n",
+  "FAIL_TO_PASS": [],
+  "PASS_TO_PASS": [
+    "sympy/functions/special/tests/test_zeta_functions.py::test_derivatives",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_dirichlet_eta_eval",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_issue_10475",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_issue_14177",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_lerchphi_expansion",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_polylog_expansion",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_polylog_series",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_polylog_values",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_rewriting",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_riemann_xi_eval",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_stieltjes",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_stieltjes_evalf",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_zeta_eval",
+    "sympy/functions/special/tests/test_zeta_functions.py::test_zeta_series",
+    "sympy/logic/tests/test_inference.py::test_PropKB",
+    "sympy/logic/tests/test_inference.py::test_dpll",
+    "sympy/logic/tests/test_inference.py::test_dpll2_satisfiable",
+    "sympy/logic/tests/test_inference.py::test_dpll_satisfiable",
+    "sympy/logic/tests/test_inference.py::test_entails",
+    "sympy/logic/tests/test_inference.py::test_find_pure_symbol",
+    "sympy/logic/tests/test_inference.py::test_find_pure_symbol_int_repr",
+    "sympy/logic/tests/test_inference.py::test_issue_27733",
+    "sympy/logic/tests/test_inference.py::test_issue_27733_second_fix",
+    "sympy/logic/tests/test_inference.py::test_literal",
+    "sympy/logic/tests/test_inference.py::test_minisat22_minimal_satisfiable",
+    "sympy/logic/tests/test_inference.py::test_minisat22_satisfiable",
+    "sympy/logic/tests/test_inference.py::test_pl_true",
+    "sympy/logic/tests/test_inference.py::test_pl_true_wrong_input",
+    "sympy/logic/tests/test_inference.py::test_propKB_tolerant",
+    "sympy/logic/tests/test_inference.py::test_satisfiable",
+    "sympy/logic/tests/test_inference.py::test_satisfiable_all_models",
+    "sympy/logic/tests/test_inference.py::test_satisfiable_bool",
+    "sympy/logic/tests/test_inference.py::test_satisfiable_non_symbols",
+    "sympy/logic/tests/test_inference.py::test_unit_clause",
+    "sympy/logic/tests/test_inference.py::test_unit_clause_int_repr",
+    "sympy/logic/tests/test_inference.py::test_unit_propagate",
+    "sympy/logic/tests/test_inference.py::test_unit_propagate_int_repr",
+    "sympy/logic/tests/test_inference.py::test_valid"
+  ],
+  "image": "paper2/sympy-target:29858",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 1991693a3052bd551121f79e8129a1b22e21f4ad\ngit checkout 1991693a3052bd551121f79e8129a1b22e21f4ad sympy/functions/special/tests/test_zeta_functions.py sympy/logic/tests/test_inference.py sympy/utilities/_compilation/tests/test_compilation.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/functions/special/tests/test_zeta_functions.py b/sympy/functions/special/tests/test_zeta_functions.py\nindex 4b7f7a188de7..6a1d22b7f72e 100644\n--- a/sympy/functions/special/tests/test_zeta_functions.py\n+++ b/sympy/functions/special/tests/test_zeta_functions.py\n@@ -11,7 +11,7 @@\n from sympy.series.order import O\n from sympy.core.function import ArgumentIndexError\n from sympy.functions.combinatorial.numbers import bernoulli, factorial, genocchi, harmonic\n-from sympy.testing.pytest import raises\n+from sympy.testing.pytest import raises, slow\n from sympy.core.random import (test_derivative_numerically as td,\n                       random_complex_number as randcplx, verify_numerically)\n \n@@ -182,6 +182,7 @@ def test_polylog_series():\n         - sqrt(3)*z**3/9 + z**4/8 + O(z**5)\n \n \n+@slow\n def test_issue_8404():\n     i = Symbol('i', integer=True)\n     assert Abs(Sum(1/(3*i + 1)**2, (i, 0, S.Infinity)).doit().n(4)\ndiff --git a/sympy/logic/tests/test_inference.py b/sympy/logic/tests/test_inference.py\nindex a9eb68035172..a6d3e995ca8a 100644\n--- a/sympy/logic/tests/test_inference.py\n+++ b/sympy/logic/tests/test_inference.py\n@@ -4,7 +4,7 @@\n from sympy.assumptions.ask import Q\n from sympy.core.symbol import symbols\n from sympy.core.relational import Ne, Eq, Unequality\n-from sympy.logic.boolalg import And, Or, Implies, Equivalent, true, false\n+from sympy.logic.boolalg import And, Or, Implies, Equivalent, true, false, Not\n from sympy.logic.inference import literal_symbol, \\\n      pl_true, satisfiable, valid, entails, PropKB\n from sympy.logic.algorithms.dpll import dpll, dpll_satisfiable, \\\n@@ -370,6 +370,16 @@ def test_z3():\n     assert z3_satisfiable(expr) is False\n \n \n+def test_z3_predicate_equivalence():\n+    # https://github.com/sympy/sympy/issues/29851\n+    z3 = import_module(\"z3\")\n+    if z3 is None:\n+        skip(\"Z3 is not installed\")\n+    x = symbols('x')\n+    expr = Not(Implies(Q.eq(x, 0),Q.ge(x, 0)))\n+    assert z3_satisfiable(expr) is False\n+\n+\n def test_z3_vs_lra_dpll2():\n     z3 = import_module(\"z3\")\n     if z3 is None:\ndiff --git a/sympy/utilities/_compilation/tests/test_compilation.py b/sympy/utilities/_compilation/tests/test_compilation.py\nindex 4a5aa02a79d9..a7d0efdf35ef 100644\n--- a/sympy/utilities/_compilation/tests/test_compilation.py\n+++ b/sympy/utilities/_compilation/tests/test_compilation.py\n@@ -4,7 +4,7 @@\n import subprocess\n import tempfile\n from sympy.external import import_module\n-from sympy.testing.pytest import skip, skip_under_pyodide\n+from sympy.testing.pytest import skip, skip_under_pyodide, slow\n \n from sympy.utilities._compilation.compilation import compile_link_import_py_ext, compile_link_import_strings, compile_sources, get_abspath\n \n@@ -66,6 +66,7 @@ def test_compile_link_import_strings():\n             shutil.rmtree(info['build_dir'])\n \n \n+@slow\n @skip_under_pyodide(\"Emscripten does not support subprocesses\")\n def test_compile_sources():\n     tmpdir = tempfile.mkdtemp()\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/functions/special/tests/test_zeta_functions.py sympy/logic/tests/test_inference.py sympy/utilities/_compilation/tests/test_compilation.py\n: '>>>>> End Test Output'\ngit checkout 1991693a3052bd551121f79e8129a1b22e21f4ad sympy/functions/special/tests/test_zeta_functions.py sympy/logic/tests/test_inference.py sympy/utilities/_compilation/tests/test_compilation.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T02:00:42.165607+00:00"
+  },
+  "derivation": {
+    "reason": "no FAIL_TO_PASS test",
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\report.json": "600576d8d0f5bec7032b398fc99131d65340c69f99011c55d688c2c8e4c51ab6",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\test_output.txt": "988130e72b3d2b533a9f1e7c233952c907863a814984d950d16c371663166b32",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\run_instance.log": "00d08d15be5022dc1e99f8f277ad6b540f1fe10e3748494671f5eba2a232a800",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\report.json": "600576d8d0f5bec7032b398fc99131d65340c69f99011c55d688c2c8e4c51ab6",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\test_output.txt": "e39c02bb819aab6e44e7332b1682482f509170deef3f98dd9c15ecfc3eb0b1e0",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\run_instance.log": "1637ac272257dfa0a3eab91d8a67779a7bf06c45b15608eb0b746be9764ad61d",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29858-20261112T020039\\derive\\sympy__sympy-29858\\patch.diff": "55a02a388fda72823ed990ce852967838d37d1b1d80959d24e98869353982d87"
+      }
+    },
+    "image_id": "sha256:bb43521be32e4697219877911930bd542b9f344849270755ebf49414da547e90"
+  },
+  "status": "no FAIL_TO_PASS test"
+}

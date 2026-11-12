@@ -1,0 +1,47 @@
+{
+  "task_id": "sympy__sympy-22714",
+  "candidate": "candidate-1.diff",
+  "harness_resolved": true,
+  "tests_status": {
+    "FAIL_TO_PASS": {
+      "success": [
+        "test_issue_22684"
+      ],
+      "failure": []
+    },
+    "PASS_TO_PASS": {
+      "success": [
+        "test_point",
+        "test_point3D",
+        "test_Point2D",
+        "test_issue_9214",
+        "test_issue_11617",
+        "test_transform",
+        "test_concyclic_doctest_bug",
+        "test_arguments",
+        "test_unit",
+        "test_dot",
+        "test__normalize_dimension"
+      ],
+      "failure": []
+    },
+    "FAIL_TO_FAIL": {
+      "success": [],
+      "failure": []
+    },
+    "PASS_TO_FAIL": {
+      "success": [],
+      "failure": []
+    }
+  },
+  "harness_logs": {
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-22714-1-20261112T033352\\session\\sympy__sympy-22714\\report.json": "8e6be490f78f1e451e0464702bc788d9a1669fe9ba7efd173c54fc8080547aca",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-22714-1-20261112T033352\\session\\sympy__sympy-22714\\test_output.txt": "7ae71f502758e2dadec8c7b45dce7bcf26711ab87f43b2298bcc25582b10ff7a",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-22714-1-20261112T033352\\session\\sympy__sympy-22714\\run_instance.log": "a814a5f5ff5dc4a40e99fe6ccba3bf644eece7153889c3a12c7f78d11273783d",
+    "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\b07-sympy__sympy-22714-1-20261112T033352\\session\\sympy__sympy-22714\\patch.diff": "3ec232c6747abf4527f7ea121000120b0b773cbc96e3e7a9e5807ebfa8a4e295"
+  },
+  "check": {
+    "exit_code": 1,
+    "output": "warning: sympy/geometry/point.py has type 100755, expected 100644\nValueError: Error from parse_expr with transformed code: <code object <module> at 0x7bf0d805da80, file \"<string>\", line 1>\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/audit/check.py\", line 70, in <module>\n    main()\n  File \"/audit/check.py\", line 60, in main\n    check_evaluate_false_sympify()\n  File \"/audit/check.py\", line 17, in check_evaluate_false_sympify\n    pt = sp.S('Point2D(Integer(1),Integer(2))')\n  File \"/testbed/sympy/core/sympify.py\", line 476, in sympify\n    expr = parse_expr(a, local_dict=locals, transformations=transformations, evaluate=evaluate)\n  File \"/testbed/sympy/parsing/sympy_parser.py\", line 1100, in parse_expr\n    raise e from ValueError(f\"Error from parse_expr with transformed code: {code!r}\")\n  File \"/testbed/sympy/parsing/sympy_parser.py\", line 1091, in parse_expr\n    rv = eval_expr(code, local_dict, global_dict)\n  File \"/testbed/sympy/parsing/sympy_parser.py\", line 913, in eval_expr\n    expr = eval(\n  File \"<string>\", line 1, in <module>\n  File \"/testbed/sympy/geometry/point.py\", line 917, in __new__\n    args = Point(*args, **kwargs)\n  File \"/testbed/sympy/geometry/point.py\", line 158, in __new__\n    raise ValueError('Imaginary coordinates are not permitted.')\nValueError: Imaginary coordinates are not permitted.\n"
+  }
+}

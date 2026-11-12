@@ -1,0 +1,23 @@
+diff --git a/sympy/core/mul.py b/sympy/core/mul.py
+index 30c911f579..2eb2747921 100644
+--- a/sympy/core/mul.py
++++ b/sympy/core/mul.py
+@@ -973,6 +973,18 @@ def _eval_expand_mul(self, **hints):
+             plain = self.func(*plain)
+             if sums:
+                 deep = hints.get("deep", False)
++                for i, s in enumerate(sums):
++                    if not s.is_Add:
++                        continue
++                    o = s.getO()
++                    if o is not None and any(p != 0 for p in o.point) and o.expr.is_Pow:
++                        other = sums[:i] + sums[i + 1:]
++                        other = [a.args[0] if type(a) is Basic else a for a in other]
++                        regular = self.func(plain, s.removeO(), *other)
++                        if regular.is_Mul and any(a.is_Add for a in regular.args):
++                            regular = regular._eval_expand_mul(**hints)
++                        return regular + self.func(plain, o, *other)
++
+                 terms = self.func._expandsums(sums)
+                 args = []
+                 for term in terms:

@@ -1,0 +1,2 @@
+- Replace calls to `ask` in `sympy/assumptions/tests/test_query.py` with calls to `_ask_recursive` so the tests exercise recursive handlers directly.
+- Do the same in `sympy/assumptions/tests/test_matrices.py`.

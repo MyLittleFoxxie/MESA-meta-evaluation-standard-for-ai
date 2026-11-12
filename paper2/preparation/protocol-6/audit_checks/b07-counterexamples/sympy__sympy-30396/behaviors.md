@@ -1,0 +1,5 @@
+- NumPyPrinter and JaxPrinter keep pure scalar assignments in normal scalar syntax, including infix sums and products.
+- Scalar expressions with powers, roots, and functions print without errors, consistently with printing without an assignment.
+- Both doprint(expr, assign_to) and explicit Assignment objects support scalar expressions.
+- Genuine indexed, matrix, and array expressions retain array conversion and array operations.
+- Legitimate ArrayElementwiseApplyFunc expressions print functions and arithmetic elementwise for NumPy and JAX, preserving operand grouping and function-body symbols.

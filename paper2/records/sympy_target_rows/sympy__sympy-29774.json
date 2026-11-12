@@ -1,0 +1,74 @@
+{
+  "instance_id": "sympy__sympy-29774",
+  "repo": "sympy/sympy",
+  "base_commit": "4f3af18e2fa27f2180b1c2c642e08073638d09ae",
+  "created_at": "2026-05-16T21:42:56Z",
+  "merged_at": "2026-05-31T16:15:45Z",
+  "merge_commit": "4751f74596b616d2646368f43b4f56afe631c161",
+  "pull_request": "https://github.com/sympy/sympy/pull/29774",
+  "issues": [
+    {
+      "number": 29758,
+      "url": "https://github.com/sympy/sympy/issues/29758",
+      "created_at": "2026-05-11T21:01:20Z"
+    }
+  ],
+  "problem_statement": "Exponentiating a matrix times scalar should distribute the exponent to the scalar.\nExponentiating a `MatrixSymbol` times a scalar does not distribute the power, whereas exponentiating symbol times noncommutative symbol does. I expect that matrix (MatMul) behavior should match that of symbol behavior.\n\nReproduction code:\n\n```py\nimport sympy as sp\nfrom sympy import Identity, MatrixSymbol, expand, symbols\n\nn = symbols(\"n\", integer=True, positive=True)\na = symbols(\"a\")\n\nB = MatrixSymbol(\"B\", n, n)\nx, y = symbols(\"x y\", commutative=False)\n\nprint(\"scalar product:       \", expand((a * x * y) ** 2))\nprint(\"scalar-matrix product:\", expand((a * B) ** 2))\n```\n\nSymPy 1.14.0 as well as current dev output df9ff3cf4b95371c4f2:\n\n```\nscalar product:        a**2*x*y*x*y\nscalar-matrix product: (a*B)**2\n```\n\nIn regular `Mul` this part is responsible for separating commutative and noncommutative parts:\n\nhttps://github.com/sympy/sympy/blob/df9ff3cf4b95371c4f289fcaae9bfba45d2ef091/sympy/core/mul.py#L743-L748\n\nIn `MatMul` the implementation is generic:\n\nhttps://github.com/sympy/sympy/blob/df9ff3cf4b95371c4f289fcaae9bfba45d2ef091/sympy/matrices/expressions/matexpr.py#L210-L215\n\n**Related issues:**\n- https://github.com/sympy/sympy/issues/10384 now more about argument validation\n- https://github.com/sympy/sympy/issues/25554 seems reasonably close but not about the commutative part\n- https://github.com/sympy/sympy/issues/23364 about differentiation of (scalar * matrix) powers. Closed but doesn't fix this issue.\n\n**AI disclosure**\nI adhere to the sympy AI usage policy. I used codex to construct the repro example and do the code dive. I confirmed the repro example behavior and confirmed that the relevant locations in the code are indeed responsible for the construction of the expressions (and that the overall content makes a lot of sense).\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/matrices/expressions/matmul.py b/sympy/matrices/expressions/matmul.py\nindex a4af9f26c6ae..dde1e07030e5 100644\n--- a/sympy/matrices/expressions/matmul.py\n+++ b/sympy/matrices/expressions/matmul.py\n@@ -139,6 +139,39 @@ def expand(self, **kwargs):\n         expanded = super(MatMul, self).expand(**kwargs)\n         return self._evaluate(expanded)\n \n+    def _eval_power(self, exp):\n+        # Match Mul._eval_power by separating only the commutative scalar\n+        # coefficient and keeping the ordered matrix product intact.\n+        coeff, matrices = self.as_coeff_matrices()\n+        # The S.One guard avoids recursing on coefficient-free MatMul\n+        # expressions such as (A*B)**2.\n+        if coeff is S.One:\n+            return MatPow(self, exp)\n+        # Follow Mul._eval_power's design: split only concrete integer powers\n+        # and exact rational/float powers. Symbolic exponents, including\n+        # symbolic integers, remain unchanged.\n+        if not (exp.is_Rational or exp.is_Float):\n+            return MatPow(self, exp)\n+\n+        if exp.is_Integer:\n+            # Preserve matrix singularity for definite zero coefficients:\n+            # (0*A)**-1 should raise rather than extract zoo*A**-1.\n+            # Maybe-zero symbolic coefficients follow SymPy's generic\n+            # convention of being treated as nonzero.\n+            if coeff.is_zero:\n+                if exp.is_negative:\n+                    return MatPow(self, exp)\n+                return ZeroMatrix(*self.shape)\n+        elif not coeff.is_positive:\n+            # For noninteger numeric powers, only extract a positive scalar\n+            # coefficient to avoid branch cut issues.\n+            return MatPow(self, exp)\n+\n+        # Only extraction cases remain: integer powers, and noninteger\n+        # rational/float powers with positive scalar coefficient.\n+        matrix_part = matrices[0] if len(matrices) == 1 else MatMul(*matrices)\n+        return coeff**exp * MatPow(matrix_part, exp).doit(deep=False)\n+\n     def _eval_transpose(self):\n         \"\"\"Transposition of matrix multiplication.\n \n",
+  "test_patch": "diff --git a/sympy/matrices/expressions/tests/test_matpow.py b/sympy/matrices/expressions/tests/test_matpow.py\nindex 2afb5fdc2aa6..a3bcc6bd94e5 100644\n--- a/sympy/matrices/expressions/tests/test_matpow.py\n+++ b/sympy/matrices/expressions/tests/test_matpow.py\n@@ -4,7 +4,7 @@\n from sympy.core.expr import unchanged\n from sympy.core import symbols, S\n from sympy.matrices import Identity, MatrixSymbol, ImmutableMatrix, ZeroMatrix, OneMatrix, Matrix\n-from sympy.matrices.exceptions import NonSquareMatrixError\n+from sympy.matrices.exceptions import NonInvertibleMatrixError, NonSquareMatrixError\n from sympy.matrices.expressions import MatPow, MatAdd, MatMul\n from sympy.matrices.expressions.inverse import Inverse\n from sympy.matrices.expressions.matexpr import MatrixElement\n@@ -90,6 +90,24 @@ def test_doit_symbol():\n         assert MatPow(C, r).doit() == MatPow(C, r)\n \n \n+def test_doit_MatMul_scalar_power():\n+    a = symbols('a')\n+    p = symbols('p')\n+    pos = symbols('pos', positive=True)\n+\n+    assert MatPow(a*C, 2).doit() == a**2*C**2\n+    assert (a*C)**2 == a**2*C**2\n+    assert (a*C*D)**2 == a**2*(C*D)**2\n+    assert (a*C*D)**-2 == a**-2*(C*D)**-2\n+\n+    assert MatPow(pos*C, S.Half).doit() == pos**S.Half*C**S.Half\n+    assert (pos*C*D)**S.Half == pos**S.Half*(C*D)**S.Half\n+\n+    assert MatPow(a*C, S.Half).doit() == MatPow(a*C, S.Half)\n+    assert (a*C)**p == MatPow(a*C, p)\n+    assert (pos*C)**p == MatPow(pos*C, p)\n+\n+\n def test_doit_matrix():\n     X = ImmutableMatrix([[1, 2], [3, 4]])\n     assert MatPow(X, 0).doit() == ImmutableMatrix(Identity(2))\n@@ -149,6 +167,7 @@ def test_zero_power():\n     assert MatPow(z2, 2).doit() == z2\n     assert MatPow(z2, 0).doit() == Identity(4)\n     raises(ValueError, lambda:MatPow(z2, -1).doit())\n+    raises(NonInvertibleMatrixError, lambda: MatMul(0, C)**-1)\n \n \n def test_OneMatrix_power():\n",
+  "FAIL_TO_PASS": [
+    "sympy/matrices/expressions/tests/test_matpow.py::test_doit_MatMul_scalar_power"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/matrices/expressions/tests/test_matpow.py::test_Inverse",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_OneMatrix_power",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_as_explicit_matrix",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_as_explicit_symbol",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_combine_powers",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_doit_equals_pow",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_doit_matrix",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_doit_nested_MatrixExpr",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_doit_symbol",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_entry_matrix",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_entry_symbol",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_identity_power",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_no_exponentiation",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_nonsquare",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_transpose_power",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_unchanged",
+    "sympy/matrices/expressions/tests/test_matpow.py::test_zero_power"
+  ],
+  "image": "paper2/sympy-target:29774",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 4f3af18e2fa27f2180b1c2c642e08073638d09ae\ngit checkout 4f3af18e2fa27f2180b1c2c642e08073638d09ae sympy/matrices/expressions/tests/test_matpow.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/matrices/expressions/tests/test_matpow.py b/sympy/matrices/expressions/tests/test_matpow.py\nindex 2afb5fdc2aa6..a3bcc6bd94e5 100644\n--- a/sympy/matrices/expressions/tests/test_matpow.py\n+++ b/sympy/matrices/expressions/tests/test_matpow.py\n@@ -4,7 +4,7 @@\n from sympy.core.expr import unchanged\n from sympy.core import symbols, S\n from sympy.matrices import Identity, MatrixSymbol, ImmutableMatrix, ZeroMatrix, OneMatrix, Matrix\n-from sympy.matrices.exceptions import NonSquareMatrixError\n+from sympy.matrices.exceptions import NonInvertibleMatrixError, NonSquareMatrixError\n from sympy.matrices.expressions import MatPow, MatAdd, MatMul\n from sympy.matrices.expressions.inverse import Inverse\n from sympy.matrices.expressions.matexpr import MatrixElement\n@@ -90,6 +90,24 @@ def test_doit_symbol():\n         assert MatPow(C, r).doit() == MatPow(C, r)\n \n \n+def test_doit_MatMul_scalar_power():\n+    a = symbols('a')\n+    p = symbols('p')\n+    pos = symbols('pos', positive=True)\n+\n+    assert MatPow(a*C, 2).doit() == a**2*C**2\n+    assert (a*C)**2 == a**2*C**2\n+    assert (a*C*D)**2 == a**2*(C*D)**2\n+    assert (a*C*D)**-2 == a**-2*(C*D)**-2\n+\n+    assert MatPow(pos*C, S.Half).doit() == pos**S.Half*C**S.Half\n+    assert (pos*C*D)**S.Half == pos**S.Half*(C*D)**S.Half\n+\n+    assert MatPow(a*C, S.Half).doit() == MatPow(a*C, S.Half)\n+    assert (a*C)**p == MatPow(a*C, p)\n+    assert (pos*C)**p == MatPow(pos*C, p)\n+\n+\n def test_doit_matrix():\n     X = ImmutableMatrix([[1, 2], [3, 4]])\n     assert MatPow(X, 0).doit() == ImmutableMatrix(Identity(2))\n@@ -149,6 +167,7 @@ def test_zero_power():\n     assert MatPow(z2, 2).doit() == z2\n     assert MatPow(z2, 0).doit() == Identity(4)\n     raises(ValueError, lambda:MatPow(z2, -1).doit())\n+    raises(NonInvertibleMatrixError, lambda: MatMul(0, C)**-1)\n \n \n def test_OneMatrix_power():\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/matrices/expressions/tests/test_matpow.py\n: '>>>>> End Test Output'\ngit checkout 4f3af18e2fa27f2180b1c2c642e08073638d09ae sympy/matrices/expressions/tests/test_matpow.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T01:53:00.076901+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\report.json": "d39e61591ea206f92e1b35aa000ce5978a2cbfc77b9cec519aceec06db5a8179",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\test_output.txt": "3955a1f0b2cd616cc6cd0d8754428fda9bdba082cd3b5b349468eb4a24a5df85",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\run_instance.log": "ebcff0f8d30356cb801a3f8e6f017e0928e4942ddcd125e5dd6d2e23c6af2feb",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\report.json": "d39e61591ea206f92e1b35aa000ce5978a2cbfc77b9cec519aceec06db5a8179",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\test_output.txt": "2078b0707a16a5b409ba65b14eb6b4916010e00aafb0c1672b3ecc0bd30b7c52",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\run_instance.log": "366926b0505ca75475970d9db6b96fdf630fcfa7e0def0abb05a0f60de2f6bd6",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-29774-20261112T015257\\derive\\sympy__sympy-29774\\patch.diff": "9ca64d86d890939a428376028754a4b5ea0d7d430b6a6abdd2761f1d44d85517"
+      }
+    },
+    "image_id": "sha256:a4fc6ab72e8b62403c02bbeb8072a4ac0924bbdab5b31aa71883525807bff8a4"
+  },
+  "status": "derived"
+}

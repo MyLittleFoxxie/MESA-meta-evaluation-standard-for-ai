@@ -1,0 +1,2 @@
+﻿- A sum containing only scalar symbols, such as `ArrayAdd(x, y, z)`, should become the ordinary scalar sum `Add(x, y, z)` instead of remaining an `ArrayAdd`.
+- Calling `.doit()` on such a scalar-only sum should also yield the ordinary scalar sum.

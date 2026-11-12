@@ -1,0 +1,2 @@
+- Recognize that second/(ohm*farad) has a dimensionless dimension in SI.
+- Collect the factor and dimension of 100 + exp(second/(ohm*farad)) without raising ValueError, returning (100 + E, Dimension(1)).

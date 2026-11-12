@@ -1,0 +1,30 @@
+diff --git a/sympy/algebras/quaternion.py b/sympy/algebras/quaternion.py
+index b901474916..a4367459e4 100644
+--- a/sympy/algebras/quaternion.py
++++ b/sympy/algebras/quaternion.py
+@@ -8,6 +8,7 @@
+ from sympy.external.mpmath import prec_to_dps
+ from sympy.functions.elementary.complexes import (conjugate, im, re, sign)
+ from sympy.functions.elementary.exponential import (exp, log as ln)
++from sympy.functions.elementary.hyperbolic import cosh
+ from sympy.functions.elementary.miscellaneous import sqrt
+ from sympy.functions.elementary.trigonometric import (acos, asin, atan2)
+ from sympy.functions.elementary.trigonometric import (cos, sin)
+@@ -926,7 +927,7 @@ def norm(self) -> Expr:
+             q = self
+             # trigsimp is used to simplify sin(x)^2 + cos(x)^2 (these terms
+             # arise when from_axis_angle is used).
+-            return sqrt(trigsimp(q.a**2 + q.b**2 + q.c**2 + q.d**2))
++            return sqrt(trigsimp((q.a**2 + q.b**2 + q.c**2 + q.d**2).together()))
+ 
+         return self._norm
+ 
+@@ -940,6 +941,8 @@ def inverse(self) -> Quaternion:
+         q = self
+         if not q.norm():
+             raise ValueError("Cannot compute inverse for a quaternion with zero norm")
++        if q.has(cosh):
++            return q._eval_conjugate() * (1/q.norm())
+         return q._eval_conjugate() * (1/q.norm()**2)
+ 
+     def pow(self, p: int) -> Quaternion:

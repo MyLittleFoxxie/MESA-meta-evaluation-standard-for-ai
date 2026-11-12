@@ -1,0 +1,4 @@
+- Compute Plane-to-segment distance with a direct symbolic formula, including crossing, parallel, and same-side segments.
+- Compute Plane-to-ray distance with a direct symbolic formula, including rays toward, away from, and parallel to the plane.
+- Compute Plane-to-line distance with a direct symbolic formula, giving zero for intersecting lines and the perpendicular distance for parallel lines.
+- Handle general plane positions and normal vectors, with nonnegative distances independent of normal-vector scaling.

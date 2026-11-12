@@ -1,0 +1,111 @@
+diff --git a/sympy/matrices/expressions/kronecker.py b/sympy/matrices/expressions/kronecker.py
+index 4cc6da1f06..a59cf4b841 100644
+--- a/sympy/matrices/expressions/kronecker.py
++++ b/sympy/matrices/expressions/kronecker.py
+@@ -1,9 +1,8 @@
+ """Implementation of the Kronecker product"""
+ from __future__ import annotations
+-from functools import reduce
+ from math import prod
+ 
+-from sympy.core import Mul, sympify
++from sympy.core import Mul, S, sympify
+ from sympy.functions import adjoint
+ from sympy.matrices.exceptions import ShapeError
+ from sympy.matrices.expressions.matexpr import MatrixExpr
+@@ -213,10 +212,11 @@ def _eval_expand_kroneckerproduct(self, **hints):
+         return flatten(canon(typed({KroneckerProduct: distribute(KroneckerProduct, MatAdd)}))(self))
+ 
+     def _kronecker_add(self, other):
+-        if self.structurally_equal(other):
+-            return self.__class__(*[a + b for (a, b) in zip(self.args, other.args)])
+-        else:
+-            return self + other
++        combined = _kronecker_merge_add((S.One, self), (S.One, other))
++        if combined is not None:
++            coeff, kron = combined
++            return coeff*kron
++        return self + other
+ 
+     def _kronecker_mul(self, other):
+         if self.has_matching_shape(other):
+@@ -351,11 +351,38 @@ def explicit_kronecker_product(kron):
+                                  do_one(*rules)))
+ 
+ 
+-def _kronecker_dims_key(expr):
++def _coeff_kron(expr):
+     if isinstance(expr, KroneckerProduct):
+-        return tuple(a.shape for a in expr.args)
+-    else:
+-        return (0,)
++        return S.One, expr
++    if isinstance(expr, MatMul):
++        coeff, matrices = expr.as_coeff_matrices()
++        if len(matrices) == 1 and isinstance(matrices[0], KroneckerProduct):
++            return coeff, matrices[0]
++    return None
++
++
++def _kronecker_dims_key(expr):
++    ck = _coeff_kron(expr)
++    if ck is not None:
++        return tuple(a.shape for a in ck[1].args)
++    return (0,)
++
++
++def _kronecker_merge_add(pair1, pair2):
++    (c1, k1), (c2, k2) = pair1, pair2
++    if not k1.structurally_equal(k2):
++        return None
++    if len(k1.args) != 2:
++        return None
++    diff = [i for i, (a, b) in enumerate(zip(k1.args, k2.args)) if a != b]
++    if not diff:
++        return c1 + c2, k1
++    if len(diff) == 1:
++        i = diff[0]
++        newargs = list(k1.args)
++        newargs[i] = c1*k1.args[i] + c2*k2.args[i]
++        return S.One, k1.__class__(*newargs)
++    return None
+ 
+ 
+ def kronecker_mat_add(expr):
+@@ -364,13 +391,21 @@ def kronecker_mat_add(expr):
+     if not args:
+         return expr
+ 
+-    krons = [reduce(lambda x, y: x._kronecker_add(y), group)
+-             for group in args.values()]
++    krons = []
++    for group in args.values():
++        merged = []
++        for pair in map(_coeff_kron, group):
++            for i, other in enumerate(merged):
++                combined = _kronecker_merge_add(other, pair)
++                if combined is not None:
++                    merged[i] = combined
++                    break
++            else:
++                merged.append(pair)
++        krons.extend(coeff*kron for coeff, kron in merged)
++
++    return MatAdd(*(krons + (nonkrons or [])))
+ 
+-    if not nonkrons:
+-        return MatAdd(*krons)
+-    else:
+-        return MatAdd(*krons) + nonkrons
+ 
+ 
+ def kronecker_mat_mul(expr):
+@@ -413,7 +448,7 @@ def combine_kronecker(expr):
+     >>> combine_kronecker(KroneckerProduct(A, B)*KroneckerProduct(B, A))
+     KroneckerProduct(A*B, B*A)
+     >>> combine_kronecker(KroneckerProduct(A, B)+KroneckerProduct(B.T, A.T))
+-    KroneckerProduct(A + B.T, B + A.T)
++    KroneckerProduct(A, B) + KroneckerProduct(B.T, A.T)
+     >>> C = MatrixSymbol('C', n, n)
+     >>> D = MatrixSymbol('D', m, m)
+     >>> combine_kronecker(KroneckerProduct(C, D)**m)

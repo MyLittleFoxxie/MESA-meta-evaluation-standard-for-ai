@@ -1,0 +1,4 @@
+﻿- Return EmptySet for `singularities(0**(x - 1), x, Interval(2, 5))`, allowing `continuous_domain` to return the whole interval.
+- For zero-base powers, report exactly where the exponent is negative within the requested domain; exclude exponent-zero points and preserve disconnected sets.
+- Return `Union(Interval.open(-oo, -1), Interval.open(1, oo))` for `singularities(0**(1 - x**2), x)` and preserve the valid interval in `continuous_domain`.
+- Detect zeros of a variable base where its variable exponent is negative, including `{2}` for `(x - 2)**(x - 3)` and `{-2}` for `(x**2 - 4)**(x - 1)`.

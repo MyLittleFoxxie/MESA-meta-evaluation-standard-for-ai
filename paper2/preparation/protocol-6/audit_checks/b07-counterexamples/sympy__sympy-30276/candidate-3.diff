@@ -1,0 +1,279 @@
+diff --git a/sympy/tensor/array/expressions/__init__.py b/sympy/tensor/array/expressions/__init__.py
+index 3285f2993c..fb59c3de71 100644
+--- a/sympy/tensor/array/expressions/__init__.py
++++ b/sympy/tensor/array/expressions/__init__.py
+@@ -168,10 +168,12 @@
+     "convert_array_to_indexed",
+     "convert_indexed_to_array",
+     "array_derive",
++    "collect_tensor_products",
+ ]
+ 
+ from sympy.tensor.array.expressions.array_expressions import ArrayTensorProduct, ArrayAdd, PermuteDims, ArrayDiagonal, \
+     ArrayContraction, Reshape, ArraySymbol, ArrayElement, ZeroArray, OneArray, ArrayElementwiseApplyFunc
++from sympy.tensor.array.expressions.array_expressions import collect_tensor_products
+ from sympy.tensor.array.expressions.arrayexpr_derivatives import array_derive
+ from sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed
+ from sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix
+diff --git a/sympy/tensor/array/expressions/array_expressions.py b/sympy/tensor/array/expressions/array_expressions.py
+index 2bf12c961d..506438eb3f 100644
+--- a/sympy/tensor/array/expressions/array_expressions.py
++++ b/sympy/tensor/array/expressions/array_expressions.py
+@@ -23,6 +23,7 @@
+ from sympy.matrices.matrixbase import MatrixBase
+ from sympy.matrices.expressions.diagonal import diagonalize_vector
+ from sympy.matrices.expressions.matexpr import MatrixExpr
++from sympy.matrices.expressions.matmul import MatMul
+ from sympy.matrices.expressions.special import ZeroMatrix
+ from sympy.tensor.array.arrayop import (permutedims, tensorcontraction, tensordiagonal, tensorproduct)
+ from sympy.tensor.array.dense_ndim_array import ImmutableDenseNDimArray
+@@ -237,6 +238,30 @@ def doit(self, **hints):
+             return self._canonicalize()
+ 
+ 
++
++def _split_scalar_coefficient(arg):
++    """Split a structural scalar coefficient from an array factor."""
++    if isinstance(arg, (_ArrayExpr, _CodegenArrayAbstract)):
++        return S.One, arg
++    if isinstance(arg, MatMul):
++        coeff, matrices = arg.as_coeff_matrices()
++        if coeff is S.One:
++            return S.One, arg
++        rest = MatMul(*matrices) if len(matrices) > 1 else matrices[0]
++        return coeff, rest
++    if isinstance(arg, Mul):
++        scalars = [f for f in arg.args if get_shape(f) == ()]
++        arrays = [f for f in arg.args if get_shape(f) != ()]
++        if len(arrays) == 1:
++            return Mul(*scalars), arrays[0]
++        if len(arrays) > 1:
++            return S.One, arg
++        return arg, None
++    if get_shape(arg) == ():
++        return arg, None
++    return S.One, arg
++
++
+ class ArrayTensorProduct(_CodegenArrayAbstract):
+     r"""
+     Class to represent the tensor product of array-like objects.
+@@ -245,6 +270,19 @@ class ArrayTensorProduct(_CodegenArrayAbstract):
+     def __new__(cls, *args, **kwargs):
+         args = [_sympify(arg) for arg in args]
+ 
++
++        normalized_args = []
++        for arg in args:
++            if isinstance(arg, Mul) and not isinstance(arg, MatrixExpr):
++                coeff, array = _split_scalar_coefficient(arg)
++                if array is not None:
++                    if coeff is not S.One:
++                        normalized_args.append(coeff)
++                    normalized_args.append(array)
++                    continue
++            normalized_args.append(arg)
++        args = normalized_args
++
+         canonicalize = kwargs.pop("canonicalize", False)
+ 
+         ndims = [get_ndim(arg) for arg in args]
+@@ -265,6 +303,34 @@ def _canonicalize(self):
+         args = self.args
+         args = self._flatten(args)
+ 
++        def _is_plain_scalar(arg):
++            return (get_shape(arg) == () and
++                    not isinstance(arg, (_ArrayExpr, _CodegenArrayAbstract)))
++
++        scalars = [arg for arg in args if _is_plain_scalar(arg)]
++        if scalars:
++            comm_scalars = []
++            nc_scalars = []
++            for arg in scalars:
++                if isinstance(arg, Mul):
++                    comm_scalars.extend([f for f in arg.args if f.is_commutative])
++                    nc_scalars.extend([f for f in arg.args if not f.is_commutative])
++                elif arg.is_commutative is False:
++                    nc_scalars.append(arg)
++                else:
++                    comm_scalars.append(arg)
++            coeff = Mul.fromiter(comm_scalars)
++            array_args = [arg for arg in args if not _is_plain_scalar(arg)]
++            if coeff.is_zero is True:
++                shapes = reduce(operator.add, [get_shape(i) for i in array_args], ())
++                return ZeroArray(*shapes)
++            if not array_args and not nc_scalars:
++                return coeff
++            if coeff is S.One:
++                args = nc_scalars + array_args
++            else:
++                args = [coeff] + nc_scalars + array_args
++
+         ndim_list = [get_ndim(arg) for arg in args]
+ 
+         # Check if there are nested ArraySum objects:
+@@ -347,6 +413,33 @@ def as_explicit(self):
+         return tensorproduct(*[arg.as_explicit() if hasattr(arg, "as_explicit") else arg for arg in self.args])
+ 
+ 
++
++def _array_term_as_coeff_arrays(term):
++    if isinstance(term, ArrayTensorProduct):
++        coeff = S.One
++        arrays = []
++        for arg in term.args:
++            c, array = _split_scalar_coefficient(arg)
++            coeff *= c
++            if array is not None:
++                arrays.append(array)
++        return coeff, tuple(arrays)
++    c, array = _split_scalar_coefficient(term)
++    return (c, ()) if array is None else (c, (array,))
++
++
++def _array_term_from_coeff_arrays(coeff, arrays):
++    if not arrays:
++        return coeff
++    if coeff is S.One:
++        if len(arrays) == 1:
++            return arrays[0]
++        return _array_tensor_product(*arrays)
++    if len(arrays) == 1 and isinstance(arrays[0], MatrixExpr) and coeff.is_commutative is not False:
++        return coeff*arrays[0]
++    return _array_tensor_product(coeff, *arrays)
++
++
+ class ArrayAdd(_CodegenArrayAbstract):
+     r"""
+     Class for elementwise array additions.
+@@ -354,6 +447,15 @@ class ArrayAdd(_CodegenArrayAbstract):
+ 
+     def __new__(cls, *args, **kwargs):
+         args = [_sympify(arg) for arg in args]
++        normalized_args = []
++        for arg in args:
++            if isinstance(arg, Mul) and not isinstance(arg, MatrixExpr):
++                coeff, array = _split_scalar_coefficient(arg)
++                if array is not None:
++                    normalized_args.append(ArrayTensorProduct(coeff, array))
++                    continue
++            normalized_args.append(arg)
++        args = normalized_args
+         ndims = [get_ndim(arg) for arg in args]
+         ndims = list(set(ndims))
+         if len(ndims) != 1:
+@@ -382,6 +484,9 @@ def _canonicalize(self):
+ 
+         shapes = [get_shape(arg) for arg in args]
+         args = [arg for arg in args if not isinstance(arg, (ZeroArray, ZeroMatrix))]
++        if len(args) > 1:
++            args = self._collect_scalar_coefficients(args)
++
+         if len(args) == 0:
+             if any(i for i in shapes if i is None):
+                 raise NotImplementedError("cannot handle addition of ZeroMatrix/ZeroArray and undefined shape object")
+@@ -390,6 +495,28 @@ def _canonicalize(self):
+             return args[0]
+         return self.func(*args, canonicalize=False)
+ 
++    @classmethod
++    def _collect_scalar_coefficients(cls, args):
++        coeff_map = {}
++        scalar_terms = []
++        for arg in args:
++            coeff, arrays = _array_term_as_coeff_arrays(arg)
++            if not arrays:
++                scalar_terms.append(arg)
++                continue
++            if arrays in coeff_map:
++                coeff_map[arrays] += coeff
++            else:
++                coeff_map[arrays] = coeff
++        if all(coeff is S.One for coeff in coeff_map.values()) and len(coeff_map) + len(scalar_terms) == len(args):
++            return args
++        new_args = []
++        for arrays, coeff in coeff_map.items():
++            if coeff.is_zero is True:
++                continue
++            new_args.append(_array_term_from_coeff_arrays(coeff, arrays))
++        return new_args + scalar_terms
++
+     @classmethod
+     def _flatten_args(cls, args):
+         new_args = []
+@@ -2060,3 +2187,61 @@ def _array_add(*args, **kwargs):
+ 
+ def _get_array_element_or_slice(expr, indices):
+     return ArrayElement(expr, indices)
++
++
++def collect_tensor_products(expr):
++    """Recursively factor tensor products that differ in a single slot."""
++    if not isinstance(expr, Basic):
++        return expr
++    if expr.args:
++        newargs = [collect_tensor_products(arg) for arg in expr.args]
++        if list(newargs) != list(expr.args):
++            expr = expr.func(*newargs)
++    if isinstance(expr, ArrayAdd):
++        return _collect_array_add(expr)
++    return expr
++
++
++def _merge_single_slot(term1, term2):
++    (c1, arrays1), (c2, arrays2) = term1, term2
++    if len(arrays1) != len(arrays2) or len(arrays1) == 0:
++        return None
++    if any(get_shape(a) != get_shape(b) for a, b in zip(arrays1, arrays2)):
++        return None
++    diff = [i for i, (a, b) in enumerate(zip(arrays1, arrays2)) if a != b]
++    if len(diff) == 0:
++        return c1 + c2, arrays1
++    if len(diff) != 1:
++        return None
++    i = diff[0]
++    sa = _array_term_from_coeff_arrays(c1, (arrays1[i],))
++    sb = _array_term_from_coeff_arrays(c2, (arrays2[i],))
++    if isinstance(sa, MatrixExpr) and isinstance(sb, MatrixExpr):
++        slot = sa + sb
++    else:
++        slot = _array_add(sa, sb)
++    new_arrays = list(arrays1)
++    new_arrays[i] = slot
++    return S.One, tuple(new_arrays)
++
++
++def _collect_array_add(add):
++    if len(add.args) > 3:
++        return add
++    terms = [_array_term_as_coeff_arrays(arg) for arg in add.args]
++    while True:
++        merged = []
++        for term in terms:
++            for i, other in enumerate(merged):
++                combined = _merge_single_slot(other, term)
++                if combined is not None:
++                    merged[i] = combined
++                    break
++            else:
++                merged.append(term)
++        if len(merged) == len(terms):
++            break
++        terms = merged
++    if len(terms) == len(add.args):
++        return add
++    return _array_add(*[_array_term_from_coeff_arrays(c, arrays) for c, arrays in terms])
+diff --git a/sympy/tensor/array/expressions/from_array_to_matrix.py b/sympy/tensor/array/expressions/from_array_to_matrix.py
+index 4f166e9b19..6fbf948e67 100644
+--- a/sympy/tensor/array/expressions/from_array_to_matrix.py
++++ b/sympy/tensor/array/expressions/from_array_to_matrix.py
+@@ -744,7 +744,7 @@ def _a2m_tensor_product(*args):
+     if len(arrays) == 0:
+         return scalar
+     if scalar != 1:
+-        if isinstance(arrays[0], _CodegenArrayAbstract):
++        if isinstance(arrays[0], _CodegenArrayAbstract) or scalar.is_commutative is False:
+             arrays = [scalar] + arrays
+         else:
+             arrays[0] *= scalar

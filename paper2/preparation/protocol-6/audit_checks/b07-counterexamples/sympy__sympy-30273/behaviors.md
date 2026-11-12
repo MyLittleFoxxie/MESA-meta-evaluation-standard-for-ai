@@ -1,0 +1,5 @@
+- Preserve the value of sums of Kronecker products; do not merge terms that differ in multiple factor slots.
+- Collect terms that share all factors except one, adding only the differing factors.
+- Extract scalar coefficients and include them in the differing slot, including symbolic coefficients and negated terms.
+- Apply the collection rule to Kronecker products with any number of factors.
+- Correct the combine_kronecker doctest so that its sum example uses a valid identity.

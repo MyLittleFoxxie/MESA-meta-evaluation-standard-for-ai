@@ -1,0 +1,3 @@
+- `integrate(x*exp(x)*erf(x), x)` returns a closed-form antiderivative.
+- `manualintegrate(x*exp(x)*erf(x), x)` reduces the integral to a solvable remainder involving `Integral(x*exp(-x**2 + x), x)`.
+- `integrate(x*exp(-x**2 + x), x, heurisch=True)` evaluates to `-exp(x)*exp(-x**2)/2 + sqrt(pi)*exp(1/4)*erf(x - 1/2)/4`.

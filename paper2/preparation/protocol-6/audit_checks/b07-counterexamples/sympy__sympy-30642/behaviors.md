@@ -1,0 +1,1 @@
+﻿- For symbols `x, y`, `ask(Q.eq(x, y), Q.negative_infinite(x) & Q.extended_nonpositive(y))` must return `None`: the assumptions allow `y` to equal negative infinity or to differ from it.

@@ -1,0 +1,3 @@
+- For a symbol with `finite=True, real=False`, multiplying by `I` must give `is_real is None`: the product can be real or non-real.
+- The same product must give `is_integer is None`: the product can be an integer or a non-integer.
+- These results depend on the symbol's assumptions, regardless of its name.

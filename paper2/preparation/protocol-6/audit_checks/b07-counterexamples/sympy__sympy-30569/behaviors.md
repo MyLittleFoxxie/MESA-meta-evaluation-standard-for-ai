@@ -1,0 +1,4 @@
+- Compute limits involving Min and Max without raising the multi-argument MRV NotImplementedError.
+- Return 0 for Min(x, x**2) and Max(x, sin(x)) as real x approaches 0.
+- Return oo for Min(exp(x), exp(2*x)) as real x approaches oo.
+- Automatically handle Min and Max wherever they occur in limit()/gruntz(), using the corresponding Abs rewrite and preserving which function was used.

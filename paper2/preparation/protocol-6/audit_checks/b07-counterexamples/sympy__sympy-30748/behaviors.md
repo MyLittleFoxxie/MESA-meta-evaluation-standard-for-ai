@@ -1,0 +1,2 @@
+- Capture and use the sympified value of an explicitly supplied `x`.
+- Accept a string generator such as `'x'`; `swinnerton_dyer_poly(2, 'x')` should return `x**4 - 10*x**2 + 1` instead of raising a TypeError.

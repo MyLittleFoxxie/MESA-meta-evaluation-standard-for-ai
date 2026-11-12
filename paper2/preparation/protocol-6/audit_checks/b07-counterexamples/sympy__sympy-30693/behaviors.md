@@ -1,0 +1,5 @@
+- Accept forward slashes and backslashes in paths passed to the test and doctest runners, including mixed separators.
+- Convert separators to the native platform format while preserving absolute roots.
+- Normalize path components, including leading or internal dots, parent segments, and repeated separators.
+- Normalize path case on platforms where os.path.normcase changes it.
+- Return a converted path for each input path.

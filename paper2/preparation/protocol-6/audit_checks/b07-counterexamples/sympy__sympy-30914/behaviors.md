@@ -1,0 +1,4 @@
+- `Limit` exposes a `bound_symbols` property that returns a one-element tuple containing its limit variable.
+- `Limit(x + y, y, 1).bound_symbols` returns `(y,)` without raising an error.
+- `Limit(x + y, x, 0)` has bound symbols `(x,)` and free symbols `{y}`.
+- `Limit(x + y, x, z)` has bound symbols `(x,)` and free symbols `{y, z}`.

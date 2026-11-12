@@ -1,0 +1,6 @@
+- C, JavaScript, and Python must group an infix `Mod` when multiplied by a negative coefficient and another factor, including `-2*Mod(p, q)` and `-r*Mod(p, q)`.
+- A `Mod` in the denominator of a negative product must stay grouped, as in `-p/Mod(p, q)`.
+- Generated C must preserve the intended value (`-4` for `-2*Mod(5, 3)`) and keep real factors outside integer `%` operations.
+- Python `lambdify` with `math`, `mpmath`, and `modules=[]` must evaluate negative products containing `Mod` correctly, including results `-2` and `-9` in the reported examples.
+- Python and JavaScript must group reciprocal divisors of `%`, including `Mod(1, 1/x)`, so division happens before the remainder operation.
+- Preserve correct grouping for plain `-Mod`, positive products containing `Mod`, and printers already producing correct code.

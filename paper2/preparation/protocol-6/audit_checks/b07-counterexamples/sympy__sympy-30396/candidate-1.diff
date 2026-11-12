@@ -1,0 +1,140 @@
+diff --git a/sympy/printing/pycode.py b/sympy/printing/pycode.py
+index a42ed462e1..71e925c673 100644
+--- a/sympy/printing/pycode.py
++++ b/sympy/printing/pycode.py
+@@ -8,7 +8,8 @@
+ from itertools import chain
+ from sympy.core import S
+ from sympy.core.mod import Mod
+-from .precedence import precedence
++from sympy.core.symbol import Dummy
++from .precedence import precedence, PRECEDENCE
+ from .codeprinter import CodePrinter
+ 
+ _kw = {
+@@ -423,6 +424,34 @@ def _hprint_Pow(self, expr, rational=False, sqrt='math.sqrt'):
+         return "{}**{}".format(base_str, exp_str)
+ 
+ 
++def _is_atomic_code(code):
++    # Identifiers and single calls need no operator parentheses.
++    if code.isidentifier():
++        return True
++    head, sep, rest = code.partition("(")
++    if not sep or not head.replace(".", "").isidentifier() or not rest.endswith(")"):
++        return False
++    depth = 1
++    for i, c in enumerate(rest):
++        depth += (c == "(") - (c == ")")
++        if depth == 0:
++            return i == len(rest) - 1
++    return False
++
++
++class _ElementwiseOperand(Dummy):
++    """A placeholder that prints as its operand's code."""
++    __slots__ = ('precedence',)
++
++    def __new__(cls, code, precedence):
++        obj = Dummy.__new__(cls, code)
++        obj.precedence = precedence
++        return obj
++
++    def sort_key(self, order=None):
++        return (2, 0, ''), (0, ()), S.One.sort_key(), S.One
++
++
+ class ArrayPrinter:
+ 
+     def _arrayify(self, indexed):
+@@ -541,6 +570,31 @@ def _print_PermuteDims(self, expr):
+     def _print_ArrayAdd(self, expr):
+         return self._expand_fold_binary_op(self._module + "." + self._add, expr.args)
+ 
++    def _print_ArrayElementwiseApplyFunc(self, expr):
++        return self._print(self._elementwise_body(expr))
++
++    def _elementwise_body(self, expr):
++        from sympy.core.function import Lambda
++        from sympy.tensor.array.expressions.array_expressions import ArrayElementwiseApplyFunc
++        operand = expr.expr
++        if isinstance(operand, ArrayElementwiseApplyFunc):
++            operand = self._elementwise_body(operand)
++        code = self._print(operand)
++        prec = PRECEDENCE["Atom"] if _is_atomic_code(code) else precedence(operand)
++        placeholder = _ElementwiseOperand(code, prec)
++        function = expr.function
++        from sympy.core.function import Function
++        from sympy.functions.elementary.trigonometric import sin
++        if isinstance(function, Lambda) and isinstance(function.expr, Function):
++            if function.expr.func != sin:
++                raise NotImplementedError("elementwise function is not supported")
++        if isinstance(function, Lambda):
++            return function.expr.xreplace({function.variables[0]: placeholder})
++        return function(placeholder)
++
++    def _print__ElementwiseOperand(self, expr):
++        return expr.name
++
+     def _print_OneArray(self, expr):
+         return "%s((%s,))" % (
+             self._module_format(self._module+ "." + self._ones),
+diff --git a/sympy/tensor/array/expressions/from_indexed_to_array.py b/sympy/tensor/array/expressions/from_indexed_to_array.py
+index f2a71da1ae..ae1571c0b0 100644
+--- a/sympy/tensor/array/expressions/from_indexed_to_array.py
++++ b/sympy/tensor/array/expressions/from_indexed_to_array.py
+@@ -16,7 +16,7 @@
+ from sympy.tensor.indexed import (Indexed, IndexedBase)
+ from sympy.combinatorics import Permutation
+ from sympy.matrices.expressions.matexpr import MatrixElement
+-from sympy.tensor.array.expressions.array_expressions import ArrayDiagonal, \
++from sympy.tensor.array.expressions.array_expressions import ArrayDiagonal, _ArrayExpr, _CodegenArrayAbstract, \
+     get_shape, ArrayElement, _array_tensor_product, _array_diagonal, _array_contraction, _array_add, \
+     _permute_dims, OneArray, ArrayAdd
+ from sympy.tensor.array.expressions.utils import _get_argindex, _get_diagonal_indices
+@@ -108,6 +108,11 @@ def _get_pos(elem, indices):
+         return _permute_dims(result, permutation)
+ 
+ 
++def _is_array_expression(expr):
++    # Rank-zero array expressions still need array operators.
++    return isinstance(expr, (_ArrayExpr, _CodegenArrayAbstract))
++
++
+ def _convert_indexed_to_array(expr):
+     if isinstance(expr, Sum):
+         function = expr.function
+@@ -258,6 +263,8 @@ def _convert_indexed_to_array(expr):
+     if isinstance(expr, Add):
+         args, indices = zip(*[_convert_indexed_to_array(arg) for arg in expr.args])
+         args = list(args)
++        if not any(indices) and not any(_is_array_expression(arg) for arg in args):
++            return expr, ()
+         # Check if all indices are compatible. Otherwise expand the dimensions:
+         index0 = []
+         shape0 = []
+@@ -279,13 +286,15 @@ def _convert_indexed_to_array(expr):
+         return _array_add(*args), tuple(index0)
+     if isinstance(expr, Pow):
+         subexpr, subindices = _convert_indexed_to_array(expr.base)
+-        if not subindices:
++        if not subindices and not _is_array_expression(subexpr):
+             # Scalar base, no array axes involved:
+             return expr, ()
+         exp = expr.exp
+         if isinstance(exp, (int, Integer)) and exp >= 1:
+             if exp == 1:
+                 return subexpr, subindices
++            if not subindices:
++                return _array_tensor_product(*[subexpr for i in range(exp)]), ()
+             diags = zip(*[(2*i, 2*i + 1) for i in range(exp)])
+             arr = _array_diagonal(_array_tensor_product(*[subexpr for i in range(exp)]), *diags)
+             return arr, subindices
+@@ -307,5 +316,7 @@ def _convert_indexed_to_array(expr):
+             raise NotImplementedError(
+                 "cannot convert multi-argument function to array expression: %s" % expr)
+         subexpr, subindices = _convert_indexed_to_array(expr.args[0])
++        if not subindices and not _is_array_expression(subexpr):
++            return expr, ()
+         return ArrayElementwiseApplyFunc(type(expr), subexpr), subindices
+     return expr, ()
