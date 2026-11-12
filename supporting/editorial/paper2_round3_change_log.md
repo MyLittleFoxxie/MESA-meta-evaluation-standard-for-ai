@@ -19,7 +19,7 @@ Scope: `paper2.tex`, `references.bib` (three entries), one figure, and the repli
 | Citations moved or dropped where the cited work did not support the sentence (see `paper2_references_check.md`) | References check |
 | `references.bib`: DOI, volume and number of Hou et al. corrected; titles of the two anonymous companion entries set to the current titles of the two papers | References check; the two papers cite each other |
 
-Later on 12 November the author chose the title "Applying Benchmark Review Frameworks to Requirement Decisions: An Empirical Study on a Coding Agent" (no acronym in the title). Acronyms were also removed from the section headings of both papers: "RQ1" became "Research Question 1", and the heading "MESA: Shared Concerns and a Rubric" in the MESA paper became "Shared Concerns and a Rubric".
+Later on 12 November the author chose the title "Applying Benchmark Review Frameworks to Requirement Decisions: An Empirical Study on a Coding Agent" (no acronym in the title). The subsection headings keep "RQ1", "RQ2" and "RQ3". In the MESA paper the heading "MESA: Shared Concerns and a Rubric" became "Shared Concerns with MESA".
 
 ## Errors found when the numbers were traced
 
