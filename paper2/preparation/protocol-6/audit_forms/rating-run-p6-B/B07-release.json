@@ -1,0 +1,57 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B07",
+  "concern": "C07",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Was the scoring implementation checked, and can it accept a wrong solution?",
+  "shown_means": "the implementation can be read and compared with the rule",
+  "checked_means": "parser or judge validated, or exploit attempts reported or run by the reviewer, with every attempt and its limits recorded",
+  "applies_when": "Judgeability automated or mixed",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Scoring runs the tests of the repository, so judgeability is automated."
+  },
+  "check": {
+    "procedure": "Read the Protocol 6 design for B07: Stage 1 (GPT-6.1 Sol) writes incomplete patches and a behavior list, Stage 2 (Gemini 3.8 Flash Medium) writes check.py from the issue text and behaviors only. The results of the checks (b07 audit checks, task_checks.json) were not opened for this rating.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "paper2/preparation/protocol-6/b07-attempt-prompt-p6.md; paper2/preparation/b07_p6.py; paper2/preparation/protocol-6/deviations.md",
+    "detection_limits": "The attempts and their outcomes were not read, so this rating says nothing about whether an exploit was found. Failing to find an exploit does not show that none exists. Per the deviation record, 16 checks were invalid and 2 tasks had no candidate patch; they stay in the retained set with the check not performed. Both model families draw on related training data, so shared blind spots are possible."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/b07-attempt-prompt-p6.md",
+      "quote": "write independent verification test `check.py` strictly from the issue text and `behaviors.md`"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/deviations.md",
+      "quote": "`6` source invalid, `10` target invalid, `2` target no-candidate"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/b07-attempt-prompt-p6.md",
+      "quote": "Never edit or write `check.py`."
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "The scoring implementation can be read and the exploit check procedure is described with separated model families, which is Documented. Verified would need every attempt, its independent test and its result recorded as results; those were not part of this rating. No release level task defect is listed in this draft; per task findings follow from the scope rule applied to the blind sheet judgments.",
+  "missing": "Recorded attempts, independent test results and their limits, for the 88 tasks.",
+  "checks_performed": [],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

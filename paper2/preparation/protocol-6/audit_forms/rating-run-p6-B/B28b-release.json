@@ -1,0 +1,61 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28b",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the agent environment controlled and isolated from answers?",
+  "shown_means": "the environment, its tools and its isolation described",
+  "checked_means": "state clearing and isolation from answers, history and network verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Systems run with tools and state in a workspace."
+  },
+  "check": {
+    "procedure": "Read the Protocol 4 image history check (75 images), the search of non ancestor commits for the reference fix, and the workspace construction and Codex sandbox description for the Protocol 6 sessions.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json; b28-extra-commits-fix-search.json; paper2/preparation/sessions.py (make_workspace); paper2/preparation/protocol-6/configurations.json",
+    "detection_limits": "The search compared added reference lines longer than 25 characters; a fix reworded or split across lines would not be found, and short lines are not searched. Images were checked for 75 Protocol 4 tasks, not each Protocol 6 task. The Codex sandbox allows reads outside the workspace, so material elsewhere on the host is not excluded. Network blocking was tested in sandbox checks, not proved for every command."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "\"reference_lines_found\": []"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "A fix rewritten in other words, or split across lines, would not be found; short added lines are not searched."
+    },
+    {
+      "location": "paper2/preparation/sessions.py (make_workspace)",
+      "quote": "Clone at base_commit and remove everything that is not an ancestor of it"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/configurations.json",
+      "quote": "Blocked from the shell by the workspace-write sandbox"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Session workspaces are cloned at the base commit with later history, remotes, reflogs and unreachable objects removed, and a code check refuses a workspace with problems. For the shipped images, the two with non ancestor commits (19346 and 20590) were searched and none of the reference lines were found; the history is recorded here and the outcome is passed with the limits stated. Network access from the shell is blocked, while reads outside the workspace are allowed.",
+  "missing": "",
+  "checks_performed": [],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

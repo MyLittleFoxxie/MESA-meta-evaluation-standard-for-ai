@@ -1,0 +1,76 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28a",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the grading environment controlled, so that the system under test cannot reach answers or alter the scoring?",
+  "shown_means": "the grading environment and its isolation described",
+  "checked_means": "isolation of the system's output from the tests and the scorer verified or enforced in code",
+  "applies_when": "scoring runs the system's output as code or in an environment",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The review names a coding agent configuration and tasks scored by executing code; this criterion applies to that use."
+  },
+  "check": {
+    "procedure": "Inspect B28a-release records in audit_checks/b28a-scoring-check/ for 13031, 20590, 24539, and 30779 and the policy implementation. All eleven diagnostic patches were graded resolved.",
+    "kind": "reported_by_sources",
+    "outcome": "failed",
+    "evidence_location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/NOTES.md; paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json; paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-20590/check.json; paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-24539/check.json; paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-30779/check.json; paper2/method/evidence.py",
+    "detection_limits": "Four layouts and eleven diagnostics do not exhaust runtime interference routes. This run read saved records, not candidate diffs or new execution. Checking paths for runner changes does not establish isolation or prevent all indirect scoring alteration."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/NOTES.md",
+      "quote": "across all four SymPy runner layouts"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json",
+      "quote": "\"outcome\": \"grading altered\""
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-20590/check.json",
+      "quote": "\"outcome\": \"grading altered\""
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-24539/check.json",
+      "quote": "\"outcome\": \"grading altered\""
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-30779/check.json",
+      "quote": "\"outcome\": \"grading altered\""
+    },
+    {
+      "location": "paper2/method/evidence.py",
+      "quote": "Admissible for a case when code confirms, for every retained observation, that the patch changes no test"
+    }
+  ],
+  "anchor": "Contradicted",
+  "reasons": "Release test runner mutability exists: saved executions report altered grading for all four sampled layouts, including source bin/test and target conftest.py. POLICY-P6-CONTROLLED applies per case only when code confirms no scoring file changes for every retained observation; this form does not assert any future case has passed that control.",
+  "missing": "A passing control check for each actual case and its retained observations.",
+  "checks_performed": [
+    "Inspected cited records against rubric v5.1. No model or container calls."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "session_control": {
+    "kind": "no_scoring_file_changes",
+    "description": "Code confirms for every retained observation that its patch modifies no SCORING_FILE runner or config.",
+    "application": "POLICY-P6-CONTROLLED applies conditionally per case. Every retained observation needs a readable patch with no SCORING_FILE runner or configuration change. A change fails the control; missing evidence leaves it unmet. The release outcome remains failed."
+  }
+}

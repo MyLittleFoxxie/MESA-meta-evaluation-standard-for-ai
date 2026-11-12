@@ -1,0 +1,1034 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "complete",
+  "criterion": "B07",
+  "concern": "C07",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Was the scoring implementation checked, and can it accept a wrong solution?",
+  "shown_means": "the implementation can be read and compared with the rule",
+  "checked_means": "parser or judge validated, or exploit attempts reported or run by the reviewer, with every attempt and its limits recorded",
+  "applies_when": "Judgeability automated or mixed",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "task",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": [
+      "sympy__sympy-16597",
+      "sympy__sympy-23413",
+      "sympy__sympy-12096",
+      "sympy__sympy-24539",
+      "sympy__sympy-21847",
+      "sympy__sympy-13551",
+      "sympy__sympy-15809",
+      "sympy__sympy-20590",
+      "sympy__sympy-20438",
+      "sympy__sympy-20428",
+      "sympy__sympy-14711",
+      "sympy__sympy-23534",
+      "sympy__sympy-23824",
+      "sympy__sympy-13372",
+      "sympy__sympy-13878",
+      "sympy__sympy-13031",
+      "sympy__sympy-19783",
+      "sympy__sympy-22914",
+      "sympy__sympy-15976",
+      "sympy__sympy-18199",
+      "sympy__sympy-17318",
+      "sympy__sympy-13647",
+      "sympy__sympy-22456",
+      "sympy__sympy-24562",
+      "sympy__sympy-12481",
+      "sympy__sympy-22080",
+      "sympy__sympy-15345",
+      "sympy__sympy-24661",
+      "sympy__sympy-16792",
+      "sympy__sympy-15017",
+      "sympy__sympy-17139",
+      "sympy__sympy-15349",
+      "sympy__sympy-19040",
+      "sympy__sympy-18189",
+      "sympy__sympy-13757",
+      "sympy__sympy-22714",
+      "sympy__sympy-18211",
+      "sympy__sympy-17655",
+      "sympy__sympy-19637",
+      "sympy__sympy-12489",
+      "sympy__sympy-15599",
+      "sympy__sympy-20154",
+      "sympy__sympy-24066",
+      "sympy__sympy-21596"
+    ]
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Part A Judgeability is automated: hidden unit tests decide resolution."
+  },
+  "check": {
+    "procedure": "Read third-party SWE-bench Verified checks in literature/notes/paper2-sources.md and Zhu et al., plus the Protocol 6 two-family B07 checks (GPT-6.1 Sol incomplete patches vs blind Gemini 3.8 Flash check.py) across all 44 source and 44 target tasks, with two independent Claude Sonnet 5.5 scope judgments (and one GPT-6.1 Sol agreement check) on the 82 demonstrated behaviors.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07_scope_rule_summary.json; paper2/preparation/protocol-6/blind_b07_sheet.json",
+    "detection_limits": "On the 44 source tasks, 6 checks were invalid (check.py valid=false -> recorded not_performed, retained without defect shown) and 38 demonstrated broken behavior (32 agreed states_broken_behavior by both Sonnet runs, 0 disagreed, 6 non-defect). On the 44 target tasks (reported separately), 10 checks were invalid, 2 had no demonstrated candidate, 2 were non-defect, and 24 were agreed defects (0 disagreed). Models made all scope judgments without human review; the check could not detect weak tests missed by Sol's patches or check.py, nor scorer tampering (covered under B28a)."
+  },
+  "evidence": [
+    {
+      "location": "literature/notes/paper2-sources.md",
+      "quote": "345 erroneous patches graded as passing"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b07_scope_rule_summary.json",
+      "quote": "agreed_defect iff model_demonstrated and family1_runA == family1_runB == 'states_broken_behavior'"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/protocol.md",
+      "quote": "incomplete patches (`GPT-6.1 Sol`) and verification tests (`Gemini 3.8 Flash Medium`) come from different model families"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Every B07 exploit attempt and independent check result across the 44 source tasks is recorded and applied under the Protocol 6 scope rule, locating 32 agreed source defects (all listed in task_defects). Under rubric v5.1 (feedback item 15), outcome is passed for the 12 remaining retained source tasks (including 6 invalid checks recorded as not_performed with no defect shown). Release-level weak-test rates in third-party literature reflect the task-level defects now handled by excluding confirmed tasks.",
+  "missing": "Valid independent checks for the 6 invalid source tasks (and 12 unperformed target tasks), and human author verification of the 82 model scope judgments.",
+  "checks_performed": [
+    "Applied Protocol 6 scope rule from b07_scope_rule_summary.json and verified all 32 source counterexample logs and hashes."
+  ],
+  "task_defects": [
+    {
+      "task_id": "sympy__sympy-12096",
+      "direction": "accepts_wrong_solution",
+      "summary": "\ufeff- Preserve numeric evaluation of a single implemented function, such as f(2) and g(2). Recursively evaluate nested implemented functions at numeric points, including distinct functions such as f(g(2)). Apply this recursive evaluation to numeric inputs generally, including fracti",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12096/candidate-1.log.json",
+      "quote": "evalf does not call _imp_ recursively",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12096/attempt.json": "d9ae7b97937999370156f48e73bd6d45dbe3a30900cbf203b587977918b27b66"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-12096",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12096/candidate-1.diff",
+          "sha256": "5052a75b21477f1668aad35ab6f38e6fa67a10a4290ffb6e741df8dfe48d3278"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12096/candidate-1.log.json",
+            "sha256": "e1d91a09f3b489c9d8da52cae41a11012814915637f5ff9fc2c3559e12b6364d"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-12481",
+      "direction": "accepts_wrong_solution",
+      "summary": "Accept non-disjoint cycles in the Permutation constructor. Apply the supplied cycles in left-to-right order and return their combined permutation. Construct the identity permutation for Permutation([[0, 1], [0, 1]]).",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12481/candidate-1.log.json",
+      "quote": "`Permutation` constructor fails with non-disjoint cycles",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12481/attempt.json": "a087c972d17abd1dc3d2e8c551890a4ebfb1888a084b1af31e4a33a33d58ba03"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-12481",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12481/candidate-1.diff",
+          "sha256": "2e44fc516ad6375ec4c9fc86b4388fec2ee14fe6b33c43493a74e539d554902a"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12481/candidate-1.log.json",
+            "sha256": "9f36b79937d4e6bb42960ab9102f3eac4b49ec22bb7a56e8a08b45f24018a5c8"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-13551",
+      "direction": "accepts_wrong_solution",
+      "summary": "Evaluating Product(n + 1/2**k, (k, 0, n-1)) must preserve the full product for arbitrary positive integer n, including after simplification or substitution. Substituting n=2 into the evaluated symbolic result must give (2+1)*(2+1/2) = 15/2.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13551/candidate-1.log.json",
+      "quote": "Product(n + 1 / 2**k, [k, 0, n-1]) is incorrect",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13551/attempt.json": "adba85ea7b53c3d2dc8e57137f99565595b35fdc7da3d69430deca6c665e6aa5"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-13551",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13551/candidate-1.diff",
+          "sha256": "b161395413338bb963ac857d8987e0a9339bda562774d6b7c64e3dd8eb65580b"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13551/candidate-1.log.json",
+            "sha256": "e0883d60098e92c929193c9921248579e142e1e4eccd4e7d0d00cb973a632ec3"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-13647",
+      "direction": "accepts_wrong_solution",
+      "summary": "Insert both columns of twos at column index 3 in a 6-by-6 identity matrix, producing a 6-by-8 matrix. Keep the original columns in order and preserve their row positions; the right identity block must stay in the bottom three rows. Make this work through the public Matrix.col_ins",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13647/candidate-1.log.json",
+      "quote": "Matrix.col_insert() no longer seems to work correctly.",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13647/attempt.json": "2f58f157b80ad120c5739391a8c4333231563af796318ccc44df0a75326ebce3"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-13647",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13647/candidate-1.diff",
+          "sha256": "0040cf47dd836fdcaae66a9e3a3efac7b4fdf2dabc87107745f988897e7cb86b"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13647/candidate-1.log.json",
+            "sha256": "589919494b9e34d802657a9ccd6b941b76a2bc52b4d210331493a84c219fdf30"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-14711",
+      "direction": "accepts_wrong_solution",
+      "summary": "Adding scalar zero to a vector preserves the vector without raising TypeError. Python's built-in sum must accept vectors with its default zero start: sum([N.x, 0 * N.x]) returns N.x without raising TypeError.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-14711/candidate-1.log.json",
+      "quote": "from sympy.physics.vector import ReferenceFrame, Vector",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-14711/attempt.json": "ed32d947de9121722d16feb1062541e665190295ade9c198c8396985de6445b4"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-14711",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-14711/candidate-1.diff",
+          "sha256": "e9b45e4723aa8c0d541e4860eacd10590f177ff55b8fccb0a364475f7078a08e"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-14711/candidate-1.log.json",
+            "sha256": "de4113ceb1d895f2f7aeccadb9bbdbe3b11db4b1fe0087552b8ef297f22e59fe"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-15017",
+      "direction": "accepts_wrong_solution",
+      "summary": "Rank-0 arrays have length 1, including numeric scalars such as `Array(3)` and zero. A scalar array's length equals the number of elements yielded by its iterator.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15017/candidate-1.log.json",
+      "quote": "`len` of rank-0 arrays returns 0",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15017/attempt.json": "598928b5e83925ca0572d7202e332039ce7fc0849b27880aafb86aa372b9913e"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-15017",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15017/candidate-1.diff",
+          "sha256": "95618abdd03599c2031361f28094e2bd074c971d298f6c376c1b72c0b9e7b3f2"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15017/candidate-1.log.json",
+            "sha256": "61a05cc51d77849c75fe0ab645854a6d3c3f3b211531c674a5181163e57fe638"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-15345",
+      "direction": "accepts_wrong_solution",
+      "summary": "Print Max expressions as valid Mathematica calls using square brackets. In particular, mathematica_code(Max(x, 2)) must produce a Max call containing x and 2, rather than Python-style Max(2, x).",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15345/candidate-1.log.json",
+      "quote": "mathematica_code gives wrong output with Max",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15345/attempt.json": "d1c19e65e412500bdb3847f67bcddf7d4c6c5cb651ec3757a604d11727fcbe52"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-15345",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15345/candidate-1.diff",
+          "sha256": "9b83665a21d48ba767cac92c8502be6687376e8d45f5fbf04ce769fc3adc018e"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15345/candidate-1.log.json",
+            "sha256": "ce4f15bb3c05ad5017b1e8c148012a1d0782013cdc3c52c85e5ed6f399444d53"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-15349",
+      "direction": "accepts_wrong_solution",
+      "summary": "Return the correct quaternion rotation matrix, including the sign of its row 2, column 3 entry. For Quaternion(cos(x/2), sin(x/2), 0, 0), simplify to [[1, 0, 0], [0, cos(x), -sin(x)], [0, sin(x), cos(x)]].",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15349/candidate-1.log.json",
+      "quote": "Incorrect result with Quaterniont.to_rotation_matrix()",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15349/attempt.json": "ecd4b7a9a7085d74ee33fff417872f58fa6b65d8fa471aec1346a2200c82fd63"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-15349",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15349/candidate-1.diff",
+          "sha256": "4e937ba2a98b2b2aaf4fa2f3a84159eaae53de3bc14a9df2f5ec1f5b3f43be64"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15349/candidate-1.log.json",
+            "sha256": "f83756e9f57360886d5958b39e1df1121240400d42a7801d93d6e495deffe91e"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-15599",
+      "direction": "accepts_wrong_solution",
+      "summary": "For an integer symbol `i` with no sign assumption, `Mod(3*i, 2)` simplifies to `Mod(i, 2)`. Parsing the equivalent remainder expression with `sympify` produces the same simplified result.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15599/candidate-1.log.json",
+      "quote": "Mod(3*i, 2) unchanged",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15599/attempt.json": "26ac4bc0a2cbcc4d58dbe6ec331c6cff45d295faf0a327e6fc3b3528f6537070"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-15599",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15599/candidate-1.diff",
+          "sha256": "a1193525b47ccc06a3cca3e7cfa813e9a0bec7efc821bafe07fa2eab554652c2"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15599/candidate-1.log.json",
+            "sha256": "2113c59aa23e62ab97d1dd63aafe26e1eeffac99e0d0ba43548c1a4394b66419"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-16597",
+      "direction": "accepts_wrong_solution",
+      "summary": "An even symbol, such as `Symbol('m', even=True)`, must have `is_finite is True`. More generally, a value known to be even must be finite.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16597/candidate-1.log.json",
+      "quote": "a.is_even does not imply a.is_finite",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16597/attempt.json": "9d227a79194099eb42dcc3dfda0557b8c02a01773419c3d4017fc1d8a1b2faf5"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-16597",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16597/candidate-1.diff",
+          "sha256": "4b137049410e63bd4b300ba11969eea279d737ba1644aab65a92f11708f65e22"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16597/candidate-1.log.json",
+            "sha256": "cce5fa0d3f816ef71c6c59c868617573d6cc9242c8d6ac2069628768f945b5c7"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-16792",
+      "direction": "accepts_wrong_solution",
+      "summary": "Cython autowrap must accept array arguments even when they do not occur in the expression. The constant example with an unused MatrixSymbol must accept the supplied NumPy array and return 1.0. Generated C signatures must declare unused array inputs as pointers, preserving their a",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16792/candidate-1.log.json",
+      "quote": "autowrap with cython backend fails when array arguments do not appear in wrapped expr",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16792/attempt.json": "7299e80dc1c70b13ce235456b19e1a481b6604a6b46420c07cf8f2a44be32679"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-16792",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16792/candidate-1.diff",
+          "sha256": "8293935271991a5612f15325956beb3fd1aaefb5e0846ae39b53c9d036412b0c"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16792/candidate-1.log.json",
+            "sha256": "213374fa07e5f5cbc3d4fea0ca08b417575be54bc913c67db0f960efc38bb200"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-17318",
+      "direction": "accepts_wrong_solution",
+      "summary": "`sqrtdenest` must avoid `IndexError` when processing complex radicals, including `(3 - sqrt(2)*sqrt(4 + 3*I) + 3*I)/2`. When an expression cannot be denested, return it unchanged, including complex expressions.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-17318/candidate-1.log.json",
+      "quote": "sqrtdenest raises IndexError",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-17318/attempt.json": "aacc02c03c6f40717aad567660c8768ad68fc3a72eacca1b09b217905a4a71a3"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-17318",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-17318/candidate-1.diff",
+          "sha256": "c7d4ee006c960e3b0499f47386f6421248ee2302b4d3aa20b0eaa560d5a0c8c0"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-17318/candidate-1.log.json",
+            "sha256": "af46d251239a6ba359c0011615e995ef0f55433331111030276619f5b4febfd6"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-18189",
+      "direction": "accepts_wrong_solution",
+      "summary": "With `permute=True`, solving `n**4 + m**4 - 2**4 - 3**4` must return all eight signed permutations of `(2, 3)`. Both `syms=(m, n)` and `syms=(n, m)` must return the complete solution set; changing symbol order must not drop solutions. This behavior must hold for the issue's `m, n",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18189/candidate-1.log.json",
+      "quote": "diophantine: incomplete results depending on syms order with permute=True",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18189/attempt.json": "996c801316ab0612ec5e86585e34933625b742ffe195f23b7aef84f69802925e"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-18189",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18189/candidate-1.diff",
+          "sha256": "f324419743a530d4c0fa60f0cc35496d29b05f10aa21c2e6d4109d419b1763a9"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18189/candidate-1.log.json",
+            "sha256": "3879b8dbc8c9faf8758bfa5054f1204c9786f4864e9204a079961c3b375c2d72"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-18199",
+      "direction": "accepts_wrong_solution",
+      "summary": "Return zero as a root of x**n = a (mod p) whenever a is divisible by p. Cover both a = 0 and nonzero multiples of p; in particular, nthroot_mod(17*17, 5, 17) must return the zero root.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json",
+      "quote": "nthroot_mod function misses one root of x = 0 mod p.",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18199/attempt.json": "95bf2d14942fe9f382934f425475ae2a011ed68f79b5e66f9871275fd28f3d2e"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-18199",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.diff",
+          "sha256": "83434d13b878f06fb0317bb8529c84141a030afadb543e8160690bf1b1ec057c"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json",
+            "sha256": "00bd579b67450a37b6b80ffe6ca56a0fe996e7931e82180444913132bac34cfe"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-18211",
+      "direction": "accepts_wrong_solution",
+      "summary": "For the reported equation `Eq(n*cos(n) - 3*sin(n), 0)`, `as_set()` should return a `ConditionSet` instead of raising `NotImplementedError`. The returned set should retain the equation and its symbol, with the real numbers as its domain.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18211/candidate-1.log.json",
+      "quote": "`solveset` raises `NotImplementedError` instead of returning `ConditionSet`",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18211/attempt.json": "4366f8b065d0f43deff8869d01367445f0fce9414ec890ae9d6567cfe72f8006"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-18211",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18211/candidate-1.diff",
+          "sha256": "221fd688ecaa75bbd3a9f5aa691f24c3f3df19f4b81d53b6d3ecb46869b3f9a7"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18211/candidate-1.log.json",
+            "sha256": "e553f0501185c8c18de526815413f92cb7c0c9d44fa0149db6a0f1838e8fbfca"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-19637",
+      "direction": "accepts_wrong_solution",
+      "summary": "kernS should parse the parenthesized fraction `(2*x)/(x-1)` as `2*x/(x-1)` without raising an unbound-local error. Spaces in the same expression should not cause the reported error.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19637/candidate-1.log.json",
+      "quote": "kernS: 'kern' referenced before assignment",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19637/attempt.json": "3504cd360e8ec69aefe82c20119a9b50d0e6298eb11771afbf34d598348fbcad"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-19637",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19637/candidate-1.diff",
+          "sha256": "72c3c058919ba8da2a357515ebd86a8fb73c16556db7cd73ded08d3fb6c0a41d"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19637/candidate-1.log.json",
+            "sha256": "7ba243d3b186976265f0d8c34d3c27c99d4b019f047f7b50b4dc1bae318bc516"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-19783",
+      "direction": "accepts_wrong_solution",
+      "summary": "Multiplying an operator by `IdentityOperator()` on the right returns that operator. Multiplying its Hermitian conjugate, `Dagger(A)`, by `IdentityOperator()` on the right returns `Dagger(A)`, including for `A = Operator('A')`.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19783/candidate-1.log.json",
+      "quote": "Dagger() * IdentityOperator() is not simplified",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19783/attempt.json": "4e78d77bfa2cd06530623ae376d4dc3fb182f32c4a602bb616402610366bb3ac"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-19783",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19783/candidate-1.diff",
+          "sha256": "a5924115c7fccdf62dce9b96cf49395eccc36cddc16fb77d170d1e303a837195"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19783/candidate-1.log.json",
+            "sha256": "8078686ec7550c10821e94e12e949d95dabfd999067b30bdb3876b05fb05d642"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-20154",
+      "direction": "accepts_wrong_solution",
+      "summary": "Yield an independent dictionary for each partition, including when `size=True` wraps it with a part count. Preserve each yielded partition as iteration continues, so collecting results directly produces the correct partitions. Keep changes made by callers to yielded dictionaries ",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20154/candidate-1.log.json",
+      "quote": "partitions() reusing the output dictionaries",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20154/attempt.json": "5d8baceb1e524a34d7c95121954791bb762d2d258a1ef410910d415d3b6fca1f"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-20154",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20154/candidate-1.diff",
+          "sha256": "524bfdf9a8dbb0a326279662dc553de56294cf13782f7637dec8b1b843976f22"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20154/candidate-1.log.json",
+            "sha256": "bd3cb961e6b108c0c3d0891d4d57d2bd63ad8986e92948b730b33f81e5b1b184"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-20428",
+      "direction": "accepts_wrong_solution",
+      "summary": "Recognize mathematically zero EX coefficients when constructing a polynomial. Store a zero EX polynomial with a stripped DMP representation (`[]`, not `[EX(0)]`). Make `clear_denoms()` return a valid zero polynomial when its constant expression evaluates to zero. Keep the polynom",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20428/candidate-1.log.json",
+      "quote": "Result from clear_denoms() prints like zero poly but behaves wierdly (due to unstripped DMP)",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20428/attempt.json": "15d1c34c23508536732f115bd7403f0097d44bb36062c3ed4d329fbe8c03e031"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-20428",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20428/candidate-1.diff",
+          "sha256": "27f9e81d94341b52cc094647122e1cb0d7ebb9abfb499b5e31826c9ae00d1312"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20428/candidate-1.log.json",
+            "sha256": "ddc1b1108522f65bc3a97e2ba98a388ac2099d0e3071e195304b0ee212f62076"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-20438",
+      "direction": "accepts_wrong_solution",
+      "summary": "For a = FiniteSet(1, 2), b = ProductSet(a, a), and c containing all four pairs, b.intersection(c) and c.intersection(b) agree. Both b.is_subset(c) and c.is_subset(b) return True. Eq(b, c).simplify() returns S.true without raising an exception. b.rewrite(FiniteSet) expands the fin",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20438/candidate-1.log.json",
+      "quote": "`is_subset` gives wrong results",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20438/attempt.json": "72114687fc532d2eada67475a2fba8077801f9f6bef9888d10b58bd440261cbe"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-20438",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20438/candidate-1.diff",
+          "sha256": "ac738b03f99bf32c404ac34484918f07169e6a9b4550245d25a5ad33f1c92a02"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20438/candidate-1.log.json",
+            "sha256": "a986f9bc95eab2fbf77a43906a5c283feb30a80f5e76f3625749c0fcb9d23a9a"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-20590",
+      "direction": "accepts_wrong_solution",
+      "summary": "Accessing `Symbol('s').__dict__` must raise `AttributeError`, as in SymPy 1.6.2. Parent classes must preserve the effect of slots so that Symbol instances do not gain an instance dictionary.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20590/candidate-1.log.json",
+      "quote": "Symbol instances have __dict__ since 1.7?",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20590/attempt.json": "3727c3c82dca2a1a5c3fc30b1f82cddf3b498374fca4e8a5e889880734ea9584"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-20590",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20590/candidate-1.diff",
+          "sha256": "18c9fc5576efe3bd41fe1c0f69fdbc8c6c278fc2e06f825e694e128b84a3d54d"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20590/candidate-1.log.json",
+            "sha256": "ba539232f4b9e89f8a29cb3ca11cc5db750603944efd2e9a57ce11b6532eed07"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-21596",
+      "direction": "accepts_wrong_solution",
+      "summary": "For `S1 = imageset(Lambda(n, n + (n - 1)*(n + 1)*I), S.Integers)`, `2 in S1` must be `False`. `2 in S1.intersect(S.Reals)` must be `False`. `S1.intersect(S.Reals)` must equal `FiniteSet(-1, 1)`.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21596/candidate-1.log.json",
+      "quote": "bug in is_subset(Reals)",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21596/attempt.json": "6c7a443c62fe2ef11abce741ce0ab8aa18ba3c588977af1a33fa4ab72958470a"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-21596",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21596/candidate-1.diff",
+          "sha256": "b9ab3729912744bb29f9dd42b7f77ece3001240adb2670cd6837c29d41b6a84a"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21596/candidate-1.log.json",
+            "sha256": "36111b1202afb1cd358fd65ca8823081e87052ba184f224fb05aa710e3e38166"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-21847",
+      "direction": "accepts_wrong_solution",
+      "summary": "With scalar degree bounds, return every monomial whose total degree is between the minimum and maximum, inclusive. Include mixed monomials when minimum and maximum degrees are both 3, including for the three commuting variables in the example. Continue including all eligible mixe",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-1.log.json",
+      "quote": "itermonomials returns incorrect monomials when using min_degrees argument",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21847/attempt.json": "3cbc71155d704196eb8662cc55c6c56d05e64b27ca87abf369b1d1cc4d7520d7"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-21847",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-1.diff",
+          "sha256": "6d5324cf5303d24e49b8454b944937a587ccffb130ff3409738490576d6b3699"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-1.log.json",
+            "sha256": "f8a5b40a7980751385581a3e59d6aa6a1a237fc49fc74978ae948e8100fe8004"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-22456",
+      "direction": "accepts_wrong_solution",
+      "summary": "Every codegen.ast String instance must satisfy expr.func(*expr.args) == expr, preserving its text for any valid string value. This Basic reconstruction rule also applies to String subclasses.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22456/candidate-1.log.json",
+      "quote": "Argument invariance of codegen.ast String",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22456/attempt.json": "3a691b9dca2eae953d806031e5993c7e1ee63ec9a364978907e50838e426faed"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-22456",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22456/candidate-1.diff",
+          "sha256": "7c42a52b10f3d4aa9313be38946ec6e87c9f0ca343f4c2868ec9a9c16346977f"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22456/candidate-1.log.json",
+            "sha256": "9a1cb1c89e094e7d78a92e7afeb59803af972559e723baf4727ef97274e7c655"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-22714",
+      "direction": "accepts_wrong_solution",
+      "summary": "Inside `with sp.evaluate(False)`, `sp.S('Point2D(Integer(1),Integer(2))')` must succeed and produce the point with coordinates 1 and 2. The same string must continue to work with normal evaluation and with `sp.S(..., evaluate=False)`.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22714/candidate-1.log.json",
+      "quote": "simpify gives `Imaginary coordinates are not permitted.` with evaluate(False)",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22714/attempt.json": "3e93ced15a0666d4e488e8afda357130e141bcf4d5288d1b3b8ad8bffc2e0a76"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-22714",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22714/candidate-1.diff",
+          "sha256": "3ec232c6747abf4527f7ea121000120b0b773cbc96e3e7a9e5807ebfa8a4e295"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22714/candidate-1.log.json",
+            "sha256": "19f5927e9d00aacf7c09ff51648cffec647ddae877422b5d0dcdd3a855537dcb"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-22914",
+      "direction": "accepts_wrong_solution",
+      "summary": "Print SymPy Min calls as Python built-in min calls without an unsupported-function warning. Print SymPy Max calls as Python built-in max calls without an unsupported-function warning. Include every argument, using Python code printing for each argument, including expressions and ",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+      "quote": "PythonCodePrinter doesn't support Min and Max",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22914/attempt.json": "008380458841102340d4bd7e4188385fb3204b1648e85cd73590c201f4126aeb"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-22914",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.diff",
+          "sha256": "528dd8faf5370a624d8d7e7da6d6831d72e9f74e932ee23fd028e7cbefe2bf7d"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json",
+            "sha256": "c5b58450fcf9c6153f9f9aea3b87fe986aab165242042a70399277903e101de8"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-23413",
+      "direction": "accepts_wrong_solution",
+      "summary": "The flip/transpose row-style HNF calculation for [[5, 8, 12], [0, 0, 1]] must return [[5, 8, 0], [0, 0, 1]]. Preserve both independent rows instead of falsely treating the matrix as rank deficient and dropping one.",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23413/candidate-1.log.json",
+      "quote": "bug with HNF removing rows",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23413/attempt.json": "f429ca4676a6bb209ceece2c793c4e5dcb6203ef3f981426b8f22ff45b9cedac"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-23413",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23413/candidate-1.diff",
+          "sha256": "dbe3cd66050d759c9e61bdb64b904f57c9a1153178ee6204ba2c11fb816cf941"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23413/candidate-1.log.json",
+            "sha256": "05067942102cbfd78c185ab337c3e48eda2df2a96c05cf44fe916dadaaf2ab5d"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-23534",
+      "direction": "accepts_wrong_solution",
+      "summary": "`symbols` must honor `cls=Function` when names are wrapped in an outer tuple. `q, u = symbols(('q:2', 'u:2'), cls=Function)` must return two separate tuples, each containing two functions. The functions must keep the requested names: `q0`, `q1`, `u0`, and `u1`. Every object in bo",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23534/candidate-1.log.json",
+      "quote": "Using symbols to create functions doesn't work if there is an extra layer of parentheses",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23534/attempt.json": "0224e41834b0ce2fd3716ba17c82aa19c0929f20bc7e224655bd422d648f62e7"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-23534",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23534/candidate-1.diff",
+          "sha256": "9385f5393eb7215a5302061d06573d50e979d18c445a65640fb54e6e4c402e7c"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23534/candidate-1.log.json",
+            "sha256": "dd119dccb2070155228f65f5bf814694f19416931ff30c45531e7c14b023b255"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-23824",
+      "direction": "accepts_wrong_solution",
+      "summary": "Simplify contracted gamma products using the gamma matrix identities, including an adjacent contracted pair giving a factor of 4. Preserve the order of every leading uncontracted gamma matrix when simplifying the contracted remainder, for any number of leading matrices. Preserve ",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.log.json",
+      "quote": "physics.hep.kahane_simplify() incorrectly reverses order of leading uncontracted gamma matrices",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23824/attempt.json": "fd328a19979d225a181864ed072948ae0b23560b768fc767ff420d37a6b2ef5d"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-23824",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.diff",
+          "sha256": "58dc122d156fae2266fa4bec0aa6db039248ddfbb50fd5c29f99b16c56c1d608"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.log.json",
+            "sha256": "d9172b00453f8ff6e90a6506b3d5fa19a6b7311bfdcae8ff5427c7ba8c23619d"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-24066",
+      "direction": "accepts_wrong_solution",
+      "summary": "Recognize that second/(ohm*farad) has a dimensionless dimension in SI. Collect the factor and dimension of 100 + exp(second/(ohm*farad)) without raising ValueError, returning (100 + E, Dimension(1)).",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24066/candidate-1.log.json",
+      "quote": "SI._collect_factor_and_dimension() cannot properly detect that exponent is dimensionless",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24066/attempt.json": "110d459d7fecb529261e57ef57f94059942b0d39bd1649ecf691786f198b97c2"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-24066",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24066/candidate-1.diff",
+          "sha256": "ad568a69983843c73297d2c9b9a16fb1ec3ab46e6df19e5d7fa5d7ff9a391dc2"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24066/candidate-1.log.json",
+            "sha256": "485928a203fe48b750fdd0d2f36897494093022b180cdd8be6287d49bc425151"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-24539",
+      "direction": "accepts_wrong_solution",
+      "summary": "With no arguments, convert the polynomial using its ring's symbols. With exactly one supplied symbol per generator, use those symbols in generator order and preserve the polynomial's coefficients and powers. Accept valid replacement symbols for any ring size, including symbols th",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24539/candidate-1.log.json",
+      "quote": "`PolyElement.as_expr()` not accepting symbols",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24539/attempt.json": "b3bd4787fac99218cc9e5d6755582011d16c6645bfb43d5982119eee424129e1"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-24539",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24539/candidate-1.diff",
+          "sha256": "ab96c6412750449754d9e8f4f64fe42c294d95016fa169a30f51b0b3254b1608"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24539/candidate-1.log.json",
+            "sha256": "272e37b7e361704755a99639c5dc541eea030e17cf3aa5f56d02e51862da9a5d"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "sympy__sympy-24661",
+      "direction": "accepts_wrong_solution",
+      "summary": "`parse_expr(..., evaluate=False)` must return an unevaluated relational instead of a Boolean, including `1 < 2` as `Lt(1, 2, evaluate=False)`. Preserve the comparison operator and its operands for relationals, without restricting the fix to particular numeric literals. Honor `eva",
+      "evidence_location": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24661/candidate-1.log.json",
+      "quote": "The evaluate=False parameter to `parse_expr` is ignored for relationals",
+      "artifacts": {
+        "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24661/attempt.json": "411c759235beb6c08e1fdcc97dc3cb8762b6636bbdf9705664581c536ed461a1"
+      },
+      "counterexample": {
+        "task_id": "sympy__sympy-24661",
+        "patch": {
+          "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24661/candidate-1.diff",
+          "sha256": "4ee389d728010dbc252ea63ee5e25d03ff919b1f94f8c4cd61c7f0f94bc49bb9"
+        },
+        "command": [
+          "swebench harness on FAIL_TO_PASS and PASS_TO_PASS",
+          "python check.py"
+        ],
+        "result": {
+          "oracle_outcome": "pass",
+          "behavior_check": "fail",
+          "log": {
+            "path": "paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24661/candidate-1.log.json",
+            "sha256": "6a8b20837c44db79e20eb1c79d842d0b02089ada7c82e01015b6c3f37f553d9d"
+          }
+        }
+      }
+    }
+  ],
+  "roles": {
+    "author": "Vitor Raposo",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "signed_at": "2026-11-12T06:54:35.343222+00:00"
+}

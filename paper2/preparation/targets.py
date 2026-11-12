@@ -45,6 +45,7 @@ ROWS = ROOT / "paper2/records/sympy_target_rows"
 IMAGES = h.BASE / "target_images"
 BASE_IMAGE = "paper2/sympy-target-base:2"  # :1 lacked pytest, which bin/test now needs
 PYTHON_IMAGE = "python:3.12-slim"
+BASELINE_TIMEOUT_SECONDS = 1800
 
 
 def _github_token():
@@ -470,6 +471,59 @@ def rederive(tid, reason):
     return row
 
 
+def _baseline_timed_out(logs, timeout=BASELINE_TIMEOUT_SECONDS):
+    """True when the baseline derivation log exists on disk and records the harness per-instance timeout."""
+    before = (logs or {}).get("before") or {}
+    for rel_path in before:
+        if not rel_path.replace("\\", "/").endswith("run_instance.log"):
+            continue
+        p = ROOT / rel_path.replace("\\", "/")
+        if not p.exists():
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace").lower()
+        if f"timed out after {timeout}" in text or ("timed out" in text and str(timeout) in text):
+            return True, f"baseline run reached {timeout} s harness timeout"
+    return False, None
+
+
+def record_baseline_timeout(pr, attempt_path=None, timeout=BASELINE_TIMEOUT_SECONDS):
+    """Mark a candidate task ineligible when its baseline derivation run reached the 1800 s harness limit."""
+    tid = pr["task_id"]
+    if h.ELIGIBILITY.joinpath(f"{tid}.json").exists():
+        return json.loads((h.ELIGIBILITY / f"{tid}.json").read_text(encoding="utf-8"))
+    attempt_file = (ROOT / attempt_path).resolve() if attempt_path and not Path(attempt_path).is_absolute() else (Path(attempt_path).resolve() if attempt_path else None)
+    attempt_data = json.loads(attempt_file.read_text(encoding="utf-8")) if attempt_file else None
+    rel_attempt = str(attempt_file.relative_to(ROOT)) if attempt_file else None
+    row = load_rows().get(tid)
+    if row is None:
+        row, checks = confirm(pr)
+        if row is None:
+            raise RuntimeError(f"{tid}: identity verification failed ({checks})")
+        row.update(
+            derivation=dict(
+                reason=f"baseline run reached {timeout} s harness timeout",
+                attempt=rel_attempt,
+                logs=(attempt_data or {}).get("logs"),
+            ),
+            status="ineligible_baseline_timeout",
+        )
+        save_new(ROWS / f"{tid}.json", row)
+    rec = dict(
+        record="paper2-eligibility/1",
+        task_id=tid,
+        task_kind="upstream",
+        status="ineligible",
+        reasons=[
+            f"derivation: baseline run reached {timeout} s harness time limit"
+            + (f" ({rel_attempt})" if rel_attempt else "")
+        ],
+        checked_at=h.now(),
+        derivation_logs=(attempt_data or {}).get("logs"),
+    )
+    save_new(h.ELIGIBILITY / f"{tid}.json", rec)
+    return rec
+
+
 def process(need=6, predicate=None):
     """Confirms and derives matching candidates in order_key order until `need` targets are eligible or the pool
     ends. Rows and outcomes are written once. A task without a FAIL_TO_PASS test, or without parsed results, is
@@ -504,9 +558,23 @@ def process(need=6, predicate=None):
                 continue
             lists, reason, logs = derive(row, stamp)
             if reason and reason.startswith("harness failure"):
-                save_new(h.ELIGIBILITY / "attempts" / f"{tid}-{stamp}.json",
+                attempt_file = h.ELIGIBILITY / "attempts" / f"{tid}-{stamp}.json"
+                save_new(attempt_file,
                          dict(task_id=tid, task_kind="upstream", status="harness_failure", checked_at=h.now(),
                               reasons=[reason], logs=logs))
+                timed_out, timeout_reason = _baseline_timed_out(logs)
+                if timed_out:
+                    row.update(derivation=dict(reason=timeout_reason, attempt=str(attempt_file.relative_to(ROOT)), logs=logs),
+                               status="ineligible_baseline_timeout")
+                    save_new(ROWS / f"{tid}.json", row)
+                    rows[tid] = row
+                    rec = dict(record="paper2-eligibility/1", task_id=tid, task_kind="upstream", status="ineligible",
+                               reasons=[f"derivation: {timeout_reason} ({attempt_file.relative_to(ROOT)})"],
+                               checked_at=h.now(), derivation_logs=logs)
+                    save_new(h.ELIGIBILITY / f"{tid}.json", rec)
+                    results[tid] = rec
+                    print(tid, "ineligible:", timeout_reason)
+                    continue
                 print(tid, reason, "(attempt kept; task pending)")
                 continue
             row.update(lists or {}, derivation=dict(reason=reason, logs=logs, image_id=image),

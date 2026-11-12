@@ -1,0 +1,121 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "complete",
+  "criterion": "B05",
+  "concern": "C05",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Were tasks, reference answers and tests checked for errors that reject a correct solution?",
+  "shown_means": "the checking procedure described",
+  "checked_means": "coverage, findings and limits of the check reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "task",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": [
+      "sympy__sympy-13798",
+      "sympy__sympy-16597",
+      "sympy__sympy-23413",
+      "sympy__sympy-12096",
+      "sympy__sympy-24539",
+      "sympy__sympy-21847",
+      "sympy__sympy-13551",
+      "sympy__sympy-15809",
+      "sympy__sympy-20590",
+      "sympy__sympy-20438",
+      "sympy__sympy-20428",
+      "sympy__sympy-14711",
+      "sympy__sympy-23534",
+      "sympy__sympy-23824",
+      "sympy__sympy-13372",
+      "sympy__sympy-13878",
+      "sympy__sympy-13031",
+      "sympy__sympy-19783",
+      "sympy__sympy-22914",
+      "sympy__sympy-15976",
+      "sympy__sympy-18199",
+      "sympy__sympy-17318",
+      "sympy__sympy-13647",
+      "sympy__sympy-22456",
+      "sympy__sympy-24562",
+      "sympy__sympy-12481",
+      "sympy__sympy-22080",
+      "sympy__sympy-15345",
+      "sympy__sympy-24661",
+      "sympy__sympy-16792",
+      "sympy__sympy-15017",
+      "sympy__sympy-17139",
+      "sympy__sympy-15349",
+      "sympy__sympy-19040",
+      "sympy__sympy-18189",
+      "sympy__sympy-13757",
+      "sympy__sympy-22714",
+      "sympy__sympy-18211",
+      "sympy__sympy-17655",
+      "sympy__sympy-19637",
+      "sympy__sympy-12489",
+      "sympy__sympy-15599",
+      "sympy__sympy-20154",
+      "sympy__sympy-24066",
+      "sympy__sympy-21596"
+    ]
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Applies always."
+  },
+  "check": {
+    "procedure": "Reported by the sources: OpenAI 2024 screened FAIL_TO_PASS tests with three annotators per sample, and OpenAI 2026 audited 138 tasks o3 failed consistently. Run for this study: all 89 selected tasks (pilot, 44 source, 44 target) failed every FAIL_TO_PASS test unchanged and passed every test under the reference patch; for sympy__sympy-18199 a patch fixing only the stated issue was graded against the hidden tests.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt; paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json; paper2/preparation/protocol-4/eligibility/",
+    "detection_limits": "Eligibility runs test only the reference fix and cannot detect tests that reject a different valid solution on the other 88 selected tasks. OpenAI (2026) found flawed tests in at least 59.4% of 138 audited problems that o3 did not consistently solve, without listing affected SymPy tasks beyond named examples such as sympy__sympy-18199."
+  },
+  "evidence": [
+    {
+      "location": "~/paper2-sources/openai-introducing-swe-bench-verified.archive.txt",
+      "quote": "each sample is labeled 3 times by separate annotators"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "at least 59.4% of the audited problems have flawed test cases that reject functionally correct submissions"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "An example of too wide test cases is sympy__sympy-18199"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "the only FAIL_TO_PASS test, test_solve_modular, fails on an assertion about the composite modulus 8"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Both OpenAI reports describe annotation/audit checks with coverage and findings, reference patches pass eligibility across all selected tasks, and sympy__sympy-18199 has an executed counterexample. Under rubric v5.1 (feedback item 15), sympy__sympy-18199 is listed as a task defect and outcome is passed for the remaining tasks in scope.",
+  "missing": "Full task-by-task flaw list from OpenAI 2026 and independent correct-patch checks for all 88 remaining tasks.",
+  "checks_performed": [
+    "Read OpenAI 2024 and 2026 archived posts, Zhu et al. Table 8, Protocol 4 eligibility records (45 pilot+source and 44 target), and b05-18199-counterexample.json."
+  ],
+  "task_defects": [
+    {
+      "direction": "rejects_correct_solution",
+      "task_id": "sympy__sympy-18199",
+      "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "the only FAIL_TO_PASS test, test_solve_modular, fails on an assertion about the composite modulus 8",
+      "summary": "A patch that keeps only the stated issue (a % p == 0 returns the root 0) was executed and not resolved, because the only FAIL_TO_PASS test asserts composite moduli the problem statement does not mention. The record does not show that this patch is a complete fix.",
+      "artifacts": {
+        "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json": "07ae13d59422603a97c9274184d9d7632d1f4e1208be23f875c0fe0c13a9c8ae"
+      }
+    }
+  ],
+  "roles": {
+    "author": "Vitor Raposo",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "signed_at": "2026-11-12T06:54:35.271328+00:00"
+}

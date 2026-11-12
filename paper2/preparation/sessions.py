@@ -41,6 +41,7 @@ BASE = s.PROTOCOL
 _PROTOCOL5_DEFAULTS = dict(
     PROTOCOL_NUMBER=s.PROTOCOL_NUMBER,
     PROTOCOL=s.PROTOCOL,
+    CONFIGURATIONS=s.CONFIGURATIONS,
     PHASES=dict(s.PHASES),
     MAX_SESSIONS=s.MAX_SESSIONS,
     SAMPLE=dict(s.SAMPLE),
@@ -60,7 +61,7 @@ AGY_HOOKS, AGY_GATE = BASE / "agy-hooks.json", BASE / "agy-gate.py"
 PROTOCOL5_RECORDS = ("abc-items.json", "reviewer-prompt-v5.1.md", "abc-prompt.md",  # inputs of the rating and ABC runs
                      "b28a-check-prompt.md", "audit_checks/aba-overlap.json")
 PROTOCOL6_RECORDS = ("abc-items.json", "reviewer-prompt-p6.md", "abc-prompt.md",
-                     "b28a-check-prompt.md", "b07-attempt-prompt-p6.md", "task_checks.json")
+                     "b28a-check-prompt.md", "b07-attempt-prompt-p6.md", "task_checks.json", "deviations.md")
 FROZEN_RECORDS = PROTOCOL5_RECORDS
 AGY_WORKSPACE_FILES = {"agents/local.md": AGY_AGENT, "hooks.json": AGY_HOOKS, "gate.py": AGY_GATE}
 # Outside the repository. The workspace folder holds only the slot being run; closed workspaces, per-session Codex
@@ -101,7 +102,8 @@ PROTOCOL5_CODE_FILES = ("paper2/method/evidence.py", "paper2/method/decision_eng
                         "paper2/preparation/replay.py", "paper2/preparation/cases.py", "paper2/preparation/counterexamples.py",
                         "paper2/preparation/aba.py")
 CODE_FILES = PROTOCOL5_CODE_FILES
-PROTOCOL6_CODE_FILES = (*PROTOCOL5_CODE_FILES, "paper2/preparation/protocol6.py", "paper2/preparation/exposure_probe.py")
+PROTOCOL6_CODE_FILES = (*PROTOCOL5_CODE_FILES, "paper2/preparation/protocol6.py",
+                        "paper2/preparation/exposure_probe.py", "paper2/preparation/b07_p6.py")
 TIME_LIMIT = 900  # the only limit; steps are reported, since the tools count them differently
 AGY_GRACE = 30  # agy stops itself at TIME_LIMIT (--print-timeout); the watchdog is a backstop
 RESERVATION_TOLERANCE = 1.0  # seconds: run.sh writes whole seconds, the ledger writes microseconds
@@ -112,6 +114,7 @@ RUN_PREFIX = "session"  # harness run names; "rehearsal" during a rehearsal
 REQUESTED = {"CONFIG_01_GEMINI_FLASH_MED": dict(scaffold="Antigravity CLI (agy)", model="gemini-3.8-flash-medium",
                                                 effort=None),
              "CONFIG_02_SOL_MED": dict(scaffold="Codex CLI", model="gpt-6.1-sol", effort="medium")}
+_PROTOCOL5_REQUESTED = dict(REQUESTED)
 PROMPT = """The repository in this folder is SymPy at the commit where the issue below was open.
 
 <issue>
@@ -218,25 +221,29 @@ def configure_protocol(protocol_number="5"):
     """Switch module paths and helpers cleanly between Protocol 5 and Protocol 6 (keeps Protocol 5 default)."""
     global PROTOCOL_NUMBER, BASE, FROZEN, REQUIREMENT_DRAFT, REQUIREMENT, AUTHORIZATIONS, LEDGER, SESSIONS, FORMS
     global CONFIGS_FILE, AGY_SESSION_SETTINGS, AGY_AGENT, AGY_HOOKS, AGY_GATE, AGY_WORKSPACE_FILES
-    global FROZEN_RECORDS, CODE_FILES, REHEARSAL
+    global FROZEN_RECORDS, CODE_FILES, REHEARSAL, REQUESTED
     proto = str(protocol_number)
     if proto == "6":
         from paper2.preparation import protocol6 as p6
         PROTOCOL_NUMBER = "6"
         s.PROTOCOL_NUMBER = "6"
         s.PROTOCOL = p6.PROTOCOL
+        s.CONFIGURATIONS = p6.CONFIGURATIONS
         s.PHASES = p6.PHASES
         s.MAX_SESSIONS = p6.MAX_SESSIONS
         s.SAMPLE = p6.SAMPLE
+        REQUESTED = dict(p6.REQUESTED)
         FROZEN_RECORDS = PROTOCOL6_RECORDS
         CODE_FILES = PROTOCOL6_CODE_FILES
     else:
         PROTOCOL_NUMBER = _PROTOCOL5_DEFAULTS["PROTOCOL_NUMBER"]
         s.PROTOCOL_NUMBER = _PROTOCOL5_DEFAULTS["PROTOCOL_NUMBER"]
         s.PROTOCOL = _PROTOCOL5_DEFAULTS["PROTOCOL"]
+        s.CONFIGURATIONS = _PROTOCOL5_DEFAULTS["CONFIGURATIONS"]
         s.PHASES = dict(_PROTOCOL5_DEFAULTS["PHASES"])
         s.MAX_SESSIONS = _PROTOCOL5_DEFAULTS["MAX_SESSIONS"]
         s.SAMPLE = dict(_PROTOCOL5_DEFAULTS["SAMPLE"])
+        REQUESTED = dict(_PROTOCOL5_REQUESTED)
         FROZEN_RECORDS = PROTOCOL5_RECORDS
         CODE_FILES = PROTOCOL5_CODE_FILES
     BASE = s.PROTOCOL
@@ -336,14 +343,15 @@ def freeze():
                and not launch_settings(c).get("permission_flag")]
     if missing:
         raise RuntimeError("Launch settings incomplete (permission_flag): " + ", ".join(missing))
-    tools = {t: tool_version(t) for t in ("codex", "agy")}
+    required_tools = tuple(sorted({launch_settings(c).get("tool") for c in s.CONFIGURATIONS}))
+    tools = {t: tool_version(t) for t in required_tools}
     if None in tools.values():
         raise RuntimeError(f"Tool versions unknown: {tools}")
     if hasattr(os, "lchflags") or str(PROTOCOL_NUMBER) == "5":
-        unlocked = [t for t in ("codex", "agy") if not tool_locked(t)]
+        unlocked = [t for t in required_tools if not tool_locked(t)]
         if unlocked:
             raise RuntimeError("; ".join(lock_refusal(t) for t in unlocked))
-    tool_digests = {t: tool_digest(t) for t in ("codex", "agy")} if str(PROTOCOL_NUMBER) == "6" else None
+    tool_digests = {t: tool_digest(t) for t in required_tools} if str(PROTOCOL_NUMBER) == "6" else None
     if not REQUIREMENT.exists():
         raise RuntimeError(f"The requirement is not signed: python3 -m paper2.preparation.sessions{' --protocol 6' if str(PROTOCOL_NUMBER) == '6' else ''} sign-requirement --author NAME")
     validate_requirement(json.loads(REQUIREMENT.read_text(encoding="utf-8")))
@@ -359,6 +367,7 @@ def freeze():
     images = {t: dict(image=rows[t]["image"], id=h.image_id(rows[t]["image"])) for t in selected}
     if any(v["id"] is None for v in images.values()):
         raise RuntimeError("Missing images: " + ", ".join(t for t, v in images.items() if v["id"] is None))
+    agy_required = "agy" in required_tools
     manifest = dict(
         protocol=s.PROTOCOL_NUMBER, frozen_at=s.now(), selection=chosen["selected"], sample=sample_cfg,
         order_salt=s.ORDER_SALT, pools_sha256=hashlib.sha256(json.dumps(pools, sort_keys=True).encode()).hexdigest(),
@@ -369,13 +378,15 @@ def freeze():
         records={f: sha(BASE / f) for f in FROZEN_RECORDS},
         exploratory_policy_sha256=ev.policy_digest(exp_policy_fn()),
         protocol_sha256=sha(BASE / "protocol.md"), configurations_sha256=sha(CONFIGS_FILE),
-        agy_session_settings_sha256=sha(AGY_SESSION_SETTINGS) if AGY_SESSION_SETTINGS.exists() else None,
-        agy_agent_sha256=sha(AGY_AGENT) if AGY_AGENT.exists() else None,
-        agy_hooks_sha256=sha(AGY_HOOKS), agy_gate_sha256=sha(AGY_GATE),
-        agy_settings_sha256=agy_settings_digest(), tools=tools, agent_pythons=pythons,
+        agy_session_settings_sha256=(sha(AGY_SESSION_SETTINGS) if AGY_SESSION_SETTINGS.exists() else None) if agy_required else None,
+        agy_agent_sha256=(sha(AGY_AGENT) if AGY_AGENT.exists() else None) if agy_required else None,
+        agy_hooks_sha256=sha(AGY_HOOKS) if agy_required else None,
+        agy_gate_sha256=sha(AGY_GATE) if agy_required else None,
+        agy_settings_sha256=agy_settings_digest() if agy_required else None,
+        tools=tools, agent_pythons=pythons,
         prompt_sha256=hashlib.sha256(PROMPT.encode()).hexdigest(),
         harness=dict(swebench=h.harness_version(), docker=h.docker_server()),
-        configurations=REQUESTED, limits=dict(seconds=TIME_LIMIT),
+        configurations=dict(REQUESTED), limits=dict(seconds=TIME_LIMIT),
         session_budget={p: [r.start, r.stop - 1] for p, r in phases_cfg.items()})
     if tool_digests is not None:
         manifest["tool_digests"] = tool_digests
@@ -444,15 +455,16 @@ def frozen_drift(manifest, task_id=None, rows=None, live_tools=True):
         found.append("protocol.md")
     if "configurations_sha256" in manifest and sha(CONFIGS_FILE) != manifest["configurations_sha256"]:
         found.append("configurations.json")
-    if "agy_session_settings_sha256" in manifest and \
+    if manifest.get("agy_session_settings_sha256") is not None and \
             (sha(AGY_SESSION_SETTINGS) if AGY_SESSION_SETTINGS.exists() else None) != manifest["agy_session_settings_sha256"]:
         found.append("agy session settings")
-    if "agy_agent_sha256" in manifest and (sha(AGY_AGENT) if AGY_AGENT.exists() else None) != manifest["agy_agent_sha256"]:
+    if manifest.get("agy_agent_sha256") is not None and \
+            (sha(AGY_AGENT) if AGY_AGENT.exists() else None) != manifest["agy_agent_sha256"]:
         found.append("agy agent")
     for label, path, key in (("agy hooks", AGY_HOOKS, "agy_hooks_sha256"), ("agy gate", AGY_GATE, "agy_gate_sha256")):
-        if key in manifest and (sha(path) if path.exists() else None) != manifest[key]:
+        if manifest.get(key) is not None and (sha(path) if path.exists() else None) != manifest[key]:
             found.append(label)
-    if "agy_settings_sha256" in manifest and agy_settings_digest() != manifest["agy_settings_sha256"]:
+    if manifest.get("agy_settings_sha256") is not None and agy_settings_digest() != manifest["agy_settings_sha256"]:
         found.append("agy shared settings")
     for tool, version in (manifest.get("tools") or {}).items() if live_tools else ():
         if tool_version(tool) != version:
@@ -711,10 +723,10 @@ def open_session(phase, config_id, ledger=None, mirror=None, replaces=None):
     workspace = pending.rename(WORKSPACES / f"slot-{n:02d}")
     folder = SESSIONS / f"{n:02d}"
     folder.mkdir(parents=True, exist_ok=False)
-    (folder / "prompt.md").write_text(PROMPT.format(issue=rows[task_id]["problem_statement"].strip()), encoding="utf-8", newline="\n")
+    (folder / "prompt.md").write_bytes(PROMPT.format(issue=rows[task_id]["problem_statement"].strip()).replace("\r\n", "\n").encode("utf-8"))
     script = folder / "run.sh"
-    script.write_text(run_script(n, config_id, task_id, folder, workspace, rows[task_id]["base_commit"], launch,
-                                 version, python=agent_python(task_phase)), encoding="utf-8", newline="\n")
+    script.write_bytes(run_script(n, config_id, task_id, folder, workspace, rows[task_id]["base_commit"], launch,
+                                  version, python=agent_python(task_phase)).replace("\r\n", "\n").encode("utf-8"))
     script.chmod(0o755)
     s.save_new(folder / "opened.json", dict(slot=n, phase=phase, config_id=config_id, task_id=task_id,
                                             replaces=replaces if original else None, task_phase=task_phase,
@@ -1044,8 +1056,9 @@ def rehearsal(round_=1):
     live tool versions."""
     if FROZEN.exists():
         raise RuntimeError("The rehearsal runs only before the freeze")
+    req_tools = sorted({launch_settings(c).get("tool") for c in s.CONFIGURATIONS})
     manifest = dict(selection=dict(pilot=[REHEARSAL_TASK], source=[], target=[]),
-                    tools={t: tool_version(t) for t in ("codex", "agy")})
+                    tools={t: tool_version(t) for t in req_tools})
     g = globals()
     name = REHEARSAL.name if round_ == 1 else f"{REHEARSAL.name}-{round_}"
     folder = REHEARSAL.with_name(name)

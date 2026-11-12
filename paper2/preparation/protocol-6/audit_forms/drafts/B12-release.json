@@ -1,0 +1,55 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B12",
+  "concern": "C12",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Are uncertainty and statistical support reported for the benchmark's own scores?",
+  "shown_means": "sample size and an uncertainty measure (interval, standard error or spread over runs) for primary scores",
+  "checked_means": "power or significance reasoning given",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Applies always."
+  },
+  "check": {
+    "procedure": "Read the Zhu et al. assessment of SWE-bench Verified for statistical significance metrics and the source notes on ABC item R.10.",
+    "kind": "reported_by_sources",
+    "outcome": "not_performed",
+    "evidence_location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+    "detection_limits": "The check could not detect an interval or spread that appears on the leaderboard or in papers outside the sources read."
+  },
+  "evidence": [
+    {
+      "location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+      "quote": "R.10 0 The report does not include any metrics about statistical significance."
+    },
+    {
+      "location": "literature/notes/paper2-sources.md",
+      "quote": "asks for confidence intervals and guidance on interpreting results with evaluation flaws"
+    }
+  ],
+  "anchor": "Undocumented",
+  "reasons": "A sample size without an uncertainty measure does not reach Documented. The sources report no uncertainty measure for the benchmark scores.",
+  "missing": "An interval, standard error or spread over runs for the primary resolve rate. The team computes its own exact binomial bound for its decision, which B12 does not replace.",
+  "checks_performed": [
+    "Read Zhu et al. Table 8 and the notes entry."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

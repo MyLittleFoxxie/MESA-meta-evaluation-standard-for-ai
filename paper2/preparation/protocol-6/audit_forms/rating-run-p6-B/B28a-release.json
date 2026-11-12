@@ -1,0 +1,65 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28a",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the grading environment controlled, so that the system under test cannot reach answers or alter the scoring?",
+  "shown_means": "the grading environment and its isolation described",
+  "checked_means": "isolation of the system's output from the tests and the scorer verified or enforced in code",
+  "applies_when": "scoring runs the system's output as code or in an environment",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Scoring applies the agent patch and runs repository test runners inside a container."
+  },
+  "check": {
+    "procedure": "Cite the reviewer check in audit_checks/b28a-scoring-check/ (B28a-release): for sympy-13031, 20590, 24539 (bin/test) and sympy-30779 (pytest) patches that change only test running files were graded with the SWE-bench harness. Cross-read the Protocol 6 policy.",
+    "kind": "both",
+    "outcome": "failed",
+    "evidence_location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/",
+    "detection_limits": "Four tasks, two runner families, three candidates per bin/test task and two for the pytest task. Release level mutability is shown for the harness as run; other layouts and later harness versions were not tested. The policy POLICY-P6-CONTROLLED is a rule of the study, enforced by code on retained observations, not a property of the benchmark."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json",
+      "quote": "\"harness_resolved\": true"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-30779/check.json",
+      "quote": "\"outcome\": \"grading altered\""
+    },
+    {
+      "location": "paper2/preparation/protocol-6/protocol.md",
+      "quote": "POLICY-P6-CONTROLLED was defined on 2026-11-11"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_forms/B28a-release.json (session_control)",
+      "quote": "Code confirms for every retained observation that its patch modifies no SCORING_FILE runner or config."
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Release level test runner mutability exists: for all four checked tasks, patches that changed only bin/test, runtests.py or conftest.py were graded resolved, and each record shows the outcome \"grading altered\". The check was run and its limits are stated, so the level is Verified and the outcome is failed. POLICY-P6-CONTROLLED (no_scoring_file_changes) applies per case: every retained session observation is checked in code for patches that touch no scoring file, so the release defect is contained in the Protocol 6 sessions without repairing the benchmark. The policy applies to the pilot, 44 source and 44 target sessions as a condition on each case, not to the benchmark release.",
+  "missing": "",
+  "checks_performed": [],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "session_control": {
+    "kind": "no_scoring_file_changes",
+    "description": "Code confirms for every retained observation that its patch modifies no SCORING_FILE runner or config."
+  }
+}

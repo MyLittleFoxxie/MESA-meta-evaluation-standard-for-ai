@@ -33,14 +33,15 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 PYDIR=$(cd "$ROOT" && python3 -c "from paper2.preparation import sessions as ss; print(ss.AGENT_PYTHONS['${CHECK_PYTHON:-source}'])") || exit 2
 [ -x "$PYDIR/bin/python3" ] || { echo "the agent Python is missing: $PYDIR"; exit 2; }
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-OUT="$ROOT/paper2/preparation/protocol-5/audit_checks/sandbox-check-$TOOL-$STAMP"
+PROTO="${PROTOCOL:-5}"
+OUT="$ROOT/paper2/preparation/protocol-$PROTO/audit_checks/sandbox-check-$TOOL-$STAMP"
 CHECK="$HOME/paper2-sandbox-check"
 DIR="$CHECK/$TOOL-$STAMP"
 MARKER="$CHECK/outside-marker-$STAMP.txt"
 MARKER2="$CHECK/outside-marker-file-tool-$STAMP.txt"
 OUTSIDE="$CHECK/outside-write-$STAMP.txt"
 OUTSIDE2="$CHECK/outside-redirect-$STAMP.txt"
-ARCH="$HOME/paper2-archive/protocol-5"
+ARCH="$HOME/paper2-archive/protocol-$PROTO"
 AGY_HOME="$HOME/.gemini/antigravity-cli"
 CLEAN_ENV=(env -i HOME="$HOME" PATH="$PYDIR/bin:$PATH" USER="${USER:-}" LOGNAME="${LOGNAME:-${USER:-}}" TERM="${TERM:-dumb}" LANG="${LANG:-en_US.UTF-8}")
 mkdir -p "$OUT" "$DIR" || exit 1
@@ -101,16 +102,16 @@ case "$TOOL" in
     ;;
   agy)
     SETTINGS=()
-    [[ "$OPTIONS" == *" settings "* ]] && SETTINGS=(--settings "$ROOT/paper2/preparation/protocol-5/agy-session-settings.json")
+    [[ "$OPTIONS" == *" settings "* ]] && SETTINGS=(--settings "$ROOT/paper2/preparation/protocol-$PROTO/agy-session-settings.json")
     if [[ "$OPTIONS" == *" agent "* ]]; then
-      mkdir -p "$DIR/.agents/agents" && cp "$ROOT/paper2/preparation/protocol-5/agy-agent.md" "$DIR/.agents/agents/local.md" \
+      mkdir -p "$DIR/.agents/agents" && cp "$ROOT/paper2/preparation/protocol-$PROTO/agy-agent.md" "$DIR/.agents/agents/local.md" \
         && echo ".agents/" >> "$DIR/.git/info/exclude" || exit 1
       SETTINGS+=(--agent local)
     fi
     GATE=()
     if [[ "$OPTIONS" == *" hooks "* ]]; then
-      mkdir -p "$DIR/.agents" && cp "$ROOT/paper2/preparation/protocol-5/agy-hooks.json" "$DIR/.agents/hooks.json" \
-        && cp "$ROOT/paper2/preparation/protocol-5/agy-gate.py" "$DIR/.agents/gate.py" || exit 1
+      mkdir -p "$DIR/.agents" && cp "$ROOT/paper2/preparation/protocol-$PROTO/agy-hooks.json" "$DIR/.agents/hooks.json" \
+        && cp "$ROOT/paper2/preparation/protocol-$PROTO/agy-gate.py" "$DIR/.agents/gate.py" || exit 1
       grep -qx ".agents/" "$DIR/.git/info/exclude" || echo ".agents/" >> "$DIR/.git/info/exclude"
       GATE=(AGY_GATE_LOG="$OUT/agy-gate.jsonl")
     fi

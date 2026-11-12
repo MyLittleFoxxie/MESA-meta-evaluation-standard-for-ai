@@ -360,12 +360,14 @@ class ComparisonAndProtocol6BundleTests(unittest.TestCase):
         slots = [n for r in p6.PHASES.values() for n in r]
         self.assertEqual(len(slots), p6.MAX_SESSIONS)
         self.assertEqual(len(set(slots)), p6.MAX_SESSIONS)
-        self.assertEqual(slots, list(range(1, 199)))
+        self.assertEqual(slots, list(range(1, 100)))
+        self.assertEqual(p6.CONFIGURATIONS, ("CONFIG_02_SOL_MED",))
+        self.assertEqual(len(p6.PHASES["reserve"]), 10)
 
         with tempfile.TemporaryDirectory() as tmp:
             ledger = p6.make_ledger(Path(tmp) / "ledger")
-            s1 = ledger.reserve("source", "CONFIG_01_GEMINI_FLASH_MED", "sympy__sympy-1")
-            s2 = ledger.reserve("target", "CONFIG_01_GEMINI_FLASH_MED", "sympy__sympy-2")
+            s1 = ledger.reserve("source", "CONFIG_02_SOL_MED", "sympy__sympy-1")
+            s2 = ledger.reserve("target", "CONFIG_02_SOL_MED", "sympy__sympy-2")
             self.assertIn(s1, p6.PHASES["source"])
             self.assertIn(s2, p6.PHASES["target"])
 
@@ -437,48 +439,53 @@ class ComparisonAndProtocol6BundleTests(unittest.TestCase):
                 (sdir / "session.json").write_text(json.dumps(dict(observation=obs)), encoding="utf-8")
                 ledger.finish(slot, "completed")
 
-            for cfg in s.CONFIGURATIONS:
-                _write_obs("pilot", cfg, "sympy__sympy-13798", True)
-                for tid in src_tasks:
-                    _write_obs("source", cfg, tid, True)
-                for i, tid in enumerate(tgt_tasks):
-                    _write_obs("target", cfg, tid, i >= 5)  # 5/10 before removal; if first 5 defective -> 5/5
+            saved_cfgs = s.CONFIGURATIONS
+            s.CONFIGURATIONS = p6.CONFIGURATIONS
+            try:
+                for cfg in p6.CONFIGURATIONS:
+                    _write_obs("pilot", cfg, "sympy__sympy-13798", True)
+                    for tid in src_tasks:
+                        _write_obs("source", cfg, tid, True)
+                    for i, tid in enumerate(tgt_tasks):
+                        _write_obs("target", cfg, tid, i >= 5)  # 5/10 before removal; if first 5 defective -> 5/5
 
-            p5_completed = p6.PROTOCOL5 / "audit_forms" / "completed"
-            forms = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in p5_completed.glob("*.json")}
-            for name in ("B05-release", "B07-release"):
-                forms[name]["scope"]["task_ids"] = []
-            req = dict(
-                id="REQ-P6-ANALYSE-TEST",
-                text="test req",
-                target_repository="sympy/sympy",
-                threshold=0.70,
-                decision_rule="exact_binomial",
-                confidence=0.95,
-                n_min=9,
-                transfer={
-                    cfg: dict(
-                        justification="same repo",
-                        author="tester",
-                        source_scope=dict(repository="sympy/sympy"),
-                        target_scope=dict(repository="sympy/sympy", config_id=cfg),
-                    )
-                    for cfg in s.CONFIGURATIONS
-                },
-            )
-            rows = cases.analyse(
-                dict(source=src_tasks, target=tgt_tasks),
-                req,
-                forms,
-                ledger,
-                sessions=sessions_dir,
-                abc=forms["ABC-release"],
-                all_passing_incomplete=[src_tasks[0]],
-                target_defects=tgt_tasks[:5],
-                controlled=True,
-                max_sessions=p6.MAX_SESSIONS,
-            )
-            self.assertEqual(len(rows), 2)
+                p5_completed = p6.PROTOCOL5 / "audit_forms" / "completed"
+                forms = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in p5_completed.glob("*.json")}
+                for name in ("B05-release", "B07-release"):
+                    forms[name]["scope"]["task_ids"] = []
+                req = dict(
+                    id="REQ-P6-ANALYSE-TEST",
+                    text="test req",
+                    target_repository="sympy/sympy",
+                    threshold=0.70,
+                    decision_rule="exact_binomial",
+                    confidence=0.95,
+                    n_min=9,
+                    transfer={
+                        cfg: dict(
+                            justification="same repo",
+                            author="tester",
+                            source_scope=dict(repository="sympy/sympy"),
+                            target_scope=dict(repository="sympy/sympy", config_id=cfg),
+                        )
+                        for cfg in p6.CONFIGURATIONS
+                    },
+                )
+                rows = cases.analyse(
+                    dict(source=src_tasks, target=tgt_tasks),
+                    req,
+                    forms,
+                    ledger,
+                    sessions=sessions_dir,
+                    abc=forms["ABC-release"],
+                    all_passing_incomplete=[src_tasks[0]],
+                    target_defects=tgt_tasks[:5],
+                    controlled=True,
+                    max_sessions=p6.MAX_SESSIONS,
+                )
+            finally:
+                s.CONFIGURATIONS = saved_cfgs
+            self.assertEqual(len(rows), 1)
             row = rows[0]
             self.assertEqual(row["M3_controlled"]["evidence_status"], ev.ADMISSIBLE)
             self.assertEqual(row["M3_controlled"]["requirement_decision"], ev.ACCEPT)
@@ -490,6 +497,162 @@ class ComparisonAndProtocol6BundleTests(unittest.TestCase):
             self.assertEqual(row["comparable_agreement"]["M3_strict"], "not_comparable")
             self.assertEqual(row["comparable_agreement"]["M3_controlled"], "not_comparable")
             self.assertEqual(row["comparable_to_target_kept"]["M3_controlled"], "same_decision")
+
+    def test_b07_scope_rule_and_three_way_analyse(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            ledger = p6.make_ledger(root / "ledger")
+            sessions_dir = root / "sessions"
+            src_tasks = [f"sympy__sympy-{4000 + i}" for i in range(12)]
+            tgt_tasks = [f"sympy__sympy-{5000 + i}" for i in range(12)]
+
+            def _write_obs(phase, tid, resolved):
+                slot = ledger.reserve(phase, "CONFIG_02_SOL_MED", tid)
+                ledger.start(slot)
+                sdir = sessions_dir / f"{slot:02d}"
+                sdir.mkdir(parents=True, exist_ok=True)
+                patch = sdir / "patch.diff"
+                log = sdir / "log.json"
+                patch.write_text(f"diff --git a/sympy/core/add.py b/sympy/core/add.py\n# {tid}\n+# ok\n", encoding="utf-8")
+                log.write_text('{"ok": true}\n', encoding="utf-8")
+                obs = dict(
+                    task_id=tid,
+                    config_id="CONFIG_02_SOL_MED",
+                    repository="sympy/sympy",
+                    resolved=resolved,
+                    tests_resolved=resolved,
+                    within_limits=True,
+                    valid=True,
+                    invalid_reasons=[],
+                    patch=dict(task_id=tid, path=str(patch), sha256=ev.sha256_file(patch)),
+                    provenance=dict(
+                        session_id=f"slot-{slot:02d}",
+                        log=str(log),
+                        log_sha256=ev.sha256_file(log),
+                        controls=dict(no_scoring_file_changes=dict(passed=True, changed_files=[])),
+                    ),
+                )
+                (sdir / "session.json").write_text(json.dumps(dict(observation=obs)), encoding="utf-8")
+                ledger.finish(slot, "completed")
+
+            _write_obs("pilot", "sympy__sympy-13798", True)
+            # Source: 0..2 broken (0 agreed defect, 1 disagreed kept, 2 agreed not stated), 3..11 resolved => 9/12 before removal, 9/11 after removing task 0
+            for i, tid in enumerate(src_tasks):
+                _write_obs("source", tid, i >= 3)
+            for i, tid in enumerate(tgt_tasks):
+                _write_obs("target", tid, i >= 3)
+
+            sheet = p6.blind_b07_template(src_tasks[:4] + tgt_tasks[:3])
+            sheet["items"][0]["model_judgments"] = dict(family1_runA="states_broken_behavior", family1_runB="states_broken_behavior", family2_run="states_broken_behavior")
+            sheet["items"][1]["model_judgments"] = dict(family1_runA="states_broken_behavior", family1_runB="does_not_state", family2_run="states_broken_behavior")
+            sheet["items"][2]["model_judgments"] = dict(family1_runA="does_not_state", family1_runB="does_not_state", family2_run="does_not_state")
+            sheet["items"][3]["model_judgments"] = dict(family1_runA="states_broken_behavior", family1_runB="states_broken_behavior", family2_run="states_broken_behavior")
+            sheet["items"][4]["model_judgments"] = dict(family1_runA="states_broken_behavior", family1_runB="states_broken_behavior", family2_run="does_not_state")
+            sheet["items"][5]["model_judgments"] = dict(family1_runA="does_not_state", family1_runB="does_not_state", family2_run="does_not_state")
+            sheet["items"][6]["model_judgments"] = dict(family1_runA="states_broken_behavior", family1_runB="does_not_state", family2_run="does_not_state")
+            labels = {
+                src_tasks[0]: dict(model_demonstrated=True),
+                src_tasks[1]: dict(model_demonstrated=True),
+                src_tasks[2]: dict(model_demonstrated=True),
+                src_tasks[3]: dict(model_demonstrated=False),
+                tgt_tasks[0]: dict(model_demonstrated=True),
+                tgt_tasks[1]: dict(model_demonstrated=True),
+                tgt_tasks[2]: dict(model_demonstrated=True),
+            }
+            scope = p6.apply_b07_scope_rule(sheet, labels, source_ids=src_tasks, target_ids=tgt_tasks)
+            self.assertTrue(scope["author_judgment_empty"])
+            self.assertEqual(scope["agreed_defects"]["source"], [src_tasks[0]])
+            self.assertEqual(scope["disagreed_retained"]["source"], [src_tasks[1]])
+            self.assertEqual(scope["agreed_defects"]["target"], [tgt_tasks[0]])
+
+            p5_completed = p6.PROTOCOL5 / "audit_forms" / "completed"
+            forms = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in p5_completed.glob("*.json")}
+            forms["B05-release"]["scope"]["task_ids"] = []
+            forms["B07-release"]["task_defects"] = [
+                dict(
+                    task_id=src_tasks[0],
+                    direction="accepts_wrong_solution",
+                    summary="agreed defect",
+                    evidence_location="loc",
+                    quote="quote",
+                    artifacts={str(root / "dummy"): ev.sha256_file(sessions_dir / "01" / "patch.diff")},
+                )
+            ]
+            # fix artifact path to match existing file
+            art_path = str(sessions_dir / "01" / "patch.diff")
+            forms["B07-release"]["task_defects"][0]["artifacts"] = {art_path: ev.sha256_file(art_path)}
+            req = dict(
+                id="REQ-P6-3WAY",
+                text="test req",
+                target_repository="sympy/sympy",
+                threshold=0.70,
+                decision_rule="exact_binomial",
+                confidence=0.95,
+                n_min=9,
+                transfer={
+                    "CONFIG_02_SOL_MED": dict(
+                        justification="same repo",
+                        author="tester",
+                        source_scope=dict(repository="sympy/sympy"),
+                        target_scope=dict(repository="sympy/sympy", config_id="CONFIG_02_SOL_MED"),
+                    )
+                },
+            )
+            saved_cfgs = s.CONFIGURATIONS
+            s.CONFIGURATIONS = ("CONFIG_02_SOL_MED",)
+            try:
+                rows = cases.analyse(
+                    dict(source=src_tasks, target=tgt_tasks),
+                    req,
+                    forms,
+                    ledger,
+                    sessions=sessions_dir,
+                    target_defects=scope["agreed_defects"]["target"],
+                    controlled=True,
+                    max_sessions=p6.MAX_SESSIONS,
+                    b07_scope=scope,
+                    b07_not_performed=dict(source={"check invalid": 1}, target={"no candidate": 1}),
+                )
+            finally:
+                s.CONFIGURATIONS = saved_cfgs
+            three = rows[0]["b07_three_way"]
+            self.assertEqual(three["with_scope_rule"]["source"]["n"], 11)
+            self.assertEqual(three["with_scope_rule"]["source"]["successes"], 9)
+            self.assertEqual(three["all_flagged"]["source"]["n"], 9)
+            self.assertEqual(three["all_flagged"]["source"]["successes"], 9)
+            self.assertEqual(three["none_removed"]["source"]["n"], 12)
+            self.assertEqual(three["none_removed"]["source"]["successes"], 9)
+            self.assertEqual(rows[0]["b07_not_performed"]["target"]["no candidate"], 1)
+
+    def test_targets_baseline_timeout_detection(self):
+        from paper2.preparation import targets as tgt
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / "run_instance.log"
+            log.write_text("Running evaluation...\nTest timed out after 1800 seconds.\n", encoding="utf-8")
+            # Build relative-to-ROOT test by passing direct monkeypatch of ROOT
+            orig_root = tgt.ROOT
+            try:
+                tgt.ROOT = Path(tmp)
+                timed_out, reason = tgt._baseline_timed_out(dict(before={"run_instance.log": "deadbeef"}))
+                self.assertTrue(timed_out)
+                self.assertIn("1800", reason)
+            finally:
+                tgt.ROOT = orig_root
+
+    def test_task_check_ledger_marks_invalid_and_no_candidate_not_performed(self):
+        chk = p6.task_check_ledger(
+            dict(pilot=["sympy__sympy-13798"], source=["sympy__sympy-13878"], target=["sympy__sympy-30699"]),
+            {},
+        )
+        # Verify real repo records: 13878 is 'check invalid' in source, 30699 is 'no candidate' in target
+        src_entry = next(r for r in chk["tasks"] if r["task_id"] == "sympy__sympy-13878")["b07_incomplete_patch"]
+        tgt_entry = next(r for r in chk["tasks"] if r["task_id"] == "sympy__sympy-30699")["b07_incomplete_patch"]
+        self.assertEqual(src_entry["status"], "not_performed")
+        self.assertEqual(src_entry["reason"], "check invalid")
+        self.assertTrue(src_entry["retained"])
+        self.assertEqual(tgt_entry["status"], "not_performed")
+        self.assertEqual(tgt_entry["reason"], "no candidate")
+        self.assertTrue(tgt_entry["retained"])
 
     def test_b07_p6_normalize_diff_and_hook_cmd(self):
         from paper2.preparation import b07_p6

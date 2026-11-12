@@ -1,0 +1,518 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14b",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Could the test material be in the training data of the named model configuration?",
+  "shown_means": "the model's stated training cutoff and the task creation dates recorded with their sources",
+  "checked_means": "a contamination check for that model reported, or tasks created after its stated cutoff used as a held out set",
+  "applies_when": "a model configuration is named for the review",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "configuration",
+    "config_ids": [
+      "CONFIG_02_SOL_MED"
+    ],
+    "task_ids": [
+      "sympy__sympy-12096",
+      "sympy__sympy-12481",
+      "sympy__sympy-12489",
+      "sympy__sympy-13031",
+      "sympy__sympy-13372",
+      "sympy__sympy-13551",
+      "sympy__sympy-13647",
+      "sympy__sympy-13757",
+      "sympy__sympy-13878",
+      "sympy__sympy-14711",
+      "sympy__sympy-15017",
+      "sympy__sympy-15345",
+      "sympy__sympy-15349",
+      "sympy__sympy-15599",
+      "sympy__sympy-15809",
+      "sympy__sympy-15976",
+      "sympy__sympy-16597",
+      "sympy__sympy-16792",
+      "sympy__sympy-17139",
+      "sympy__sympy-17318",
+      "sympy__sympy-17655",
+      "sympy__sympy-18189",
+      "sympy__sympy-18199",
+      "sympy__sympy-18211",
+      "sympy__sympy-19040",
+      "sympy__sympy-19637",
+      "sympy__sympy-19783",
+      "sympy__sympy-20154",
+      "sympy__sympy-20428",
+      "sympy__sympy-20438",
+      "sympy__sympy-20590",
+      "sympy__sympy-21596",
+      "sympy__sympy-21847",
+      "sympy__sympy-22080",
+      "sympy__sympy-22456",
+      "sympy__sympy-22714",
+      "sympy__sympy-22914",
+      "sympy__sympy-23413",
+      "sympy__sympy-23534",
+      "sympy__sympy-23824",
+      "sympy__sympy-24066",
+      "sympy__sympy-24539",
+      "sympy__sympy-24562",
+      "sympy__sympy-24661",
+      "sympy__sympy-29774",
+      "sympy__sympy-29960",
+      "sympy__sympy-30037",
+      "sympy__sympy-30143",
+      "sympy__sympy-30175",
+      "sympy__sympy-30204",
+      "sympy__sympy-30273",
+      "sympy__sympy-30274",
+      "sympy__sympy-30276",
+      "sympy__sympy-30304",
+      "sympy__sympy-30311",
+      "sympy__sympy-30331",
+      "sympy__sympy-30344",
+      "sympy__sympy-30347",
+      "sympy__sympy-30350",
+      "sympy__sympy-30392",
+      "sympy__sympy-30396",
+      "sympy__sympy-30428",
+      "sympy__sympy-30454",
+      "sympy__sympy-30514",
+      "sympy__sympy-30530",
+      "sympy__sympy-30563",
+      "sympy__sympy-30569",
+      "sympy__sympy-30575",
+      "sympy__sympy-30590",
+      "sympy__sympy-30600",
+      "sympy__sympy-30642",
+      "sympy__sympy-30646",
+      "sympy__sympy-30680",
+      "sympy__sympy-30693",
+      "sympy__sympy-30699",
+      "sympy__sympy-30706",
+      "sympy__sympy-30711",
+      "sympy__sympy-30726",
+      "sympy__sympy-30748",
+      "sympy__sympy-30765",
+      "sympy__sympy-30771",
+      "sympy__sympy-30779",
+      "sympy__sympy-30803",
+      "sympy__sympy-30808",
+      "sympy__sympy-30827",
+      "sympy__sympy-30841",
+      "sympy__sympy-30914",
+      "sympy__sympy-30952"
+    ]
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The review names a coding agent configuration and tasks scored by executing code; this criterion applies to that use."
+  },
+  "check": {
+    "procedure": "Read configurations.json and exposure_probe.py; count every Sol source and target ledger record and check the 44 target PR and linked issue dates in sympy_target_pool.json.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-6/configurations.json; paper2/preparation/protocol-6/protocol.md; paper2/preparation/exposure_probe.py; paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-12096.json",
+    "detection_limits": "The cutoff is a provider claim, not a verified training boundary. Source tasks predate it and remain open to exposure. File names can follow issue cues, and misses do not rule out memorization. The probe measures file identification, not reproduction; source and target cues may differ. The pilot is not probed. Later training, retrieval, or leakage is not ruled out."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/configurations.json",
+      "quote": "\"value\": \"2026-04-30\""
+    },
+    {
+      "location": "paper2/preparation/protocol-6/protocol.md",
+      "quote": "Target tasks require issue creation, PR creation, and PR merge on or after `2026-05-01T00:00:00Z`."
+    },
+    {
+      "location": "paper2/preparation/exposure_probe.py",
+      "quote": "high accuracy can come from module cues in the issue text rather than training exposure"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-12096.json",
+      "quote": "\"config_id\": \"CONFIG_02_SOL_MED\""
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Sol has a stated cutoff of 30 April 2026. All 44 selected target PRs and linked issues follow that date. Across 88 probes, source file hits were 37/44 (84.09%) and target hits 40/44 (90.91%); exact file set matches were 30/44 and 13/44. The source minus target hit difference is -6.82 percentage points. Reproduction of fixes is not demonstrated.",
+  "missing": "Verified training data membership and a direct test of reproduction.",
+  "checks_performed": [
+    "Inspected cited records against rubric v5.1. No model or container calls."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "probe_summary": {
+    "source": {
+      "n": 44,
+      "any_file_hits": 37,
+      "exact_set_matches": 30
+    },
+    "target": {
+      "n": 44,
+      "any_file_hits": 40,
+      "exact_set_matches": 13
+    }
+  },
+  "probe_records": [
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-12096.json",
+      "sha256": "dc87a61bba9a080c7d2e011878b16882f29ef31b7e2e866bc58ee05f433dc5cd"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-12481.json",
+      "sha256": "844d3753c0af7da171bd8fd182306785ea6e12d69759dba9b2e08405ab4ab9e2"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-12489.json",
+      "sha256": "2825d64be09243cfd181ff146ccffd503b0a7407343eb5a73326bc0e37985548"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-13031.json",
+      "sha256": "d68186fcd995b71219eba996820a3295d89e313975cab19c35124fba51c2314c"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-13372.json",
+      "sha256": "096d1122250a3b3c88a6d30532dd42fba7b19825303458deba387f2b20300ba1"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-13551.json",
+      "sha256": "e280da4909dc8da1c509676464de803ee5bb13ffc9c92976273153cb2c95b6f2"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-13647.json",
+      "sha256": "4f8d9e346fd361534b09d0ba49d39a4a6d8cc0fcae6a0fecc53f36bee81fb451"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-13757.json",
+      "sha256": "f9f0c169bb9cdebaf8bafa532f084264b56361ed9110a64534600492d788ca23"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-13878.json",
+      "sha256": "a2e92f1e45b3d0e13ae1af042c618a96a526f87b8db04a537f3dfedb4d66a2ab"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-14711.json",
+      "sha256": "287a9a3769f36443433b37b2db8ed553b8c04f8e531170ba93f24a7e72ec5bf8"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-15017.json",
+      "sha256": "cdca3a00995d64019ed22715e126e3cb793ea4da2eda5587561c637d51ae267f"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-15345.json",
+      "sha256": "fa1b98c4bff6b8cdb90304448359509e502a90541e4eeffa769bf99b552a2828"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-15349.json",
+      "sha256": "62516a55efcf6c4253a70d1e70f89a0194a6ef398aa715b38e13697af00e7fd3"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-15599.json",
+      "sha256": "703a831c2eb5b4e5d4a36c2b44b4059b5026e7e11ae289d1d900f4cc36a56195"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-15809.json",
+      "sha256": "96f56d8cc5b637593704f790ad1379bf1fab63d9d5ad727c533ac2866e5f318b"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-15976.json",
+      "sha256": "15d1894b08a5b25b561aa92c15fbe11ac53f18cc3da53cb8e2e2e2ba8e2cab9a"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-16597.json",
+      "sha256": "00342ce1baf813df0b71fe21e25552d0492569d3f9b09f78c635880ec3272695"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-16792.json",
+      "sha256": "f440bf669521f162d07331166f6a30026ebd91b9d0f984ca115f7cb779435aa8"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-17139.json",
+      "sha256": "e0f303bb55a77d91e5a49c8ce15df2f2586bcf159a3bd0fc2b931e28be044188"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-17318.json",
+      "sha256": "3fe2e948465fb529b3747d5c0318ebef4edd52b1d890e90f1643b8b8c98e9db1"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-17655.json",
+      "sha256": "5c17cedb30096458e2af570edc4595d6f5aa55df0b3c693c19a40f6bff8e5b2c"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-18189.json",
+      "sha256": "8053587cd76e76f635443a870299f46b28fafd6834c9d4585e826503ca6d1c0d"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-18199.json",
+      "sha256": "1458e1d9c98f6e0da01bdd38db7c3f968719bd1d43829fe65b6bee2b40ca9b9c"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-18211.json",
+      "sha256": "34ca2e8f32a30c4384db718fcf7b0ae78fba9a96d3734c31a4b3f8d9ffa1b32a"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-19040.json",
+      "sha256": "7bce0f835704f9209f7a96d58e52e9dacd570326174178e9c60c97a9636c0d42"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-19637.json",
+      "sha256": "760d2ceff89584b85b5ded9c27327c67a94c792d6419ac881aa58ff9fc346868"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-19783.json",
+      "sha256": "82806b11bb41d06ea5c61912c56ea2209c86f9ccd826ca9389c6018090c2510c"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-20154.json",
+      "sha256": "6144a0d517daa86f0002d720e62538f0599402b79caf8f3076a1c464d6a5ef41"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-20428.json",
+      "sha256": "25f9120957022ff8c785748d7f95d618145975dbfea33326ba4e9d6def99ec76"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-20438.json",
+      "sha256": "837d95d0eefd5050cb4bde75d1979ded1c7a155e309cd9723bc3e0e63b64d6fc"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-20590.json",
+      "sha256": "cc57ded7799cfefb004b08a8f97f538cb10b1a002a55844876b3d3a9336a5e72"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-21596.json",
+      "sha256": "ea8126a6600c7cb34eae223e33e7d62c2167bdee2653b0ba7080dba3ee9fbd68"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-21847.json",
+      "sha256": "5de875e2eed54d8cd171c3f07560690664fbc67833fc13bc80933e2040b5a060"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-22080.json",
+      "sha256": "62248110d9fafad2b71e1ce38fbdaf2ec0e9e38bb83933ac2d7eb38d781cce4a"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-22456.json",
+      "sha256": "ea3678d5ec69317d4a0f9f64dae5ba204e7700bb6cc49fc26363389cc0e3cbaa"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-22714.json",
+      "sha256": "4a562ae2c048bc2516a3d8ea214d717856e9bc9f1d7bd35a1c510d6f944a1037"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-22914.json",
+      "sha256": "5714d4ba4d98f05b3fe762c1776e3402cd2b62a6e33da45cb12321ad6ef8be33"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-23413.json",
+      "sha256": "3d4b8b0333174362aeb3741bd6a9afe4a0b705e99e582b73a8d236359f0393aa"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-23534.json",
+      "sha256": "07ab27648ea651e5af7e4b9dd7d84b37a6f1e2505b96db53dbb6e810bafab941"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-23824.json",
+      "sha256": "2f92802fb89e06ea28fa725756963c086f17dcdbd612d8d30b694ecfe94ed562"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-24066.json",
+      "sha256": "54fdc781c1e46b2b4e9509da4ca4dbd10371934f2bdc276fd2ec9bda82dabbd2"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-24539.json",
+      "sha256": "4259b064503d4b80465cad9137926aa43012bf737a0fa40147452de7b0180b1b"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-24562.json",
+      "sha256": "ef1128e31dd9537d6226ffdb8400f91485bd1abdc2432ca239fa57fcaccc4343"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-24661.json",
+      "sha256": "975d9b681bbbb31ccbf6fdb3f8558c6d31f3795a53172cd6fa4b9c142b4f8f95"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-29774.json",
+      "sha256": "6d69bc1788d42e1790b500a527f1eed91f73df801c51e89407bd18138e2c068a"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-29960.json",
+      "sha256": "a2f59fdc1b20e223acec88f720e9df04a807d73088bcdcf816cc71b3cb2a879c"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30037.json",
+      "sha256": "8870147fc5530c6e8e21d11ab4a8be35acc29cf19b18a9ee41783c0c062470e2"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30143.json",
+      "sha256": "a123b91d059687500ad63ef55a5b3de2e68e3711fdcbb582a2704047544c6c4e"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30175.json",
+      "sha256": "9dae2f9c33389443dcbaa335cb5b0fb60dcc748d9e3c5455187f41fdaf69b911"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30204.json",
+      "sha256": "01ede881789d26876bcdda2de0b5182430083089b559e7a66e22fd89ec637298"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30273.json",
+      "sha256": "d8fac73f1e1d19ed751177e2bb6e58b13e23539a3ad6f368b887b2eee9f72e02"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30274.json",
+      "sha256": "5533eb2aa49ff1f440790501e90430c30332e30b46b45f0d5117f4f188b08bbc"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30276.json",
+      "sha256": "817c3b527723c8094e8250509a890de286efe4cb18334cc4349ba6a7b80b4014"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30304.json",
+      "sha256": "052c6839ec41394ca278498dcc236a584cdbaf8a6c735686209b1ca4aaeb94aa"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30311.json",
+      "sha256": "ee61af36a699d3ed0d9cf2d175fc4d699aedf0a0ca12216e15a49c2b4a4462fd"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30331.json",
+      "sha256": "72014ff09cea70babdfff1faa8039d78f8d301d025925a9c9063bd1baa1b3d1f"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30344.json",
+      "sha256": "4ff76ddbc515c0dc385dfde04640855eb843308947c21f78329c274330f78626"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30347.json",
+      "sha256": "7e040f3cbc2438c93d86365ec815058fe5535182fe12f379a90595bc6da9acca"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30350.json",
+      "sha256": "f4cbde148dcecb099709203af20cd16ee4c4a73b8d35c5caf406194ad9f8809c"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30392.json",
+      "sha256": "73103081ed67d199550fe0e17f3ac4aa74eecd81b6330589cccba0a39a975796"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30396.json",
+      "sha256": "b0cbdf8d486d950b47caa59411c387c0a480d621a1f8be8ad94f57ad4c934a4e"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30428.json",
+      "sha256": "b7dff2de142b25b0e03b020f01b863eca625d818abd9d5127df34aa128d53859"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30454.json",
+      "sha256": "29dd8e792095a1b8839fee224db2f4787a20afcb7c45f1195b40cb9c96f23d83"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30514.json",
+      "sha256": "a49cb1d532329c17297dfff94847ae4719bd6aea70bfbcc2fe1b52eeb7b5219d"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30530.json",
+      "sha256": "9e5be16ee0012d12f88277222b9e3336faa70eeba242ee6bc25a3f3c293c66ad"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30563.json",
+      "sha256": "41068ee1d2b9dc8dd6efd496db26ab678f04a44d29252bc7157cbf4d06566b45"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30569.json",
+      "sha256": "a01ab05310b6ae53c6bf5f40fb7db05cd7afef6116b4dbd7c732cebf495675da"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30575.json",
+      "sha256": "99ffeb384a6e81c3d4e20c2894df3d8bc3942d57213463b137e88d5e9bdf896a"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30590.json",
+      "sha256": "a4ce810fe46d8e58c62d2fd4d482e3cad7754700eeb2b4c31970071f1db4193b"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30600.json",
+      "sha256": "6473be981fcad4cfbf552719129e52712d1265058c11ebc44ac35d7cf1e9f139"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30642.json",
+      "sha256": "d481a0c17e4e84d67e088be5f24003e3ae3d31493c18cf4b31a5828257081c3d"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30646.json",
+      "sha256": "1d4f5ed70e9e4da3190052e5cc15a3ddc07071fd4891390a596be7ae02123bfd"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30680.json",
+      "sha256": "2d3eefff1b5b1fa10ca9771d122e39c62dd9f813ea8fc84134ae2459471709e5"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30693.json",
+      "sha256": "c623b1a29c013a15b471feaac5bb24cb14bc08c195b645b39251fc900faa76e2"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30699.json",
+      "sha256": "d8f5b7fc558ea876278215e509609db9390cc980f105934f0bef72e52d8e552a"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30706.json",
+      "sha256": "11b0120bbe57bb5c7503fcace5ab124d5c757d42afa37e21208eb1e22e127a62"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30711.json",
+      "sha256": "6a2e5cfcbe350b467374a78a382de36885ff48bcc743e7aeedee0d6bbe8cbc7d"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30726.json",
+      "sha256": "8b2ac2013c049cf87bf2af1aad03d55afe08418b9c27a97bb7998c48ada06ac1"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30748.json",
+      "sha256": "9331875a529e46d8c41e582698fbf7dff84286d9f454dd400920869f23f73d46"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30765.json",
+      "sha256": "3a6115b478f41e5c6bb12e8bba1ebf61f8929c9f54d5ab0176f02f9d59f5c1fd"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30771.json",
+      "sha256": "4f14dbc24dd82576a36b04f569a99657a52fe420f4de5583c9472f28f9242165"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30779.json",
+      "sha256": "9f78db633645c9c61930e4c217a95ccde0d3e71c2b8b2e791a3c781de7cded69"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30803.json",
+      "sha256": "6b31e1a41864c4d16c7e0095098938546a984e2641e6fdab9ae30a9b876bdd93"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30808.json",
+      "sha256": "c8354e6b94370d1d2d09c59503da19883f0f1ddfe970e862c274f347f1d4aaa4"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30827.json",
+      "sha256": "1887e4ef255bf6cbc877465593fcae8cfcd3dd869c79e2faa529d0438e94792f"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30841.json",
+      "sha256": "b578546c44f9b742253ed4045d5db76e43dda1e0ba1a7539e3cda1d3c80357cd"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30914.json",
+      "sha256": "eea2d7985ea2d96d33a9c7194702cb78e8eaa46820089610b10cce466884a5e8"
+    },
+    {
+      "path": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__target__sympy__sympy-30952.json",
+      "sha256": "c1aa164040ac509aacc136ab94f7c2ce239ae85790e2fb54f8c53c864085dc4f"
+    }
+  ]
+}

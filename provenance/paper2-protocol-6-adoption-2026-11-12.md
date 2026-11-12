@@ -27,9 +27,10 @@ The paper should state that the agent was chosen after these records existed, an
 - The Gemini source probes and the Gemini records of the B07 pipeline stay in the repository as records. Gemini 3.8 Flash Medium keeps its role as the writer of the B07 checks, so the incomplete patches (Sol) and the checks (Gemini) still come from two model families. Sol, the agent under test, wrote the incomplete patches; the paper should say so.
 - [`proposal.md`](../paper2/preparation/protocol-6/proposal.md) keeps its text as the record of the proposal. Its status line ("not in force") is superseded by this note.
 
-## Still open, for the author
+## Decisions on previously open items (confirmed 2026-11-12)
 
-- The rule for `sympy__sympy-30682`, whose baseline run reaches the harness time limit of 1800 s. Until it is decided, `study_controls.select` gives 40 of 44 target tasks.
-- The number of reserve slots for one agent (protocol 6 had 20 for two agents).
-- How the 16 tasks with an invalid B07 check and the 2 tasks with no candidate patch enter the B07 form.
-- The host that runs the sessions.
+1. **`sympy__sympy-30682` (1800 s baseline timeout rule):** Record any target task whose baseline harness derivation run reaches the 1800 s harness time limit as `ineligible` with the reason stated (`provenance/paper2-eligibility-30682-decision-2026-11-12.md`). Under this rule, target selection completes cleanly at 44 of 44 eligible tasks ending at `sympy__sympy-30037`.
+2. **Reserve slots:** `10` reserve slots (`99` maximum sessions total: `1` pilot + `44` source + `44` target + `10` reserve), used only to replace a recorded `infrastructure_failure`.
+3. **Invalid B07 checks (16) and no-candidate tasks (2):** Record `b07_incomplete_patch` as `not_performed` (`check_invalid` for the 6 source and 10 target invalid checks; `no_candidate` for the 2 target tasks without candidates), retain all 18 tasks in the selection since no defect was demonstrated, report the counts per split, and perform no post-hoc retries.
+4. **B07 scope rule and three-way reporting:** A task counts as a B07 defect when both same-family rating runs (`Claude Sonnet 5.5` runs A and B) agree that the candidate statement `states_broken_behavior`. Disagreements stay in the retained set and are reported; the second-family run (`GPT-6.1 Sol`) is reported as an agreement check only. `cases.py` reports results three ways: with the scope rule applied, with all flagged tasks removed, and with none removed. `author_judgment` remains empty (`null`).
+5. **Host, signing, and standby Gemini fallback:** Run the study sessions on the macOS host (where shared Python environments, `codex`, `agy`, and sandbox checks were prepared). Forms and requirements are signed by the author (`Vitor Raposo`) as model-drafted without judging each B07 item. Only `CONFIG_02_SOL_MED` is frozen upfront; if Sol exhausts its Codex weekly quota without a timely reset, invoke a formal Protocol 6 contingency amendment to run a clean, separate `1 + 44 + 44` study under `CONFIG_01_GEMINI_FLASH_MED` while reporting any partial Sol prefix separately.

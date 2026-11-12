@@ -171,17 +171,17 @@ def run_stage1_codex(task_id: str, row: Dict[str, Any], out_dir: Path, timeout: 
             raise RuntimeError(f"Stage 1 did not write _p6_stage1/behaviors.md for {task_id}")
         subprocess.run(["git", "-C", str(ws), "checkout", "--", "."], check=True)
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "behaviors.md").write_text(_sanitize_behaviors(beh_src.read_text(encoding="utf-8")), encoding="utf-8", newline="\n")
+        (out_dir / "behaviors.md").write_bytes(_sanitize_behaviors(beh_src.read_text(encoding="utf-8")).replace("\r\n", "\n").encode("utf-8"))
         kept = 0
         for cand_path in sorted(stage_dir.glob("candidate-*.diff"))[: cx.MAX_CANDIDATES]:
             diff_text = normalize_diff(cand_path.read_text(encoding="utf-8", errors="replace"))
             if validate_diff_applies(ws, diff_text):
                 kept += 1
-                (out_dir / f"candidate-{kept}.diff").write_text(diff_text, encoding="utf-8", newline="\n")
+                (out_dir / f"candidate-{kept}.diff").write_bytes(diff_text.replace("\r\n", "\n").encode("utf-8"))
         if kept == 0:
             nc = stage_dir / "no-candidate.md"
             reason = nc.read_text(encoding="utf-8") if nc.exists() else "No valid applying incomplete candidate generated in Stage 1."
-            (out_dir / "no-candidate.md").write_text(reason.strip() + "\n", encoding="utf-8", newline="\n")
+            (out_dir / "no-candidate.md").write_bytes((reason.strip() + "\n").replace("\r\n", "\n").encode("utf-8"))
 
 
 def stage2_prompt(task_id: str, row: Dict[str, Any], behaviors_text: str) -> str:
@@ -251,7 +251,7 @@ def run_stage2_agy(task_id: str, row: Dict[str, Any], out_dir: Path, timeout: in
             _prepare_agy_workspace(ws)
             prompt_text = stage2_prompt(task_id, row, behaviors_text)
             if len(prompt_text) > 20000:
-                (ws / "b07_stage2_prompt.md").write_text(prompt_text, encoding="utf-8", newline="\n")
+                (ws / "b07_stage2_prompt.md").write_bytes(prompt_text.replace("\r\n", "\n").encode("utf-8"))
                 cli_prompt = (
                     "Read b07_stage2_prompt.md in the workspace root (you may read it in chunks if large) "
                     "and follow all instructions in it to create b07_check.py."
@@ -285,7 +285,7 @@ def run_stage2_agy(task_id: str, row: Dict[str, Any], out_dir: Path, timeout: in
             except SyntaxError as exc:
                 last_err = RuntimeError(f"Stage 2 check.py syntax error for {task_id}: {exc}")
                 continue
-            (out_dir / "check.py").write_text(code.rstrip() + "\n", encoding="utf-8", newline="\n")
+            (out_dir / "check.py").write_bytes((code.rstrip() + "\n").replace("\r\n", "\n").encode("utf-8"))
             return
     raise RuntimeError(str(last_err))
 

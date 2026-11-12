@@ -1,0 +1,53 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B05",
+  "concern": "C05",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Were tasks, reference answers and tests checked for errors that reject a correct solution?",
+  "shown_means": "the checking procedure described",
+  "checked_means": "coverage, findings and limits of the check reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B05 applies always."
+  },
+  "check": {
+    "procedure": "Read the Protocol 4 record of the reviewer counterexample for sympy__sympy-18199 and the source list entry for the OpenAI audit of SWE-bench Verified tests; list any SymPy task in scope whose tests reject a correct solution.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+    "detection_limits": "The review ran no new test execution for B05. The 18199 record shows a test that is too wide (a B07 matter), not one that rejects a correct solution. A correct solution rejected only by an unrun hidden test, or a wrong reference answer not visible in the sources, would not be found. The sources are read through the repository notes, not the original pages."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json (source.location)",
+      "quote": "section 'Too narrow and too wide tests', paragraph on too wide test cases"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json (source.quotes)",
+      "quote": "An example of too wide test cases is sympy__sympy-18199"
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "The sources describe a test audit of SWE-bench Verified, which shows a checking procedure. This rating found no check with reported coverage, findings and limits that could be read in the permitted files, and no SymPy task in scope whose tests reject a correct solution. No task defect is listed because none is demonstrated with a cited location and an executed counterexample. The only executed counterexample, for 18199, concerns a test that accepts a patch fixing only part of the task, which belongs to B07.",
+  "missing": "Coverage and findings of the benchmark authors' own check of tests for SymPy tasks.",
+  "checks_performed": [],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

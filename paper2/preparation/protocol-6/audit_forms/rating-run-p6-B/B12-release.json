@@ -1,0 +1,53 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B12",
+  "concern": "C12",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Are uncertainty and statistical support reported for the benchmark's own scores?",
+  "shown_means": "sample size and an uncertainty measure (interval, standard error or spread over runs) for primary scores",
+  "checked_means": "power or significance reasoning given",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B12 applies always."
+  },
+  "check": {
+    "procedure": "Read the release record and the source list for an uncertainty measure attached to the benchmark's own scores.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "paper2/records/swe_bench_verified_release.json; literature/notes/paper2-sources.md",
+    "detection_limits": "Only the repository notes and release record were read, not the leaderboard or the source pages; an interval printed there would not be seen. The decision in Protocol 6 uses its own exact binomial interval at n = 44, which limits the decision whatever B12 says."
+  },
+  "evidence": [
+    {
+      "location": "paper2/records/swe_bench_verified_release.json",
+      "quote": "\"num_instances\": 500"
+    },
+    {
+      "location": "v5/rubric/rubric-v5.1.md (B12 guidance)",
+      "quote": "A sample size without an uncertainty measure does not reach Documented; the rating is Undocumented"
+    }
+  ],
+  "anchor": "Undocumented",
+  "reasons": "The release gives a sample size of 500 tasks and the permitted sources show no interval, standard error or spread over runs for the benchmark's reported scores. Under the rubric this is Undocumented, not a defect.",
+  "missing": "An uncertainty measure (interval, standard error or spread over runs) for the benchmark's primary scores.",
+  "checks_performed": [],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

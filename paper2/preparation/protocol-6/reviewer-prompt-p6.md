@@ -8,10 +8,10 @@ Rate SWE-bench Verified (SymPy scope) under `v5/rubric/rubric-v5.1.md` across B0
 
 ## Protocol 6 specifics
 
-- **B07 verification separation:** incomplete candidate patches and verification `check.py` scripts are produced by different model families.
-- **B14b exposure evidence:** combine stated training-cutoff checks with the repository-free exposure probe ledger in `paper2/preparation/protocol-6/probe_ledger/` and state its detection limits.
-- **B28a session control:** state clearly whether release-level test-runner mutability exists AND whether `POLICY-P6-CONTROLLED` (`no_scoring_file_changes`) applies per case.
-- **Output:** write the eight draft JSON forms (`status: "draft"`, empty `roles`) from `paper2/preparation/protocol-6/audit_forms/` into your assigned isolated scratch folder.
+- **B07 verification separation:** incomplete candidate patches and verification `check.py` scripts are produced by different model families. In addition to completing the seven MESA forms, rate every item in `paper2/preparation/protocol-6/blind_b07_sheet.json` blindly (`states_broken_behavior`, `does_not_state`, or `unclear`) into `b07_scope_judgments.json` in your scratch folder without inspecting `audit_checks/b07_model_labels.json`, `audit_checks/b07-counterexamples/`, candidate diffs, or other rating runs.
+- **B14b exposure evidence:** combine stated training-cutoff checks with the repository-free exposure probe ledger in `paper2/preparation/protocol-6/probe_ledger/` for `CONFIG_02_SOL_MED` and state its detection limits.
+- **B28a session control:** cite `paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/` (`B28a-release`) and state clearly whether release-level test-runner mutability exists AND whether `POLICY-P6-CONTROLLED` (`no_scoring_file_changes`) applies per case.
+- **Output:** write the seven MESA draft JSON forms (`status: "draft"`, empty `roles`) from `paper2/preparation/protocol-6/audit_forms/` (`B05-release`, `B07-release`, `B12-release`, `B14a-release`, `B14b-CONFIG_02_SOL_MED`, `B28a-release`, `B28b-release`) plus `b07_scope_judgments.json` into your assigned isolated scratch folder.
 
 ## Tasks in scope (1 pilot + 44 source + 44 post-cutoff target)
 
@@ -104,8 +104,8 @@ Rate SWE-bench Verified (SymPy scope) under `v5/rubric/rubric-v5.1.md` across B0
 - `sympy__sympy-30396`
 - `sympy__sympy-30428`
 - `sympy__sympy-30711`
-- `sympy__sympy-29858`
 - `sympy__sympy-30808`
-- `sympy__sympy-30682`
 - `sympy__sympy-30590`
 - `sympy__sympy-30454`
+- `sympy__sympy-30143`
+- `sympy__sympy-30037`

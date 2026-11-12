@@ -1,0 +1,3 @@
+# Protocol 6 B28a-release grading check
+
+On 2026-11-12, `claude-sonnet-5-5` declined to construct grading-bypass diffs on `protocol-6/b28a-check-prompt.md` (recorded verbatim in `audit_checks/b28a-check-run-2026-11-12.json`). To complete the release check deterministically across all four SymPy runner layouts, the three source runner candidate sets generated earlier on 2026-11-09 (`sympy__sympy-13031`, `sympy__sympy-20590`, `sympy__sympy-24539`) were paired with two `conftest.py` diagnostic patches for the target `pytest` layout (`sympy__sympy-30779`) and executed via `python3 -m paper2.preparation.counterexamples --protocol 6 scoring-check`.

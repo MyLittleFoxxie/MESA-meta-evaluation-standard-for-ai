@@ -10,33 +10,6 @@
   },
   "configurations": [
     {
-      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
-      "model": "Gemini 3.8 Flash",
-      "setting": "Medium (part of the model name gemini-3.8-flash-medium)",
-      "scaffold": "Antigravity command line tool (agy 1.5.3, locked against updates with chflags uchg after it updated itself from 1.5.2 on 2026-11-07; the version is recorded per session)",
-      "launch": {
-        "tool": "agy",
-        "model": "gemini-3.8-flash-medium",
-        "permission_flag": "--mode accept-edits",
-        "settings_file": "agy-session-settings.json",
-        "permission_flag_note": "Chosen on 2026-11-07 by the assistant, at the author's request to run the sandbox checks until the agy settings were satisfactory. In print mode agy cannot ask, so the first action that needs approval is denied and the run ends there. Earlier settings: '--mode accept-edits' alone denied curl, the first command; '--dangerously-skip-permissions' approved every tool and turned the terminal sandbox off; '--mode accept-edits' with an allow list ran listed commands in the sandbox but denied output redirects, and a write grant for the folder allowed only absolute redirect targets; '--mode auto' is not available for this account. The chosen setting adds two things. agy-session-settings.json sets toolPermission to 'proceed-in-sandbox', so every shell command runs inside the terminal sandbox without approval. agy-agent.md is a custom agent, 'local', whose tool list holds only the shell, file, and wait tools, so web search, page reading, browser, subagent, and other tools are not available; run.sh copies it into the workspace as .agents/agents/local.md, kept out of the patch by .git/info/exclude. Without more, file tool reads or writes outside the workspace and a request to run a command outside the sandbox (BypassSandbox) were denied and ended the run. The gate hook (hooks, hooks_files; added by the assistant on 2026-11-07 at the author's request for a setup that treats both tools alike) refuses these calls with a reason the agent sees, and the run goes on (version 8 check).",
-        "agent": "local",
-        "agent_file": "agy-agent.md",
-        "hooks": true,
-        "hooks_files": [
-          "agy-hooks.json",
-          "agy-gate.py"
-        ]
-      },
-      "telemetry": "stream-json output of agy -p: tool calls, model, and tokens as reported by the client.",
-      "network": "Blocked by the terminal sandbox (sandbox check version 6, 2026-11-07): the python3 fetch, curl, and gh could not resolve the host. Reads outside the workspace from the shell were refused, and so were writes outside it; a file tool read outside was denied, which ended the run until the gate hook was added; in the version 8 check the gate refused it and the run went on. The custom agent has no web search or page reading tool. The sandbox also blocks reads under /Users outside the workspace, /Users/Shared included, so the shared agent Python is kept under /opt/homebrew/var/agent-python; in the version 7 and 8 checks python3 and pytest were found there (Python 3.9.20 or 3.12.14, mpmath 1.3.0).",
-      "training_cutoff": {
-        "value": "March 2026; some domains end at January 2025",
-        "source": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
-        "accessed": "2026-11-05"
-      }
-    },
-    {
       "config_id": "CONFIG_02_SOL_MED",
       "model": "gpt-6.1-sol",
       "setting": "reasoning effort medium",
@@ -63,5 +36,35 @@
       }
     }
   ],
-  "replaces_for_protocol_6": "paper2/preparation/protocol-5/configurations.json (preserved unchanged)"
+  "replaces_for_protocol_6": "paper2/preparation/protocol-5/configurations.json (preserved unchanged)",
+  "selection_note": "Active Protocol 6 study sessions use CONFIG_02_SOL_MED only (chosen for runtime after rehearsal and source exposure probe records existed). CONFIG_01_GEMINI_FLASH_MED stays in standby only if Sol exhausts weekly Codex credits without a timely reset (requiring a formal contingency amendment before running Gemini).",
+  "standby_configurations": [
+    {
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model": "Gemini 3.8 Flash",
+      "setting": "Medium (part of the model name gemini-3.8-flash-medium)",
+      "scaffold": "Antigravity command line tool (agy 1.5.3, locked against updates with chflags uchg after it updated itself from 1.5.2 on 2026-11-07; the version is recorded per session)",
+      "launch": {
+        "tool": "agy",
+        "model": "gemini-3.8-flash-medium",
+        "permission_flag": "--mode accept-edits",
+        "settings_file": "agy-session-settings.json",
+        "permission_flag_note": "Chosen on 2026-11-07 by the assistant, at the author's request to run the sandbox checks until the agy settings were satisfactory. In print mode agy cannot ask, so the first action that needs approval is denied and the run ends there. Earlier settings: '--mode accept-edits' alone denied curl, the first command; '--dangerously-skip-permissions' approved every tool and turned the terminal sandbox off; '--mode accept-edits' with an allow list ran listed commands in the sandbox but denied output redirects, and a write grant for the folder allowed only absolute redirect targets; '--mode auto' is not available for this account. The chosen setting adds two things. agy-session-settings.json sets toolPermission to 'proceed-in-sandbox', so every shell command runs inside the terminal sandbox without approval. agy-agent.md is a custom agent, 'local', whose tool list holds only the shell, file, and wait tools, so web search, page reading, browser, subagent, and other tools are not available; run.sh copies it into the workspace as .agents/agents/local.md, kept out of the patch by .git/info/exclude. Without more, file tool reads or writes outside the workspace and a request to run a command outside the sandbox (BypassSandbox) were denied and ended the run. The gate hook (hooks, hooks_files; added by the assistant on 2026-11-07 at the author's request for a setup that treats both tools alike) refuses these calls with a reason the agent sees, and the run goes on (version 8 check).",
+        "agent": "local",
+        "agent_file": "agy-agent.md",
+        "hooks": true,
+        "hooks_files": [
+          "agy-hooks.json",
+          "agy-gate.py"
+        ]
+      },
+      "telemetry": "stream-json output of agy -p: tool calls, model, and tokens as reported by the client.",
+      "network": "Blocked by the terminal sandbox (sandbox check version 6, 2026-11-07): the python3 fetch, curl, and gh could not resolve the host. Reads outside the workspace from the shell were refused, and so were writes outside it; a file tool read outside was denied, which ended the run until the gate hook was added; in the version 8 check the gate refused it and the run went on. The custom agent has no web search or page reading tool. The sandbox also blocks reads under /Users outside the workspace, /Users/Shared included, so the shared agent Python is kept under /opt/homebrew/var/agent-python; in the version 7 and 8 checks python3 and pytest were found there (Python 3.9.20 or 3.12.14, mpmath 1.3.0).",
+      "training_cutoff": {
+        "value": "March 2026; some domains end at January 2025",
+        "source": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
+        "accessed": "2026-11-05"
+      }
+    }
+  ]
 }

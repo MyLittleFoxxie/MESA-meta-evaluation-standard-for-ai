@@ -24,13 +24,17 @@ PROTOCOL_NUMBER = "6"
 PROTOCOL = Path(__file__).resolve().parent / f"protocol-{PROTOCOL_NUMBER}"
 PROTOCOL5 = Path(__file__).resolve().parent / "protocol-5"
 SAMPLE = dict(pilot=1, source=44, target=44)
-PHASES = {
-    "pilot": range(1, 3),      # 1 pilot * 2 configs = 2
-    "source": range(3, 91),    # 44 source * 2 configs = 88
-    "target": range(91, 179),  # 44 target * 2 configs = 88
-    "reserve": range(179, 199),  # 20 reserve slots
+CONFIGURATIONS = ("CONFIG_02_SOL_MED",)
+REQUESTED = {
+    "CONFIG_02_SOL_MED": dict(scaffold="Codex CLI", model="gpt-6.1-sol", effort="medium"),
 }
-MAX_SESSIONS = 198
+PHASES = {
+    "pilot": range(1, 2),       # 1 pilot * 1 config = 1
+    "source": range(2, 46),     # 44 source * 1 config = 44
+    "target": range(46, 90),    # 44 target * 1 config = 44
+    "reserve": range(90, 100),  # 10 reserve slots
+}
+MAX_SESSIONS = 99
 THRESHOLD = 0.70
 CONFIDENCE = 0.95
 DECISION_RULE = "exact_binomial"
@@ -42,10 +46,11 @@ SUBMISSION_LIMITS = dict(
         "(failing B12, B14a, B14b, and release-level B28a) and before any Protocol 6 agent session."
     ),
     sample_size_note=(
-        "Protocol 6 sizes at 44 source and 44 post-cutoff target tasks per agent (178 active + 20 reserve = 198 max "
-        "slots) as approved by the author. At N=44 under one-sided 95% exact binomial cut points (Accept >= 37, Reject <= 25), "
-        "Accept power at true rate 0.85 is 66.3% before removal and 49.4% at n=31 (30% removal), below the 80% design target "
-        "which required 60 retained (75 starting) tasks; exact power across N in {31, 44, 52, 60, 75} is reported."
+        "Protocol 6 sizes at 1 pilot, 44 source, and 44 post-cutoff target tasks for one active configuration "
+        "(CONFIG_02_SOL_MED; 89 active + 10 reserve = 99 max slots) as approved by the author. At N=44 under "
+        "one-sided 95% exact binomial cut points (Accept >= 37, Reject <= 25), Accept power at true rate 0.85 is "
+        "66.3% before removal and falls steeply after B07 task removal (e.g. near n=12, Accept requires 12/12, "
+        "leaving Accept nearly unreachable); exact power across N in {12, 31, 44, 52, 60, 75} is reported."
     ),
 )
 
@@ -104,7 +109,7 @@ def planned_task_lists(pools: Dict[str, Any], results: Dict[str, Any]) -> Dict[s
 
 def power_table() -> List[Dict[str, Any]]:
     rows = []
-    for n in (31, 44, 52, 60, 75):
+    for n in (12, 31, 44, 52, 60, 75):
         pw = exact_binomial_power(n, THRESHOLD, confidence=CONFIDENCE, one_sided=True)
         rows.append(
             dict(
@@ -182,8 +187,13 @@ def requirement_draft(planned: Dict[str, Any]) -> Dict[str, Any]:
         policies=["POLICY-P5-STRICT", "POLICY-P5-LENIENT", "POLICY-P6-CONTROLLED"],
         controlled_policy_history=SUBMISSION_LIMITS["policy_defined_before_sessions"],
         rubric=p5_req["rubric"],
-        configurations=list(s.CONFIGURATIONS),
-        transfer=p5_req["transfer"],
+        configurations=list(CONFIGURATIONS),
+        standby_fallback_configuration="CONFIG_01_GEMINI_FLASH_MED",
+        standby_fallback_rule=(
+            "CONFIG_02_SOL_MED runs alone; only if Sol exhausts weekly Codex credits without resetting in time, "
+            "a formal contingency amendment re-freezes CONFIG_01_GEMINI_FLASH_MED for a separate complete 1+44+44 run."
+        ),
+        transfer={c: p5_req["transfer"][c] for c in CONFIGURATIONS},
         task_set=dict(
             pilot=planned["pilot"],
             source=planned["source"],
@@ -205,14 +215,28 @@ def task_check_ledger(planned: Dict[str, Any], results: Dict[str, Any]) -> Dict[
     def _row(split: str, tid: str) -> Dict[str, Any]:
         st = "recorded" if tid in results else "not_performed"
         b05_st = "recorded" if (b05_path / f"{tid}.json").exists() else "not_performed"
-        b07_st = "recorded" if (b07_path / tid / "attempt.json").exists() else "not_performed"
+        att_path = b07_path / tid / "attempt.json"
+        if not att_path.exists():
+            b07_entry = dict(status="not_performed", reason="missing")
+        else:
+            att = json.loads(att_path.read_text(encoding="utf-8"))
+            outcome = att.get("outcome")
+            if outcome in ("check invalid", "no candidate"):
+                b07_entry = dict(
+                    status="not_performed",
+                    reason=outcome,
+                    retained=True,
+                    attempt=str(att_path.relative_to(ROOT)),
+                )
+            else:
+                b07_entry = dict(status="recorded", outcome=outcome)
         prob_st = "recorded" if (split, tid) in probe_keys else "not_performed"
         return dict(
             task_id=tid,
             split=split,
             eligibility=dict(status=st, result=(results[tid]["status"] if tid in results else None)),
             b05_check=dict(status=b05_st),
-            b07_incomplete_patch=dict(status=b07_st),
+            b07_incomplete_patch=b07_entry,
             b14b_exposure_probe=dict(status=prob_st),
         )
 
@@ -222,11 +246,27 @@ def task_check_ledger(planned: Dict[str, Any], results: Dict[str, Any]) -> Dict[
     return dict(
         record="paper2-task-checks/protocol-6",
         updated_at=s.now(),
-        rule="Every check missing for a task is explicitly marked 'not_performed' until its output exists on disk.",
+        rule=(
+            "Checks missing on disk, plus invalid B07 checks and no-candidate B07 attempts, are marked "
+            "'not_performed' with their reason; invalid/no-candidate B07 tasks remain in the retained set."
+        ),
         summary={
             split: {
-                chk: sum(1 for r in rows if r["split"] == split and r[chk]["status"] == "recorded")
-                for chk in ("eligibility", "b05_check", "b07_incomplete_patch", "b14b_exposure_probe")
+                **{
+                    chk: sum(1 for r in rows if r["split"] == split and r[chk]["status"] == "recorded")
+                    for chk in ("eligibility", "b05_check", "b07_incomplete_patch", "b14b_exposure_probe")
+                },
+                "b07_not_performed_by_reason": {
+                    reason: sum(
+                        1 for r in rows
+                        if r["split"] == split and r["b07_incomplete_patch"].get("reason") == reason
+                    )
+                    for reason in ("check invalid", "no candidate", "missing")
+                    if any(
+                        r["split"] == split and r["b07_incomplete_patch"].get("reason") == reason
+                        for r in rows
+                    )
+                },
             }
             for split in ("pilot", "source", "target")
         },
@@ -247,6 +287,7 @@ def blind_b07_template(task_ids: List[str], candidates: Optional[Dict[str, Dict[
                 model_label_hidden=True,
                 author_judgment=None,  # allowed: "states_broken_behavior", "does_not_state", "unclear"
                 author_note="",
+                model_judgments={},  # populated with {"family1_runA": ..., "family1_runB": ..., "family2_run": ...}
             )
         )
     return dict(
@@ -254,6 +295,110 @@ def blind_b07_template(task_ids: List[str], candidates: Optional[Dict[str, Dict[
         status="pending_human_rating",
         options=["states_broken_behavior", "does_not_state", "unclear"],
         items=items,
+    )
+
+
+def _pair_agreement(a_vals: List[Optional[str]], b_vals: List[Optional[str]], positive: str = "states_broken_behavior") -> Dict[str, Any]:
+    allowed = {"states_broken_behavior", "does_not_state", "unclear"}
+    pairs = [(a == positive, b == positive) for a, b in zip(a_vals, b_vals) if a in allowed and b in allowed]
+    n = len(pairs)
+    if not n:
+        return dict(rated=0, agreements=0, raw_agreement=None, kappa=None)
+    agree = sum(a == b for a, b in pairs)
+    p0 = agree / n
+    pa = sum(a for a, _ in pairs) / n
+    pb = sum(b for _, b in pairs) / n
+    pe = pa * pb + (1.0 - pa) * (1.0 - pb)
+    kappa = (p0 - pe) / (1.0 - pe) if not math.isclose(pe, 1.0) else None
+    exact_3way = sum(a == b for a, b in zip(a_vals, b_vals) if a in allowed and b in allowed)
+    return dict(rated=n, exact_3way=exact_3way, agreements=agree, raw_agreement=p0, kappa=kappa)
+
+
+def apply_b07_scope_rule(
+    sheet: Dict[str, Any],
+    model_labels: Dict[str, Any],
+    source_ids: Optional[List[str]] = None,
+    target_ids: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """Apply the pre-freeze Protocol 6 B07 scope rule across `blind_b07_sheet.json` items.
+
+    Rule: a task counts as an in-scope B07 defect iff (a) Stage 3 demonstrated a failing check against a candidate
+    incomplete patch (`model_demonstrated` True), AND (b) both same-family rating runs (`family1_runA` and
+    `family1_runB`) agree on `states_broken_behavior`. Disagreements stay in the retained set and are reported;
+    `family2_run` is reported as an agreement check only. `author_judgment` stays empty (`None`).
+    """
+    src_set = set(source_ids) if source_ids is not None else None
+    tgt_set = set(target_ids) if target_ids is not None else None
+    tasks_info = model_labels.get("tasks", model_labels)
+
+    runA_vals, runB_vals, fam1_consensus_vals, fam2_vals = [], [], [], []
+    agreed_defects, disagreed_kept, not_stated_kept = [], [], []
+    all_demonstrated = []
+    per_task = {}
+
+    for item in sheet.get("items") or []:
+        tid = item["task_id"]
+        mj = item.get("model_judgments") or {}
+        rA = mj.get("family1_runA")
+        rB = mj.get("family1_runB")
+        r2 = mj.get("family2_run")
+        runA_vals.append(rA)
+        runB_vals.append(rB)
+        fam2_vals.append(r2)
+        f1_agree_broken = (rA == "states_broken_behavior" and rB == "states_broken_behavior")
+        fam1_consensus_vals.append("states_broken_behavior" if f1_agree_broken else "does_not_state")
+
+        info = tasks_info.get(tid)
+        demonstrated = bool(info["model_demonstrated"]) if isinstance(info, dict) else bool(info)
+        if demonstrated:
+            all_demonstrated.append(tid)
+        disagreed = bool(rA and rB and rA != rB)
+        if demonstrated and f1_agree_broken:
+            agreed_defects.append(tid)
+            status = "agreed_defect_removed"
+        elif demonstrated and disagreed:
+            disagreed_kept.append(tid)
+            status = "family1_disagreed_retained"
+        elif demonstrated:
+            not_stated_kept.append(tid)
+            status = "not_stated_retained"
+        else:
+            status = "no_demonstrated_defect_retained"
+        per_task[tid] = dict(
+            demonstrated=demonstrated,
+            family1_runA=rA,
+            family1_runB=rB,
+            family2_run=r2,
+            disagreed=disagreed,
+            agreed_defect=(demonstrated and f1_agree_broken),
+            status=status,
+        )
+
+    def _by_split(tids: List[str]) -> Dict[str, List[str]]:
+        if src_set is None and tgt_set is None:
+            return dict(all=sorted(tids))
+        return dict(
+            source=sorted(t for t in tids if src_set and t in src_set),
+            target=sorted(t for t in tids if tgt_set and t in tgt_set),
+            all=sorted(tids),
+        )
+
+    return dict(
+        schema="paper2-b07-scope-rule/1",
+        rule="agreed_defect iff model_demonstrated and family1_runA == family1_runB == 'states_broken_behavior'",
+        author_judgment_empty=all(item.get("author_judgment") is None for item in (sheet.get("items") or [])),
+        items_rated=len(sheet.get("items") or []),
+        agreement=dict(
+            family1_runA_vs_runB=_pair_agreement(runA_vals, runB_vals),
+            family1_consensus_vs_family2=_pair_agreement(fam1_consensus_vals, fam2_vals),
+            family1_runA_vs_family2=_pair_agreement(runA_vals, fam2_vals),
+            family1_runB_vs_family2=_pair_agreement(runB_vals, fam2_vals),
+        ),
+        agreed_defects=_by_split(agreed_defects),
+        disagreed_retained=_by_split(disagreed_kept),
+        not_stated_retained=_by_split(not_stated_kept),
+        all_demonstrated=_by_split(all_demonstrated),
+        per_task=per_task,
     )
 
 
@@ -438,9 +583,19 @@ def write_prompts_and_configs(planned: Dict[str, Any]) -> None:
     pilot_list = "\n".join(f"- `{tid}`" for tid in planned["pilot"])
 
     p5_cfg = json.loads((PROTOCOL5 / "configurations.json").read_text(encoding="utf-8"))
-    p5_cfg["record"] = "paper2-configurations/protocol-6"
-    p5_cfg["replaces_for_protocol_6"] = "paper2/preparation/protocol-5/configurations.json (preserved unchanged)"
-    (PROTOCOL / "configurations.json").write_text(json.dumps(p5_cfg, indent=2) + "\n", encoding="utf-8")
+    active_cfgs = [c for c in p5_cfg["configurations"] if c["config_id"] in CONFIGURATIONS]
+    standby_cfgs = [c for c in p5_cfg["configurations"] if c["config_id"] not in CONFIGURATIONS]
+    p6_cfg = dict(p5_cfg)
+    p6_cfg["record"] = "paper2-configurations/protocol-6"
+    p6_cfg["replaces_for_protocol_6"] = "paper2/preparation/protocol-5/configurations.json (preserved unchanged)"
+    p6_cfg["selection_note"] = (
+        "Active Protocol 6 study sessions use CONFIG_02_SOL_MED only (chosen for runtime after rehearsal and source "
+        "exposure probe records existed). CONFIG_01_GEMINI_FLASH_MED stays in standby only if Sol exhausts weekly "
+        "Codex credits without a timely reset (requiring a formal contingency amendment before running Gemini)."
+    )
+    p6_cfg["configurations"] = active_cfgs
+    p6_cfg["standby_configurations"] = standby_cfgs
+    (PROTOCOL / "configurations.json").write_text(json.dumps(p6_cfg, indent=2) + "\n", encoding="utf-8")
 
     for fname in ("agy-agent.md", "agy-session-settings.json", "agy-gate.py"):
         shutil.copyfile(PROTOCOL5 / fname, PROTOCOL / fname)
@@ -480,10 +635,10 @@ def write_prompts_and_configs(planned: Dict[str, Any]) -> None:
         "",
         "## Protocol 6 specifics",
         "",
-        "- **B07 verification separation:** incomplete candidate patches and verification `check.py` scripts are produced by different model families.",
-        "- **B14b exposure evidence:** combine stated training-cutoff checks with the repository-free exposure probe ledger in `paper2/preparation/protocol-6/probe_ledger/` and state its detection limits.",
-        "- **B28a session control:** state clearly whether release-level test-runner mutability exists AND whether `POLICY-P6-CONTROLLED` (`no_scoring_file_changes`) applies per case.",
-        "- **Output:** write the eight draft JSON forms (`status: \"draft\"`, empty `roles`) from `paper2/preparation/protocol-6/audit_forms/` into your assigned isolated scratch folder.",
+        "- **B07 verification separation:** incomplete candidate patches and verification `check.py` scripts are produced by different model families. In addition to completing the seven MESA forms, rate every item in `paper2/preparation/protocol-6/blind_b07_sheet.json` blindly (`states_broken_behavior`, `does_not_state`, or `unclear`) into `b07_scope_judgments.json` in your scratch folder without inspecting `audit_checks/b07_model_labels.json`, `audit_checks/b07-counterexamples/`, candidate diffs, or other rating runs.",
+        "- **B14b exposure evidence:** combine stated training-cutoff checks with the repository-free exposure probe ledger in `paper2/preparation/protocol-6/probe_ledger/` for `CONFIG_02_SOL_MED` and state its detection limits.",
+        "- **B28a session control:** cite `paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/` (`B28a-release`) and state clearly whether release-level test-runner mutability exists AND whether `POLICY-P6-CONTROLLED` (`no_scoring_file_changes`) applies per case.",
+        "- **Output:** write the seven MESA draft JSON forms (`status: \"draft\"`, empty `roles`) from `paper2/preparation/protocol-6/audit_forms/` (`B05-release`, `B07-release`, `B12-release`, `B14a-release`, `B14b-CONFIG_02_SOL_MED`, `B28a-release`, `B28b-release`) plus `b07_scope_judgments.json` into your assigned isolated scratch folder.",
         "",
         "## Tasks in scope (1 pilot + 44 source + 44 post-cutoff target)",
         "",
@@ -514,7 +669,8 @@ def write_prompts_and_configs(planned: Dict[str, Any]) -> None:
         "",
     ])
     (PROTOCOL / "b07-attempt-prompt-p6.md").write_text(b07_prompt, encoding="utf-8")
-    shutil.copyfile(PROTOCOL5 / "b28a-check-prompt.md", PROTOCOL / "b28a-check-prompt.md")
+    if not (PROTOCOL / "b28a-check-prompt.md").exists():
+        shutil.copyfile(PROTOCOL5 / "b28a-check-prompt.md", PROTOCOL / "b28a-check-prompt.md")
 
 
 def protocol_markdown(planned: Dict[str, Any]) -> str:
@@ -525,13 +681,14 @@ def protocol_markdown(planned: Dict[str, Any]) -> str:
         "",
         "## Key changes from Protocol 5",
         "",
-        f"1. **Sample size (`44 + 44`):** `1` pilot + `{SAMPLE['source']}` source + `{SAMPLE['target']}` post-cutoff target tasks per configuration (`{MAX_SESSIONS}` max slots including `20` reserve). Target tasks require issue creation, PR creation, and PR merge on or after `{ep.CUTOFF_ISO}`.",
-        "2. **Exact binomial decision rule (`REQ-P6-SYMPY-BUGFIX`):** Accept when one-sided 95% exact binomial lower bound >= `0.70` (`k >= 37` at `n=44`); Reject when one-sided 95% exact binomial upper bound < `0.70` (`k <= 25` at `n=44`); otherwise Inconclusive (`n_min = 9`).",
-        f"3. **Controlled policy (`POLICY-P6-CONTROLLED`):** {SUBMISSION_LIMITS['policy_defined_before_sessions']}",
-        "4. **Symmetry across source and target:** Eligibility and B07 checks run identically on all 44 source and 44 target tasks, tracked explicitly in `task_checks.json` (`not_performed` until completed).",
-        "5. **Exposure probe (`B14b`):** Repository-free bug-to-file probe logged separately in `probe_ledger/` (not SessionLedger slots).",
-        "6. **Model-family separation & blind B07 rating (`P6-7`):** Two isolated same-family review runs plus one second-family run; incomplete patches and verification tests come from different model families; blind human B07 behavior check in `blind_b07_sheet.json`.",
-        "7. **Power disclosure:** " + SUBMISSION_LIMITS["sample_size_note"],
+        f"1. **Single configuration & sample size (`44 + 44`):** Active sessions use `CONFIG_02_SOL_MED` only (`1` pilot + `{SAMPLE['source']}` source + `{SAMPLE['target']}` post-cutoff target + `10` reserve = `{MAX_SESSIONS}` max slots). Target tasks require issue creation, PR creation, and PR merge on or after `{ep.CUTOFF_ISO}`.",
+        "2. **Standby Gemini contingency rule:** `CONFIG_01_GEMINI_FLASH_MED` has no pre-freeze target checks or sessions under this freeze. Only if `CONFIG_02_SOL_MED` exhausts its Codex weekly quota mid-experiment without resetting in time, a formal contingency amendment preserves any partial Sol sessions separately and re-freezes `CONFIG_01_GEMINI_FLASH_MED` for a complete separate `1 + 44 + 44` study.",
+        "3. **Exact binomial decision rule (`REQ-P6-SYMPY-BUGFIX`):** Accept when one-sided 95% exact binomial lower bound >= `0.70` (`k >= 37` at `n=44`); Reject when one-sided 95% exact binomial upper bound < `0.70` (`k <= 25` at `n=44`); otherwise Inconclusive (`n_min = 9`).",
+        f"4. **Controlled policy (`POLICY-P6-CONTROLLED`):** {SUBMISSION_LIMITS['policy_defined_before_sessions']}",
+        "5. **Symmetry across source and target:** Eligibility and B07 checks run identically on all 44 source and 44 target tasks, tracked explicitly in `task_checks.json` (`not_performed` for missing, invalid-check, and no-candidate tasks, all retained since no defect was shown).",
+        "6. **Exposure probe (`B14b`):** Repository-free bug-to-file probe logged separately in `probe_ledger/` (not SessionLedger slots).",
+        "7. **Model-family separation & B07 scope rule (`P6-7`):** Two isolated family-1 review runs (`Claude Sonnet 5.5`) plus one second-family run (`GPT-6.1 Sol`); incomplete patches (`GPT-6.1 Sol`) and verification tests (`Gemini 3.8 Flash Medium`) come from different model families. Models judge all 82 blind B07 items (`author_judgment` stays empty); a task counts as a B07 defect iff both family-1 runs agree `states_broken_behavior`. Disagreements stay in and are reported alongside three-way sensitivity (`with_scope_rule`, `all_flagged`, `none_removed`).",
+        "8. **Power disclosure:** " + SUBMISSION_LIMITS["sample_size_note"],
         "",
         "## Planned tasks (`order_key` order)",
         "",
@@ -544,6 +701,16 @@ def protocol_markdown(planned: Dict[str, Any]) -> str:
 
 def prepare(run_tests: bool = False) -> Path:
     from paper2.preparation import harness
+    saved_cfgs = s.CONFIGURATIONS
+    s.CONFIGURATIONS = CONFIGURATIONS
+    try:
+        return _prepare_inner(run_tests=run_tests)
+    finally:
+        s.CONFIGURATIONS = saved_cfgs
+
+
+def _prepare_inner(run_tests: bool = False) -> Path:
+    from paper2.preparation import harness
     pools = build_pools()
     results = harness.load_results()
     planned = planned_task_lists(pools, results)
@@ -553,7 +720,8 @@ def prepare(run_tests: bool = False) -> Path:
     s.abc_items(PROTOCOL / "abc-items.json")
 
     manifest_path = PROTOCOL / "study_manifest.json"
-    if manifest_path.exists() and any(json.loads(manifest_path.read_text(encoding="utf-8")).get("selected", {}).values()):
+    frozen_done = (PROTOCOL / "frozen_manifest.json").exists()
+    if manifest_path.exists() and any(json.loads(manifest_path.read_text(encoding="utf-8")).get("selected", {}).values()) and not frozen_done:
         raise RuntimeError("Protocol 6 manifest already records a finalized selection")
 
     overlaps = s.separation_problems(
@@ -561,10 +729,10 @@ def prepare(run_tests: bool = False) -> Path:
              historical=pools["excluded_historical"])
     )
     manifest = dict(
-        protocol=f"{PROTOCOL_NUMBER} (draft, not frozen)",
-        status="draft; frozen manifest written by sessions freeze once pending Docker eligibility and reviews complete",
+        protocol=f"{PROTOCOL_NUMBER} ({'frozen' if frozen_done else 'draft, not frozen'})",
+        status="frozen; see frozen_manifest.json" if frozen_done else "draft; frozen manifest written by sessions freeze once pending checks and reviews complete",
         repository=s.REPOSITORY,
-        configurations=list(s.CONFIGURATIONS),
+        configurations=list(CONFIGURATIONS),
         threshold=THRESHOLD,
         confidence=CONFIDENCE,
         decision_rule=DECISION_RULE,
@@ -600,6 +768,21 @@ def prepare(run_tests: bool = False) -> Path:
     for name, form in forms.items():
         with contextlib.suppress(FileExistsError):
             s.save_new(PROTOCOL / "audit_forms" / f"{name}.json", form)
+    gemini_form = PROTOCOL / "audit_forms" / "B14b-CONFIG_01_GEMINI_FLASH_MED.json"
+    if gemini_form.exists() and "CONFIG_01_GEMINI_FLASH_MED" not in CONFIGURATIONS:
+        sup = PROTOCOL / "audit_forms" / "superseded"
+        sup.mkdir(parents=True, exist_ok=True)
+        gemini_form.rename(sup / gemini_form.name)
+        reason_path = sup / "B14b-CONFIG_01_GEMINI_FLASH_MED.reason.json"
+        if not reason_path.exists():
+            s.save_new(
+                reason_path,
+                dict(
+                    form="B14b-CONFIG_01_GEMINI_FLASH_MED",
+                    moved_at=s.now(),
+                    reason="Single-configuration Protocol 6 uses CONFIG_02_SOL_MED only (standby template preserved).",
+                ),
+            )
     with contextlib.suppress(FileExistsError):
         s.save_new(PROTOCOL / "audit_forms" / "ABC-release.json", s.abc_blank(PROTOCOL / "abc-items.json"))
 
@@ -650,7 +833,7 @@ def prepare(run_tests: bool = False) -> Path:
         "",
         f"- Sessions recorded: `{ledger_summary['used']}` of `{MAX_SESSIONS}`.",
         f"- B14b exposure probes recorded: `{probe_count}`.",
-        "- Pre-freeze gates remaining before live agent sessions: human `blind_b07_sheet.json` ratings, clean isolated MESA rating runs + `sign-form`, `sign-requirement`, `freeze`, and phase authorizations.",
+        "- Pre-freeze gates remaining before live agent sessions: B28a Protocol 6 check, isolated MESA rating runs + model B07 scope judgments + `sign-form`, `sign-requirement`, `freeze`, and phase authorizations.",
         "- Offline components verified: `POLICY-P6-CONTROLLED`, `exact_binomial` cut points, `abc_with_gate`, `exposure_probe.py`, forms, task check ledger (`task_checks.json`), blind B07 sheet (`blind_b07_sheet.json`), and `gate_outcomes_demo.json`.",
         "",
         "## Session budget",

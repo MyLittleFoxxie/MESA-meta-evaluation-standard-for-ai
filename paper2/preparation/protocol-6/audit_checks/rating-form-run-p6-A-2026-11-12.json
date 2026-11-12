@@ -1,0 +1,10 @@
+{
+  "model": "claude-sonnet-5-5",
+  "protocol": 6,
+  "run": "rating-run-p6-A",
+  "output_dir": "paper2/preparation/protocol-6/audit_forms/rating-run-p6-A",
+  "started_at": "2026-11-12T06:46:04Z",
+  "ended_at": "2026-11-12T06:49:34Z",
+  "exit_code": 0,
+  "response": "All seven forms and the blind B07 judgments are written to `paper2/preparation/protocol-6/audit_forms/rating-run-p6-A/`. I checked each form against the `validate_form` rules from the run prompt. I also confirmed that every quote appears in its cited file and that `b07_scope_judgments.json` matches all 82 `task_id`s in order. I did not run `validate_form` itself, because reading `study_controls.py` is outside the permitted sources.\n\n| Form | Level | Outcome |\n|---|---|---|\n| B05 | Documented | not performed; `sympy__sympy-18199` listed as a task defect |\n| B07 | Verified | failed |\n| B12 | Undocumented | not performed |\n| B14a | Verified | failed |\n| B14b (`CONFIG_02_SOL_MED`) | Verified | passed |\n| B28a | Verified | failed |\n| B28b | Verified | passed |\n\n- **B05:** the defect for `sympy__sympy-18199` rests on the Protocol 4 check. That check does not show the minimal patch is a complete fix.\n- **B07:** the failed outcome comes from third-party findings, not from the Protocol 6 task results, which I did not read under the isolation rule. `task_defects` is left empty.\n- **B14a:** the OpenAI page itself was not opened. The rating relies on the source notes and the Protocol 6 record that Protocol 5 failed B14a.\n- **B14b:** Sol's file probe hit 37 of 44 source tasks and 40 of 44 target tasks, so it shows no source advantage.\n- **B28a:** all 10 candidate diffs were graded resolved across the four runner layouts, so test runner mutability exists at release level. `POLICY-P6-CONTROLLED` applies per case, but no sessions exist yet to confirm it.\n\n**Blind B07 scope counts (82 items):** 77 `states_broken_behavior`, 3 `unclear` (`30304`, `30311`, `30037`), and 2 `does_not_state` (`30827`, `30530`).\n\nI did not read the OpenAI pages or `~/paper2-sources/` for evidence, and I did not check the 18199 defect call against other evidence.\n"
+}

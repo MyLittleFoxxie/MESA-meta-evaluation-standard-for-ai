@@ -1,0 +1,63 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B28b",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the agent environment controlled and isolated from answers?",
+  "shown_means": "the environment, its tools and its isolation described",
+  "checked_means": "state clearing and isolation from answers, history and network verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The review names a coding agent configuration and tasks scored by executing code; this criterion applies to that use."
+  },
+  "check": {
+    "procedure": "Inspect the image history inventory and search of added reference lines longer than 25 characters; compare Table 8 T.4.",
+    "kind": "reported_by_sources",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json; paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json; literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+    "detection_limits": "The 20590 search covered two added lines. It cannot detect reworded fixes, split or short lines, or hints. The inventory covers the older 75 image set rather than all 44 Protocol 6 target images. Release evidence does not establish host agent network or file isolation."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+      "quote": "\"images\": 75"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "\"reference_lines_found\": []"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "\"commits\": 59"
+    },
+    {
+      "location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+      "quote": "T.4 1 The benchmark uses docker containers to isolate the environment, and the state is cleared between runs."
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The saved audit inspected 75 SymPy images without failed runs. In scope source task 20590 contains 59 commits outside base ancestry; its reference line search found no fix. This meets the rubric history rule within the check scope and does not establish isolation for the host agent or every target.",
+  "missing": "Coverage of every target image and the actual agent tools and network configuration.",
+  "checks_performed": [
+    "Inspected cited records against rubric v5.1. No model or container calls."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

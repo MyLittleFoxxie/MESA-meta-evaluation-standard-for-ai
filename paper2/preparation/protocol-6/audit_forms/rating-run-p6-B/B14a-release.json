@@ -1,0 +1,57 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14a",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Does the benchmark guard against exposure of its test material in training data?",
+  "shown_means": "the risk acknowledged; a safeguard described, such as hidden tests, dated tasks or a private split",
+  "checked_means": "a contamination check or held out procedure reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "B14a applies always."
+  },
+  "check": {
+    "procedure": "Read the source notes on exposure of models to SWE-bench test material and the repository free file probe ledger for CONFIG_02_SOL_MED on the 44 source tasks.",
+    "kind": "both",
+    "outcome": "failed",
+    "evidence_location": "paper2/preparation/protocol-6/probe_ledger/ ; literature/notes/paper2-sources.md",
+    "detection_limits": "The notes summarize abstracts and pages, not full texts. The file probe tests file names only, not the text of the fix; module cues in the issue can explain hits. Sources show exposure for other models and benchmarks versions, so the finding is about the benchmark as a public release, not about one model."
+  },
+  "evidence": [
+    {
+      "location": "literature/notes/paper2-sources.md (Liang et al.)",
+      "quote": "models identify buggy file paths from the issue alone with up to 76% accuracy on SWE-Bench repositories against up to 53% outside them"
+    },
+    {
+      "location": "literature/notes/paper2-sources.md (Stein et al.)",
+      "quote": "agents on SWE-bench and SWE-rebench mined `git log` to copy fix commits"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__source__sympy__sympy-12096.json",
+      "quote": "\"exact_set_match\": true"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "SWE-bench Verified tests and reference patches are public and the tasks are dated, which are safeguards of limited strength. Sources report held out comparisons and contamination findings, so a check is reported (Verified). The sources and the probe show models reproduce parts of the test material: the probe for gpt-6.1-sol names a modified file for 37 of 44 source tasks and the exact file set for 30 of 44. Under the rubric a source showing that models reproduce the material makes the outcome failed, whatever models it names.",
+  "missing": "",
+  "checks_performed": [],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

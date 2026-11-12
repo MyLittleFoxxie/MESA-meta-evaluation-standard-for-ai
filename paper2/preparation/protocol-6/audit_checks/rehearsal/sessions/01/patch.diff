@@ -1,0 +1,40 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index 64d3207d09..ce65fc11d2 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -611,6 +611,8 @@ def convert_args(args):
+         return tex
+ 
+     def _print_Pow(self, expr):
++        from sympy.physics.secondquant import Creator
++
+         # Treat x**Rational(1,n) as special case
+         if expr.exp.is_Rational and abs(expr.exp.p) == 1 and expr.exp.q != 1 \
+                 and self._settings['root_notation']:
+@@ -636,6 +638,8 @@ def _print_Pow(self, expr):
+             # issue #12886: add parentheses for superscripts raised to powers
+             if expr.base.is_Symbol:
+                 base = self.parenthesize_super(base)
++            elif isinstance(expr.base, Creator):
++                base = "{%s}" % base
+             if expr.base.is_Function:
+                 return self._print(expr.base, exp="%s/%s" % (p, q))
+             return r"%s^{%s/%s}" % (base, p, q)
+@@ -661,12 +665,17 @@ def _print_Pow(self, expr):
+                 return self._helper_print_standard_power(expr, tex)
+ 
+     def _helper_print_standard_power(self, expr, template):
++        from sympy.physics.secondquant import Creator
++
+         exp = self._print(expr.exp)
+         # issue #12886: add parentheses around superscripts raised
+         # to powers
+         base = self.parenthesize(expr.base, PRECEDENCE['Pow'])
+         if expr.base.is_Symbol:
+             base = self.parenthesize_super(base)
++        elif isinstance(expr.base, Creator):
++            # Group the dagger superscript before adding the power.
++            base = "{%s}" % base
+         elif (isinstance(expr.base, Derivative)
+             and base.startswith(r'\left(')
+             and re.match(r'\\left\(\\d?d?dot', base)

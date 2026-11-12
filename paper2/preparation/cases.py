@@ -186,7 +186,8 @@ def build_case(config_id, policy, selection, requirement, forms, ledger, session
 
 
 def analyse(selection, requirement, forms, ledger, sessions=SESSIONS, abc=None, aba_flags=None,
-            controlled=False, all_passing_incomplete=None, target_defects=None, max_sessions=None):
+            controlled=False, all_passing_incomplete=None, target_defects=None, max_sessions=None,
+            all_flagged_source=None, all_flagged_target=None, b07_scope=None, b07_not_performed=None):
     """One row per coding agent. RQ1: the decision from the source tasks with no review (M2), with an audit only
     (the tasks the checks flag left out, no criteria gate), with ABA's flags if given, with MESA (M3, strict,
     lenient, and optionally Protocol 6 controlled), with ABC, and with ABC paired with a gate. RQ2: each against
@@ -290,11 +291,97 @@ def analyse(selection, requirement, forms, ledger, sessions=SESSIONS, abc=None, 
         )
         row["agreement"] = {k: agreement(v, target_decision) for k, v in decisions_map.items()}
         row["comparable_agreement"] = {k: comparable_agreement(v, target_decision) for k, v in decisions_map.items()}
+        if b07_scope is not None or all_flagged_source is not None or all_flagged_target is not None or b07_not_performed is not None:
+            src_all_flag = set(all_flagged_source if all_flagged_source is not None else ((b07_scope or {}).get("all_demonstrated", {}).get("source") or ()))
+            tgt_all_flag = set(all_flagged_target if all_flagged_target is not None else ((b07_scope or {}).get("all_demonstrated", {}).get("target") or ()))
+            src_flag_res = _left_out_decision(source_obs, src_all_flag, theta, confidence=conf, decision_rule=rule)
+            tgt_flag_res = _left_out_decision(target, tgt_all_flag, theta, confidence=conf, decision_rule=rule)
+            tgt_after_row = row.get("target_after_removal") or dict(
+                left_out=[], tasks=target_counts, decision=target_decision
+            )
+            tgt_flag_dec = tgt_flag_res["decision"] if not missing else None
+            src_scope_dec = row["M3_controlled"]["requirement_decision"] if controlled else row["M3_strict"]["requirement_decision"]
+            tgt_scope_dec = tgt_after_row["decision"] if not missing else None
+            row["b07_three_way"] = dict(
+                with_scope_rule=dict(
+                    source=dict(n=kept["n"], successes=kept["successes"], interval=kept["interval"],
+                                left_out=kept["left_out"], decision=src_scope_dec,
+                                performance_decision=row["audit_only"]["decision"]),
+                    target=dict(n=tgt_after_row["tasks"]["n"], successes=tgt_after_row["tasks"]["successes"],
+                                interval=tgt_after_row["tasks"]["interval"], left_out=tgt_after_row["left_out"],
+                                decision=tgt_scope_dec),
+                    comparable=comparable_agreement(src_scope_dec, tgt_scope_dec),
+                ),
+                all_flagged=dict(
+                    source=dict(n=src_flag_res["tasks"]["n"], successes=src_flag_res["tasks"]["successes"],
+                                interval=src_flag_res["tasks"]["interval"], left_out=src_flag_res["left_out"],
+                                decision=src_flag_res["decision"]),
+                    target=dict(n=tgt_flag_res["tasks"]["n"], successes=tgt_flag_res["tasks"]["successes"],
+                                interval=tgt_flag_res["tasks"]["interval"], left_out=tgt_flag_res["left_out"],
+                                decision=tgt_flag_dec),
+                    comparable=comparable_agreement(src_flag_res["decision"], tgt_flag_dec),
+                ),
+                none_removed=dict(
+                    source=dict(n=row["source"]["n"], successes=row["source"]["successes"],
+                                interval=row["source"]["interval"], left_out=[], decision=row["M2"]),
+                    target=dict(n=target_counts["n"], successes=target_counts["successes"],
+                                interval=target_counts["interval"], left_out=[], decision=target_decision),
+                    comparable=comparable_agreement(row["M2"], target_decision),
+                ),
+            )
+            if b07_scope is not None:
+                row["b07_scope_summary"] = dict(
+                    rule=b07_scope.get("rule"),
+                    author_judgment_empty=b07_scope.get("author_judgment_empty"),
+                    items_rated=b07_scope.get("items_rated"),
+                    agreement=b07_scope.get("agreement"),
+                    agreed_defects=b07_scope.get("agreed_defects"),
+                    disagreed_retained=b07_scope.get("disagreed_retained"),
+                    not_stated_retained=b07_scope.get("not_stated_retained"),
+                )
+            if b07_not_performed is not None:
+                row["b07_not_performed"] = b07_not_performed
         rows.append(row)
     return rows
 
 
-def main():
+def main(argv=None):
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--protocol", choices=("5", "6"), default="5")
+    a = parser.parse_args(argv)
+    if a.protocol == "6":
+        from paper2.preparation import protocol6 as p6, sessions as sess
+        sess.configure_protocol("6")
+        try:
+            base = p6.PROTOCOL
+            manifest = json.loads((base / "frozen_manifest.json").read_text())
+            requirement = json.loads((base / "requirement.json").read_text())
+            forms = {p.stem: json.loads(p.read_text()) for p in sorted((base / "audit_forms" / "completed").glob("*.json")) if p.stem != "ABC-release"}
+            abc_path = base / "audit_forms" / "completed" / "ABC-release.json"
+            checks_path = base / "task_checks.json"
+            checks_data = json.loads(checks_path.read_text()) if checks_path.exists() else {}
+            scope_path = base / "audit_checks" / "b07_scope_rule_summary.json"
+            scope_data = json.loads(scope_path.read_text()) if scope_path.exists() else None
+            b07_not_perf = {
+                split: (checks_data.get("summary", {}).get(split, {}).get("b07_not_performed_by_reason") or {})
+                for split in ("source", "target")
+            }
+            sel = manifest["selection"]
+            tgt_defects = (scope_data or {}).get("agreed_defects", {}).get("target") or []
+            print(json.dumps(analyse(
+                sel, requirement, forms, p6.make_ledger(base / "ledger"),
+                sessions=base / "sessions",
+                abc=json.loads(abc_path.read_text()) if abc_path.exists() else None,
+                controlled=True,
+                target_defects=tgt_defects,
+                max_sessions=p6.MAX_SESSIONS,
+                b07_scope=scope_data,
+                b07_not_performed=b07_not_perf,
+            ), indent=2))
+        finally:
+            sess.configure_protocol("5")
+        return
     manifest = json.loads((BASE / "frozen_manifest.json").read_text())
     requirement = json.loads(REQUIREMENT.read_text())
     forms = {p.stem: json.loads(p.read_text()) for p in sorted(FORMS.glob("*.json")) if p.stem != "ABC-release"}

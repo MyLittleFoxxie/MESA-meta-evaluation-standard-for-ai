@@ -1,0 +1,55 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14a",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Does the benchmark guard against exposure of its test material in training data?",
+  "shown_means": "the risk acknowledged; a safeguard described, such as hidden tests, dated tasks or a private split",
+  "checked_means": "a contamination check or held out procedure reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The review names a coding agent configuration and tasks scored by executing code; this criterion applies to that use."
+  },
+  "check": {
+    "procedure": "Inspect Table 8 R.3 and the permitted source index; distinguish the published release from later Protocol 6 target selection.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md; paper2/preparation/exposure_probe.py",
+    "detection_limits": "The assessment has a date and scope limit. The primary contamination article is outside the permitted paths and was not inspected. File identification does not reproduce fixes or establish training membership."
+  },
+  "evidence": [
+    {
+      "location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+      "quote": "R.3 0 The benchmark does not discuss measures to prevent data contamination."
+    },
+    {
+      "location": "paper2/preparation/exposure_probe.py",
+      "quote": "accuracy does not prove the model never saw the repository fix."
+    }
+  ],
+  "anchor": "Undocumented",
+  "reasons": "The saved SWE-bench Verified assessment reports no discussion of contamination measures. The source index names later exposure research but does not supply a quoted reproduction finding for this SymPy scope; missing safeguards alone do not show reproduction.",
+  "missing": "A release safeguard with a check of coverage and findings. Primary reproduction evidence would require revisiting the outcome.",
+  "checks_performed": [
+    "Inspected cited records against rubric v5.1. No model or container calls."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

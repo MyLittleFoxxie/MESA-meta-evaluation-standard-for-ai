@@ -1,0 +1,11 @@
+{
+  "model": "claude-sonnet-5-5",
+  "protocol": 6,
+  "criterion": "ABC",
+  "output_file": "paper2/preparation/protocol-6/audit_forms/abc-run/ABC-release.json",
+  "started_at": "2026-11-12T06:38:37Z",
+  "ended_at": "2026-11-12T06:40:17Z",
+  "exit_code": 0,
+  "prompt_file": "paper2/preparation/protocol-6/abc-prompt.md",
+  "response": "I wrote `paper2/preparation/protocol-6/audit_forms/abc-run/ABC-release.json` with `status: \"draft\"` and empty roles. The check passed for all 33 items: every answer is valid, every met or not_met has a location and quote, and every not_applicable or unknown has a note. I also confirmed each quote appears in its source text.\n\n| Answer | Count | Items |\n|---|---|---|\n| met | 7 | T.1, T.4, T.7, T.8, T.9, T.10, O.d.1 |\n| not_met | 6 | T.6, O.d.2, R.3, R.4, R.9, R.10 |\n| not_applicable | 18 | T.2, T.3, O.a.*, O.b.*, O.c.*, O.e.*, O.f.1, O.f.2, O.g.*, O.i.1 |\n| unknown | 2 | T.5, O.f.3 |\n\n- **T.6:** I marked it not_met because the eval script runs `python -m pip install -e .` and all 45 image tags are `:latest`.\n- **T.7 and T.8:** I marked both met, since the 2024 release screened the tasks. The notes record that `sympy__sympy-18199` is named in the 2026 audit as having too wide tests.\n- **T.5:** It is unknown because the sources don't say whether the published images contain fix commits, and no result from the harness's image history check is in the permitted sources.\n\n**Not checked:** I ran no Docker or image inspection, so T.1, T.4 and T.5 rest on documents only. I did not read the 45 tasks one by one, so the answers apply to the benchmark as a whole, with only `sympy__sympy-18199` called out."
+}

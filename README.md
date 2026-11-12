@@ -4,18 +4,18 @@ This repository holds two papers for REFSQ 2027 and the records behind them. Bot
 
 The MESA paper compares published frameworks for reviewing AI benchmarks and derives one rubric from them. Paper 2 uses that rubric to decide whether benchmark results support a requirement on a coding agent.
 
-## Current state, 11 November 2026
+## Current state, 12 November 2026
 
 | | MESA paper | Paper 2 |
 | --- | --- | --- |
 | File | [mesa_paper.tex](mesa_paper.tex) | [paper2.tex](paper2.tex) |
 | Title | Unifying Benchmark Review Frameworks: One Rubric for Judging AI Benchmarks as Evidence for Requirements | Applying Meta-Evaluation Benchmark Reviews to Requirement Decisions: An Executable Method |
-| Studies | Study 1 and Study 2 (two model families, seeded variants, and execution confirmations) run and analyzed; planned blind author rating omitted (see `v5/study-cycle2/deviations.md`) | Evaluation prepared; no session of protocol 5 has run |
-| Page count (reference build: TeX Live 2026, as on Overleaf) | 15 on TeX Live 2023 after review round 4 (11 November); not yet compiled on TeX Live 2026 | 15 on TeX Live 2023 after review round 2; not yet compiled on the reference build |
-| Open work | Upload of the anonymous replication package and its link in the Data Availability Statement (folder built in `dist/mesa_replication_package`, see [change log](supporting/editorial/mesa_round3_change_log.md)); compile on the reference build; evaluation with human reviewers is future work | Freeze, authorization and pilot (runbook step 13); review items W4 and W5; the protocol 6 proposal |
+| Studies | Study 1 and Study 2 (two model families, seeded variants, and execution confirmations) run and analyzed; planned blind author rating omitted (see `v5/study-cycle2/deviations.md`) | Protocol 6 prepared on macOS (`CONFIG_02_SOL_MED` only, 44 source + 44 post-cutoff target tasks, 99 max slots); preparation checks in progress before signing and freeze |
+| Page count (reference build: TeX Live 2026, as on Overleaf) | 15 on TeX Live 2023 after review round 4 (11 November); not yet compiled on TeX Live 2026 | Pending Protocol 6 rewrite |
+| Open work | Upload of the anonymous replication package and its link in the Data Availability Statement (folder built in `dist/mesa_replication_package`, see [change log](supporting/editorial/mesa_round3_change_log.md)); compile on the reference build; evaluation with human reviewers is future work | Target probes, B28a check, rating runs, signing, freeze, 89 sessions, manuscript update, and anonymous replication package |
 | Review rounds | [Round 1](supporting/editorial/refsq_review_round_1.md): reject, weak reject, reject. [Round 2](supporting/editorial/refsq_review_round_2.md): reject, reject, weak reject. [Round 3](supporting/editorial/refsq_review_round_3.md): weak reject. [Round 4](supporting/editorial/refsq_review_round_4.md) (blind): weak reject | [Round 1](supporting/editorial/refsq_review_round_1.md) and [round 2](supporting/editorial/refsq_review_round_2.md): three rejects each |
 
-Both papers' Data Availability sections say that an anonymized replication package accompanies the submission. Preparing that package is still open (runbook item W5, feedback item 17). The references were checked on 11 November ([record](supporting/editorial/references_review_2026_11.md)). [paper2/preparation/protocol-6/proposal.md](paper2/preparation/protocol-6/proposal.md) is a proposal that answers the round 1 reviews; it is not in force, and protocol 5 stays the current protocol. Update this section when the state changes.
+Both papers' Data Availability sections say that an anonymized replication package accompanies the submission. Preparing that package is still open (runbook item W5, feedback item 17). The references were checked on 11 November ([record](supporting/editorial/references_review_2026_11.md)). Protocol 6 is now in force for Paper 2 ([adoption record](provenance/paper2-protocol-6-adoption-2026-11-12.md)); [protocol-5](paper2/preparation/protocol-5/protocol.md) and [protocol-4](paper2/preparation/protocol-4/protocol.md) stay preserved unchanged. Update this section when the state changes.
 
 **Line endings.** Study records and frozen inputs are checked by SHA-256, so their bytes must not change. [.gitattributes](.gitattributes) (`* -text`) tells Git to keep every file byte for byte as stored, including on Windows, where Git converts line endings to CRLF by default. Do not let an editor change the line endings of a frozen file.
 
@@ -35,18 +35,18 @@ The paper maps the items of seven review frameworks onto shared concerns: Better
 
 Paper 2 decides whether benchmark results support a team's requirement on a coding agent, using MESA ratings of the benchmark, and explains each decision. The method is in [paper2/method/evidence.py](paper2/method/evidence.py). Read [paper2_runbook.md](paper2_runbook.md) first, and update it in the same change whenever the procedure, code, records or state change.
 
-- **Requirement.** Working alone on a SymPy bug report, the coding agent makes the tests that the maintainers later wrote for that bug pass, for at least 70% of bug reports, within 15 minutes each.
-- **Agents.** Gemini 3.8 Flash Medium in `agy`, and GPT-6.1 Sol at medium effort in Codex.
-- **Tasks.** 20 source tasks from SWE-bench Verified (SymPy), and 20 target tasks from SymPy issues fixed between 13 June and 5 November 2026, after both models' stated training cutoffs.
-- **Budget.** At most 90 sessions, each at most 15 minutes, with no internet and no human input.
-- **Methods compared.** The resolve rate alone (M1, M2), the MESA evidence rules (M3), an automated audit that leaves out broken tasks, and the Agentic Benchmark Checklist (ABC) as a second review protocol.
+- **Requirement.** Working alone in a local SymPy checkout without network access or test runner modifications, the coding agent resolves bug reports by passing maintainer tests that check stated bug report behavior, with one-sided 95% exact binomial lower bound at least 0.70 within 15 minutes per bug report.
+- **Agent.** GPT-6.1 Sol at medium effort in Codex (`CONFIG_02_SOL_MED`), with `CONFIG_01_GEMINI_FLASH_MED` held in standby only if Sol exhausts weekly Codex credits without a timely reset.
+- **Tasks.** 1 pilot task, 44 source tasks from SWE-bench Verified (SymPy), and 44 post-cutoff target tasks from SymPy issues opened, fixed, and merged on or after 1 May 2026.
+- **Budget.** At most 99 sessions (89 active + 10 reserve), each at most 15 minutes, with no internet and no human input.
+- **Methods compared.** The resolve rate alone (M1, M2), the MESA evidence rules under strict, lenient, and controlled policies (M3), audit only, all-flagged sensitivity, and the Agentic Benchmark Checklist (ABC and ABC with gate).
 
-The author signed the eight MESA rating forms, the ABC record and the requirement on 9 November 2026. With these forms MESA gives no decision under either policy: B28a failed, which blocks both policies, and B14a failed, which also blocks the strict policy. Source eligibility, the target pool, sandbox checks of both agents and a rehearsal on one task outside the selection are done. No session of protocol 5 has run. The next step is the freeze, the author's authorization and the pilot (runbook step 13). Section 9 of the runbook lists the open review items.
+Source and target eligibility (`sympy__sympy-30682` ineligible under the 1800 s baseline timeout rule), cross-family B07 checks across 88 tasks, and source exposure probes are complete. Protocol 6 host checks, target probes, rating runs, signing, freeze, and sessions are next. Section 9 of the runbook lists the open review items.
 
 | Path | Content |
 | --- | --- |
-| [paper2/preparation/protocol-5/](paper2/preparation/protocol-5/protocol.md) | Current protocol, rating forms, check records and sessions |
-| `paper2/preparation/protocol-4/`, `paper2/preparation/v3/`, `paper2/history/` | Earlier protocols, kept as history |
+| [paper2/preparation/protocol-6/](paper2/preparation/protocol-6/protocol.md) | Current protocol (Protocol 6), rating forms, check records and sessions |
+| `paper2/preparation/protocol-5/`, `protocol-4/`, `v3/`, `history/` | Earlier protocols, kept unchanged as history |
 | `paper2/records/` | Source and target task rows |
 | `paper2/tests/` | Unit tests |
 | [tools/extract_swe_bench_verified.py](tools/extract_swe_bench_verified.py) | Pinned SWE-bench Verified release and its provenance |

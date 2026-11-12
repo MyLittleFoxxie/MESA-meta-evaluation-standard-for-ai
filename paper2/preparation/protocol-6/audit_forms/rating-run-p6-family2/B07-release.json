@@ -1,0 +1,59 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B07",
+  "concern": "C07",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Was the scoring implementation checked, and can it accept a wrong solution?",
+  "shown_means": "the implementation can be read and compared with the rule",
+  "checked_means": "parser or judge validated, or exploit attempts reported or run by the reviewer, with every attempt and its limits recorded",
+  "applies_when": "Judgeability automated or mixed",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The review names a coding agent configuration and tasks scored by executing code; this criterion applies to that use."
+  },
+  "check": {
+    "procedure": "Inspect b07-attempt-prompt-p6.md and b07_p6.py. Judge all 82 blind items from the sheet alone. Leave task defects empty for subsequent application of the protocol scope rule.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "paper2/preparation/protocol-6/b07-attempt-prompt-p6.md; paper2/preparation/b07_p6.py",
+    "detection_limits": "The verification writer sees the first family's behavior list and reference patch, so family separation does not remove shared cues or establish correctness. The sheet does not identify the failed assertion within each list and some excerpts are truncated. Candidate diffs, labels, and individual execution outputs were excluded by instruction; no absence of exploits is inferred."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/b07-attempt-prompt-p6.md",
+      "quote": "Never edit or write `check.py`."
+    },
+    {
+      "location": "paper2/preparation/b07_p6.py",
+      "quote": "Build Stage 2 prompt (Model Family B: write b07_check.py strictly blind to candidate diffs)."
+    },
+    {
+      "location": "paper2/preparation/b07_p6.py",
+      "quote": "It MUST fail (`exit_code != 0`) on unpatched `base_commit` and MUST pass (`exit_code == 0`) once `<reference_patch>` is applied."
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "Protocol 6 documents separate model families for incomplete patches and verification scripts, with base and reference controls. Under this run's blind source boundary, the design is inspectable but individual execution results are not; design alone does not establish a completed rubric exploit check.",
+  "missing": "Individual exploit execution results cannot be verified in this blind run.",
+  "checks_performed": [
+    "Inspected cited records against rubric v5.1. No model or container calls."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

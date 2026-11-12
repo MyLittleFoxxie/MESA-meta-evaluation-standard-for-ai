@@ -1,0 +1,63 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14b",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Could the test material be in the training data of the named model configuration?",
+  "shown_means": "the model's stated training cutoff and the task creation dates recorded with their sources",
+  "checked_means": "a contamination check for that model reported, or tasks created after its stated cutoff used as a held out set",
+  "applies_when": "a model configuration is named for the review",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "configuration",
+    "config_ids": [
+      "CONFIG_02_SOL_MED"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "A model configuration, CONFIG_02_SOL_MED, is named for the review."
+  },
+  "check": {
+    "procedure": "Compared the stated cutoff of gpt-6.1-sol with task creation dates, used the 44 strict post-cutoff target tasks as a held out set, and read the Sol repository free file name probe on 44 source and 44 target tasks.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-6/probe_ledger/",
+    "detection_limits": "The check could not detect exposure that the stated cutoff of 2026-04-30 hides (a provider claim, not verified), exposure of pre-cutoff source tasks, or exposure the file name probe cannot show: high file hit rates can come from module cues in the issue text, and low rates do not prove no exposure."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/configurations.json",
+      "quote": "\"value\": \"2026-04-30\""
+    },
+    {
+      "location": "paper2/preparation/protocol-6/protocol.md",
+      "quote": "Target tasks require issue creation, PR creation, and PR merge on or after `2026-05-01T00:00:00Z`."
+    },
+    {
+      "location": "paper2/records/swe_bench_verified_sympy_rows.json",
+      "quote": "\"created_at\": \"2023-02-05T19:15:22Z\""
+    },
+    {
+      "location": "paper2/preparation/exposure_probe.py",
+      "quote": "high accuracy can come from module cues in the issue text rather than training exposure"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Every source task predates the stated cutoff (latest creation 2023-02-05) and the 44 target tasks postdate it, so a held out set exists. Sol named at least one modified file for 37 of 44 source tasks (84.1%, 95% interval 70.0% to 93.4%) and 40 of 44 target tasks (90.9%, 78.3% to 97.5%); source minus target is -6.8 points (95% interval -21.4 to +7.7). Exact set matches were 30 of 44 source and 13 of 44 target. The probe shows no source advantage, and no source shows this model reproducing test material, so the outcome is passed for the target set.",
+  "missing": "A contamination check for gpt-6.1-sol by an independent party; the source tasks stay possibly exposed.",
+  "checks_performed": [
+    "Counted the 88 Sol records in probe_ledger/ (any_file_hit, exact_set_match) and reproduced the exact intervals with compare_exposure_rates; read configurations.json and exposure_probe.py."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

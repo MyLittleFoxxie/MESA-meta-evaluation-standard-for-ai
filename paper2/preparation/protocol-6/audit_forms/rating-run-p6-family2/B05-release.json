@@ -1,0 +1,66 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B05",
+  "concern": "C05",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Were tasks, reference answers and tests checked for errors that reject a correct solution?",
+  "shown_means": "the checking procedure described",
+  "checked_means": "coverage, findings and limits of the check reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The review names a coding agent configuration and tasks scored by executing code; this criterion applies to that use."
+  },
+  "check": {
+    "procedure": "Inspect the saved minimal patch execution, issue behavior probes, full reference control, and graded lists.",
+    "kind": "reported_by_sources",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+    "detection_limits": "One patch was graded once on one source task under amd64 emulation. The literal issue example already passed at baseline; related prime modulus calls demonstrated the change. Completeness of the patch remains a judgment. The check does not cover all 89 tasks."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "the full reference patch is resolved under the same harness, image and day."
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "Every PASS_TO_PASS test passes with the minimal patch."
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The saved execution shows that sympy__sympy-18199 rejects a patch addressing the stated prime modulus issue because the graded test requires composite modulus behavior. The task is listed below; passed describes the remainder of this limited check, not proof that all other tasks are free of errors.",
+  "missing": "An error audit of all requested tasks.",
+  "checks_performed": [
+    "Inspected cited records against rubric v5.1. No model or container calls."
+  ],
+  "task_defects": [
+    {
+      "direction": "rejects_correct_solution",
+      "task_id": "sympy__sympy-18199",
+      "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "the only FAIL_TO_PASS test, test_solve_modular, fails on an assertion about the composite modulus 8",
+      "summary": "A patch addressing the stated zero root behavior is rejected by a test for unstated composite modulus behavior; the full reference control passes. The saved record does not prove that this patch is a complete fix.",
+      "artifacts": {
+        "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json": "07ae13d59422603a97c9274184d9d7632d1f4e1208be23f875c0fe0c13a9c8ae"
+      }
+    }
+  ],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

@@ -1,0 +1,71 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B05",
+  "concern": "C05",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Were tasks, reference answers and tests checked for errors that reject a correct solution?",
+  "shown_means": "the checking procedure described",
+  "checked_means": "coverage, findings and limits of the check reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Applies always."
+  },
+  "check": {
+    "procedure": "Read the Zhu et al. assessment of SWE-bench Verified and the Protocol 4 counterexample check of sympy__sympy-18199; no check of every task for tests that reject a correct solution is recorded in the permitted sources.",
+    "kind": "none",
+    "outcome": "not_performed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+    "detection_limits": "The check could not detect tests that reject a correct solution on the tasks other than sympy__sympy-18199, and could not show that a patch limited to the stated issue is a complete fix."
+  },
+  "evidence": [
+    {
+      "location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+      "quote": "Test cases are directly taken from GitHub repositories, and the paper does not mention any verification process."
+    },
+    {
+      "location": "literature/notes/paper2-sources.md",
+      "quote": "flagged issues in over 25.7% of tasks"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "the only FAIL_TO_PASS test, test_solve_modular, fails on an assertion about the composite modulus 8"
+    }
+  ],
+  "anchor": "Documented",
+  "reasons": "The sources describe how tests were obtained and one executed check on one task exists, but no coverage, findings and limits of a check across the release are reported, so Verified is not reached. The one task check is listed as a task defect.",
+  "missing": "A reported check of all tasks for tests that reject a correct solution, with its coverage and findings. The OpenAI annotation page was not read in this run.",
+  "checks_performed": [
+    "Read rubric v5.1, Zhu et al. Table 8, the source notes, and the Protocol 4 B05 counterexample for sympy__sympy-18199."
+  ],
+  "task_defects": [
+    {
+      "direction": "rejects_correct_solution",
+      "task_id": "sympy__sympy-18199",
+      "evidence_location": "paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json",
+      "quote": "the only FAIL_TO_PASS test, test_solve_modular, fails on an assertion about the composite modulus 8",
+      "summary": "A patch that keeps only the stated issue (a % p == 0 returns the root 0) was executed and not resolved, because the only FAIL_TO_PASS test asserts composite moduli the problem statement does not mention. The record does not show that this patch is a complete fix.",
+      "artifacts": {
+        "minimal_patch": "bc975e713e96762ba77d665345ddcef4813937b2707a9071d267e178a42d0e3a",
+        "reference_patch": "e47b1071074a4e7773e5001dc973547776afb1870c57e44bdb2efc8dc77d61af"
+      }
+    }
+  ],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

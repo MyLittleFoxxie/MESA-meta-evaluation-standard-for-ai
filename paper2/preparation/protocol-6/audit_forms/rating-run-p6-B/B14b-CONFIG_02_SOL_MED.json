@@ -1,0 +1,61 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14b",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Could the test material be in the training data of the named model configuration?",
+  "shown_means": "the model's stated training cutoff and the task creation dates recorded with their sources",
+  "checked_means": "a contamination check for that model reported, or tasks created after its stated cutoff used as a held out set",
+  "applies_when": "a model configuration is named for the review",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "configuration",
+    "config_ids": [
+      "CONFIG_02_SOL_MED"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "A model configuration, CONFIG_02_SOL_MED, is named for the review."
+  },
+  "check": {
+    "procedure": "Compare the stated cutoff of gpt-6.1-sol (2026-04-30) with creation dates of the 44 source tasks (2017-01-25 to 2023-02-05) and the 44 target tasks (issue, PR and merge on or after 2026-05-01). Read all 88 repository free file probe records for CONFIG_02_SOL_MED and compare hit rates between source and target.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-6/probe_ledger/CONFIG_02_SOL_MED__*.json; paper2/preparation/protocol-6/configurations.json; paper2/preparation/exposure_probe.py",
+    "detection_limits": "The cutoff is a claim of the provider, not a verified fact. The probe names file paths from an issue alone: high accuracy can come from module cues, and low accuracy does not prove the model never saw the fix. Probe hits on source tasks were any file 37 of 44 (exact set 30) and on target tasks 40 of 44 (exact set 13), so no exposure difference favouring source tasks was seen, but the probe cannot show absence. Exposure of the source tasks is possible, as they predate the cutoff by years. Tasks near the cutoff may have been in training data partly."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/configurations.json",
+      "quote": "\"training_cutoff\": {"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/configurations.json",
+      "quote": "\"value\": \"2026-04-30\""
+    },
+    {
+      "location": "paper2/preparation/protocol-6/configurations.json",
+      "quote": "\"source\": \"https://developers.openai.com/api/docs/models/gpt-6.1-sol\""
+    },
+    {
+      "location": "paper2/preparation/exposure_probe.py",
+      "quote": "A repository-free file-name probe tests only whether the model names modified SymPy paths from the bug report"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The cutoff and task creation dates are recorded with sources (Documented). The 44 target tasks were created after the stated cutoff and serve as a held out set for this configuration, and the probe ledger supplies a contamination check. The check found no sign that the model reproduces test material on target tasks, and no source shows this model reproducing the test material, so the outcome is passed with the stated limits. Source tasks all predate the cutoff, so exposure is possible for them.",
+  "missing": "",
+  "checks_performed": [],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

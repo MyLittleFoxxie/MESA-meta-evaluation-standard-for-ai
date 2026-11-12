@@ -46,8 +46,8 @@ def run_check(image, patch_text, check_path):
     """Runs check.py in the task image without network, after applying patch_text (none for the code before the
     fix). Returns the exit code and the end of the output."""
     with tempfile.TemporaryDirectory() as d:
-        Path(d, "patch.diff").write_text(patch_text or "", encoding="utf-8", newline="\n")
-        Path(d, "check.py").write_text(Path(check_path).read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+        Path(d, "patch.diff").write_bytes((patch_text or "").replace("\r\n", "\n").encode("utf-8"))
+        Path(d, "check.py").write_bytes(Path(check_path).read_text(encoding="utf-8").replace("\r\n", "\n").encode("utf-8"))
         apply = "git apply /audit/patch.diff && " if (patch_text or "").strip() else ""
         out = subprocess.run(["docker", "run", "--rm", "--platform", "linux/amd64", "--network", "none",
                               "-v", f"{d}:/audit:ro", image, "bash", "-c", f"{_container_env(image)} && {apply}python /audit/check.py"],
@@ -108,7 +108,7 @@ def scoring_check(task_id, row, folder=None):
     """B28a check run by the reviewer: can a patch that changes only the test-running files (bin/test, runtests.py,
     conftest.py, ...) make the harness grade a task resolved without fixing it? Grades each candidate-*.diff in the
     task's folder and writes check.json once. A harness failure writes nothing, so the check can be repeated."""
-    folder = Path(folder or SCORING_RECORDS / task_id)
+    folder = Path(folder or (s.PROTOCOL / "audit_checks" / "b28a-scoring-check" / task_id))
     if (folder / "check.json").exists():
         raise FileExistsError(f"{task_id} already has a grading check; checks are written once")
     candidates = sorted(folder.glob("candidate-*.diff"))
@@ -155,8 +155,10 @@ def summary(folder=RECORDS):
 
 def main(argv=None):
     import argparse
+    from paper2.preparation import sessions
     from paper2.preparation.sessions import rows_by_id
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--protocol", choices=("5", "6"), default="5")
     parser.add_argument("--folder", type=Path, default=None)
     parser.add_argument("--author", default=AUTHOR)
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -164,16 +166,21 @@ def main(argv=None):
     sub.add_parser("summary")
     sub.add_parser("scoring-check").add_argument("task")
     a = parser.parse_args(argv)
-    if a.cmd == "run":
-        target_dir = (a.folder / a.task) if a.folder else None
-        rec = run(a.task, rows_by_id()[a.task], folder=target_dir, author=a.author)
-        print(a.task, rec["outcome"])
-    elif a.cmd == "scoring-check":
-        target_dir = (a.folder / a.task) if a.folder else None
-        rec = scoring_check(a.task, rows_by_id()[a.task], folder=target_dir)
-        print(a.task, rec["outcome"])
-    else:
-        print(json.dumps(summary(a.folder or RECORDS), indent=2))
+    sessions.configure_protocol(a.protocol)
+    try:
+        if a.cmd == "run":
+            target_dir = (a.folder / a.task) if a.folder else None
+            rec = run(a.task, rows_by_id()[a.task], folder=target_dir, author=a.author)
+            print(a.task, rec["outcome"])
+        elif a.cmd == "scoring-check":
+            target_dir = (a.folder / a.task) if a.folder else None
+            rec = scoring_check(a.task, rows_by_id()[a.task], folder=target_dir)
+            print(a.task, rec["outcome"])
+        else:
+            print(json.dumps(summary(a.folder or RECORDS), indent=2))
+    finally:
+        if a.protocol != "5":
+            sessions.configure_protocol("5")
 
 
 if __name__ == "__main__":

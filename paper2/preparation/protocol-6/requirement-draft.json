@@ -29,9 +29,20 @@
       "source": 44,
       "target": 44
     },
-    "max_sessions": 198,
-    "note": "Protocol 6 sizes at 44 source and 44 post-cutoff target tasks per agent (178 active + 20 reserve = 198 max slots) as approved by the author. At N=44 under one-sided 95% exact binomial cut points (Accept >= 37, Reject <= 25), Accept power at true rate 0.85 is 66.3% before removal and 49.4% at n=31 (30% removal), below the 80% design target which required 60 retained (75 starting) tasks; exact power across N in {31, 44, 52, 60, 75} is reported.",
+    "max_sessions": 99,
+    "note": "Protocol 6 sizes at 1 pilot, 44 source, and 44 post-cutoff target tasks for one active configuration (CONFIG_02_SOL_MED; 89 active + 10 reserve = 99 max slots) as approved by the author. At N=44 under one-sided 95% exact binomial cut points (Accept >= 37, Reject <= 25), Accept power at true rate 0.85 is 66.3% before removal and falls steeply after B07 task removal (e.g. near n=12, Accept requires 12/12, leaving Accept nearly unreachable); exact power across N in {12, 31, 44, 52, 60, 75} is reported.",
     "exact_power_table": [
+      {
+        "retained_tasks": 12,
+        "accept_min_k": 12,
+        "reject_max_k": 5,
+        "type1_accept": 0.0138,
+        "type1_reject": 0.0386,
+        "accept_at_0_85": 0.1422,
+        "accept_at_0_80": 0.0687,
+        "accept_at_0_75": 0.0317,
+        "reject_at_0_50": 0.3872
+      },
       {
         "retained_tasks": 31,
         "accept_min_k": 27,
@@ -110,23 +121,11 @@
     "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
   },
   "configurations": [
-    "CONFIG_01_GEMINI_FLASH_MED",
     "CONFIG_02_SOL_MED"
   ],
+  "standby_fallback_configuration": "CONFIG_01_GEMINI_FLASH_MED",
+  "standby_fallback_rule": "CONFIG_02_SOL_MED runs alone; only if Sol exhausts weekly Codex credits without resetting in time, a formal contingency amendment re-freezes CONFIG_01_GEMINI_FLASH_MED for a separate complete 1+44+44 run.",
   "transfer": {
-    "CONFIG_01_GEMINI_FLASH_MED": {
-      "justification": "The source tasks and the target tasks come from the same repository and are the same kind of work: a bug report on SymPy, a change to SymPy's source code, and tests that the maintainers wrote with the fix. People screened the source tasks for clear issue text and fair tests (SWE-bench Verified). The pull requests that fix the target issues were merged from 2026-06-13 to 2026-11-05, after Gemini 3.8 Flash's stated training cutoff (March 2026, as stated in its model card, which adds that for some domains the model's knowledge is limited to January 2025). If the stated cutoff holds, the fixes were not in its training data. Five target issues were opened before the cutoff, so the agent may have seen their text. The agent gets the same instructions, tools, and 15 minutes for both kinds of task, and in each the Python version that the task's own grading uses (3.9 for the source tasks, 3.12 for the target tasks).",
-      "limits": "The source issues are older (2016 to 2023), SymPy's code has changed since, and the target tasks run on a newer Python. The target issues were not screened by people. The screened source tasks may be easier than typical issues. The agent may have seen the source tasks' fixes in training (B14). The method checks only that this justification exists, names its author, and matches the scope; it does not judge its content. The stated cutoffs are the providers' claims, not checks.",
-      "source_scope": {
-        "repository": "sympy/sympy",
-        "tasks": "SWE-bench Verified SymPy tasks (issues from 2016 to 2023)"
-      },
-      "target_scope": {
-        "repository": "sympy/sympy",
-        "config_id": "CONFIG_01_GEMINI_FLASH_MED",
-        "tasks": "SymPy issues whose fixes were merged from 2026-06-13 to 2026-11-05, that close an issue and change both source and test code"
-      }
-    },
     "CONFIG_02_SOL_MED": {
       "justification": "The source tasks and the target tasks come from the same repository and are the same kind of work: a bug report on SymPy, a change to SymPy's source code, and tests that the maintainers wrote with the fix. People screened the source tasks for clear issue text and fair tests (SWE-bench Verified). The pull requests that fix the target issues were merged from 2026-06-13 to 2026-11-05, after GPT-6.1 Sol's stated training cutoff (30 April 2026, as stated on its model page). If the stated cutoff holds, the fixes were not in its training data. Five target issues were opened before the cutoff, so the agent may have seen their text. The agent gets the same instructions, tools, and 15 minutes for both kinds of task, and in each the Python version that the task's own grading uses (3.9 for the source tasks, 3.12 for the target tasks).",
       "limits": "The source issues are older (2016 to 2023), SymPy's code has changed since, and the target tasks run on a newer Python. The target issues were not screened by people. The screened source tasks may be easier than typical issues. The agent may have seen the source tasks' fixes in training (B14). The method checks only that this justification exists, names its author, and matches the scope; it does not judge its content. The stated cutoffs are the providers' claims, not checks.",
@@ -231,11 +230,11 @@
       "sympy__sympy-30396",
       "sympy__sympy-30428",
       "sympy__sympy-30711",
-      "sympy__sympy-29858",
       "sympy__sympy-30808",
-      "sympy__sympy-30682",
       "sympy__sympy-30590",
-      "sympy__sympy-30454"
+      "sympy__sympy-30454",
+      "sympy__sympy-30143",
+      "sympy__sympy-30037"
     ]
   },
   "target_issues_before_cutoff": [],

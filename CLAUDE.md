@@ -8,10 +8,10 @@ The repository holds two papers for REFSQ 2027 and their records: [`mesa_paper.t
 
 CHASE material, older manuscripts and their tools, and the Paper 2 preview were removed on 10 November 2026; [`provenance/refsq-scope-2026-11-10.md`](provenance/refsq-scope-2026-11-10.md) lists them and how to retrieve them from Git. Do not restore them. The participant survey in [`surveys/colleague-review/`](surveys/colleague-review/) stays at the author's request. It belongs to the earlier 25 question questionnaire study, not to either paper.
 
-## Current state (11 November 2026)
+## Current state (12 November 2026)
 
 - **MESA paper.** Both studies are run and analyzed. The paper was rewritten on 11 November after review rounds 3 and 4 (both weak reject; see [`supporting/editorial/mesa_round3_change_log.md`](supporting/editorial/mesa_round3_change_log.md)). By the author's decision it presents the finished experiment only: no text on study cycles, failed attempts or the blind rating, one Limitations section, and the known defect check for Gemini only. It has one figure, [`figures/mesa_study_overview.pdf`](figures/mesa_study_overview.pdf). The build on TeX Live 2023 gave 15 pages. Open: upload of the anonymous replication package (built by `tools/build_mesa_package_folder.py` into `dist/`) and its link in the paper.
-- **Paper 2.** The rating forms, the ABC record and the requirement were signed on 9 November. No session of protocol 5 has run. The next step is the freeze, the author's authorization and the pilot (runbook step 13). Repeated text was trimmed on 10 November; the reference build (TeX Live 2026, as on Overleaf) is now 15 pages.
+- **Paper 2.** Protocol 6 is active ([adoption record](provenance/paper2-protocol-6-adoption-2026-11-12.md)): single coding agent (`CONFIG_02_SOL_MED`), 1 pilot + 44 source + 44 strict post-cutoff target tasks + 10 reserve slots (`99` max), exact binomial rule, `POLICY-P6-CONTROLLED`, cross-family B07 checks on 88 tasks (`sympy__sympy-30682` marked ineligible under the 1800 s baseline timeout rule), and two-family MESA rating runs (`Claude Sonnet 5.5` runs A and B vs `GPT-6.1 Sol`). Preparation checks, target probes, rating runs, signing, freeze, and sessions are running next on macOS.
 - **Line endings.** `.gitattributes` (`* -text`) keeps every file byte for byte as stored, so frozen file hashes match on Windows. Keep it, and do not change the line endings of frozen files.
 - **Both.** The Data Availability sections promise an anonymized replication package with the submission; preparing it is open (runbook item W5, feedback item 17).
 
@@ -27,7 +27,7 @@ Read `mesa_paper_feedback_from_paper_2.md` before revising `mesa_paper.tex`.
 
 ## Paper 2
 
-Paper 2 ([`paper2.tex`](paper2.tex)) and its protocol 5 evaluation: read [`paper2_runbook.md`](paper2_runbook.md) first, and update it in the same change whenever the procedure, code, records, or state change. Its section 2 rules apply to any AI working here.
+Paper 2 ([`paper2.tex`](paper2.tex)) and its Protocol 6 evaluation: read [`paper2_runbook.md`](paper2_runbook.md) first, and update it in the same change whenever the procedure, code, records, or state change. Its section 2 rules apply to any AI working here.
 
 ## Survey
 

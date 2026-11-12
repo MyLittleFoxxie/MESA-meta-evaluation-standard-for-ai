@@ -90,8 +90,8 @@
 - `sympy__sympy-30396`
 - `sympy__sympy-30428`
 - `sympy__sympy-30711`
-- `sympy__sympy-29858`
 - `sympy__sympy-30808`
-- `sympy__sympy-30682`
 - `sympy__sympy-30590`
 - `sympy__sympy-30454`
+- `sympy__sympy-30143`
+- `sympy__sympy-30037`

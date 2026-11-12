@@ -1,0 +1,67 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "draft",
+  "criterion": "B14a",
+  "concern": "C14",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Does the benchmark guard against exposure of its test material in training data?",
+  "shown_means": "the risk acknowledged; a safeguard described, such as hidden tests, dated tasks or a private split",
+  "checked_means": "a contamination check or held out procedure reported",
+  "applies_when": "always",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Applies always."
+  },
+  "check": {
+    "procedure": "Read the OpenAI 2024 and 2026 posts on SWE-bench Verified (~/paper2-sources/), the Jimenez et al. SWE-bench paper, Zhu et al. Table 8 (R.3), and the source notes.",
+    "kind": "reported_by_sources",
+    "outcome": "failed",
+    "evidence_location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+    "detection_limits": "The check could not detect exposure in models other than those probed by OpenAI, exposure short of reproducing the gold fix or verbatim problem specifics, or which specific SymPy tasks were reproduced."
+  },
+  "evidence": [
+    {
+      "location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+      "quote": "R.3 0 The benchmark does not discuss measures to prevent data contamination."
+    },
+    {
+      "location": "literature/notes/paper2-sources.md",
+      "quote": "a sign of memorization"
+    },
+    {
+      "location": "literature/notes/paper2-sources.md",
+      "quote": "OpenAI, Why SWE-bench Verified no longer measures frontier coding capabilities (23 February 2026)"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/protocol.md",
+      "quote": "failing B12, B14a, B14b, and release-level B28a"
+    },
+    {
+      "location": "~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+      "quote": "all frontier models we tested were able to reproduce the original, human-written bug fix"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "The benchmark states no safeguard against exposure, and sources report contamination checks whose findings show models reproduce benchmark material; under rubric v5.1 that makes the outcome failed whatever models the sources name.",
+  "missing": "A held-out or private split of SWE-bench Verified, a count of affected tasks, and a third-party contamination check for GPT-6.1 Sol.",
+  "checks_performed": [
+    "Read ~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt, Zhu et al. Table 8 (R.3), and literature/notes/paper2-sources.md."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample."
+}

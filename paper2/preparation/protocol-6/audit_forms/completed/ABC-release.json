@@ -1,0 +1,384 @@
+{
+  "form_version": "paper2-abc-record/1",
+  "status": "complete",
+  "criterion": "ABC",
+  "benchmark": "SWE-bench Verified",
+  "items": [
+    {
+      "item_id": "ABC-T.1",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Versions of all tools (e.g., Python) are clearly specified.",
+      "answer": "met",
+      "location": "Jimenez et al. 2024 (SWE-bench), Appendix A.3, Executable Contexts",
+      "quote": "we find out the Python version, necessary dependencies, and installation command.",
+      "note": "Each release version has its own conda environment with a recorded Python version. All 45 tasks fall in SymPy versions 1.0 to 1.12 (swe_bench_verified_sympy_rows.json). Package versions inside the images were not inspected here."
+    },
+    {
+      "item_id": "ABC-T.2",
+      "concerns": [
+        "C28"
+      ],
+      "text": "All required API tools are consistently accessible to agents during evaluation.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "SWE-bench grading needs no external API; the agent edits a local repository and tests run in a container (the eval_script in swe_bench_verified_sympy_rows.json calls none)."
+    },
+    {
+      "item_id": "ABC-T.3",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Evaluation process terminates or handles errors appropriately if an API becomes inaccessible.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "No external API is required, so there is no API outage case to handle."
+    },
+    {
+      "item_id": "ABC-T.4",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Residual data or state are fully cleared between runs.",
+      "answer": "met",
+      "location": "OpenAI, Introducing SWE-bench Verified (archive), SWE-bench Verified section",
+      "quote": "uses containerized Docker environments to make evaluating on SWE-bench easier and more reliable",
+      "note": "Each evaluation runs in a container started from the task image; paper2/preparation/harness.py grades each patch in a fresh run directory. Not tested here for state left by agent sessions."
+    },
+    {
+      "item_id": "ABC-T.5",
+      "concerns": [
+        "C28"
+      ],
+      "text": "Agent is completely isolated from any ground truth information.",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "The release shows the agent only the issue text and the repository (\"The tests are not shown to the agent\"), but no source states whether the published images contain the fix commit or upstream history. paper2/preparation/harness.py has an image history check (image_history) for this, and paper2-sources.md reports agents mining git log on SWE-bench, but no result of the check is in the permitted sources. Training exposure to gold patches is covered under R.3."
+    },
+    {
+      "item_id": "ABC-T.6",
+      "concerns": [
+        "C28"
+      ],
+      "text": "The environment setup is fully reproducible and frozen at the time of benchmark release, without reliance on dynamic external resources.",
+      "answer": "not_met",
+      "location": "paper2/records/swe_bench_verified_sympy_rows.json, rows[].eval_script (all 45 tasks)",
+      "quote": "python -m pip install -e .",
+      "note": "The eval script installs the package at grading time, which can fetch dependencies from outside the image, and every image reference uses the mutable tag :latest. OpenAI 2026 also notes that spurious test failures depend on environment setup. Zhu et al. scored this item 1."
+    },
+    {
+      "item_id": "ABC-T.7",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Annotated ground truth is verified for correctness.",
+      "answer": "met",
+      "location": "OpenAI, Introducing SWE-bench Verified (archive), SWE-bench Verified section",
+      "quote": "consisting of 500 samples verified to be non-problematic by our human annotators",
+      "note": "The 2024 release screened tests and problem statements; each sample was labelled three times. The 2026 OpenAI audit later found flawed tests in at least 59.4% of 138 audited tasks, including sympy__sympy-18199 in this task list (too wide tests)."
+    },
+    {
+      "item_id": "ABC-T.8",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Each task is verified to be solvable.",
+      "answer": "met",
+      "location": "OpenAI, Introducing SWE-bench Verified (archive), Annotation Criteria; Dataset construction",
+      "quote": "filter out any sample from the original test set where either the problem statement or the FAIL_TO_PASS unit tests have an ensemble label of 2 or above",
+      "note": "Solvability is checked by annotators, not by running solvers. The 2026 audit found material flaws that make tasks extremely difficult or impossible in 59.4% of the audited subset, and sympy__sympy-18199 is named there as a too wide test case."
+    },
+    {
+      "item_id": "ABC-T.9",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Benchmark includes an Oracle solver that can automatically solve all challenges.",
+      "answer": "met",
+      "location": "SWE-bench datasets guide (swebench.com), Dataset Structure",
+      "quote": "Gold solution patch (don't look at this if you're trying to solve the problem)",
+      "note": "Every row carries a gold patch, and SWE-bench validation runs it on the tests. There is no single command that solves all tasks. paper2/preparation/harness.py checks the reference patch per task because passing is not assumed."
+    },
+    {
+      "item_id": "ABC-T.10",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Outliers in pilot experiments are inspected to identify implementation bugs, impossible tasks or shortcuts.",
+      "answer": "met",
+      "location": "OpenAI, Introducing SWE-bench Verified (archive), Introduction",
+      "quote": "Our testing identified some SWE-bench tasks which may be hard or impossible to solve",
+      "note": "Inspection of pilot results led to the Verified subset. The release does not describe inspecting outliers for shortcuts."
+    },
+    {
+      "item_id": "ABC-O.a.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Considers expressions semantically equivalent to ground truth.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "Grading runs FAIL_TO_PASS and PASS_TO_PASS unit tests on a patch; no answer string is matched (O.a and O.b cover substring and answer matching)."
+    },
+    {
+      "item_id": "ABC-O.a.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Handles redundant words used by agents.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "Grading runs FAIL_TO_PASS and PASS_TO_PASS unit tests on a patch; no answer string is matched (O.a and O.b cover substring and answer matching)."
+    },
+    {
+      "item_id": "ABC-O.b.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Handles negation modifiers used by agents.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "Grading runs FAIL_TO_PASS and PASS_TO_PASS unit tests on a patch; no answer string is matched (O.a and O.b cover substring and answer matching)."
+    },
+    {
+      "item_id": "ABC-O.b.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Is robust against systematically listing all possible answers.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "Grading runs FAIL_TO_PASS and PASS_TO_PASS unit tests on a patch; no answer string is matched (O.a and O.b cover substring and answer matching)."
+    },
+    {
+      "item_id": "ABC-O.b.3",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Ground truth is sufficiently complex to prevent guessing.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "Grading runs FAIL_TO_PASS and PASS_TO_PASS unit tests on a patch; no answer string is matched (O.a and O.b cover substring and answer matching)."
+    },
+    {
+      "item_id": "ABC-O.c.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Demonstrates documented or experimental evidence of the judge's accuracy, self-consistency, and agreement with human.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "No LLM judge is used; a patch is graded by unit tests."
+    },
+    {
+      "item_id": "ABC-O.c.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Is designed to resist adversarial inputs and reward hacking.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "No LLM judge is used; a patch is graded by unit tests."
+    },
+    {
+      "item_id": "ABC-O.d.1",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Verifies test cases for correctness and quality (e.g., by human).",
+      "answer": "met",
+      "location": "OpenAI, Introducing SWE-bench Verified (archive), SWE-bench Verified section",
+      "quote": "screen each sample of the SWE-bench test set for appropriately scoped unit tests and well-specified issue descriptions",
+      "note": "Human review of FAIL_TO_PASS tests for the Verified release. The 2026 audit found that review insufficient for many tasks."
+    },
+    {
+      "item_id": "ABC-O.d.2",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Measures quality of test cases using objective metrics (e.g., code coverage, cyclomatic complexity control).",
+      "answer": "not_met",
+      "location": "Zhu et al. 2025 transcription, Table 8, Assessment Report of SWE-Bench-Verified, O.d.2",
+      "quote": "The paper does not use objective metrics to measure quality of test cases.",
+      "note": "Test quality was rated by ordinal human labels (0 to 3), not by coverage or complexity metrics."
+    },
+    {
+      "item_id": "ABC-O.e.1",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Addresses potential edge cases.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.e covers fuzz testing against a ground truth implementation; SWE-bench uses fixed unit tests from the pull request."
+    },
+    {
+      "item_id": "ABC-O.e.2",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Ensures comprehensive coverage of all relevant input variations (e.g., data types, memory layouts, value ranges).",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.e covers fuzz testing against a ground truth implementation; SWE-bench uses fixed unit tests from the pull request."
+    },
+    {
+      "item_id": "ABC-O.e.3",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Generates inputs that the code under testing is sensitive to.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.e covers fuzz testing against a ground truth implementation; SWE-bench uses fixed unit tests from the pull request."
+    },
+    {
+      "item_id": "ABC-O.f.1",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Covers all possible branches of user workflows.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.f covers end to end workflow testing; SWE-bench grades with unit tests."
+    },
+    {
+      "item_id": "ABC-O.f.2",
+      "concerns": [
+        "C05",
+        "C07"
+      ],
+      "text": "Exercises all relevant parts of the code being tested.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.f covers end to end workflow testing; SWE-bench grades with unit tests."
+    },
+    {
+      "item_id": "ABC-O.f.3",
+      "concerns": [
+        "C07",
+        "C28"
+      ],
+      "text": "Prevents non-deterministic (\"flaky\") test results.",
+      "answer": "unknown",
+      "location": "",
+      "quote": "",
+      "note": "No source reports repeated grading runs or flaky tests for these tasks. OpenAI 2026 only says tests could spuriously fail depending on environment setup (operating system or Python version). paper2/preparation/harness.py grades once per run."
+    },
+    {
+      "item_id": "ABC-O.g.1",
+      "concerns": [
+        "C05"
+      ],
+      "text": "Ground truth includes all states achievable after success.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.g covers state matching on a database or environment; SWE-bench checks test outcomes, not a final state."
+    },
+    {
+      "item_id": "ABC-O.g.2",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Checks relevant and irrelevant states for the challenge.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.g covers state matching on a database or environment; SWE-bench checks test outcomes, not a final state."
+    },
+    {
+      "item_id": "ABC-O.g.3",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Ground truth is complex to prevent trivial state modifications.",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "O.g covers state matching on a database or environment; SWE-bench checks test outcomes, not a final state."
+    },
+    {
+      "item_id": "ABC-O.i.1",
+      "concerns": [
+        "C07"
+      ],
+      "text": "Designs quality metrics that prevent exploitation (e.g., achieving high scores by reward hacking)",
+      "answer": "not_applicable",
+      "location": "",
+      "quote": "",
+      "note": "The only metric is the share of tasks resolved (all tests pass); there is no separate quality metric. Exploitation through weak tests is covered under O.d (Zhu et al. E.1 cite 5.3% of Verified tasks passed without addressing the issue)."
+    },
+    {
+      "item_id": "ABC-R.3",
+      "concerns": [
+        "C14"
+      ],
+      "text": "Includes measures to prevent data contamination, such as a private, held-out test set, or a lively updated dataset.",
+      "answer": "not_met",
+      "location": "Zhu et al. 2025 transcription, Table 8, Assessment Report of SWE-Bench-Verified, R.3",
+      "quote": "The benchmark does not discuss measures to prevent data contamination.",
+      "note": "OpenAI 2024 states \"large foundation models that are pre-trained on internet text are likely to be contaminated on the tasks.\" The set is public and static; OpenAI 2026 reports that all frontier models tested could reproduce gold patches."
+    },
+    {
+      "item_id": "ABC-R.4",
+      "concerns": [
+        "C14"
+      ],
+      "text": "Includes measures or plans to consistently update challenges over time to avoid overfitting.",
+      "answer": "not_met",
+      "location": "Zhu et al. 2025 transcription, Table 8, Assessment Report of SWE-Bench-Verified, R.4",
+      "quote": "The benchmark does not discuss plans to consistently update tasks over time.",
+      "note": "The Verified set is a fixed subset of 500 tasks. OpenAI 2026 recommends moving to SWE-bench Pro instead of updating it."
+    },
+    {
+      "item_id": "ABC-R.9",
+      "concerns": [
+        "C12"
+      ],
+      "text": "Includes quantitative analysis to assess the impact of unavoidable flaws (e.g., noise of ground truth).",
+      "answer": "not_met",
+      "location": "Zhu et al. 2025 transcription, Table 8, Assessment Report of SWE-Bench-Verified, R.9",
+      "quote": "The benchmark does not include quantitative analysis to assess the impact of unavoidable flaws.",
+      "note": "OpenAI 2024 reports filtering rates and difficulty strata, not the effect of residual flaws on scores. Quantification came later (OpenAI 2026 audit; UTBoost: 5.3% of Verified tasks pass without addressing the issue) and is not part of the release."
+    },
+    {
+      "item_id": "ABC-R.10",
+      "concerns": [
+        "C12"
+      ],
+      "text": "Reports metrics about statistical significance, such as confidence intervals.",
+      "answer": "not_met",
+      "location": "OpenAI, Introducing SWE-bench Verified (archive), Footnote 4",
+      "quote": "We ran a single seed",
+      "note": "Scores are reported without confidence intervals or other significance metrics. Zhu et al. also scored R.10 as 0 for this benchmark."
+    }
+  ],
+  "roles": {
+    "author": "Vitor Raposo",
+    "assistant": ""
+  },
+  "signed_at": "2026-11-12T06:54:35.199341+00:00"
+}

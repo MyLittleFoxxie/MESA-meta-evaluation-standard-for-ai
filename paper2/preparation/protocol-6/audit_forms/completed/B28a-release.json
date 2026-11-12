@@ -1,0 +1,68 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "complete",
+  "criterion": "B28a",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the grading environment controlled, so that the system under test cannot reach answers or alter the scoring?",
+  "shown_means": "the grading environment and its isolation described",
+  "checked_means": "isolation of the system's output from the tests and the scorer verified or enforced in code",
+  "applies_when": "scoring runs the system's output as code or in an environment",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "Scoring runs the system's patch inside the task repository and then its own test runner."
+  },
+  "check": {
+    "procedure": "Read the B28a-release check: 10 candidate diffs that change only test running files were graded by the SWE-bench harness on three source runner layouts (bin/test with sympy/utilities or sympy/testing runtests.py) and one target pytest layout (conftest.py). Read SCORING_FILE and the per session control in sessions.py.",
+    "kind": "run_by_reviewer",
+    "outcome": "failed",
+    "evidence_location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/",
+    "detection_limits": "The check could not detect alterations through files outside SCORING_FILE (sympy source, test files or import hooks) or other layouts, covers four tasks, and the candidates were fixed before the session agents existed."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/NOTES.md",
+      "quote": "`claude-sonnet-5-5` declined to construct grading-bypass diffs"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-13031/check.json",
+      "quote": "\"harness_resolved\": true"
+    },
+    {
+      "location": "paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/sympy__sympy-30779/check.json",
+      "quote": "\"harness_resolved\": true"
+    },
+    {
+      "location": "paper2/method/evidence.py",
+      "quote": "no reference fix of the selected tasks touches them"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Release level test runner mutability exists: in all four runner layouts, every candidate that changed only runner or configuration files was graded resolved without fixing any task (grading altered). POLICY-P6-CONTROLLED (no_scoring_file_changes) does not close this at release level; it applies per case, because sessions.py records for each observation whether its patch changed a SCORING_FILE and marks the session invalid if so. The control applies to every case of the 88 tasks by design, and is Admissible for a case only when that record is confirmed for each retained observation. No session has run yet, so no per observation record exists to read.",
+  "missing": "Per observation no_scoring_file_changes records for the Protocol 6 sessions, which do not exist yet.",
+  "checks_performed": [
+    "Read the four check.json files, NOTES.md, the check prompt, SCORING_FILE and the session control in sessions.py."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "Vitor Raposo",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "session_control": {
+    "kind": "no_scoring_file_changes",
+    "description": "Code confirms for every retained observation that its patch modifies no SCORING_FILE runner or config."
+  },
+  "signed_at": "2026-11-12T06:54:35.643799+00:00"
+}

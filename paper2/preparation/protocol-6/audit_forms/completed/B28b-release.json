@@ -1,0 +1,64 @@
+{
+  "form_version": "paper2-audit-form/1",
+  "status": "complete",
+  "criterion": "B28b",
+  "concern": "C28",
+  "definition": {
+    "path": "v5/rubric/rubric-v5.1.md",
+    "sha256": "023058fcfa3190a5ab17b55f71990d33c661b0c606a6f76b9b55d46611420cdf"
+  },
+  "question": "Is the agent environment controlled and isolated from answers?",
+  "shown_means": "the environment, its tools and its isolation described",
+  "checked_means": "state clearing and isolation from answers, history and network verified or enforced in code",
+  "applies_when": "the benchmark runs systems in an environment with tools or state",
+  "repository": "sympy/sympy",
+  "scope": {
+    "level": "release",
+    "config_ids": [
+      "*"
+    ],
+    "task_ids": []
+  },
+  "applicability": {
+    "applies": true,
+    "reason": "The benchmark ships task images that hold a repository checkout and history."
+  },
+  "check": {
+    "procedure": "Read the Protocol 4 search of the published image history for 75 SWE-bench Verified SymPy images and the search of non ancestor commits for the reference fix.",
+    "kind": "both",
+    "outcome": "passed",
+    "evidence_location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+    "detection_limits": "The check could not detect a fix rewritten in other words or split across lines, or short added lines; it covers the 75 SWE-bench Verified images and no target image."
+  },
+  "evidence": [
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-image-history.json",
+      "quote": "\"images\": 75"
+    },
+    {
+      "location": "paper2/preparation/protocol-4/audit_checks/b28-extra-commits-fix-search.json",
+      "quote": "A fix rewritten in other words, or split across lines, would not be found; short added lines are not searched."
+    },
+    {
+      "location": "literature/transcriptions/Establishing_Best_Practices_Rigorous_Agentic_Benchmarks.md",
+      "quote": "The benchmark uses docker containers to isolate the environment, and the state is cleared between runs."
+    },
+    {
+      "location": "literature/notes/paper2-sources.md",
+      "quote": "mined `git log` to copy fix commits"
+    }
+  ],
+  "anchor": "Verified",
+  "reasons": "Two images (sympy-19346, sympy-20590) hold commits beyond the base commit; the search found none of the reference lines in them, so under rubric v5.1 the outcome is passed with the history recorded and the limits stated. Sources report agents mining git log on other benchmark images, which is a risk this check does not exclude.",
+  "missing": "A history search of the Protocol 6 target images, and a search for hints short of the answer.",
+  "checks_performed": [
+    "Read the Protocol 4 image history and fix search records and the notes."
+  ],
+  "task_defects": [],
+  "roles": {
+    "author": "Vitor Raposo",
+    "assistant": ""
+  },
+  "instructions": "Record evidence locations with short quotes, the check performed, its outcome, detection limits, and reasons. The check outcome is the result of the check described in the procedure; state whether the benchmark sources report it or the auditor performed it. A rating without evidence and reasons is incomplete. Missing evidence is not a defect; a defect needs a cited location, and an oracle defect needs an executed counterexample.",
+  "signed_at": "2026-11-12T06:54:35.714109+00:00"
+}
