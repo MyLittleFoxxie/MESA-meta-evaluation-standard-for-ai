@@ -8,9 +8,9 @@ The repository holds two papers for REFSQ 2027 and their records: [`mesa_paper.t
 
 CHASE material, older manuscripts and their tools, and the Paper 2 preview were removed on 10 November 2026; [`provenance/refsq-scope-2026-11-10.md`](provenance/refsq-scope-2026-11-10.md) lists them and how to retrieve them from Git. Do not restore them. The participant survey in [`surveys/colleague-review/`](surveys/colleague-review/) stays at the author's request. It belongs to the earlier 25 question questionnaire study, not to either paper.
 
-## Current state (10 November 2026)
+## Current state (11 November 2026)
 
-- **MESA paper.** Both studies are run and analyzed. The last local build gave 15 pages. Feedback items 16 and 17 in [`mesa_paper_feedback_from_paper_2.md`](mesa_paper_feedback_from_paper_2.md) are open.
+- **MESA paper.** Both studies are run and analyzed. The paper was rewritten on 11 November after review rounds 3 and 4 (both weak reject; see [`supporting/editorial/mesa_round3_change_log.md`](supporting/editorial/mesa_round3_change_log.md)). By the author's decision it presents the finished experiment only: no text on study cycles, failed attempts or the blind rating, one Limitations section, and the known defect check for Gemini only. It has one figure, [`figures/mesa_study_overview.pdf`](figures/mesa_study_overview.pdf). The build on TeX Live 2023 gave 15 pages. Open: upload of the anonymous replication package (built by `tools/build_mesa_package_folder.py` into `dist/`) and its link in the paper.
 - **Paper 2.** The rating forms, the ABC record and the requirement were signed on 9 November. No session of protocol 5 has run. The next step is the freeze, the author's authorization and the pilot (runbook step 13). Repeated text was trimmed on 10 November; the reference build (TeX Live 2026, as on Overleaf) is now 15 pages.
 - **Line endings.** `.gitattributes` (`* -text`) keeps every file byte for byte as stored, so frozen file hashes match on Windows. Keep it, and do not change the line endings of frozen files.
 - **Both.** The Data Availability sections promise an anonymized replication package with the submission; preparing it is open (runbook item W5, feedback item 17).
@@ -19,7 +19,7 @@ Update this section and the table in `README.md` when the state changes.
 
 ## MESA paper
 
-`mesa_paper.tex`, **Unifying Benchmark Evaluation Protocols: A Meta-Evaluation Standard for Artificial Intelligence in Requirements Engineering**, reports the framework comparison and rubric study and proposes a requirements traceability application. Human validation and effects on requirements decisions remain unestablished.
+`mesa_paper.tex`, **Unifying Benchmark Review Frameworks: One Rubric for Judging AI Benchmarks as Evidence for Requirements**, reports the framework comparison and rubric study and proposes a requirements traceability application. Human validation and effects on requirements decisions remain unestablished.
 
 The frozen v4 mapping allocates 280 framework items to 30 comparison concerns ([`v4/README.md`](v4/README.md)); the paper's Study 1 is in `v4/study/`. Rubric v5 ([`v5/rubric/rubric.md`](v5/rubric/rubric.md)) keeps that mapping, adopts the paper's level names, adds outcome, scope, check kind, detection limits and task defects to each rating, and splits B14 and B28, giving 8 description fields and 31 evaluation questions; see [`v5/README.md`](v5/README.md). The current rubric text is [`v5/rubric/rubric-v5.1.md`](v5/rubric/rubric-v5.1.md), which settles feedback item 15 without changing any question; `rubric.md` stays frozen for the study. `mesa_paper.tex` presents v5 as its only rubric, with no version names, and reports the v5 sessions (`v5/study/`, called Study 3 in their records) as its Study 2; the v4 rubric sessions are not in the paper.
 
