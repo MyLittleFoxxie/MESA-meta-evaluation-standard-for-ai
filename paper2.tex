@@ -6,23 +6,14 @@
 \usepackage{amsmath}
 \usepackage{array}
 \usepackage{tabularx}
+\usepackage{graphicx}
 \usepackage{xurl}
-\usepackage{listings}
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
 
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\newcommand{\meth}[1]{\textsc{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
-\lstset{
-  basicstyle=\ttfamily\scriptsize,
-  breaklines=true,
-  columns=fullflexible,
-  frame=single
-}
-
-\title{Can a MESA Benchmark Audit Predict Decision Reliability on New Issues? A Controlled Study on SymPy}
-\titlerunning{Does a MESA Benchmark Audit Predict Decision Reliability?}
+\title{What a Benchmark Audit Lets a Team Conclude: MESA Applied to a Coding Agent Requirement on SymPy}
+\titlerunning{What a Benchmark Audit Lets a Team Conclude}
 
 \author{Anonymous Author(s)}
 \authorrunning{Anonymous Author(s)}
@@ -32,262 +23,211 @@
 \maketitle
 
 \begin{abstract}
-\textbf{Context and motivation:} Software engineering teams rely on automated coding benchmarks to judge whether an unsupervised coding agent satisfies a bug-fixing requirement before deployment. When unit tests accept incomplete patches, reject valid fixes, allow edits to the test runner, or overlap with training data, headline pass rates misstate field capability.
+\textbf{Context and motivation:} Teams often decide from a benchmark score whether a coding agent meets a requirement. The score can mislead when the tests accept wrong fixes, when the agent can alter the grading, or when the model saw the tasks in training.
 
-\textbf{Question/problem:} Does a structured MESA benchmark audit (\meth{M3}) yield more cautious and defensible requirement decisions on SymPy bug reports than raw pass rates (\meth{M2}), audit-only task removal, or the Agentic Benchmark Checklist (\meth{ABC}), and how do source-split decisions compare against held-out post-cutoff issues?
+\textbf{Question/problem:} For a requirement on fixing SymPy bug reports, we ask what a team may conclude from the same agent sessions under seven decision methods, from the score alone to three MESA policies, and how this compares with a direct test on issues fixed after the model's training cutoff.
 
-\textbf{Principal ideas/results:} We evaluate \meth{GPT-6.1 Sol} (\textit{medium} reasoning effort) in Codex CLI across 1 pilot task, 44 SWE-bench Verified SymPy source tasks, and 44 strict post-cutoff SymPy target issues merged on or after 1 May 2026 under a one-sided 95\% exact binomial rule ($\theta = 0.70$, $n_{\min} = 9$). Cross-family weak-test checks and two independent \meth{Claude Sonnet 5.5} scope ratings (80/82 exact three-way agreement; checked against \meth{GPT-6.1 Sol}) remove 32 of 44 source tasks and 24 of 44 target tasks as accepting wrong patches. Runner-file edits alter grading on all four SymPy runner layouts, keeping strict and lenient MESA policies \emph{Inadmissible}; confirming no scoring-file modifications per observation renders \meth{M3\_controlled} \emph{Admissible} on the 12 retained source tasks (10/12 resolved, 83.33\%, \emph{Inconclusive} because $n = 12$ requires 12/12 to \emph{Accept}). On post-cutoff target tasks, the valid resolve rate drops to 21/44 (47.73\%, \emph{Reject}; and 7/20 or 35.00\%, \emph{Reject}, after defect removal), a $+31.82$ to $+48.33$ percentage point decline with non-overlapping intervals. Runtime controls flagged four sessions, including a legitimate fix touching SymPy's own runner module.
+\textbf{Principal ideas/results:} We ran one coding agent in 88 sessions: 44 source tasks from SWE-bench Verified and 44 target tasks from newer SymPy issues. The agent resolved 35 of 44 source tasks, and the score alone gives Inconclusive. Checks before the sessions showed that the tests accepted a wrong fix on 32 of 44 source tasks and that edits to the test runner alone pass the grading. Two MESA policies thus gave no decision, and the third, which checks each patch, gave Inconclusive at 10 of 12 kept tasks. No method reached Accept. On the target tasks the agent resolved 21 of 44, and the direct test gave Reject.
 
-\textbf{Contribution:} We report the full 89-session empirical study, cross-family oracle and exposure audit results, and runtime control tradeoffs under an executable three-level requirements gate.
+\textbf{Contribution:} We show on one case that a decision method that checks the records, then the benchmark evidence, and only then the score changes what a score can support, and that removing tasks with weak tests leaves 12 source tasks, so that Accept needs all 12.
 \end{abstract}
 
-\keywords{Benchmark Validity \and MESA Rubric \and Empirical Study \and Requirements Engineering \and Coding Agents \and SWE-bench}
+\keywords{Benchmark Validity \and MESA \and Requirements Engineering \and Coding Agents \and SWE-bench \and Empirical Study}
 
 \section{Introduction}
-Requirements engineers increasingly treat coding benchmark leaderboards as operational evidence when selecting automated bug-fixing assistants~\cite{berry_re4ai_2022,habiba_re4ai_maturity_2024,lewis_quality_model_ml_2026}. On Python repositories, SWE-bench Verified~\cite{jimenez_swebench_2024,openai_swebench_verified_2024} is widely cited as a quality signal for autonomous patch generation. However, treating a single resolve rate as deployment readiness conflates true task-solving ability with benchmark artifacts. Independent audits of SWE-bench Verified have demonstrated weak tests that pass incomplete patches~\cite{yu_utboost_2025,wang_solved_issues_2026}, overspecified tests that reject valid solutions~\cite{openai_swebench_audit_2026,ding_spec_oracle_gaps_2026}, training exposure to public GitHub commits~\cite{openai_swebench_verified_contamination_2025,liang_swebench_illusion_2025}, and execution or grading vulnerabilities inside agent environments~\cite{mohl_transcript_flaws_2026,wang_benchjack_2026}.
+Requirements for AI components are often stated through measures and thresholds that a system must reach~\cite{berry_re4ai_2022}, and requirements engineering for AI systems is still maturing~\cite{habiba_re4ai_maturity_2024}. Language models now take part in many software engineering tasks~\cite{hou_llm4se_survey_2024}. A team that must decide whether a coding agent meets a requirement, such as fixing bug reports in its own code base at a given rate, will often look at the agent's score on a public benchmark. SWE-bench Verified~\cite{jimenez_swebench_2024,openai_swebench_verified_2024} is a widely used benchmark for this purpose in Python projects.
 
-In companion work~\cite{anonymous_companion_2027,anonymous_companion_method_2027}, we unified benchmark review frameworks into the Meta-Evaluation Standard for AI (\meth{MESA}) rubric and formalized a three-level evaluation gate separating input integrity (Level~1), criterion admissibility (Level~2), and requirement decisions (Level~3). Prior evaluation established framework coverage and synthetic gate mechanics, but did not test an end-to-end empirical software engineering sample pairing audited legacy benchmark tasks against strictly post-cutoff live repository issues under hard runtime controls.
+A benchmark score can mislead such a team. Suppose a bug report asks for two behaviors and the benchmark's tests check only one of them. A patch that fixes only that one behavior passes the tests, and the score counts the task as resolved. Audits of SWE-bench Verified report such weak tests~\cite{yu_utboost_2025,wang_solved_issues_2026}, tests that reject correct fixes~\cite{openai_swebench_verified_contamination_2025}, and tasks that may be in the training data of the models under test~\cite{openai_swebench_verified_contamination_2025,liang_swebench_illusion_2025}. Studies of other agent benchmarks report ways in which an agent can alter its own grading~\cite{wang_benchjack_2026,mohl_transcript_flaws_2026}.
 
-This paper reports that empirical study on \texttt{sympy/sympy} across 89 isolated agent sessions (1 pilot, 44 source tasks, 44 post-cutoff target issues). We investigate three research questions:
-\begin{itemize}
-\item \textbf{RQ1 (Decision caution and gating):} On 44 SWE-bench Verified SymPy tasks, how do requirement decisions differ across unreviewed resolve rates (\meth{M2}), audit-only task filtering, the Agentic Benchmark Checklist (\meth{ABC}, alone and gated), and MESA under strict (\meth{M3\_\allowbreak strict}), lenient (\meth{M3\_\allowbreak lenient}), and case-controlled (\meth{M3\_\allowbreak controlled}) policies?
-\item \textbf{RQ2 (Source vs.\ post-cutoff target agreement):} How do source resolve rates and decisions compare with a direct test on 44 strict post-cutoff SymPy issues (created and merged on or after 1 May 2026, strictly after the coding model's stated training cutoff of 30 April 2026), before and after defect removal?
-\item \textbf{RQ3 (Runtime controls and sensitivity):} What runtime violations occur across 89 isolated sessions, what false-positive tradeoffs arise when deterministic runner-file rules meet real patches, and how sensitive are decisions to scope rules and single-task integrity perturbations?
-\end{itemize}
+The MESA rubric (Meta-Evaluation Standard for AI)~\cite{anonymous_companion_2027} rates a benchmark against criteria drawn from seven review frameworks, and for each criterion it records both what kind of evidence exists and what a check found. Its authors propose that a located defect makes benchmark evidence unusable for a requirement only if the defect can change the score that the requirement uses. This paper turns that rule into a decision method and evaluates it on a coding agent.
+
+We state one requirement for an agent that fixes bug reports in SymPy, a Python library for symbolic mathematics, and run one agent on two sets of tasks: 44 source tasks from SWE-bench Verified and 44 target tasks from SymPy issues fixed after the model's training cutoff. Before the sessions, we check the tests, the training exposure and the grading, and rate the benchmark with MESA. We then ask three research questions. RQ1: what may a team conclude about the requirement from the same source sessions under each decision method? RQ2: how do the resolve rate and the decision on the source tasks compare with a direct test of the requirement on the target tasks? RQ3: which sessions break the rules of the requirement, and does the decision depend on them? This is a scientific evaluation paper, the REFSQ category for empirical studies.
+
+Section~\ref{sec:related} gives the background, Section~\ref{sec:method} explains the decision method, and Section~\ref{sec:design} describes the study. Section~\ref{sec:results} reports the results, Section~\ref{sec:discussion} discusses them, Section~\ref{sec:limitations} states the limitations, and Section~\ref{sec:conclusion} concludes.
 
 \section{Background and Related Work}
-Software engineering and machine learning standards increasingly distinguish benchmark documentation from evidentiary validity. BetterBench~\cite{reuel_betterbench} catalogs lifecycle documentation and reproducibility practices, evaluation cards~\cite{ghosh_evaluation_cards_2026} structure reporting metadata, and NIST measurement guidance~\cite{nist_ai_800_2_2026} ties score interpretation to stated construct validity~\cite{kane_validation,pizarro_beyond_the_hype_2026}. Within agentic software engineering, Zhu et al.~\cite{zhu_agentic_benchmark_checklist_2025} introduced the Agentic Benchmark Checklist (\meth{ABC}), scoring environment validity (\meth{T}), task and oracle soundness (\meth{O}), and reporting quality (\meth{R}), while surfacing unmet or unknown items as descriptive caveats alongside the raw score.
+\label{sec:related}
+Several frameworks guide the review of benchmarks. BetterBench~\cite{reuel_betterbench} lists practices for the design, documentation and maintenance of a benchmark, evidence centered benchmark design~\cite{liu_ecbd_2024} asks designers to state what evidence a benchmark gives, evaluation cards~\cite{ghosh_evaluation_cards_2026} structure the report of an evaluation, and guidance from NIST~\cite{nist_ai_800_2_2026} ties the reading of a score to what the score is meant to measure~\cite{kane_validation}. For agents, Zhu et al. proposed the Agentic Benchmark Checklist~\cite{zhu_agentic_benchmark_checklist_2025}. The checklist has three parts: task validity asks whether a task can be solved only with the capability under test, outcome validity asks whether the grading reports success correctly, and reporting asks whether the benchmark states its limits. Items that a benchmark does not meet are reported as caveats next to its score.
 
-From a requirements assurance perspective~\cite{gotel_traceability_1994,hawkins_amlas_2021,sljivo_assurance_contracts_2014}, caveats alone do not block an unsafe acceptance decision when a single benchmark pass rate clears a deployment threshold. Assurance envelopes~\cite{goswami_assurance_envelopes_2026}, assurance contracts~\cite{lawford_safety_case_impact_2017}, transfer arguments~\cite{picardi_transfer_assurance_2023}, and selective classification~\cite{el_yaniv_selective_classification_2010} instead withhold a claim whenever supporting evidence fails defined validity conditions~\cite{arief_vnvspec_2026,mukhopadhyay_nalla_evidence_reuse_2026,singh_damsa_sms_2026}.
+Research on assurance links requirements to the evidence that supports them~\cite{gotel_traceability_1994,arief_vnvspec_2026} and records why a system meets its requirements and how changes affect that argument~\cite{hawkins_amlas_2021,lawford_safety_case_impact_2017}. Several approaches in this field withhold a claim when the evidence does not meet stated conditions. Assurance contracts state the conditions under which a guarantee holds~\cite{sljivo_assurance_contracts_2014}, assurance envelopes report that no envelope exists when the evidence cannot support a required property~\cite{goswami_assurance_envelopes_2026}, and arguments for reusing evidence in a new context state when the transfer is valid~\cite{picardi_transfer_assurance_2023,mukhopadhyay_nalla_evidence_reuse_2026}. Selective classification lets a classifier abstain when it is not confident~\cite{el_yaniv_selective_classification_2010}, and screening methods drop candidates that break hard constraints before ranking the rest~\cite{singh_damsa_sms_2026}. A caveat next to a score does not withhold anything: if the score clears a threshold, a team can still accept.
 
-Empirical audits of SWE-bench~\cite{hou_llm4se_survey_2024,singh_leaderboard_illusion,aleithan_swebench_plus_2024} reinforce why withholding and task-level filtering matter. UTBoost~\cite{yu_utboost_2025}, AutoBenchmarkAudit~\cite{wang_auto_benchmark_audit_2026}, BenchGuard~\cite{tu_benchguard_2026}, SpecOracle~\cite{ding_spec_oracle_gaps_2026}, and OpenAI's February 2026 audit~\cite{openai_swebench_audit_2026} show that hidden unit tests frequently accept wrong solutions or reject valid patches~\cite{wang_solved_issues_2026}. Recent dynamic benchmarks such as SWE-bench-Live~\cite{zhang_swebench_live_2025}, SWE-rebench~\cite{badertdinov_swe_rebench_2025}, and ECBD~\cite{liu_ecbd_2024} address contamination by drawing newer issues, while runner manipulation studies~\cite{wang_benchjack_2026} highlight the risk of agents editing evaluation scripts inside the repository. Our study operationalizes those checks together inside one frozen contract~\cite{whitfill_metr_merge_2026}.
+SWE-bench~\cite{jimenez_swebench_2024} builds each task from a GitHub issue and the pull request that fixed it. The agent sees the issue text and the repository before the fix. The tests that the maintainers added with the fix stay hidden from the agent, and a task counts as resolved when these tests pass and the other named tests still pass. SWE-bench Verified~\cite{openai_swebench_verified_2024} is a subset whose tasks human annotators screened for clear issue text and fair tests. Audits still find tests that accept wrong fixes~\cite{yu_utboost_2025,wang_solved_issues_2026,aleithan_swebench_plus_2024,wang_auto_benchmark_audit_2026}. OpenAI's February 2026 audit of SWE-bench Verified~\cite{openai_swebench_verified_contamination_2025} reports tests that reject correct fixes and signs that models have seen the tasks in training. Studies of other benchmarks find gaps between what a task asks and what its tests check~\cite{ding_spec_oracle_gaps_2026,tu_benchguard_2026}, and flaws that let agents reach a high score without doing the task~\cite{mohl_transcript_flaws_2026,wang_benchjack_2026}. Passing the tests is also narrower than a maintainer accepting the change~\cite{whitfill_metr_merge_2026}. Newer benchmarks such as SWE-bench-Live~\cite{zhang_swebench_live_2025} and SWE-rebench~\cite{badertdinov_swe_rebench_2025} draw recent issues to reduce training exposure. Our study combines these checks with a decision on one requirement.
 
-\section{Study Design and Protocol Architecture}
-To isolate benchmark behavior from multi-model confounding and ensure full execution within a bounded quota window, the study evaluates one active coding agent configuration: \meth{GPT-6.1 Sol} (\textit{medium} reasoning effort, \texttt{CONFIG\_\allowbreak 02\_\allowbreak SOL\_\allowbreak MED}) inside a locked Codex CLI build (\texttt{0.167.0}). A second configuration (\meth{Gemini 3.8 Flash Medium}) was preserved strictly on standby for quota contingency and never executed for live study sessions, though the same model family generated blind verification scripts for weak-test auditing.
+\section{The Decision Method}
+\label{sec:method}
+The requirement of this study is as follows. Working alone in a local SymPy checkout, without network access and without changing the test runner or test configuration, the agent resolves a bug report by passing the maintainers' tests for the behavior that the report states, within 900 seconds. The team accepts the agent if the one sided 95\% exact binomial lower bound of the resolve rate is at least 0.70. The person who holds the requirement is a tooling lead who chooses one coding assistant to draft bug fixes before human code review.
+
+The statistical rule compares the resolve rate with the threshold of 0.70. The decision is Accept if the one sided 95\% lower bound is at least 0.70, Reject if the one sided 95\% upper bound is below 0.70, and Inconclusive otherwise. Throughout the paper we report intervals as the pair of one sided 95\% bounds, which together form a 90\% two sided exact interval. The rule needs at least 9 tasks for any Accept, and then only at 9 of 9. With 44 tasks, Accept needs at least 37 resolved and Reject happens at 25 or fewer. With 20 tasks, the cut points are 18 and 10. With 12 tasks, Accept needs all 12 resolved and Reject happens at 5 or fewer. If the true resolve rate is 0.85, the chance of reaching Accept is 66.3\% with 44 tasks but only 14.2\% with 12 tasks, and with a true rate of 0.75 it falls to 3.2\% with 12 tasks.
+
+The decision method uses ratings made with the MESA rubric. Each rating of a criterion records a level and an outcome~\cite{anonymous_companion_2027}. The level says what kind of evidence the benchmark's sources contain: Verified (a check is reported or was run, with its coverage and findings), Documented (the sources contain something that can be inspected), Claimed (the sources state it with nothing to inspect), Undocumented (the sources do not allow a level to be chosen), Contradicted (a file of the benchmark contradicts a claim), or Not applicable. The outcome says what a check found: passed, failed, not performed, or not recorded. A rating can also list single tasks as defective. A criterion that fails only on listed tasks is rated as passed for the remaining tasks, and the method removes the listed tasks.
+
+The method has three steps, and each step runs only if the one before it allows (Figure~\ref{fig:overview}). At step~1, the records of each session must be intact: every record belongs to a declared task and to the agent under test, and each patch and log still matches the hash, a digital fingerprint, taken when it was made. If not, the input is rejected. At step~2, the benchmark evidence must be admissible under a policy. We call the evidence admissible when it passes the criteria that the policy requires. A required criterion with a failed check makes the evidence not admissible, and a rating without a record of origin, which says who made the rating and from which sources, leads to an inquiry: the method asks for the missing record. In both cases the method gives no decision. No decision differs from Inconclusive: after Inconclusive the team collects more sessions, and after no decision it first has to repair the evidence. If the evidence is admissible, tasks that a rating lists as defective are removed before the score is computed. At step~3, and only then, the statistical rule compares the score with the threshold. The method thus has four possible results: Accept, Reject, Inconclusive, and no decision.
 
 \begin{figure}[t]
 \centering
-\begin{tikzpicture}[
-  box/.style={draw, rounded corners=2pt, align=center, font=\scriptsize, inner sep=3.5pt, minimum height=1.1cm},
-  arr/.style={-Latex, thin}
-]
-\node[box, text width=2.2cm] (obs) {Isolated Agent Run\\(89 Slots Max 99)};
-\node[box, text width=2.3cm, right=0.35cm of obs] (l1) {Level 1 Integrity\\Hashes, IDs, Policy};
-\node[box, text width=2.7cm, right=0.35cm of l1] (l2) {Level 2 Criteria Gate\\B05, B07, B12, B14,\\B28a (+ Control), B28b};
-\node[box, text width=2.4cm, right=0.35cm of l2] (l3) {Level 3 Decision\\Accept / Reject /\\Inconclusive / Withheld};
-\draw[arr] (obs) -- (l1);
-\draw[arr] (l1) -- (l2);
-\draw[arr] (l2) -- (l3);
-\end{tikzpicture}
-\caption{Three-level MESA evaluation pipeline under the controlled policy.}
-\label{fig:pipeline}
+\includegraphics[width=\textwidth]{figures/paper2_study_overview.pdf}
+\caption{Overview of the study. The 44 source tasks and 44 target tasks go through the checks before the sessions, and the agent works on each task in one session, 88 sessions in all. The decision method takes the removed tasks, the ratings and the session results, checks that the records are intact (step~1) and that the evidence is admissible (step~2), and only then compares the score with the threshold of 0.70 (step~3). The result is Accept, Reject, Inconclusive, or no decision. For the target tasks, the statistical rule is applied directly.}
+\label{fig:overview}
 \end{figure}
 
-Figure~\ref{fig:pipeline} and Table~\ref{tab:design} summarize the study design. The stakeholder requirement (\texttt{REQ-P6-SYMPY-BUGFIX}) asks whether an unsupervised agent resolves single-issue \texttt{sympy/sympy} bug reports within 900\,s inside an offline checkout without modifying test runners or test configurations, meeting a resolve-rate threshold $\theta = 0.70$ under a one-sided 95\% exact binomial bound ($n_{\min} = 9$, since $9/9$ gives upper-tail $p = 0.0404 \le 0.05$ whereas $8/8$ gives $p = 0.0576$). An agent receives \emph{Accept} if the one-sided 95\% exact binomial lower bound reaches $\ge 0.70$, \emph{Reject} if the upper bound lies strictly below $0.70$, and \emph{Inconclusive} otherwise.
+\section{Study Design}
+\label{sec:design}
+
+\subsection{Agent and Setting}
+The agent under test is GPT-6.1 Sol at medium reasoning effort, run through the Codex command line agent. It works on each task in one session, in a sandbox with a local SymPy checkout, without network access and with a limit of 900 seconds. The session rules follow the requirement: the agent must not run network commands, must not change the test runner or test configuration files, and must not read the files of the study itself. After each session, the benchmark harness runs the maintainers' tests on the agent's patch. We count a session as validly resolved when the tests pass and the session broke no rule. We used two further model families as checkers: Gemini 3.8 Flash Medium wrote independent check scripts, and Claude Sonnet 5.5 judged the scope of issues and drafted ratings.
+
+\subsection{Task Sets}
+The source tasks are 44 of the 75 SymPy tasks in SWE-bench Verified, taken in a fixed pseudo random order. The target tasks are 44 SymPy pull requests that were created and merged, and whose linked issues were opened, on or after 1 May 2026. The model's stated training cutoff is 30 April 2026, so these fixes were made after the model's training data ends. A target candidate is eligible when the tests named for the fix fail before the fix and pass after it, and the other named tests pass in both cases. The two task sets do not overlap.
+
+\subsection{Checks Before the Sessions}
+\label{sec:checks}
+\emph{Weak test check.} The check asks whether the benchmark's tests can accept a wrong fix, and it has two stages. In the first stage, GPT-6.1 Sol wrote up to three incomplete patches per task, each leaving one behavior that the issue asks for unfixed. In the second stage, Gemini 3.8 Flash Medium, which did not see those patches, wrote an independent check script for that behavior. A script is valid when it fails on the code before the fix and passes on the maintainers' fix. We say that the tests accepted a wrong fix when an incomplete patch passes the benchmark's tests and fails a valid check script.
+
+\emph{Scope judgment.} A behavior that the tests miss matters only if the issue states it. For 82 of the 88 tasks (42 source, 40 target), the first stage recorded which behavior its patches leave unfixed; none of the other six tasks had an accepted wrong fix. For these 82 tasks, two runs of Claude Sonnet 5.5 and one run of GPT-6.1 Sol judged whether the issue text states the behavior, without seeing the check results. Each run chose one of three labels: states it, does not state it, or unclear. The rule removes a task for weak tests only if a wrong fix was accepted and both Claude runs judged that the issue states the behavior.
+
+\emph{Exposure probe.} To look for signs that the model had seen the tasks, we asked GPT-6.1 Sol to name the files that the fix changes, from the issue text alone and without the repository.
+
+\emph{Grading control check.} To learn whether an agent could pass the grading by changing the test runner, we ran 11 patches that change only the test runner or test configuration files, and fix no bug, through the benchmark harness.
+
+\emph{Results of the checks.} Table~\ref{tab:weak} shows the weak test check. The tests accepted a wrong fix on 32 of 44 source tasks and 26 of 44 target tasks. The rule removed 32 source and 24 target tasks and kept 12 and 20. Two target tasks where a wrong fix was accepted stayed, because both Claude runs judged that the issue does not state the behavior. Tasks without a valid check stay in the kept set, so not every kept task was shown to have sound tests. Of the 12 kept source tasks, 6 had a valid check that found no accepted wrong fix and 6 had no valid check. Of the 20 kept target tasks, 6 had a valid check without a finding, 2 had a finding judged out of scope, 10 had no valid check, and 2 had no incomplete patch.
 
 \begin{table}[t]
 \centering
-\caption{Sample structure, statistical cut points, and policy definitions.}
-\label{tab:design}
-\scriptsize
-\begin{tabular}{L{3.5cm}L{8.4cm}}
+\caption{Outcome of the weak test check per task. The tests accepted a wrong fix on most source tasks, so the rule keeps only 12 of 44 source tasks.}
+\label{tab:weak}
+\footnotesize
+\begin{tabular}{L{6.4cm}rrr}
 \toprule
-Design Element & Specification \\
+Outcome of the check & Source & Target & Total \\
 \midrule
-Coding agent under test & \meth{GPT-6.1 Sol} (\textit{medium} effort), Codex CLI \texttt{0.167.0}, 900\,s watchdog \\
-Session allocation & 1 pilot, 44 source, 44 target, 10 infrastructure reserve slots (99 max) \\
-Source task pool & Deterministically ordered first 44 of 75 SWE-bench Verified SymPy tasks \\
-Target task pool & PRs created/merged with all closing issues opened $\ge$ 2026-05-01 \\
-Eligibility screening & Base fails all \texttt{FAIL\_TO\_PASS}, passes \texttt{PASS\_TO\_PASS}; 1800\,s baseline limit $\Rightarrow$ ineligible \\
-Exact binomial rule & One-sided 95\%, $\theta = 0.70$; $n=44$: Accept $\ge 37$, Reject $\le 25$ \\
-Power after B07 removal & At $n = 12$ (source): Accept $= 12/12$ (14.2\% power at $p=0.85$; 3.2\% at $p=0.75$) \\
-Target clean cut points & At $n = 20$ (target): Accept $\ge 18/20$, Reject $\le 10/20$ \\
+A wrong fix was accepted by the tests & 32 & 26 & 58 \\
+Valid check script, no wrong fix accepted & 6 & 6 & 12 \\
+Check script not valid & 6 & 10 & 16 \\
+No incomplete patch produced & 0 & 2 & 2 \\
+\midrule
+Tasks removed by the rule & 32 & 24 & 56 \\
+Tasks kept & 12 & 20 & 32 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Task Pools, Eligibility, and Power Constraints}
-All 75 SymPy tasks in SWE-bench Verified~\cite{jimenez_swebench_2024} were ranked deterministically by SHA-256 hash of a fixed salt and instance identifier; rank~1 served as the pilot (\texttt{sympy\_\_sympy-13798}), and ranks 2--45 formed the 44 source tasks. Post-cutoff SymPy target candidates were collected from merged PRs whose creation, merge, and closing issue timestamps all fall on or after 1 May 2026 (strictly postdating \meth{GPT-6.1 Sol}'s stated training cutoff of 30 April 2026). Each candidate was screened in deterministic hash order inside its pinned Docker environment. Under a general eligibility rule established prior to freeze, any candidate whose unchanged baseline test run reaches the 1800\,s harness timeout without producing a test report is marked \emph{ineligible}; one candidate reached 1800\,s, and screening completed 44 of 44 eligible target tasks with zero repository, commit, or issue overlap against pilot, source, or excluded historical fixtures.
+The scope judgments agreed well within one model family and less well between families. The two Claude runs chose the same of the three labels on 80 of 82 tasks. On the question that decides the rule, whether the issue states the behavior, they agreed on 81 of 82 tasks (Cohen's kappa 0.88). Claude run~A and GPT-6.1 Sol chose the same label on 77 of 82 tasks (kappa on the deciding question 0.57), and run~B and GPT-6.1 Sol on 76 of 82 (kappa 0.41).
 
-Notice the statistical consequence of removing defective source tasks. Before filtering ($n = 44$), \emph{Accept} requires $\ge 37/44$ ($66.3\%$ power at true rate $0.85$) and \emph{Reject} requires $\le 25/44$. When weak-test removal leaves $n = 12$ source tasks, \emph{Accept} requires 12/12 ($14.2\%$ power at $p = 0.85$; $3.2\%$ at $p = 0.75$) while \emph{Reject} occurs at $\le 5/12$. Consequently, an \emph{Accept} verdict on the retained clean source set is close to statistically unreachable unless every remaining task succeeds.
+In the exposure probe, GPT-6.1 Sol named at least one correct file for 37 of 44 source tasks (84.1\%) and 40 of 44 target tasks (90.9\%). The difference, source minus target, is $-6.8$ percentage points, with a Newcombe 95\% interval~\cite{newcombe_difference_1998} from $-21.4$ to $+7.7$. The model named the exact set of files for 30 of 44 source tasks (68.2\%) but only 13 of 44 target tasks (29.5\%). This fits exposure of the source tasks, but also fixes that are easier to locate; the probe cannot tell these apart.
 
-\subsection{Comparison Arms and Three Decision Policies}
-We compare seven source interpretation arms against direct target evaluation:
-\begin{enumerate}
-\item \textbf{\meth{M1} / \meth{M2} (raw score):} Exact binomial decision on all 44 source tasks with no validity audit (\meth{M1} and \meth{M2} coincide because all tasks originate from \texttt{sympy/sympy}).
-\item \textbf{Audit only:} Drops tasks with shown defects before scoring, without enforcing release-level criteria admissibility.
-\item \textbf{\meth{ABC} and \meth{ABC\_with\_gate}:} Scores all 33 \meth{ABC} items~\cite{zhu_agentic_benchmark_checklist_2025} mapped to the five selected MESA concerns (\meth{C05, C07, C12, C14, C28}). \meth{ABC} reports per-part scores and caveats across all 44 tasks; \meth{ABC\_with\_gate} withholds a decision if any mapped item is unmet or unknown.
-\item \textbf{\meth{M3\_strict}:} Enforces \emph{Verified} anchor and \emph{passed} check outcome on all seven criteria (\meth{B05, B07, B12, B14a, B14b, B28a, B28b}).
-\item \textbf{\meth{M3\_lenient}:} Restricts gating to test validity and environments (\meth{B05, B07, B28a, B28b}; permitting \emph{Documented} on \meth{B07}) while omitting uncertainty (\meth{B12}) and contamination (\meth{B14a, B14b}).
-\item \textbf{\meth{M3\_controlled}:} Preserves \meth{M3\_lenient}'s criterion scope and adds a deterministic case-level control on \meth{B28a} (\texttt{no\_scoring\_file\_changes}): \meth{B28a} moves from \emph{Inadmissible} to \emph{Admissible} if and only if code confirms that zero retained observation diffs modify any SymPy runner or configuration file (\texttt{bin/test}, \texttt{runtests.py}, \texttt{conftest.py}, \texttt{pytest.ini}, \texttt{setup.cfg}, \texttt{tox.ini}, or \texttt{sympy/*/pytest.py}).
-\end{enumerate}
+In the grading control check, all 11 patches were graded as resolved, on all four layouts of SymPy's test runner that the tasks use. On the SymPy tasks of this benchmark, an agent can therefore pass the grading by editing the test runner alone.
 
-\section{Pre-Session Audit Checks and Model Agreement}
-All release audits, cross-family weak-test checks, exposure probes, MESA/ABC rating runs, and form signatures were completed and hashed inside the frozen manifest prior to opening any study session.
-
-\subsection{Cross-Family Weak-Test Checks (\meth{B07}) and Scope Rule}
-To detect weak hidden tests across all 88 study tasks without single-family confirmation bias, we decoupled exploit patch synthesis from independent behavior verification. In Stage~1, \meth{GPT-6.1 Sol} generated up to three intentionally incomplete patches targeting specific behaviors inferred from the issue statement and reference fix. In Stage~2, a blind \meth{Gemini 3.8 Flash Medium} verifier that never saw the candidate patches wrote an independent Python check script (\texttt{check.py}) validated to fail on the unpatched base commit and pass on the real maintainer fix. Every candidate was then executed through both the official SWE-bench harness and \texttt{check.py}. Where verification failed validity (\emph{check invalid}) or Stage~1 yielded no candidate, \meth{B07} was recorded as \emph{not\_performed}; those tasks were retained conservatively in the clean set without post-hoc retries.
-
-To separate broken behavior explicitly stated in the bug report from unstated implementation assumptions, all 82 tasks carrying Stage~1 behavior claims (42 source, 40 target) were extracted onto a blind rating sheet hiding model verification outcomes. Two independent \meth{Claude Sonnet 5.5} rating runs and one cross-family \meth{GPT-6.1 Sol} agreement check classified each claimed behavior as \emph{states\_broken\_behavior}, \emph{does\_not\_state}, or \emph{unclear}. Under the pre-freeze scope rule, a task counts as a \meth{B07} defect if and only if a candidate passed hidden tests while failing a valid \texttt{check.py} \emph{and} both \meth{Claude Sonnet 5.5} runs independently judged \emph{states\_broken\_behavior}. The author signed the forms without re-adjudicating each item manually, leaving human judgment empty on the blind sheet.
+\subsection{Ratings}
+Two runs of Claude Sonnet 5.5 and one run of GPT-6.1 Sol rated the benchmark on the seven MESA criteria that bear on the requirement, and we set the final ratings from these runs and from the checks above (Table~\ref{tab:ratings}). The two Claude runs agreed on five of the seven criteria and differed on task correctness and weak tests. Task correctness is Verified with a passed check once one source task is listed as defective, following OpenAI's February 2026 audit~\cite{openai_swebench_verified_contamination_2025}; this task is also among the 32 removed for weak tests. Weak tests are Verified with a passed check for the kept tasks once the 32 source tasks are listed as defective. The benchmark reports no uncertainty for its scores. Its guard against training exposure is Verified with a failed check, while the exposure of the target tasks for this model is Verified with a passed check. Grading control is Verified with a failed check because of the result above.
 
 \begin{table}[t]
 \centering
-\caption{Pre-freeze \meth{B07} checks across 88 tasks and blind scope ratings across 82 items.}
-\label{tab:b07_checks}
-\scriptsize
-\begin{tabular}{L{5.1cm}rrr}
+\caption{Final ratings of the seven criteria (level and outcome) and their effect on the three MESA policies. Grading control blocks the strict and the lenient policy; the controlled policy replaces it with a check of each patch.}
+\label{tab:ratings}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}YL{2.5cm}L{2.2cm}L{1.7cm}@{}}
 \toprule
-Check / Rating Breakdown & Source ($n=44$) & Target ($n=44$) & Total ($n=88$) \\
+Criterion & Final rating & Required by & Blocks \\
 \midrule
-Valid check: defect demonstrated & 32 & 26 & 58 \\
-Valid check: no defect demonstrated & 6 & 6 & 12 \\
-Check invalid (\emph{not\_performed}, retained) & 6 & 10 & 16 \\
-No candidate (\emph{not\_performed}, retained) & 0 & 2 & 2 \\
-\midrule
-Blind scope items rated (Sonnet A, B; Sol) & 42 & 40 & 82 \\
-Sonnet A vs.\ B exact 3-way agreement & \multicolumn{3}{r}{80/82 (97.56\%, $\kappa = 0.883$)} \\
-Sonnet vs.\ Sol cross-family agreement & \multicolumn{3}{r}{A vs.\ Sol: 77/82 (93.90\%); B vs.\ Sol: 76/82 (92.68\%)} \\
-\midrule
-Agreed defects removed by scope rule & 32 & 24 & 56 \\
-Disagreed / non-defect demonstrated retained & 0 / 0 & 0 / 2 & 0 / 2 \\
-Retained set under scope rule & 12 & 20 & 32 \\
+Task correctness: the tests do not reject a correct fix & Verified / passed & all three & none \\
+Weak tests: the tests do not accept a wrong fix (kept tasks) & Verified / passed & all three & none \\
+Uncertainty: the benchmark reports it for its scores & Undocumented / not performed & strict & strict \\
+Exposure, benchmark: it guards against exposure in training data & Verified / failed & strict & strict \\
+Exposure, this model: the target tasks are not in its training data & Verified / passed & strict & none \\
+Grading control: the agent cannot alter the grading & Verified / failed & strict, lenient & strict, lenient \\
+Isolation: the agent's environment is isolated from the answers & Verified / passed & all three & none \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-Table~\ref{tab:b07_checks} details the check outcomes. Two demonstrated target candidates (\texttt{sympy\_\_sympy-30304} and \texttt{sympy\_\_sympy-30827}) were judged non-defect by both \meth{Claude Sonnet 5.5} runs and remained in the 20-task retained target set. Zero demonstrated tasks produced an inter-run disagreement between the two Sonnet runs. Outcomes are therefore reported three ways: with the scope rule (12 source / 20 target retained), with all demonstrated tasks removed (12 / 18), and with zero removed (44 / 44).
+We also applied the checklist to the same benchmark. Of its items, 33 map to the five concerns behind the seven criteria. Of these, 15 apply, and 7 of them are met, 6 are not met, and 2 are unknown. Task validity scores 6 of 8 (0.75), outcome validity 1 of 3 (0.33), and reporting 0 of 4 (0.00), which gives 8 caveats.
 
-\subsection{Exposure Probes (\meth{B14b}) and Grading Controls (\meth{B28a})}
-Before launching live sessions, we ran repository-free file-name probes asking \meth{GPT-6.1 Sol} to predict modified repository paths from each issue description alone across all 88 tasks (Table~\ref{tab:probes}). Target post-cutoff tasks yielded a slightly higher any-file hit rate (40/44, 90.9\%) than pre-cutoff source tasks (37/44, 84.1\%; Newcombe 95\% CI $[-21.4, +7.7]$\,pp), supporting \emph{Verified / passed} for the held-out target set under \meth{B14b}. However, exact full file-set matches were more than twice as frequent on legacy source issues (30/44, 68.2\%) as on new target PRs (13/44, 29.5\%).
+\subsection{Decision Methods Compared}
+We compare seven decision methods on the source tasks. \emph{Score alone} applies the statistical rule to all 44 tasks. \emph{Defect removal alone} removes the tasks with shown defects and applies the rule to the rest, without a check of the criteria. \emph{The checklist} reports the score of all 44 tasks with its caveats. \emph{The checklist with a gate} gives no decision when any mapped item is not met or unknown. The three MESA policies differ in the criteria they require at step~2. The \emph{strict policy} requires all seven criteria to be Verified with a passed check. The \emph{lenient policy} requires only the four criteria on tests and environment: task correctness, weak tests, grading control and isolation. The \emph{controlled policy} is the lenient policy, plus a check of each session's patch that replaces the benchmark level rating on grading control: the evidence is admissible on this criterion if none of the kept patches changes a test runner or test configuration file. On the target tasks, we apply the statistical rule directly.
 
-\begin{table}[t]
-\centering
-\caption{\meth{GPT-6.1 Sol} repository-free exposure probes ($n = 44$ tasks per split).}
-\label{tab:probes}
-\scriptsize
-\begin{tabular}{L{3.9cm}ccc}
-\toprule
-Metric & Source ($n=44$) & Target ($n=44$) & Source $-$ Target (95\% CI) \\
-\midrule
-Any modified file named & 37/44 (84.1\%) & 40/44 (90.9\%) & $-6.8$\,pp $[-21.4, +7.7]$ \\
-Exact 95\% binomial CI & $[69.9\%, 93.4\%]$ & $[78.3\%, 97.5\%]$ & Overlapping CIs \\
-Exact file-set match & 30/44 (68.2\%) & 13/44 (29.5\%) & $+38.6$\,pp \\
-\bottomrule
-\end{tabular}
-\end{table}
+\subsection{Analysis}
+We compute the one sided exact binomial bounds for each resolve rate and the Newcombe 95\% interval for differences between rates. For RQ2 we vary the removal of tasks in three ways: the rule as used, removal of all tasks where a wrong fix was accepted, and no removal. To test the first two steps of the method, we replay the 44 source cases under the controlled policy twice, once with the record of origin of the ratings removed and once with a mismatch in the identity of a record.
 
-For \meth{B28a}, a \meth{Claude Sonnet 5.5} run declined to author test-runner exploit diffs on safety grounds. Following the documented fallback procedure, we executed three previously authored \meth{Claude Sonnet 5.5} diffs covering SymPy's three source \texttt{bin/test} layouts and two agent-written \texttt{conftest.py} diffs covering the target \texttt{pytest} layout. All 11 candidate diffs modified only runner or configuration files and were graded resolved by the SWE-bench harness without solving any bug (4/4 layouts altered grading), establishing release-level \meth{B28a} as \emph{Verified / failed}.
+\section{Results}
+\label{sec:results}
+All 88 sessions finished within the time limit. Source sessions took 26 to 206 seconds (median 48), and target sessions took 20 to 469 seconds (median 76).
 
-\subsection{MESA and ABC Audit Forms}
-Table~\ref{tab:audit_forms} summarizes the seven signed MESA forms and 33-item \meth{ABC} record. \meth{B05} was settled as \emph{Verified / passed} after listing \texttt{sympy\_\_sympy-18199} as a task defect~\cite{openai_swebench_audit_2026} (matching the \meth{GPT-6.1 Sol} rating run; Drafts~A and~B conservatively marked \meth{Documented / not\_performed}). \meth{B07} was settled as \emph{Verified / passed} for the retained source tasks once all 32 agreed source defects were listed. \meth{B12} (\emph{Undocumented / not\_performed}) and \meth{B14a} (\emph{Verified / failed}) fail strict admissibility, while \meth{B28b} passes based on the 75-image git-history check (target images were not history-searched). \meth{ABC} scored $\meth{T} = 0.75$ (6/8 applicable), $\meth{O} = 0.33$ (1/3), and $\meth{R} = 0.00$ (0/4) with 8 caveats (\texttt{T.5}, \texttt{T.6}, \texttt{O.d.2}, \texttt{O.f.3}, \texttt{R.3}, \texttt{R.4}, \texttt{R.9}, \texttt{R.10}).
+\subsection{RQ1: What Each Method Lets a Team Conclude}
+No decision method allows the team to accept the agent on the source tasks: four methods give Inconclusive and three give no decision. Table~\ref{tab:results} shows the results. The agent validly resolved 35 of 44 source tasks (79.5\%, one sided 95\% bounds 67.0\% and 88.9\%). Accept would need 37, so score alone gives Inconclusive. The checklist reports the same score with 8 caveats and also gives Inconclusive. The checklist with a gate gives no decision, because items are not met or unknown. Defect removal alone keeps 12 tasks, of which the agent resolved 10 (83.3\%), and gives Inconclusive.
 
 \begin{table}[t]
 \centering
-\caption{Signed MESA and ABC audit records prior to freezing study sessions.}
-\label{tab:audit_forms}
-\scriptsize
-\begin{tabular}{L{1.8cm}L{2.2cm}L{2.2cm}L{5.5cm}}
-\toprule
-Criterion & Signed Status & Sonnet A vs.\ B & Role in Decision Policies \\
-\midrule
-B05 & Verified / passed & Doc/np (both) & Admissible; excludes \texttt{18199} (Sol: Ver/pass) \\
-B07 & Verified / passed & Ver/fail vs.\ Doc/np & Admissible after excluding 32 source defects \\
-B12 & Undoc / not\_perf & Agreed (both) & Blocks Strict; omitted in Lenient/Controlled \\
-B14a & Verified / failed & Agreed (both) & Blocks Strict; omitted in Lenient/Controlled \\
-B14b & Verified / passed & Agreed (both) & Admissible for Sol target; omitted in Controlled \\
-B28a & Verified / failed & Agreed (both) & Blocks Strict/Lenient; controlled per case \\
-B28b & Verified / passed & Agreed (both) & Admissible (75 source images checked) \\
-ABC & 7 met, 6 not, 2 unk & 18 N/A (8 caveats) & Decides on all 44; \meth{ABC\_with\_gate} blocks \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\section{Experimental Results}
-All 89 sessions (1 pilot, 44 source, 44 target) completed sequentially without infrastructure failures, needing 0 of the 10 reserve slots. Pilot slot~1 (\texttt{sympy\_\_\allowbreak sympy-13798}) resolved cleanly in 102\,s (10 steps, zero violations). Across source tasks ($n = 44$), runtime ranged from 26\,s to 206\,s (median 49\,s, 6--28 steps, median 10); across target tasks ($n = 44$), runtime ranged from 20\,s to 469\,s (median 76\,s, 4--40 steps, median 14). Every session stayed well inside the 900\,s limit.
-
-\subsection{RQ1: Source Decision Comparison and Policy Gating}
-Table~\ref{tab:results} reports outcomes across all evaluation arms. On the 44 source tasks, \meth{GPT-6.1 Sol} passed hidden tests and runtime checks on 35/44 tasks (79.55\%, one-sided 95\% exact binomial CI $[67.02\%, 88.89\%]$). Because 37/44 is needed to reach lower bound $0.70$, \meth{M1}, \meth{M2}, and \meth{ABC} all conclude \emph{Inconclusive} rather than \emph{Accept}.
-
-\begin{table}[t]
-\centering
-\caption{Source vs.\ post-cutoff target results across arms for \meth{GPT-6.1 Sol}.}
+\caption{Results of the decision methods on the source tasks and of the direct test on the target tasks. No method reaches Accept on the source tasks, while the direct test on the target tasks gives Reject in all three variants. Bounds are the one sided 95\% bounds.}
 \label{tab:results}
-\scriptsize
-\begin{tabular}{L{3.5cm}cccc}
+\footnotesize
+\begin{tabular}{@{}L{3.3cm}cccll@{}}
 \toprule
-Arm / Split & Tasks ($n$) & Resolved ($k$) & 95\% Exact CI & Status / Decision \\
+Decision method & Resolved & Rate (\%) & Bounds (\%) & Evidence & Decision \\
 \midrule
-M1 / M2 (raw source) & 44 & 35 (79.55\%) & $[67.02\%, 88.89\%]$ & No gate / Inconclusive \\
-Audit only (B07 scope) & 12 & 10 (83.33\%) & $[56.19\%, 96.95\%]$ & No gate / Inconclusive \\
-M3\_strict & 12 & 10 (83.33\%) & $[56.19\%, 96.95\%]$ & Inadmissible / No decision \\
-M3\_lenient & 12 & 10 (83.33\%) & $[56.19\%, 96.95\%]$ & Inadmissible / No decision \\
-M3\_controlled & 12 & 10 (83.33\%) & $[56.19\%, 96.95\%]$ & Admissible / Inconclusive \\
-ABC & 44 & 35 (79.55\%) & $[67.02\%, 88.89\%]$ & Caveats (8) / Inconclusive \\
-ABC\_with\_gate & 44 & 35 (79.55\%) & $[67.02\%, 88.89\%]$ & Inadmissible / No decision \\
+\multicolumn{6}{@{}l}{\emph{Source tasks}} \\
+Score alone & 35/44 & 79.5 & 67.0, 88.9 & not checked & Inconclusive \\
+Defect removal alone & 10/12 & 83.3 & 56.2, 97.0 & not checked & Inconclusive \\
+Strict policy & \multicolumn{3}{c}{no score computed} & not admissible & no decision \\
+Lenient policy & \multicolumn{3}{c}{no score computed} & not admissible & no decision \\
+Controlled policy & 10/12 & 83.3 & 56.2, 97.0 & admissible & Inconclusive \\
+Checklist & 35/44 & 79.5 & 67.0, 88.9 & 8 caveats & Inconclusive \\
+Checklist with a gate & 35/44 & 79.5 & 67.0, 88.9 & items not met & no decision \\
 \midrule
-Target (all tasks, valid) & 44 & 21 (47.73\%) & $[34.64\%, 61.06\%]$ & Direct test / Reject \\
-Target (tests only) & 44 & 23 (52.27\%) & $[38.94\%, 65.36\%]$ & Uncontrolled / Reject \\
-Target (B07 scope retained) & 20 & 7 (35.00\%) & $[17.73\%, 55.80\%]$ & Direct test / Reject \\
+\multicolumn{6}{@{}l}{\emph{Target tasks (direct test)}} \\
+All tasks & 21/44 & 47.7 & 34.6, 61.1 & & Reject \\
+All tasks, tests only & 23/44 & 52.3 & 38.9, 65.4 & & Reject \\
+Kept tasks & 7/20 & 35.0 & 17.7, 55.8 & & Reject \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Applying the three MESA policies cleanly separates evidentiary admissibility from pass rates. \meth{M3\_strict} withholds any requirement decision (\emph{Inadmissible}) due to missing uncertainty reporting (\meth{B12}), source exposure evidence (\meth{B14a}), and release-level runner mutability (\meth{B28a}). \meth{M3\_lenient} still withholds (\emph{Inadmissible}) solely on \meth{B28a}. \meth{M3\_controlled} checks \texttt{no\_scoring\_file\_changes} across all 12 retained source patches (100\% clean) and advances to \emph{Admissible}, returning \emph{Inconclusive} on 10/12 resolved (83.33\%, CI $[56.19\%, 96.95\%]$) because 12/12 was required at $n = 12$. \meth{ABC\_with\_gate} withholds (\emph{Inadmissible}) due to its six unmet and two unknown checklist items.
+The three MESA policies differ in why they stop. The strict policy finds the evidence not admissible on three criteria: the benchmark reports no uncertainty, it does not guard against training exposure, and the agent can alter the grading. The lenient policy finds it not admissible on grading control alone. The controlled policy checks the 12 kept patches, finds that none changes a test runner or test configuration file, and accepts the evidence as admissible. At step~3 it gives Inconclusive, because 10 of 12 is below the 12 of 12 that Accept needs with 12 tasks. Here the controlled policy and defect removal alone reach the same score and the same decision. They differ in what they establish: defect removal alone does not ask whether the grading can be altered, and the controlled policy shows that none of the counted patches did so.
 
-\subsection{RQ2: Source vs.\ Post-Cutoff Target Comparison}
-Whereas \meth{GPT-6.1 Sol} resolved 35/44 (79.55\%) of pre-cutoff SWE-bench Verified SymPy tasks and 10/12 (83.33\%) of clean retained source tasks, its valid resolve rate dropped sharply on the 44 post-cutoff target issues to 21/44 (47.73\%, CI $[34.64\%, 61.06\%]$), yielding a decisive \emph{Reject} outcome. Removing the 24 agreed \meth{B07} target defects reduced target performance further to 7/20 (35.00\%, CI $[17.73\%, 55.80\%]$), again yielding \emph{Reject}.
+The replay shows that the first two steps stop the method when their conditions fail. When the record of origin is removed, all 44 cases change to an inquiry and give no decision. When the identity of a record does not match, step~1 rejects the input in all 44 cases.
 
-Across all 44 vs.\ 44 tasks, source minus target resolve rate is $+31.82$\,pp (95\% Newcombe CI $[+11.75, +48.60]$\,pp) with non-overlapping intervals. Across retained clean tasks (12 source vs.\ 20 target), the gap widens to $+48.33$\,pp (95\% Newcombe CI $[+12.79, +69.03]$\,pp). Under the strict comparative agreement rule classifying decisive \emph{Accept}/\emph{Reject} pairs separately from \emph{Inconclusive} or \emph{No decision}, both raw and clean source arms yield \emph{not\_comparable} because source sat near the decision boundary while target fell decisively below $\theta = 0.70$. Nonetheless, the empirical collapse demonstrates that SWE-bench Verified SymPy resolve rates near 80\% severely overstate capability on unseen post-cutoff issues from the same repository.
+\subsection{RQ2: Source Tasks Compared with a Direct Test}
+The source evidence did not reach a decision under any method, while the direct test on the target tasks gave Reject. The agent validly resolved 21 of 44 target tasks (47.7\%, bounds 34.6\% and 61.1\%). Counting the tests alone and ignoring the session rules gives 23 of 44, and after removal by the rule 7 of 20 remain; both also give Reject. Because no source decision is Accept or Reject, the source and target decisions cannot be compared as agreeing or disagreeing.
+
+The resolve rate was lower on the target tasks. Over all tasks, the difference between source and target is 31.8 percentage points (Newcombe 95\% interval 11.7 to 48.6), and the one sided bounds for 35 of 44 and 21 of 44 do not overlap. Over the kept tasks, the difference is 48.3 points (12.8 to 69.0). On the removed tasks, the agent resolved 25 of 32 source tasks and 14 of 24 target tasks, against 10 of 12 and 7 of 20 on the kept tasks. Table~\ref{tab:sensitivity} shows that the decisions do not depend on how tasks with weak tests are removed.
 
 \begin{table}[t]
 \centering
-\caption{Three-way \meth{B07} defect sensitivity analysis and 44-task replay verification.}
+\caption{Effect of the way tasks with weak tests are removed. The source decision stays Inconclusive and the target decision stays Reject in all three variants.}
 \label{tab:sensitivity}
-\scriptsize
-\begin{tabular}{L{3.5cm}cccc}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}Ycccl@{}}
 \toprule
-Sensitivity Condition & Source ($k/n$) & Target ($k/n$) & Diff.\ (pp) & Decisions (Src / Tgt) \\
+Removal of tasks & Source & Target & Difference & Decision \\
+ & resolved & resolved & (points) & (source; target) \\
 \midrule
-With B07 scope rule & 10/12 (83.3\%) & 7/20 (35.0\%) & $+48.3$ & Inconclusive / Reject \\
-All demonstrated removed & 10/12 (83.3\%) & 5/18 (27.8\%) & $+55.6$ & Inconclusive / Reject \\
-None removed & 35/44 (79.6\%) & 21/44 (47.7\%) & $+31.8$ & Inconclusive / Reject \\
-\midrule
-Replay condition ($n=44$ cases) & Integrity & Evidence & Score Dec. & Targeted Change \\
-\midrule
-Original (\meth{M3\_controlled}) & 44/44 valid & 44/44 admissible & Inconclusive & --- \\
-Provenance removed & 44/44 valid & 44/44 inquiry req. & None & 44/44 (100\%) \\
-Identity mismatch & 44/44 rejected & 44/44 none & None & 44/44 (100\%) \\
+Rule as used & 10/12 (83.3\%) & 7/20 (35.0\%) & 48.3 & Inconclusive; Reject \\
+All tasks where a wrong fix was accepted & 10/12 (83.3\%) & 5/18 (27.8\%) & 55.6 & Inconclusive; Reject \\
+None & 35/44 (79.5\%) & 21/44 (47.7\%) & 31.8 & Inconclusive; Reject \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-Table~\ref{tab:sensitivity} shows that target collapse holds robustly across all three \meth{B07} sensitivity levels: removing all 26 demonstrated target candidates leaves 5/18 resolved (27.8\%, \emph{Reject}; note that both non-defect retained items \texttt{30304} and \texttt{30827} passed). Likewise, deterministic replay across all 44 tasks under \meth{M3\_controlled} flips 44/44 cases to \emph{Inquiry Required} on provenance removal and \emph{Rejected} at Level~1 on identity mismatch.
+\subsection{RQ3: Sessions That Broke a Rule}
+Four of 88 sessions broke a session rule, and none of them changes a decision. One source and one target session searched or listed files in the study's own configuration folder; the patch of the source session failed the tests, and the patch of the target session passed them. One target session ran a package manager command that counts as a network command, and its patch failed the tests. One target session passed the tests but changed the test runner. The issue it fixed was a bug inside the test runner itself, so the rule caught a real fix. Without the two sessions that passed the tests, the target count goes from 23 to 21, and the decision is Reject either way.
 
-\subsection{RQ3: Runtime Controls and Invalidation Cases}
-Runtime checks invalidated 4 of 88 study sessions (1 source, 3 target):
-\begin{itemize}
-\item \textbf{Slot 10 (\texttt{sympy\_\_\allowbreak sympy-20438}, Source):} Invoked \texttt{rg} across workspace configuration patterns including \texttt{.codex} (study-material marker violation); the patch also failed unit tests.
-\item \textbf{Slot 61 (\texttt{sympy\_\_\allowbreak sympy-30693}, Target):} Passed hidden tests but modified \texttt{sympy/\allowbreak testing/\allowbreak runtests.\allowbreak py}, violating \texttt{no\_\allowbreak scoring\_\allowbreak file\_\allowbreak changes}. The issue itself targeted path normalization in \texttt{convert\_\allowbreak to\_\allowbreak native\_\allowbreak paths} inside \texttt{runtests.\allowbreak py}, illustrating a structural false positive where an agent repairs a bug inside a protected runner module.
-\item \textbf{Slot 72 (\texttt{sympy\_\_\allowbreak sympy-30204}, Target):} Executed \texttt{uv pip} inspection commands (network-command marker violation); the patch also failed unit tests.
-\item \textbf{Slot 80 (\texttt{sympy\_\_\allowbreak sympy-30175}, Target):} Passed hidden tests across a multi-file fix, but triggered the \texttt{.codex} path-marker rule during an initial \texttt{rg --files} inspection command.
-\end{itemize}
-Excluding Slots~61 and~80 changed target pass count from 23/44 (52.27\%) to 21/44 (47.73\%); both yield \emph{Reject}, leaving the target verdict invariant while underscoring that static regex controls on runner paths and dotfile scans carry false-positive costs on legitimate repairs.
+\section{Discussion}
+\label{sec:discussion}
+For a requirements engineer, the study shows that an audit changes what a score can support even when the score alone would not lead to a wrong decision. Score alone and the checklist both report Inconclusive, which reads as ``close, collect more data''. The MESA policies show why more data from the same benchmark would not help: as long as an agent can pass the grading by editing the test runner, the strict and the lenient policy give no decision whatever the score. The controlled policy shows one way to repair the evidence, by checking each patch, which turns a blocked criterion into a check the team can run.
 
-\section{Threats to Validity and Limitations}
-Several limitations bound interpretation of these results:
-\begin{enumerate}
-\item \textbf{Model-made scope judgments:} Two \meth{Claude Sonnet 5.5} runs and one \meth{GPT-6.1 Sol} check performed all 82 \meth{B07} scope classifications. The author signed the model-drafted audit forms and requirement without individually reviewing each \meth{B07} item; independent human adjudication remains future work.
-\item \textbf{Shared model family across Stage~1 and agent under test:} \meth{GPT-6.1 Sol} wrote the Stage~1 incomplete patches and is also the evaluated coding agent, although blind verification scripts (\texttt{check.py}) were authored by \meth{Gemini 3.8 Flash Medium} and scope classifications by \meth{Claude Sonnet 5.5}.
-\item \textbf{Agent selection timing:} \meth{GPT-6.1 Sol} (\texttt{CONFIG\_02\_SOL\_MED}) was chosen as the sole active configuration after the rehearsal and source exposure probe records already existed.
-\item \textbf{Reduced statistical power and unperformed checks:} Excluding 32 source tasks leaves $n = 12$ (only 14.2\% power to \emph{Accept} at $p = 0.85$), making \emph{Accept} nearly unreachable on retained source tasks; additionally, 16 invalid checks and 2 no-candidate tasks were retained conservatively as \emph{not\_performed} without retrying after outcomes were known.
-\item \textbf{Scope, refusal, and single-run limits:} All evidence covers \texttt{sympy/sympy} with single runs per task; the 0.70 threshold and 900\,s limit are uncalibrated stakeholder choices; \meth{Claude Sonnet 5.5} declined to synthesize \meth{B28a} runner-bypass diffs; and post-cutoff PRs lack human annotator screening beyond automated base-fail and fix-pass checks.
-\end{enumerate}
+Removing tasks with weak tests protects the score but shrinks the sample. Of 44 source tasks, 12 remain, and with 12 tasks the requirement can be accepted only if the agent resolves all of them. A team that needs a decision at a threshold of 0.70 therefore needs more tasks than a benchmark subset for one repository supplies after such removal. The target tasks offer one source of further tasks: issues from the team's own repository, fixed after the model's training cutoff, give a direct test of the requirement.
+
+A rule that forbids edits to the test runner closes a gap in the grading, but it also catches a real fix when the bug lies inside the runner. In this study the rule flagged one such session. A requirement that names files the agent must not change should therefore say how such issues are handled, for example by judging those patches separately or by leaving such issues out of the task set.
+
+\section{Limitations}
+\label{sec:limitations}
+The same model that is under test also wrote the incomplete patches used to find weak tests, while a second model family wrote the independent check scripts and a third judged the scope of the issues. The judgments about what an issue states were made by language models. The study covers one repository (SymPy), one agent, and one run per task. After removing tasks with weak tests, only 12 source tasks remain, which leaves little statistical power. The target tasks were chosen by automatic rules and may be harder than the source tasks, so the lower resolve rate on them has more than one possible cause. The threshold of 0.70 and the limit of 900 seconds are choices of the requirement, not calibrated values.
 
 \section{Conclusion}
-Evaluating 89 isolated \meth{GPT-6.1 Sol} sessions under an audited requirements contract exposes three practical findings. First, raw resolve rates on SWE-bench Verified SymPy tasks (79.55\%) mask pervasive weak-test defects (32 of 44 tasks flagged by cross-family checks), after whose removal statistical power leaves an acceptance decision nearly out of reach. Second, strict case-level gating (\meth{M3\_\allowbreak controlled}) resolves release-level runner mutability cleanly where static policies block, while runtime patch rules incur narrow false positives when bugs live inside test-runner modules themselves. Third, even when legacy source tasks resolve near 80\%, strictly post-cutoff issues from the same repository collapse to 47.73\% overall and 35.00\% on clean retained tasks---turning an apparent near-pass into a decisive \emph{Reject}.
+\label{sec:conclusion}
+We compared seven decision methods on the sessions of one coding agent for a requirement on fixing SymPy bug reports, and tested the requirement directly on newer issues. On the source tasks from SWE-bench Verified, the agent resolved 35 of 44, and no method reached Accept: the score alone, defect removal alone and the checklist gave Inconclusive, the strict and the lenient MESA policy and the checklist with a gate gave no decision, and the controlled policy gave Inconclusive at 10 of 12 kept tasks. The tests accepted a wrong fix on 32 of 44 source tasks, and edits to the test runner alone passed the grading. On 44 target tasks fixed after the model's training cutoff, the agent resolved 21, and the direct test gave Reject. A next step is to evaluate the scope judgments and the final ratings with human reviewers.
 
-\section*{Data Availability}
-An anonymized replication package accompanies this submission at \url{https://doi.org/10.5281/zenodo.XXXXXXX}.
+\section*{Data Availability Statement}
+The replication package is available at \url{https://doi.org/10.5281/zenodo.XXXXXXX}. It contains the task lists, the prompts, the session records, log summaries and patches for the 88 sessions, the check scripts and their results, the rating runs and the final ratings, the analysis code and its outputs, and a README that explains how to reproduce each table. User names in the logs were replaced. Our code is released under the MIT license, and our data and text under CC BY 4.0; third party material keeps its own license. Two kinds of material are left out: the raw event logs of the sessions, for which the package gives a summary and a hash each, and the SWE-bench images and SymPy sources, which scripts fetch from their public locations.
 
 \bibliographystyle{splncs04}
 \bibliography{references}

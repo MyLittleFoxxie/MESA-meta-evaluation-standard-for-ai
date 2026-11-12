@@ -159,7 +159,10 @@ def main():
 
     paper2_files = collect_files(
         prefixes=["paper2", "v5/rubric"],
-        extra_files=["verify_manuscripts.py", "paper2.tex", "references.bib", "llncs.cls", "splncs04.bst"],
+        extra_files=["verify_manuscripts.py", "paper2.tex", "references.bib", "llncs.cls", "splncs04.bst",
+                     "figures/paper2_study_overview.pdf", "figures/paper2_study_overview.tex",
+                     "figures/paper2_study_overview.md",
+                     "supporting/editorial/round3_checks/check_paper2_numbers.py"],
     )
     paper2_readme = (
         "# Anonymized Replication Package — Paper 2 (REFSQ 2027)\n\n"
@@ -169,8 +172,15 @@ def main():
         "- `paper2/tests/`: Unit and methodological invariant tests.\n"
         "- `v5/rubric/`: MESA rubric definitions referenced by the decision engine.\n"
     )
+    readme_file = ROOT / "tools" / "paper2_package_README.md"
+    if readme_file.exists():
+        paper2_readme = readme_file.read_text(encoding="utf-8")
     paper2_zip = DIST / "paper2_replication_package.zip"
     build_archive(paper2_zip, paper2_files, frozen, paper2_readme)
+    license_file = ROOT / "tools" / "paper2_package_LICENSE.txt"
+    if license_file.exists():
+        with zipfile.ZipFile(paper2_zip, "a", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("LICENSE", license_file.read_bytes())
 
     if args.check:
         n1 = verify_archive(mesa_zip)
