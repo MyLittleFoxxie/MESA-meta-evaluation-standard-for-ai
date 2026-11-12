@@ -1,0 +1,86 @@
+{
+  "purpose": "C2-2 reference standard by construction: 6 copies of AddTwo with planted ground-truth defects",
+  "criteria_evaluated": [
+    {
+      "criterion": "B28a",
+      "positive_fixture": "addtwo-b28a",
+      "positive_condition": "level == 'contradicted' or outcome == 'failed'",
+      "description": "Grading environment not isolated (exec in shared globals)"
+    },
+    {
+      "criterion": "B07",
+      "positive_fixture": "addtwo-b07",
+      "positive_condition": "level == 'contradicted' or outcome == 'failed'",
+      "description": "Scorer accepts wrong answer (abs(a - p) <= 1)"
+    },
+    {
+      "criterion": "B05",
+      "positive_fixture": "addtwo-b05",
+      "positive_condition": "level == 'contradicted' or outcome == 'failed'",
+      "description": "Reference key rejects correct answer (2+2=5)"
+    },
+    {
+      "criterion": "B19",
+      "positive_fixture": "addtwo-license",
+      "positive_condition": "level == 'contradicted' or outcome == 'failed'",
+      "description": "License file contradicts paper/README CC0 claim"
+    },
+    {
+      "criterion": "B04",
+      "positive_fixture": "addtwo-missing-count",
+      "positive_condition": "level == 'undocumented' and basis == 'absence_of_information'",
+      "description": "Missing task count and task list recorded as Undocumented"
+    }
+  ],
+  "fixtures": {
+    "addtwo-clean": {
+      "planted_defect": null,
+      "target_item": null,
+      "expected_level": null,
+      "expected_outcome": null,
+      "description": "Clean control fixture with no planted contradiction and documented task count (n=2)."
+    },
+    "addtwo-b28a": {
+      "planted_defect": "unisolated_grading_namespace",
+      "target_item": "B28a",
+      "expected_level": "contradicted",
+      "expected_outcome": "failed",
+      "locator": "repository/score.py:4",
+      "description": "Paper claims isolated sandbox grading, but repository/score.py runs exec(submission_code, globals()) in the same namespace as answers = [2, 4]."
+    },
+    "addtwo-b07": {
+      "planted_defect": "scorer_accepts_wrong_answer",
+      "target_item": "B07",
+      "expected_level": "contradicted",
+      "expected_outcome": "failed",
+      "expected_direction": "accepts_wrong",
+      "locator": "repository/score.py:4",
+      "description": "Paper claims verified exact-match scoring, but repository/score.py checks abs(a - p) <= 1, accepting wrong prediction 3 for 2+2=4."
+    },
+    "addtwo-b05": {
+      "planted_defect": "wrong_reference_answer_rejects_correct",
+      "target_item": "B05",
+      "expected_level": "contradicted",
+      "expected_outcome": "failed",
+      "expected_direction": "rejects_correct",
+      "locator": "repository/score.py:2",
+      "description": "Paper claims the manual key for 1+1 and 2+2 was checked twice with no errors, but repository/score.py sets answers = [2, 5], rejecting correct answer 4 for 2+2."
+    },
+    "addtwo-license": {
+      "planted_defect": "contradictory_license",
+      "target_item": "B19",
+      "expected_level": "contradicted",
+      "expected_outcome": "failed",
+      "locator": "repository/LICENSE:1-3",
+      "description": "Paper and README claim CC0 1.0 public domain release, but repository/LICENSE is a restrictive proprietary all-rights-reserved license."
+    },
+    "addtwo-missing-count": {
+      "planted_defect": "missing_task_count",
+      "target_item": "B04",
+      "expected_level": "undocumented",
+      "expected_basis": "absence_of_information",
+      "locator": "paper.txt:1-2",
+      "description": "Task count, task list, and task space coverage are omitted from paper.txt, README.md, and score.py, so B04 (task space/representativeness) is Undocumented."
+    }
+  }
+}

@@ -17,8 +17,8 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-from paper2.method.evidence import (CHECK_KINDS, CRITERION_CONCERN, FROZEN_DEFINITIONS, RUBRIC, SELECTED_CRITERIA,
-                                    TASK_DEFECT_DIRECTIONS, ROOT, sha256_file)
+from paper2.method.evidence import (CHECK_KINDS, CRITERION_CONCERN, FROZEN_DEFINITIONS, RUBRIC, SCORING_FILE,
+                                    SELECTED_CRITERIA, TASK_DEFECT_DIRECTIONS, ROOT, scoring_files, sha256_file)
 from paper2.preparation.repository_runner import overlap
 from paper2.preparation.replay import CONDITIONS, REPEATED_MEASURES_NOTE
 
@@ -68,8 +68,10 @@ class BudgetExceeded(RuntimeError):
 class SessionLedger:
     """Append-only ledger. Every reserved slot counts, whatever happens after it."""
 
-    def __init__(self, root):
+    def __init__(self, root, phases=None, max_sessions=None):
         self.root = Path(root)
+        self.phases = phases or PHASES
+        self.max_sessions = max_sessions or MAX_SESSIONS
 
     def _path(self, n, suffix=""):
         return self.root / f"{n:02d}{suffix}.json"
@@ -84,7 +86,7 @@ class SessionLedger:
         return self._read(self._path(n, ".outcome"))
 
     def reserve(self, phase, config_id=None, task_id=None, replaces=None):
-        if phase not in PHASES:
+        if phase not in self.phases:
             raise ValueError(f"Unknown phase {phase!r}")
         marker = None
         if phase == "reserve":
@@ -106,7 +108,7 @@ class SessionLedger:
                 save_new(marker, dict(phase=phase, config_id=config_id, task_id=task_id, timestamp=now()))
             except FileExistsError:
                 raise ValueError(f"{task_id} already has a {phase} session for {config_id}") from None
-        for n in PHASES[phase]:
+        for n in self.phases[phase]:
             try:
                 save_new(self._path(n), dict(slot=n, phase=phase, config_id=config_id, task_id=task_id,
                                              replaces=replaces, reserved_at=now()))
@@ -115,7 +117,7 @@ class SessionLedger:
                 continue
         if marker:
             marker.unlink()
-        raise BudgetExceeded(f"No {phase} slot left; the study allows at most {MAX_SESSIONS} sessions")
+        raise BudgetExceeded(f"No {phase} slot left; the study allows at most {self.max_sessions} sessions")
 
     def claimed(self, phase, config_id, task_id):
         """True when this task already has a session in this phase for this configuration."""
@@ -144,13 +146,13 @@ class SessionLedger:
     def open_slots(self):
         """Slots reserved or started without a recorded outcome, e.g. after a restart.
         They stay counted and are never reused; classify them with finish()."""
-        return [n for n in range(1, MAX_SESSIONS + 1) if self.state(n) in ("reserved", "started")]
+        return [n for n in range(1, self.max_sessions + 1) if self.state(n) in ("reserved", "started")]
 
     def summary(self):
-        states = {n: self.state(n) for n in range(1, MAX_SESSIONS + 1) if self.state(n)}
-        by_phase = {p: sum(1 for n in states if n in r) for p, r in PHASES.items()}
-        return dict(used=len(states), maximum=MAX_SESSIONS, by_phase=by_phase,
-                    remaining={p: len(r) - by_phase[p] for p, r in PHASES.items()},
+        states = {n: self.state(n) for n in range(1, self.max_sessions + 1) if self.state(n)}
+        by_phase = {p: sum(1 for n in states if n in r) for p, r in self.phases.items()}
+        return dict(used=len(states), maximum=self.max_sessions, by_phase=by_phase,
+                    remaining={p: len(r) - by_phase[p] for p, r in self.phases.items()},
                     failed_starts=sum(s == "failed_start" for s in states.values()),
                     interruptions=sum(s == "interrupted" for s in states.values()),
                     infrastructure_failures=sum(s == "infrastructure_failure" for s in states.values()),
@@ -240,18 +242,19 @@ def first_eligible(pool, results, need):
     return taken, blockers
 
 
-def select(pools, results):
+def select(pools, results, sample=None):
     """Deterministic and blind to model results: tasks in order_key order; pilot then source
     from the source pool, target from the target pool. Shortfalls and undecided earlier tasks block; nothing is
     substituted."""
+    sample = sample or SAMPLE
     chosen = dict(pilot=[], source=[], target=[])
-    source, blockers = first_eligible(pools["source"], results, SAMPLE["pilot"] + SAMPLE["source"])
-    target, more = first_eligible(pools["target"], results, SAMPLE["target"])
+    source, blockers = first_eligible(pools["source"], results, sample["pilot"] + sample["source"])
+    target, more = first_eligible(pools["target"], results, sample["target"])
     blockers += more
-    chosen["pilot"] = [t["task_id"] for t in source[:SAMPLE["pilot"]]]
-    chosen["source"] = [t["task_id"] for t in source[SAMPLE["pilot"]:SAMPLE["pilot"] + SAMPLE["source"]]]
-    chosen["target"] = [t["task_id"] for t in target[:SAMPLE["target"]]]
-    for role, need in SAMPLE.items():
+    chosen["pilot"] = [t["task_id"] for t in source[:sample["pilot"]]]
+    chosen["source"] = [t["task_id"] for t in source[sample["pilot"]:sample["pilot"] + sample["source"]]]
+    chosen["target"] = [t["task_id"] for t in target[:sample["target"]]]
+    for role, need in sample.items():
         if len(chosen[role]) < need:
             blockers.append(f"{role}: {len(chosen[role])} of {need} eligible tasks")
     by_id = {t["task_id"]: t for t in pools["source"] + pools["target"]}
@@ -349,27 +352,17 @@ def blank_form(criterion, scope_level, config_ids):
                       "location, and an oracle defect needs an executed counterexample."))
 
 
-# Files that run or configure SymPy's tests. The harness runs the patched repository's own runner, so a patch that
-# changes one of these can change its own grade (rubric B28a); no reference fix of the selected tasks touches them.
-SCORING_FILE = re.compile(r"(^bin/test$|(^|/)runtests\.py$|(^|/)conftest\.py$|^pytest\.ini$|^setup\.cfg$|^tox\.ini$"
-                          r"|^sympy/(testing|utilities)/pytest\.py$)")
-
-
-def scoring_files(patch):
-    """The test-running files a patch changes (both sides of every diff header)."""
-    files = re.findall(r"^diff --git a/(\S+) b/(\S+)$", patch or "", re.M)
-    return sorted({f for pair in files for f in pair if SCORING_FILE.search(f)})
-
-
+# SCORING_FILE and scoring_files live in paper2.method.evidence so policies and preparation share one pattern.
 ABC_ITEMS = PROTOCOL / "abc-items.json"
 ABC_ANSWERS = ("met", "not_met", "not_applicable", "unknown")
 
 
-def abc_items():
+def abc_items(out_path=None):
     """The ABC (Agentic Benchmark Checklist) items that the frozen v4 mapping assigns to the concerns of the five
     selected MESA concerns (C05, C07, C12, C14, C28). Written once to abc-items.json."""
-    if ABC_ITEMS.exists():
-        return json.loads(ABC_ITEMS.read_text())
+    target = Path(out_path or ABC_ITEMS)
+    if target.exists():
+        return json.loads(target.read_text())
     import csv
     import re
     concerns = set(CRITERION_CONCERN.values())
@@ -381,21 +374,21 @@ def abc_items():
     record = dict(record="paper2-abc-items/1", source="v4/mapping/mapping.csv (frozen MESA v4 mapping)",
                   framework="ABC: Agentic Benchmark Checklist (Zhu et al., NeurIPS 2025)",
                   rule="items mapped to C05, C07, C12, C14, or C28", items=items)
-    save_new(ABC_ITEMS, record)
+    save_new(target, record)
     return record
 
 
-def abc_blank():
+def abc_blank(items_path=None):
     return dict(form_version="paper2-abc-record/1", status="pending", criterion="ABC", benchmark="SWE-bench Verified",
                 items=[dict(item_id=i["item_id"], concerns=i["concerns"], text=i["text"], answer=None, location="",
-                            quote="", note="") for i in abc_items()["items"]],
+                            quote="", note="") for i in abc_items(items_path)["items"]],
                 roles=dict(author="", assistant=""))
 
 
-def validate_abc_record(form):
+def validate_abc_record(form, items_path=None):
     """An ABC record answers every listed item: met or not met with a location and a quote; not applicable or
     unknown with a note."""
-    listed = [i["item_id"] for i in abc_items()["items"]]
+    listed = [i["item_id"] for i in abc_items(items_path)["items"]]
     problems = []
     if [i.get("item_id") for i in form.get("items") or []] != listed:
         problems.append("items differ from abc-items.json")
@@ -449,6 +442,10 @@ def validate_form(form):
             problems.append(f"task defect {d.get('task_id')}: direction, location, or quote")
     if form.get("applicability", {}).get("applies") is None:
         problems.append("applicability")
+    if "session_control" in form:
+        ctrl = form.get("session_control")
+        if not isinstance(ctrl, dict) or not ctrl.get("kind") or not (ctrl.get("description") or ctrl.get("control")):
+            problems.append("session_control")
     if not form.get("roles", {}).get("author"):
         problems.append("author")
     if problems:
@@ -465,7 +462,7 @@ def form_to_evidence(form, task_ids):
                 anchor=form["anchor"], scope=dict(form["scope"], task_ids=form["scope"]["task_ids"] or task_ids),
                 check=form["check"], reasons=form["reasons"], roles=form["roles"], evidence=form["evidence"],
                 missing=form["missing"], repository=form["repository"],
-                **{k: form[k] for k in ("counterexample", "task_defects") if form.get(k)})
+                **{k: form[k] for k in ("counterexample", "task_defects", "session_control") if form.get(k)})
 
 
 IGNORED_FIELDS = ("status", "roles", "signed_at")
@@ -506,21 +503,27 @@ def signing_changes(runs=None, signed=None, out=None):
 
 # ---------------------------------------------------------------- templates and report
 
-def result_templates():
+def result_templates(sample=None):
+    sample = sample or SAMPLE
     columns = ("source_n", "source_successes", "source_interval", "M2_decision",
                "audit_only_tasks", "audit_only_decision", "ABA_left_out", "ABA_decision",
                "M3_strict_status", "M3_strict_decision", "M3_lenient_status", "M3_lenient_decision",
+               "M3_controlled_status", "M3_controlled_decision",
+               "all_passing_incomplete_left_out", "all_passing_incomplete_decision",
                "M3_to_reach_decision", "M3_tasks_used", "M3_left_out", "M3_decision_before_status",
                "M3_decision_on_all_tasks", "ABC_decision", "ABC_scores", "ABC_caveats",
+               "ABC_with_gate_status", "ABC_with_gate_decision",
                "tests_only_successes", "tests_only_decision", "invalid_sessions",
                "target_n", "target_successes", "target_interval", "target_decision", "target_without_early_decision",
+               "target_after_removal_n", "target_after_removal_successes", "target_after_removal_decision",
                "difference_all_tasks", "difference_kept_tasks", "intervals_overlap",
                "agreement_M2", "agreement_audit_only", "agreement_ABA", "agreement_M3_strict", "agreement_M3_lenient",
-               "agreement_M3_withheld", "agreement_ABC", "reasons")
+               "agreement_M3_controlled", "agreement_M3_withheld", "agreement_ABC", "agreement_ABC_with_gate",
+               "agreement_all_passing_incomplete", "reasons")
     decision_rows = [dict(config_id=c, **{k: "pending" for k in columns}) for c in CONFIGURATIONS]
     replay_rows = [dict(config_id=c, task=f"source task {i}", condition=k, input_integrity="pending",
                         evidence_status="pending", score_decision="pending", changed="pending", reasons="pending")
-                   for c in CONFIGURATIONS for i in range(1, SAMPLE["source"] + 1) for k in CONDITIONS]
+                   for c in CONFIGURATIONS for i in range(1, sample["source"] + 1) for k in CONDITIONS]
     notes = ["M1 and M2 coincide because every source task comes from SymPy; M2 is the resolve rate alone (no review).",
              "Decisions: Accept (lower bound at or above 0.70), Reject (upper bound below 0.70), or Inconclusive. MESA "
              "makes a score decision only when the evidence status is admissible; otherwise no decision, with what each "

@@ -1,0 +1,67 @@
+{
+  "record": "paper2-configurations/protocol-6",
+  "decided": "2026-11-06 by the author: gpt-6.1-sol at medium effort, to match Gemini 3.8 Flash Medium; both configurations start from a fixed script (sessions/NN/run.sh) with no input after the prompt",
+  "replaces_for_protocol_5": "paper2/preparation/protocol-4/configurations.json (kept unchanged as a historical record)",
+  "history": "Configuration 2 was fixed after a pilot under protocol 4, in which gpt-6.1-sol at low effort did not resolve the pilot task; no source or target session had been run (provenance/paper2-pilot-protocol-4-2026-11-06.md).",
+  "operation": "sessions.py open writes run.sh for the slot; run.sh starts the tool once in the slot workspace with the flags below, reads the prompt from prompt.md, gives the tool no further input, and stops it at the time limit. The agent runs on the host, not in a container. The prompt text is identical for both configurations. Each tool runs under env -i with only HOME, PATH, USER, LOGNAME, TERM, and LANG, and PATH begins with the agent Python of the task, the same for both configurations (sessions.py AGENT_PYTHONS: Python 3.9.20 for pilot and source tasks, 3.12.14 for target tasks, each with the packages of the environment that grades the task, plus pytest); agy's memory folders are moved to the archive before and after each agy session.",
+  "limits": {
+    "seconds": 900,
+    "enforcement": "900 seconds is enforced by run.sh (a watchdog for Codex; --print-timeout for agy, with a watchdog 30 seconds later). There is no step limit (decided by the author on 2026-11-07, after the rehearsal); steps are counted from the log and reported. A patch counts as resolved only if every hidden test passes, the session stayed within 900 seconds, and the session is valid: it touched no study material, showed no oracle content, ran no network command, called no tool outside its agent's local set, and received no message after the prompt."
+  },
+  "configurations": [
+    {
+      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
+      "model": "Gemini 3.8 Flash",
+      "setting": "Medium (part of the model name gemini-3.8-flash-medium)",
+      "scaffold": "Antigravity command line tool (agy 1.5.3, locked against updates with chflags uchg after it updated itself from 1.5.2 on 2026-11-07; the version is recorded per session)",
+      "launch": {
+        "tool": "agy",
+        "model": "gemini-3.8-flash-medium",
+        "permission_flag": "--mode accept-edits",
+        "settings_file": "agy-session-settings.json",
+        "permission_flag_note": "Chosen on 2026-11-07 by the assistant, at the author's request to run the sandbox checks until the agy settings were satisfactory. In print mode agy cannot ask, so the first action that needs approval is denied and the run ends there. Earlier settings: '--mode accept-edits' alone denied curl, the first command; '--dangerously-skip-permissions' approved every tool and turned the terminal sandbox off; '--mode accept-edits' with an allow list ran listed commands in the sandbox but denied output redirects, and a write grant for the folder allowed only absolute redirect targets; '--mode auto' is not available for this account. The chosen setting adds two things. agy-session-settings.json sets toolPermission to 'proceed-in-sandbox', so every shell command runs inside the terminal sandbox without approval. agy-agent.md is a custom agent, 'local', whose tool list holds only the shell, file, and wait tools, so web search, page reading, browser, subagent, and other tools are not available; run.sh copies it into the workspace as .agents/agents/local.md, kept out of the patch by .git/info/exclude. Without more, file tool reads or writes outside the workspace and a request to run a command outside the sandbox (BypassSandbox) were denied and ended the run. The gate hook (hooks, hooks_files; added by the assistant on 2026-11-07 at the author's request for a setup that treats both tools alike) refuses these calls with a reason the agent sees, and the run goes on (version 8 check).",
+        "agent": "local",
+        "agent_file": "agy-agent.md",
+        "hooks": true,
+        "hooks_files": [
+          "agy-hooks.json",
+          "agy-gate.py"
+        ]
+      },
+      "telemetry": "stream-json output of agy -p: tool calls, model, and tokens as reported by the client.",
+      "network": "Blocked by the terminal sandbox (sandbox check version 6, 2026-11-07): the python3 fetch, curl, and gh could not resolve the host. Reads outside the workspace from the shell were refused, and so were writes outside it; a file tool read outside was denied, which ended the run until the gate hook was added; in the version 8 check the gate refused it and the run went on. The custom agent has no web search or page reading tool. The sandbox also blocks reads under /Users outside the workspace, /Users/Shared included, so the shared agent Python is kept under /opt/homebrew/var/agent-python; in the version 7 and 8 checks python3 and pytest were found there (Python 3.9.20 or 3.12.14, mpmath 1.3.0).",
+      "training_cutoff": {
+        "value": "March 2026; some domains end at January 2025",
+        "source": "https://deepmind.google/models/model-cards/gemini-3-8-flash/",
+        "accessed": "2026-11-05"
+      }
+    },
+    {
+      "config_id": "CONFIG_02_SOL_MED",
+      "model": "gpt-6.1-sol",
+      "setting": "reasoning effort medium",
+      "scaffold": "Codex CLI (codex-cli 0.167.0, updated on 2026-11-07 at the author's request and locked against updates with chflags -h uchg on ~/.codex/packages/standalone/current; the version is recorded per session)",
+      "launch": {
+        "tool": "codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "web_search": "disabled",
+        "web_search_note": "Decided by the author on 2026-11-07, after the version 2 sandbox check, in which Codex's web search returned results while the sandbox blocked network access from the shell. Codex 0.166 accepts disabled, cached, indexed, or live and rejects other values. In the version 3 check, with web_search disabled, the agent listed its tools and searched the web through the Codex apps server (search_service.web_run), so the apps feature is turned off as well (features.apps=false, accepted by codex features list).",
+        "features_off": [
+          "apps",
+          "shell_snapshot"
+        ],
+        "allow_login_shell": false,
+        "shell_note": "Set by the assistant on 2026-11-07, when both agents were given the same Python (sessions.py AGENT_PYTHONS, first on PATH). In the version 7 check Codex found pyenv's python3 and pytest first, because its shell snapshot and its login shell (zsh -lc) rebuild PATH from the user's shell startup files. With features.shell_snapshot=false and allow_login_shell=false a probe ran its command as zsh -c with the inherited PATH and found the shared python3 and pytest, as agy's shell does."
+      },
+      "telemetry": "Codex session log: turn_context gives model, effort, and sandbox policy as reported by the client; tool calls give the step count; token_usage_record gives tokens.",
+      "network": "Blocked from the shell by the workspace-write sandbox (sandbox checks 2026-11-07: curl, a python3 fetch, and gh could not resolve the host); writes outside the folder refused; reads outside the folder allowed. Web search and the apps server are turned off; in the version 4 and 6 checks the agent found no web search tool (its search of its tool list matched only the MCP resource listing tools), and shell network access stayed blocked. Commands run in zsh -c without the shell snapshot or a login shell, so the shared agent Python is first on PATH (launch.shell_note); in the version 8 check Codex found it with each Python (3.9.20 and 3.12.14, mpmath 1.3.0).",
+      "training_cutoff": {
+        "value": "2026-04-30",
+        "source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+        "accessed": "2026-11-05"
+      }
+    }
+  ],
+  "replaces_for_protocol_6": "paper2/preparation/protocol-5/configurations.json (preserved unchanged)"
+}

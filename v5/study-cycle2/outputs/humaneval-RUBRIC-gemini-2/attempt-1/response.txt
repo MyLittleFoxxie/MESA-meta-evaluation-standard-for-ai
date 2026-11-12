@@ -1,0 +1,895 @@
+{
+  "benchmark": "humaneval",
+  "description": [
+    {
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "We release the HumanEval dataset so that others can evaluate functional correctness and measure the problem-solving capabilities of their models.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Purpose",
+      "reason": "The benchmark was created to evaluate functional correctness of generative code models for research on code synthesis.",
+      "value": "research"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "evaluate the correctness of code samples automatically through unit tests.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Judgeability",
+      "reason": "Correctness of code samples is evaluated automatically through running unit tests.",
+      "value": "automated"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "where a sample is considered correct if it passes a set of unit tests.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Reference",
+      "reason": "Performance is measured against fixed unit tests using functional correctness pass@k criteria rather than relative rankings.",
+      "value": "absolute"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "lines 170-173",
+          "quote": "This function is NOT a security sandbox. Untrusted code, including, model-generated code, should not be blindly executed outside of one.",
+          "source": "repository/human_eval/execution.py"
+        },
+        {
+          "locator": "[PDF page 4]",
+          "quote": "We selected the gVisor container runtime (Lacasse, 2018) as the main host protection component.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Containedness",
+      "reason": "Evaluation executes untrusted code via exec in temporary directories with mocked builtins, while full gVisor container and network isolation is recommended but not enforced in the repository.",
+      "value": "partial interference (untrusted code execution on the host with only basic builtin disabling and temporary directory redirection, lacking system/network sandbox isolation)"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "evaluate the correctness of code samples automatically through unit tests.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Objectivity",
+      "reason": "Scoring is determined by deterministic automated unit test assertions.",
+      "value": "fully independent"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "In this work, we focus on the task of generating standalone Python functions from docstrings",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Autonomy",
+      "reason": "The model generates standalone functions from natural language docstrings without external tool interaction or human intervention.",
+      "value": "autonomous"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "we create a dataset of 164 original programming problems with unit tests.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Progression",
+      "reason": "The benchmark consists of a fixed set of 164 evaluation problems with static test suites.",
+      "value": "static"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "We evaluate functional correctness on a set of 164 hand-written programming problems, which we call the HumanEval dataset.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Variation",
+      "reason": "All 164 problems and their unit tests are static and unchanging across evaluation runs.",
+      "value": "fixed"
+    }
+  ],
+  "framework": "RUBRIC",
+  "judgments": [
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected paper Sections 1 and 2.1 comparing pass@k against BLEU score and defining operational functional correctness.",
+      "detection_limits": "The check could not detect discrepancies between docstring comprehension and general coding capability.",
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "In this work, we focus on the task of generating standalone Python functions from docstrings, and evaluate the correctness of code samples automatically through unit tests.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 2]",
+          "quote": "More fundamentally, match-based metrics are unable to account for the large and complex space of programs functionally equivalent to a reference solution.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B01",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "The ability under test (functional correctness in synthesizing standalone Python functions from docstrings) is operationalized via pass@k on unit tests, compared against match-based metrics like BLEU, and tested across boundaries.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed Section 1, Section 3.3, and Section 7 for descriptions of intended users, practical use cases, and deployment workflows.",
+      "detection_limits": "The check could not detect variations in user productivity across specific proprietary domain environments.",
+      "evidence": [
+        {
+          "locator": "[PDF page 1]",
+          "quote": "A distinct production version of Codex powers GitHub Copilot.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 5]",
+          "quote": "For instance, when the model is used as an autocomplete tool where a user provides a prompt, we do not have unit tests, but would like to return only a single completion to the user for evaluation so as to not overwhelm them.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B02",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "The paper details intended uses in developer assistance and Copilot, discusses use cases such as autocomplete without oracle access, and examines user developer workflows.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Read Section 2.2 discussing hand-written task selection and differences from APPS.",
+      "detection_limits": "The check could not detect whether alternative task selections would yield different model ranking profiles.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "It is important for these tasks to be hand-written, since our models are trained on a large fraction of GitHub, which already contains solutions to problems from a variety of sources. For example, there are more than ten public repositories containing solutions to Codeforces problems, which make up part of the recently proposed APPS dataset (Hendrycks et al., 2021).",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B03",
+      "level": "documented",
+      "missing": "Formal expert or empirical support validating that the selected 164 tasks constitute an optimal representative sample of coding abilities.",
+      "outcome": "passed",
+      "reason": "The authors justify hand-written standalone functions to avoid contamination from public GitHub solutions found in other benchmarks like APPS, but do not provide formal expert or empirical validation for the task selection.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Searched paper text and repository for a domain ontology, task taxonomy, or coverage verification analysis.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B04",
+      "level": "undocumented",
+      "missing": "A structured description of the task space, sampling methodology, and systematic coverage verification across programming concepts.",
+      "outcome": "not_performed",
+      "reason": "The paper informally lists broad domains (comprehension, algorithms, math) but does not provide a formal task space definition, range analysis, sampling description, or coverage verification.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Inspected paper text and repository documentation for quality assurance procedures on HumanEval problem definitions.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B05",
+      "level": "undocumented",
+      "missing": "Documentation of a review or checking process to verify tasks, reference solutions, and test suites against false rejections.",
+      "outcome": "not_performed",
+      "reason": "No checking procedure is reported in the paper or repository for verifying HumanEval tasks, reference answers, or tests against errors that reject correct solutions.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Inspected mathematical definition in Section 2.1, formula implementation in evaluation.py, and exception handling in execution.py.",
+      "detection_limits": "The check could not detect silent logical errors in user-customized evaluation wrapper scripts.",
+      "evidence": [
+        {
+          "locator": "[PDF page 3]",
+          "quote": "pass@k := E Problems [ 1\u2212 (n\u2212c k ) (n k ) ]",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "lines 51-55",
+          "quote": "result.append(\"passed\")\n        except TimeoutException:\n            result.append(\"timed out\")\n        except BaseException as e:\n            result.append(f\"failed: {e}\")",
+          "source": "repository/human_eval/execution.py"
+        }
+      ],
+      "item_id": "B06",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "The pass@k metric and unbiased estimator are mathematically defined and implemented, and execution edge cases including timeouts, base exceptions, and return formats are fully specified.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Read repository implementation in execution.py and reviewed paper Section 8 regarding test suite coverage limitations.",
+      "detection_limits": "The check could not detect specific false positive solutions without generating exhaustive test inputs for each task.",
+      "evidence": [
+        {
+          "locator": "lines 27-34",
+          "quote": "check_program = (\n            problem[\"prompt\"]\n            + completion\n            + \"\\n\"\n            + problem[\"test\"]\n            + \"\\n\"\n            + f\"check({problem['entry_point']})\"\n        )",
+          "source": "repository/human_eval/execution.py"
+        },
+        {
+          "locator": "[PDF page 14]",
+          "quote": "Human developers often write test suites with limited but targeted coverage, but this does not always work well against an algorithm, highlighting the challenges of evaluating correctness of programs.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B07",
+      "level": "documented",
+      "missing": "Comprehensive fuzzing or exploit testing verifying the test suite tightness across all 164 tasks.",
+      "outcome": "passed",
+      "reason": "The automated scoring implementation is publicly inspectable in execution.py and evaluation.py, and can accept incorrect solutions that happen to satisfy only the discrete test inputs, as acknowledged by the authors.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Examined formula derivation in Appendix A and aggregation code in human_eval/evaluation.py.",
+      "detection_limits": "The check could not detect whether non-uniform task weighting would better reflect real-world programming utility.",
+      "evidence": [
+        {
+          "locator": "[PDF page 19]",
+          "quote": "Evaluating pass@k in an unbiased way with any number of samples n is important for fair comparison.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "lines 89-90",
+          "quote": "pass_at_k = {f\"pass@{k}\": estimate_pass_at_k(total, correct, k).mean()\n                 for k in ks if (total >= k).all()}",
+          "source": "repository/human_eval/evaluation.py"
+        }
+      ],
+      "item_id": "B08",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "The combination of task outcomes via an arithmetic mean over unbiased pass@k estimators is mathematically derived, proven unbiased in Appendix A, and reported across values of k.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed Section 3.4 and Table 1 for baseline descriptions, temperatures, and model parameter comparisons.",
+      "detection_limits": "The check could not detect prompt-formatting biases that might penalize baselines trained on different prompt structures.",
+      "evidence": [
+        {
+          "locator": "[PDF page 6]",
+          "quote": "We confirm these findings using the HumanEval dataset, showing that GPT-Neo achieves 6.4% pass@1 and 21.3% pass@100, while GPT models of comparable sizes achieve near 0% on both metrics.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 7]",
+          "quote": "Table 1. Codex, GPT-Neo, & TabNine evaluations for HumanEval.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B09",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "Baselines including GPT-3, GPT-Neo, GPT-J, and TabNine are benchmarked under reported sampling temperatures and parameter scales, and human capability context is discussed.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Inspected paper tables, figures, and Appendix A for empirical run-to-run variation measurements.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B10",
+      "level": "undocumented",
+      "missing": "Empirical reporting of score variation, standard deviations, or confidence intervals across repeated evaluation runs for evaluated systems.",
+      "outcome": "not_performed",
+      "reason": "Estimator variance is analyzed analytically and plotted in Appendix A Figure 13, but no empirical variation, spread, standard deviation, or confidence intervals across repeated test runs are reported for model scores.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed Section 3.2, Section 3.3, Figure 5, Figure 11, and Appendix E for prompt assembly details and experimental sensitivity analyses.",
+      "detection_limits": "The check could not detect sensitivity to minor grammatical variations in natural language docstrings.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "To compute pass@k, we assemble each HumanEval problem into a prompt consisting of a header, a signature, and a docstring, which is illustrated in Figure 2. We sample tokens from Codex until we encounter one of the following stop sequences: \u2018\\nclass\u2019, \u2018\\ndef\u2019, \u2018\\n#\u2019, \u2018\\nif\u2019, or \u2018\\nprint\u2019",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 5]",
+          "quote": "In Figure 5, we plot pass@k against the number of samples k and the sampling temperature. We find that higher temperatures are optimal for larger k",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B11",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "Prompt composition (header, signature, docstring, stop tokens) and nucleus sampling are described, and sensitivity across temperature, prompt complexity, and buggy contexts is systematically evaluated.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Checked Table 1, Table 2, and figures for confidence intervals or statistical power/significance calculations.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B12",
+      "level": "undocumented",
+      "missing": "Confidence intervals, standard errors, or formal hypothesis tests reported alongside benchmark pass@k scores.",
+      "outcome": "not_performed",
+      "reason": "Sample sizes are reported (164 tasks, 200 samples per task), but no uncertainty measures (such as confidence intervals, standard errors, or score distributions) or statistical significance tests are provided for primary scores.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed Section 2.1, Section 2.2, Section 3.3, and Section 6 examining BLEU confounds, GitHub contamination risks, and docstring complexity limits.",
+      "detection_limits": "The check could not detect latent contamination in pre-training corpora scraped after the initial dataset collection.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "It is important for these tasks to be hand-written, since our models are trained on a large fraction of GitHub, which already contains solutions to problems from a variety of sources.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 6]",
+          "quote": "Since an incorrect solution is guaranteed to be functionally inequivalent to the reference solution, we conclude that improvements in BLEU score may not indicate improved rates of functional correctness in practice.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B13",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "The authors investigated data contamination confounds, demonstrated BLEU score disconnects from functional correctness, tested ranking heuristics against random chance, and analyzed specification chaining failure modes.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Read Section 2.2 and Figure 2 discussing the hand-written safeguard against GitHub training data memorization.",
+      "detection_limits": "The check could not detect accidental duplication of common algorithmic patterns present in the 159 GB training set.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "It is important for these tasks to be hand-written, since our models are trained on a large fraction of GitHub, which already contains solutions to problems from a variety of sources.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 3]",
+          "quote": "Though not a guarantee for problem novelty, all problems were hand-written and not programmatically copied from existing sources.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B14a",
+      "level": "documented",
+      "missing": "A systematic string-matching or n-gram decontamination search against the training dataset.",
+      "outcome": "passed",
+      "reason": "The risk of training data contamination is acknowledged, and a safeguard of hand-writing 164 novel problems rather than scraping existing coding websites is documented.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No model configuration is named for this review.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B14b",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "No model configuration is named for this review.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No leaderboard or submission process exists for the benchmark.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B15",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "HumanEval is an offline evaluation dataset without a submission platform or public leaderboard.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed Section 1 scope framing and empirical transfer evaluations in Section 3.5 (APPS) and Section 6.",
+      "detection_limits": "The check could not detect model performance transfer to languages other than Python.",
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "In this work, we focus on the task of generating standalone Python functions from docstrings",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 6]",
+          "quote": "Recently, Hendrycks et al. (2021) introduced the APPS dataset to measure the coding challenge competence of language models.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B16",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "The paper bounds claims to standalone Python function synthesis from docstrings, and tests transfer empirically on full-program synthesis (APPS benchmark), chained synthetic tasks, and cybersecurity contexts.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Read Section 3.2 on custom code tokenizer and Section 3.4 on baseline evaluation conditions.",
+      "detection_limits": "The check could not detect subtle prompt truncation effects caused by different context window sizes across models.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "The largest source of inef\ufb01ciency arises from encoding whitespace, so we add an additional set of tokens for representing whitespace runs of different lengths. This allows us to represent code using approximately 30% fewer tokens.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 6]",
+          "quote": "Pass rates are obtained by taking the best result from evaluating at temperatures 0.2, 0.4, and 0.8 for GPT-Neo, and from temperatures 0.2 and 0.8 for GPT-J.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B17",
+      "level": "documented",
+      "missing": "Controls or checks assessing whether prompt token formatting or tokenizer differences introduce systematic bias across competing model families.",
+      "outcome": "passed",
+      "reason": "Competing models (GPT-Neo, GPT-J, TabNine) are evaluated under documented temperatures and unbiased estimator formulas, but tokenizer efficiency differences favoring Codex are present without compensating fairness controls.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Read README.md, requirements.txt, setup.py, and human_eval package files to inspect repeatability instructions.",
+      "detection_limits": "The check could not detect platform-specific multiprocessing execution failures on operating systems other than Linux.",
+      "evidence": [
+        {
+          "locator": "lines 14-25",
+          "quote": "$ git clone https://github.com/openai/human-eval\n$ pip install -e human-eval",
+          "source": "repository/README.md"
+        },
+        {
+          "locator": "lines 53-61",
+          "quote": "$ evaluate_functional_correctness samples.jsonl",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B18",
+      "level": "documented",
+      "missing": "Third-party replication reports verifying the published Codex score tables.",
+      "outcome": "passed",
+      "reason": "The repository provides the complete evaluation dataset, evaluation scripts, environment requirements, and step-by-step instructions with a sanity check.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Inspected repository/LICENSE and safety disclaimers in README.md.",
+      "detection_limits": "The check could not detect external intellectual property claims on specific algorithm problem descriptions.",
+      "evidence": [
+        {
+          "locator": "lines 1-10",
+          "quote": "The MIT License\n\nCopyright (c) OpenAI (https://openai.com)\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction",
+          "source": "repository/LICENSE"
+        }
+      ],
+      "item_id": "B19",
+      "level": "documented",
+      "missing": "Specific data reuse terms and legally binding protections for responsible use beyond the standard permissive MIT license.",
+      "outcome": "passed",
+      "reason": "The repository code and dataset are released under the MIT License, and the execution script includes security disclaimers.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Inspected setup.py version identifier and README deprecation notice.",
+      "detection_limits": "The check could not detect undocumented historical dataset adjustments prior to version 1.0 release.",
+      "evidence": [
+        {
+          "locator": "line 10",
+          "quote": "version=\"1.0\",",
+          "source": "repository/setup.py"
+        },
+        {
+          "locator": "lines 3-5",
+          "quote": "> **Deprecated and unmaintained:** This repository is no longer maintained and is\n> provided for historical reference, without ongoing support or updates. Use it\n> at your own risk.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B20",
+      "level": "documented",
+      "missing": "A formal changelog tracking revisions and their impact on benchmark scores.",
+      "outcome": "passed",
+      "reason": "Version 1.0 and git commit hash are recorded, and the repository is tagged with a deprecation notice.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed Section 6, Section 7, Appendix E, Appendix F, and Appendix G for qualitative and quantitative analysis of benchmark and model flaws.",
+      "detection_limits": "The check could not detect unexplored failure modes in multi-threaded programming tasks.",
+      "evidence": [
+        {
+          "locator": "[PDF page 10]",
+          "quote": "First, Codex is not sample ef\ufb01cient to train. Our training dataset comprises a signi\ufb01cant fraction of publicly available Python code on GitHub, totaling hundreds of millions of lines of code.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 10]",
+          "quote": "We \ufb01nd that as the number of chained building blocks in the docstring increases, model performance decreases exponentially.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B21",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "Limitations are comprehensively detailed, including sample inefficiency, syntax/semantic errors, exponential performance collapse on chained docstrings, variable binding failures, misalignment, bias, and insecure cryptographic code generation.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Checked author correspondence in paper page 1 and repository status banner in README.md.",
+      "detection_limits": "The check could not determine whether author email addresses remain responsive post-deprecation.",
+      "evidence": [
+        {
+          "locator": "[PDF page 1]",
+          "quote": "Correspondence to: Mark Chen <mark@openai.com>, Jerry Tworek <jt@openai.com>, Heewoo Jun <heewoo@openai.com>, Qiming Yuan <qiming@openai.com>.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "lines 3-5",
+          "quote": "> **Deprecated and unmaintained:** This repository is no longer maintained and is\n> provided for historical reference, without ongoing support or updates. Use it\n> at your own risk.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B22",
+      "level": "documented",
+      "missing": "Active ongoing repository maintenance, public issue tracking, or regular software upkeep.",
+      "outcome": "passed",
+      "reason": "Author email contacts are provided in the paper, but the repository explicitly states it is deprecated and unmaintained.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No target context is declared for the review.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B23",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "No target cultural or deployment context is declared for this review.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Reviewed Section 2.3, Section 7, and execution.py warning comments for handling of untrusted code and sensitive material.",
+      "detection_limits": "The check could not detect subtle data leaks without automated secret and toxicity scanning of the evaluation tasks.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "Since publicly available programs have unknown intent and generated programs are often incorrect, executing these programs poses a security risk.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "lines 41-47",
+          "quote": "WARNING\n                    # This program exists to execute untrusted model-generated code. Although\n                    # it is highly unlikely that model-generated code will do something overtly\n                    # malicious in response to this test suite, model-generated code may act\n                    # destructively due to a lack of model capability or alignment.",
+          "source": "repository/human_eval/execution.py"
+        }
+      ],
+      "item_id": "B24",
+      "level": "documented",
+      "missing": "A documented audit or automated scan of the 164 evaluation problems for secrets, sensitive data, or toxic content.",
+      "outcome": "passed",
+      "reason": "Security risks of executing untrusted model code and risks of sensitive training data exposure and toxic comment generation are explicitly analyzed with safety warnings, but no specific audit of the 164 tasks is reported.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected Table 1, Figure 1, Figure 2, and Section 3.4 for evaluated systems and score distributions across problem difficulty levels.",
+      "detection_limits": "The check could not detect model discrimination dynamics on models larger than 12B parameters.",
+      "evidence": [
+        {
+          "locator": "[PDF page 7]",
+          "quote": "Table 1. Codex, GPT-Neo, & TabNine evaluations for HumanEval. We \ufb01nd that GPT-J pass@1 is between Codex-85M and Codex-300M performance.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 3]",
+          "quote": "Three example problems from the HumanEval dataset, where the probabilities that a single sample from Codex-12B passes unit tests are 0.9, 0.17, and 0.005.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B25",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "A wide range of model architectures and parameter sizes (12M to 12B) are evaluated, showing score spread from 0% to 77.5%, and problem difficulty variation is analyzed.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed Tables 1-3, Figures 1, 4-12, 14-15, and accompanying analytical text across the paper.",
+      "detection_limits": "The check could not detect unmeasured interaction effects between sampling temperature and nucleus top-p thresholds.",
+      "evidence": [
+        {
+          "locator": "[PDF page 2]",
+          "quote": "Figure 1. Pass rates of our models on the HumanEval dataset as a function of model size.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "[PDF page 7]",
+          "quote": "Table 1. Codex, GPT-Neo, & TabNine evaluations for HumanEval.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B26",
+      "level": "verified",
+      "missing": "",
+      "outcome": "passed",
+      "reason": "Results across model sizes, sampling temperatures, sample counts, and ranking heuristics are extensively presented in tables and figures and connected to code generation capabilities.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Read Section 2.2 describing dataset composition and hand-written provenance.",
+      "detection_limits": "The check could not detect variations in problem difficulty stemming from individual authoring styles.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "We evaluate functional correctness on a set of 164 hand-written programming problems, which we call the HumanEval dataset. Each problem includes a function signature, docstring, body, and several unit tests, with an average of 7.7 tests per problem.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B27",
+      "level": "documented",
+      "missing": "Detailed authoring guidelines, reviewer assignments, and inter-annotator agreement metrics for task authoring.",
+      "outcome": "passed",
+      "reason": "The problems are documented as hand-written by the authors with signatures, docstrings, reference solutions, and unit tests (average 7.7 tests per problem), but authoring protocols and reviewer guidelines are not detailed.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Inspected paper Section 2.3 describing gVisor/eBPF sandbox architecture and repository execution.py implementation.",
+      "detection_limits": "The check could not verify runtime escape resistance of the gVisor configuration without executing live sandbox tests.",
+      "evidence": [
+        {
+          "locator": "[PDF page 4]",
+          "quote": "We selected the gVisor container runtime (Lacasse, 2018) as the main host protection component. Since container runtimes like Docker can share host resources with containers, a malicious container could potentially compromise a host. gVisor protects the host by emulating its resources to introduce a security boundary between the host and its containers.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "lines 45-47",
+          "quote": "Users are strongly encouraged to sandbox this evaluation suite so that it does not perform destructive actions on their host or network. For more information on how OpenAI sandboxes its code, see the accompanying paper.",
+          "source": "repository/human_eval/execution.py"
+        }
+      ],
+      "item_id": "B28a",
+      "level": "documented",
+      "missing": "Direct integration of the containerized gVisor and eBPF sandbox inside the distributed repository code.",
+      "outcome": "passed",
+      "reason": "The grading environment and host isolation requirements (gVisor container runtime, eBPF firewall rules) are described in the paper, while the repository provides execution guards and instructions for running inside a sandbox.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "The benchmark runs systems in a single-turn function completion setup without tools or agent state.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B28b",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "HumanEval evaluates standalone function completion without tools, environment interactions, or persistent agent state.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Searched paper text and acknowledgements for domain expert or user involvement in benchmark curation.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B29",
+      "level": "undocumented",
+      "missing": "Involvement of independent domain experts, software engineering educators, or representative end-users in task design and review.",
+      "outcome": "not_performed",
+      "reason": "While colleagues and specialists are acknowledged for feedback on drafts and threat analyst discussions are mentioned for hazard analysis, no involvement of domain experts or external users in benchmark task design or review is stated.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    }
+  ],
+  "limits": "The review is bounded by the fixed repository snapshot commit b9453e8f1865df0a0057a1383767caa400acfbcf and accompanying paper text without live execution of untrusted code or external model probing."
+}

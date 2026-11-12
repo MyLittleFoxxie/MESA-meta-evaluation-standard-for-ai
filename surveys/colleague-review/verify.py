@@ -1,6 +1,6 @@
 """Check guided survey integrity; does not establish scientific validity."""
 from pathlib import Path
-import json, re, hashlib, base64
+import json, re, hashlib, base64, tempfile
 P = Path(__file__).resolve().parent
 ROOT = P.parents[1]
 RELOC = json.loads((ROOT / 'provenance/relocation-map.json').read_text())['path_map'] if (ROOT / 'provenance/relocation-map.json').exists() else {}
@@ -59,7 +59,7 @@ for q in d['questions']:
     assert len(q['example']['why'].split()) <= 45
 for source in d['sources']:
     if source['url'].startswith('../'):
-        rel_url = str((P / source['url']).resolve().relative_to(ROOT.resolve()))
+        rel_url = (P / source['url']).resolve().relative_to(ROOT.resolve()).as_posix()
         assert resolve_root(rel_url).is_file()
 html = (P / 'survey.html').read_text(); md = (P / 'survey.md').read_text()
 embedded = json.loads(re.search(r'<script id="packet" type="application/json">(.*?)</script>', html, re.S)[1]); assert embedded == d
@@ -95,7 +95,7 @@ manifest = json.loads((P / 'source-manifest.json').read_text())
 assert manifest['packet_sha256'] == hashlib.sha256(raw).hexdigest()
 for f in manifest['files']:
     if 'path' in f: assert hashlib.sha256(resolve_root(f['path']).read_bytes()).hexdigest() == f['sha256']
-Path('/tmp/mesa-colleague-script.js').write_text('\n'.join(re.findall(r'<script>(.*?)</script>', html, re.S)))
+(Path(tempfile.gettempdir()) / 'mesa-colleague-script.js').write_text('\n'.join(re.findall(r'<script>(.*?)</script>', html, re.S)))
 print('PASS: guided packet, 3 familiarity items, HLE example, 50 blank ARC/DesignQA questions, source references, offline images and fingerprints.')
 
 alignment = (P / 'study-alignment.txt').read_text()

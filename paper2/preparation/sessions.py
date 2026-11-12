@@ -117,7 +117,7 @@ STUDY_MARKERS = ("paper2", "swe_bench_verified", "sympy_target", "protocol-4", "
                  "MESA-meta-evaluation", "Desktop/", "literature/", ".claude/projects", ".codex", ".gemini")
 # Searches whose root is the home folder (in any spelling), all users, two levels up, or the disk root. A quote may
 # follow the root inside a logged input.
-_ROOTS = r"(~|\\?\"?\$\{?HOME\}?\\?\"?|/Users(/[^/\s\"',)]+)?|\.\./\.\.|/)"
+_ROOTS = r"(~|\\?\"?\$\{?HOME\}?\\?\"?|/Users(/[^/\s\"',)]+)?|[A-Za-z]:[/\\]Users([/\\][^/\\\s\"',)]+)?|\.\./\.\.|/)"
 # For grep and rg the bare root / counts only as the last argument, so a search pattern such as "1 / 2" does not.
 _ROOTS_NO_SLASH = _ROOTS.replace("|/)", ")")
 _END = r"(/?[\s\"',)]|$)"
@@ -453,7 +453,8 @@ CLEAN_ENV = 'env -i HOME="$HOME" PATH="$AGENT_PATH" USER="${USER:-}" LOGNAME="${
 
 def move_state(dest):
     """Shell lines that move agy's memory items into an archive folder, if they exist."""
-    return [f'mkdir -p "{dest}"'] + [f'[ -e "{AGY_HOME / x}" ] && mv "{AGY_HOME / x}" "{dest}/"' for x in AGY_STATE]
+    dest_p = Path(dest).as_posix()
+    return [f'mkdir -p "{dest_p}"'] + [f'[ -e "{(AGY_HOME / x).as_posix()}" ] && mv "{(AGY_HOME / x).as_posix()}" "{dest_p}/"' for x in AGY_STATE]
 
 
 def run_script(n, config_id, task_id, folder, workspace, base_commit, launch, version, time_limit=TIME_LIMIT,
@@ -463,15 +464,17 @@ def run_script(n, config_id, task_id, folder, workspace, base_commit, launch, ve
     PATH, no input after the prompt, a watchdog at the time limit, the frozen tool version, and run.json with times,
     exit code, and tool version. It refuses a used slot, a changed workspace, a missing Python, or another tool
     version."""
-    folder, workspace = Path(folder), Path(workspace)
+    folder, workspace = Path(folder).as_posix(), Path(workspace).as_posix()
     codex_home, codex_runs = Path(codex_home or CODEX_HOME), Path(codex_runs or CODEX_RUNS)
-    arch = Path(archive or ARCHIVE) / f"protocol-{s.PROTOCOL_NUMBER}"
+    arch = (Path(archive or ARCHIVE) / f"protocol-{s.PROTOCOL_NUMBER}").as_posix()
+    python = Path(python).as_posix() if python else None
     tool = launch["tool"]
     if tool == "codex":
-        home = codex_runs / f"slot-{n:02d}"
+        home = (codex_runs / f"slot-{n:02d}").as_posix()
+        ch = codex_home.as_posix()
         setup = [f'RUN_HOME="{home}"',
                  '[ -e "$RUN_HOME" ] && { echo "the Codex run home already exists: $RUN_HOME"; exit 94; }',
-                 f'mkdir -p "$RUN_HOME" && cp "{codex_home}/auth.json" "{codex_home}/config.toml" "$RUN_HOME/" || exit 95']
+                 f'mkdir -p "$RUN_HOME" && cp "{ch}/auth.json" "{ch}/config.toml" "$RUN_HOME/" || exit 95']
         command = (f'{CLEAN_ENV} CODEX_HOME="$RUN_HOME" codex exec --model {launch["model"]} '
                    f'-c model_reasoning_effort="{launch["effort"]}"'
                    + (f' -c web_search="{launch["web_search"]}"' if launch.get("web_search") else "")
@@ -481,21 +484,21 @@ def run_script(n, config_id, task_id, folder, workspace, base_commit, launch, ve
                    '"$(cat "$FOLDER/prompt.md")" > "$FOLDER/logs/codex-events.jsonl" 2> "$FOLDER/logs/stderr.txt"')
         watchdog = time_limit
         after = ['find "$RUN_HOME/sessions" -type f -name "rollout-*.jsonl" -exec mv {} "$FOLDER/logs/" \\;',
-                 f'cp "$RUN_HOME/auth.json" "{codex_home}/auth.json"  # keeps the newest sign-in for the next session',
+                 f'cp "$RUN_HOME/auth.json" "{ch}/auth.json"  # keeps the newest sign-in for the next session',
                  'rm -f "$RUN_HOME/auth.json"',
                  f'mkdir -p "{arch}" && mv "$RUN_HOME" "{arch}/codex-home-slot-{n:02d}"']
     elif tool == "agy":
         if not launch.get("permission_flag"):
             raise RuntimeError(f"{config_id}: permission_flag is not set in configurations.json")
-        settings = f' --settings "{agy_settings or AGY_SESSION_SETTINGS}"' if launch.get("settings_file") else ""
+        settings = f' --settings "{Path(agy_settings or AGY_SESSION_SETTINGS).as_posix()}"' if launch.get("settings_file") else ""
         agent = launch.get("agent")
-        setup = move_state(arch / f"agy-state-before-slot-{n:02d}")
+        setup = move_state(f"{arch}/agy-state-before-slot-{n:02d}")
         if agent:  # agy finds custom agents and hooks in the workspace; info/exclude keeps them out of the patch
-            setup += [f'mkdir -p "$WS/.agents/agents" "$WS/.git/info" && cp "{agy_agent or AGY_AGENT}" '
+            setup += [f'mkdir -p "$WS/.agents/agents" "$WS/.git/info" && cp "{Path(agy_agent or AGY_AGENT).as_posix()}" '
                       f'"$WS/.agents/agents/{agent}.md" && echo ".agents/" >> "$WS/.git/info/exclude" || exit 97']
         if launch.get("hooks"):
-            setup += [f'mkdir -p "$WS/.agents" "$WS/.git/info" && cp "{agy_hooks or AGY_HOOKS}" "$WS/.agents/hooks.json" && '
-                      f'cp "{agy_gate or AGY_GATE}" "$WS/.agents/gate.py" || exit 97',
+            setup += [f'mkdir -p "$WS/.agents" "$WS/.git/info" && cp "{Path(agy_hooks or AGY_HOOKS).as_posix()}" "$WS/.agents/hooks.json" && '
+                      f'cp "{Path(agy_gate or AGY_GATE).as_posix()}" "$WS/.agents/gate.py" || exit 97',
                       'grep -qx ".agents/" "$WS/.git/info/exclude" || echo ".agents/" >> "$WS/.git/info/exclude"']
         command = (f'{CLEAN_ENV} AGY_CLI_DISABLE_AUTO_UPDATE=1 AGY_GATE_LOG="$FOLDER/logs/agy-gate.jsonl" agy -p "$(cat "$FOLDER/prompt.md")" --model {launch["model"]} --sandbox '
                    f'{launch["permission_flag"]}{settings}' + (f" --agent {agent}" if agent else "")
@@ -503,7 +506,7 @@ def run_script(n, config_id, task_id, folder, workspace, base_commit, launch, ve
                    '--output-format stream-json --log-file "$FOLDER/logs/agy.log" '
                    '> "$FOLDER/logs/agy-stream.jsonl" 2> "$FOLDER/logs/stderr.txt"')
         watchdog = time_limit + AGY_GRACE
-        after = move_state(arch / f"agy-state-slot-{n:02d}")
+        after = move_state(f"{arch}/agy-state-slot-{n:02d}")
     else:
         raise ValueError(f"Unknown tool {tool!r}")
     lines = ["#!/usr/bin/env bash",
@@ -911,7 +914,9 @@ def close_session(n, ledger=None):
                        patch=dict(path=str(saved.relative_to(ROOT)), sha256=sha(saved), task_id=record["task_id"]),
                        provenance=dict(session_id=f"protocol-{s.PROTOCOL_NUMBER}-slot-{n:02d}",
                                        log=str(summary_path.relative_to(ROOT)), log_sha256=sha(summary_path),
-                                       raw_log=str(primary.relative_to(ROOT)), raw_log_sha256=sha(primary)))
+                                       raw_log=str(primary.relative_to(ROOT)), raw_log_sha256=sha(primary),
+                                       controls=dict(no_scoring_file_changes=dict(
+                                           passed=not grading_files, changed_files=grading_files))))
     archived.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(ws), str(archived))  # the folder then holds nothing an agent in a later session could read
     summary = {k: (sorted(v) if isinstance(v, set) else v) for k, v in log.items() if k not in ("text", "outputs", "sandbox")}

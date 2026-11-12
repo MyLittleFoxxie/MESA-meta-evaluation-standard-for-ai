@@ -21,7 +21,15 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from paper2.preparation.study_controls import order_key, save_new  # noqa: E402
 
-PYTHON = os.environ.get("PAPER2_SWEBENCH_PYTHON", str(Path.home() / ".venvs/paper2-swebench/bin/python"))
+def _default_python():
+    venv = Path.home() / ".venvs" / "paper2-swebench"
+    for cand in (venv / "bin" / "python", venv / "Scripts" / "python.exe"):
+        if cand.exists():
+            return str(cand)
+    return str(venv / "bin" / "python")
+
+
+PYTHON = os.environ.get("PAPER2_SWEBENCH_PYTHON", _default_python())
 BASE = ROOT / "paper2/preparation/protocol-4"
 RUNS = BASE / "harness"
 ELIGIBILITY = BASE / "eligibility"
@@ -72,18 +80,35 @@ def run_harness(rows, patches, run_id, model="paper2", max_workers=2):
     run_dir = RUNS / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
     dataset = run_dir / "dataset.json"
-    dataset.write_text(json.dumps([r for r in rows if r["instance_id"] in patches], indent=1))
+    dataset.write_text(json.dumps([r for r in rows if r["instance_id"] in patches], indent=1), encoding="utf-8")
     preds = run_dir / "predictions.json"
-    preds.write_text(json.dumps([dict(instance_id=i, model_name_or_path=model, model_patch=p) for i, p in patches.items()]))
-    with (run_dir / "harness.log").open("w") as log:
-        subprocess.run([PYTHON, "-m", "swebench.harness.run_evaluation", "-d", str(dataset), "-p", str(preds),
-                        "-id", run_id, "--max_workers", str(max_workers), "--report_dir", str(run_dir)],
-                       cwd=RUNS, stdout=log, stderr=subprocess.STDOUT)
+    preds.write_text(
+        json.dumps([dict(instance_id=i, model_name_or_path=model, model_patch=p) for i, p in patches.items()]),
+        encoding="utf-8",
+    )
+    cli_args = ["-d", str(dataset), "-p", str(preds), "-id", run_id,
+                "--max_workers", str(max_workers), "--report_dir", str(run_dir)]
+    if os.name == "nt":
+        # swebench writes patch.diff and eval.sh with Path.write_text without newline="\n"; force LF for Linux containers.
+        shim = (
+            "import pathlib, runpy, sys; "
+            "_wt = pathlib.Path.write_text; "
+            "pathlib.Path.write_text = lambda self, data, encoding=None, errors=None, newline=None: "
+            "_wt(self, data, encoding=encoding or 'utf-8', errors=errors, newline='\\n' if newline is None else newline); "
+            "sys.argv = ['swebench.harness.run_evaluation'] + sys.argv[1:]; "
+            "runpy.run_module('swebench.harness.run_evaluation', run_name='__main__')"
+        )
+        cmd = [PYTHON, "-c", shim, *cli_args]
+    else:
+        cmd = [PYTHON, "-m", "swebench.harness.run_evaluation", *cli_args]
+    env = {**os.environ, "PYTHONUTF8": "1"}
+    with (run_dir / "harness.log").open("w", encoding="utf-8") as log:
+        subprocess.run(cmd, cwd=RUNS, stdout=log, stderr=subprocess.STDOUT, env=env)
     out = {}
     for iid in patches:
         folder = RUNS / "logs/run_evaluation" / run_id / model / iid
         report = folder / "report.json"
-        out[iid] = dict(report=json.loads(report.read_text())[iid] if report.exists() else None,
+        out[iid] = dict(report=json.loads(report.read_text(encoding="utf-8"))[iid] if report.exists() else None,
                         logs={str(p.relative_to(ROOT)): sha256(p) for p in (folder / f for f in LOG_FILES) if p.exists()})
     return out
 

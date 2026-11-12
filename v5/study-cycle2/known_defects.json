@@ -1,0 +1,124 @@
+{
+  "purpose": "C2-3 pre-registered published and located defects of the four benchmarks from the literature and benchmark repositories",
+  "defects": [
+    {
+      "id": "HE-1",
+      "benchmark": "humaneval",
+      "item_ids": [
+        "B28a",
+        "B18"
+      ],
+      "source_citation": "Chen et al. 2021 (Codex/HumanEval paper Sec 2.3) vs openai/human-eval repository/human_eval/execution.py lines 27-51, 169-174 and repository/README.md",
+      "locator_substrings": [
+        "execution.py",
+        "50",
+        "169",
+        "exec("
+      ],
+      "description": "HumanEval execution.py runs untrusted model completion and check(entry_point) in the same Python process and exec_globals dictionary with only reliability_guard() (which explicitly warns it is not a sandbox), and line 50 exec(check_program, exec_globals) is uncommented despite README.md stating it is commented out.",
+      "detection_rule": "item_id in ('B28a', 'B18') and (level == 'contradicted' or outcome == 'failed') and cites execution.py"
+    },
+    {
+      "id": "TB-1",
+      "benchmark": "tau-bench",
+      "item_ids": [
+        "B05",
+        "B07"
+      ],
+      "source_citation": "Kang et al. 2025 (Agentic Benchmark Checklist, v4/study/earlier-reviews/ABC-tau-bench.json items ABC-O.b.3 and ABC-O.g.3); tau_bench/envs/airline/tasks_test.py lines 491, 542, 562, 569, 631, 711, 1207 and retail/tasks_test.py line 1919",
+      "locator_substrings": [
+        "tasks_test.py",
+        "base.py",
+        "actions",
+        "outputs"
+      ],
+      "description": "Several tau-bench test tasks have empty ground-truth actions=[] and outputs=[], allowing a no-op agent to receive reward 1.0 in Env.calculate_reward().",
+      "detection_rule": "item_id in ('B05', 'B07') and (level == 'contradicted' or outcome == 'failed') and mentions empty actions/outputs or tasks_test.py/base.py"
+    },
+    {
+      "id": "TB-2",
+      "benchmark": "tau-bench",
+      "item_ids": [
+        "B05",
+        "B20"
+      ],
+      "source_citation": "Yao et al. 2024 (tau-bench paper Sec 5.2) and sierra-research/tau-bench repository/README.md lines 3-5 warning",
+      "locator_substrings": [
+        "README.md",
+        "5.2",
+        "Stage III",
+        "outdated",
+        "fixed"
+      ],
+      "description": "The tau-bench paper Sec 5.2 reports task annotation/ambiguity errors found in trajectory review, and repository/README.md lines 3-5 warn that the tasks in this repository snapshot are outdated and later fixed in tau2/tau3-bench.",
+      "detection_rule": "item_id in ('B05', 'B20') and (level == 'contradicted' or outcome == 'failed' or 'outdated' in reason.lower() or 'ambigu' in reason.lower())"
+    },
+    {
+      "id": "TB-3",
+      "benchmark": "tau-bench",
+      "item_ids": [
+        "B12"
+      ],
+      "source_citation": "Yao et al. 2024 (tau-bench paper NeurIPS checklist 3(c) p.12 vs Table 2 p.7)",
+      "locator_substrings": [
+        "checklist",
+        "3(c)",
+        "Table 2",
+        "p12",
+        "p.12",
+        "p. 12"
+      ],
+      "description": "The tau-bench NeurIPS checklist item 3(c) answers [Yes] that error bars are reported, whereas Table 2 and main result tables report point estimates without error bars or confidence intervals.",
+      "detection_rule": "item_id == 'B12' and (level == 'contradicted' or outcome == 'failed' or level == 'undocumented')"
+    },
+    {
+      "id": "TQA-1",
+      "benchmark": "truthfulqa",
+      "item_ids": [
+        "B05"
+      ],
+      "source_citation": "Lin et al. 2022 (TruthfulQA paper Sec 2.3, App F) and sylinrl/TruthfulQA repository/README.md Jan 2025 update",
+      "locator_substrings": [
+        "2.3",
+        "App F",
+        "Appendix F",
+        "README.md",
+        "Jan 2025",
+        "43"
+      ],
+      "description": "TruthfulQA human validation found 6-7% disagreement (43 questions modified), and the Jan 2025 README update notes that outdated/flawed questions were revised without full re-validation of the remaining benchmark.",
+      "detection_rule": "item_id == 'B05' and (level == 'contradicted' or outcome == 'failed')"
+    },
+    {
+      "id": "TQA-2",
+      "benchmark": "truthfulqa",
+      "item_ids": [
+        "B07"
+      ],
+      "source_citation": "Lin et al. 2022 (TruthfulQA paper Sec 4.4 and Table 3)",
+      "locator_substrings": [
+        "4.4",
+        "Table 3",
+        "GPT-judge"
+      ],
+      "description": "TruthfulQA automated scorer (GPT-judge) has a reported 4-10% validation error rate against human labels (89.5% on the human baseline) and misclassifies long qualified answers.",
+      "detection_rule": "item_id == 'B07' and (level == 'contradicted' or outcome == 'failed' or '89.5' in reason or '90' in reason or 'misclassif' in reason.lower() or 'failure' in reason.lower())"
+    },
+    {
+      "id": "HLE-1",
+      "benchmark": "hle",
+      "item_ids": [
+        "B05"
+      ],
+      "source_citation": "Phan et al. 2025 (HLE paper Appendix B.2 and B.3, p.23)",
+      "locator_substrings": [
+        "B.2",
+        "B.3",
+        "15.4",
+        "18%"
+      ],
+      "description": "HLE post-hoc expert audits reported in Appendix B.2-B.3 found a 15.4% disagreement/error rate across 200-question samples (~18% in biology/chemistry/health) and reviewers skipped full verification of rationales taking over 5 minutes.",
+      "detection_rule": "item_id == 'B05' and (level == 'contradicted' or outcome == 'failed')"
+    }
+  ]
+}

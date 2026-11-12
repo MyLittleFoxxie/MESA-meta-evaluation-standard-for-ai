@@ -1,0 +1,757 @@
+{
+  "benchmark": "addtwo-missing-count",
+  "framework": "RUBRIC",
+  "description": [
+    {
+      "facet": "Purpose",
+      "value": "research",
+      "reason": "The paper states a measurement aim and no conformity or certification aim.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 1",
+          "quote": "AddTwo measures addition of pairs of integers"
+        }
+      ]
+    },
+    {
+      "facet": "Judgeability",
+      "value": "automated",
+      "reason": "Scoring is exact match run by score.py.",
+      "evidence": [
+        {
+          "source": "repository/score.py",
+          "locator": "line 4",
+          "quote": "sum(a == p for a, p in zip("
+        }
+      ]
+    },
+    {
+      "facet": "Reference",
+      "value": "absolute",
+      "reason": "Scores are exact-match accuracy against an answer key. No human or other baseline is claimed.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 5",
+          "quote": "No human comparison is claimed."
+        }
+      ]
+    },
+    {
+      "facet": "Containedness",
+      "value": "fully contained",
+      "reason": "Evaluation is offline in a separate process with no access to the key. This is the paper's claim and was not checked in code.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 4",
+          "quote": "evaluated offline in a separate process without access to the answer key"
+        }
+      ]
+    },
+    {
+      "facet": "Objectivity",
+      "value": "fully independent",
+      "reason": "The task is a closed-form sum and scoring is an exact-match check.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 3",
+          "quote": "Accuracy is exact match"
+        }
+      ]
+    },
+    {
+      "facet": "Autonomy",
+      "value": "autonomous",
+      "reason": "The benchmark runs by itself through score.py and does not depend on another system.",
+      "evidence": [
+        {
+          "source": "repository/README.md",
+          "locator": "line 3",
+          "quote": "Run python score.py to print exact-match accuracy"
+        }
+      ]
+    },
+    {
+      "facet": "Progression",
+      "value": "static",
+      "reason": "Nothing in the sources describes updates or growth.",
+      "evidence": []
+    },
+    {
+      "facet": "Variation",
+      "value": "fixed",
+      "reason": "One fixed task file is loaded. No variants or releases are described.",
+      "evidence": [
+        {
+          "source": "repository/README.md",
+          "locator": "line 2",
+          "quote": "Tasks are stored in external data files"
+        }
+      ]
+    }
+  ],
+  "judgments": [
+    {
+      "item_id": "B01",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The ability is stated as addition of pairs of integers, with a stated exclusion. The paper gives no comparison with other definitions.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 1",
+          "quote": "AddTwo measures addition of pairs of integers, not general reasoning."
+        }
+      ],
+      "missing": "Comparison with other definitions; boundary tests.",
+      "checks": "Read the paper and README.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B02",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "No intended users, uses or real-world relevance are stated.",
+      "evidence": [],
+      "missing": "Users, uses, relevance.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B03",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "No justification for the task selection is given.",
+      "evidence": [],
+      "missing": "Task selection rationale.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B04",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "The task space, its range and the sampling are not described. The task file is not in the repository.",
+      "evidence": [
+        {
+          "source": "repository/README.md",
+          "locator": "line 2",
+          "quote": "Tasks are stored in external data files loaded by the evaluation script."
+        }
+      ],
+      "missing": "Task space description, sampling, coverage.",
+      "checks": "Listed the files and looked for the task data.",
+      "outcome": "not_performed",
+      "check_kind": "run_by_reviewer",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B05",
+      "level": "verified",
+      "basis": "evidence_found",
+      "reason": "The paper reports a manual check of the key done twice, with no errors found. The coverage is not detailed.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 2",
+          "quote": "A manual answer key was checked twice with no errors."
+        }
+      ],
+      "missing": "Which tasks were covered; the checker; the limits of the check.",
+      "checks": "Read the reported check. The tasks file is absent, so I could not recheck the key.",
+      "outcome": "passed",
+      "check_kind": "reported_by_sources",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "The check could not detect errors shared by both manual passes, or errors in tasks and tests other than the key.",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B06",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The metric is stated as exact match divided by the number of tasks. Edge cases are not stated.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 3",
+          "quote": "Accuracy is exact match: correct answers divided by the number of tasks."
+        }
+      ],
+      "missing": "Handling of malformed, missing or refused outputs.",
+      "checks": "Compared the rule with score.py.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B07",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "score.py is short and readable, and it matches the stated rule. Nothing reports validation or exploit attempts. It reads answers and predictions from the same file, tasks.json, which is not provided.",
+      "evidence": [
+        {
+          "source": "repository/score.py",
+          "locator": "line 4",
+          "quote": "print(sum(a == p for a, p in zip(data[\"answers\"], data[\"predictions\"])) / len(data[\"answers\"]))"
+        }
+      ],
+      "missing": "Validation or exploit tests; the data file.",
+      "checks": "Read score.py and compared it with the rule. The denominator is the number of answers, so missing predictions count as wrong.",
+      "outcome": "passed",
+      "check_kind": "run_by_reviewer",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "The check could not detect behaviour on real data, since tasks.json is absent, or any exploit not visible by reading.",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B08",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "There is a single accuracy score.",
+      "evidence": [],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "Only one score exists, exact-match accuracy."
+    },
+    {
+      "item_id": "B09",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The paper says explicitly that no human comparison is claimed. No baseline is reported. Reference is absolute.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 5",
+          "quote": "No human comparison is claimed."
+        }
+      ],
+      "missing": "Random or trivial baselines.",
+      "checks": "Read the paper.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B10",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The paper states that no reliability analysis was performed.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 5",
+          "quote": "No reliability analysis, uncertainty estimate, or exposure check was performed."
+        }
+      ],
+      "missing": "Repeated runs or an estimate of variation.",
+      "checks": "Read the paper.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B11",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "No prompts or setup are described. The benchmark only scores a predictions list.",
+      "evidence": [],
+      "missing": "Prompts, adaptation method, sensitivity tests.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B12",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The paper states that no uncertainty estimate was made, and it gives no sample size.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 5",
+          "quote": "No reliability analysis, uncertainty estimate, or exposure check was performed."
+        }
+      ],
+      "missing": "Sample size, interval, power reasoning.",
+      "checks": "Read the paper.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B13",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "Shortcuts, confounds and chance are not discussed.",
+      "evidence": [],
+      "missing": "Shortcut, confound and guessing analysis.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B14a",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The paper states that no exposure check was performed. Tasks sit in external data files, but no safeguard is described.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 5",
+          "quote": "exposure check was performed"
+        }
+      ],
+      "missing": "A safeguard or contamination check.",
+      "checks": "Read the paper and README.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B14b",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "No model configuration is named for this review.",
+      "evidence": [],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "No model configuration is named for the review."
+    },
+    {
+      "item_id": "B15",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "There is no leaderboard or submission process.",
+      "evidence": [],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "No leaderboard or submission process is described."
+    },
+    {
+      "item_id": "B16",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The scope is stated narrowly. The benchmark does not claim general reasoning and does not test other addition problems. No transfer evidence is given.",
+      "evidence": [
+        {
+          "source": "repository/README.md",
+          "locator": "line 5",
+          "quote": "This benchmark does not test other addition problems."
+        }
+      ],
+      "missing": "Transfer or deployment evidence.",
+      "checks": "Read the stated scope.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B17",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "Conditions for competing systems are not stated.",
+      "evidence": [],
+      "missing": "Fairness conditions and checks.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B18",
+      "level": "contradicted",
+      "basis": "defect_found",
+      "reason": "score.py opens tasks.json, but that file is not in the repository. The README says only that tasks are in external data files. The scorer cannot run as shipped, and the paper's claim that all data is released is not borne out by the snapshot.",
+      "evidence": [
+        {
+          "source": "repository/score.py",
+          "locator": "line 2",
+          "quote": "with open(\"tasks.json\") as f:"
+        },
+        {
+          "source": "paper.txt",
+          "locator": "line 6",
+          "quote": "All code and data are released into the public domain"
+        }
+      ],
+      "missing": "The tasks.json data file; instructions for producing predictions.",
+      "checks": "Listed the files and compared them with score.py's dependency.",
+      "outcome": "failed",
+      "check_kind": "run_by_reviewer",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "The check could not detect whether the data is hosted elsewhere.",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B19",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "CC0 1.0 is stated for both code and data. The sources give no terms for responsible use.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 6",
+          "quote": "released into the public domain under CC0 1.0"
+        },
+        {
+          "source": "repository/README.md",
+          "locator": "line 4",
+          "quote": "Code and data are released under CC0 1.0 (see LICENSE)."
+        }
+      ],
+      "missing": "Responsible-use protections.",
+      "checks": "Read the paper and README. I did not read the LICENSE file.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B20",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "No version identifier or change record is given.",
+      "evidence": [],
+      "missing": "Version or release name; change log.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B21",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "Some limitations are stated as absent analyses and as a narrow scope. Their impact is not discussed.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 5",
+          "quote": "No reliability analysis, uncertainty estimate, or exposure check was performed."
+        }
+      ],
+      "missing": "Discussion of flaw impact; interpretation guidance.",
+      "checks": "Read the paper.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B22",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "No contact, feedback channel or upkeep is shown.",
+      "evidence": [],
+      "missing": "Contact and maintenance.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B23",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "No target context is declared for the review.",
+      "evidence": [],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "No target context is declared for the review."
+    },
+    {
+      "item_id": "B24",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "Harmful or sensitive content is not discussed. The content is integer addition.",
+      "evidence": [],
+      "missing": "Any consideration or review.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B25",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "The paper reports no evaluation of systems.",
+      "evidence": [],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "The paper reports no evaluation of systems."
+    },
+    {
+      "item_id": "B26",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "The paper reports no evaluation results.",
+      "evidence": [],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "The paper reports no evaluation of systems."
+    },
+    {
+      "item_id": "B27",
+      "level": "documented",
+      "basis": "evidence_found",
+      "reason": "The answer key is described as manual and checked. The sources do not say how the tasks were collected or generated, and no annotation quality is reported.",
+      "evidence": [
+        {
+          "source": "paper.txt",
+          "locator": "line 2",
+          "quote": "A manual answer key was checked twice with no errors."
+        }
+      ],
+      "missing": "Task sources and collection; annotation process and quality.",
+      "checks": "Read the paper and README.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    },
+    {
+      "item_id": "B28a",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "Scoring only compares predictions with answers and does not run the output as code.",
+      "evidence": [
+        {
+          "source": "repository/score.py",
+          "locator": "line 4",
+          "quote": "a == p"
+        }
+      ],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "Scoring is a string or value comparison, not execution of system output."
+    },
+    {
+      "item_id": "B28b",
+      "level": "not_applicable",
+      "basis": "not_applicable",
+      "reason": "The benchmark runs no system in an environment with tools or state.",
+      "evidence": [],
+      "missing": "",
+      "checks": "",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": "No agent environment exists; the benchmark scores a static predictions list."
+    },
+    {
+      "item_id": "B29",
+      "level": "undocumented",
+      "basis": "absence_of_information",
+      "reason": "No expert or user involvement is stated.",
+      "evidence": [],
+      "missing": "Expert or user involvement.",
+      "checks": "Read all sources.",
+      "outcome": "not_performed",
+      "check_kind": "none",
+      "scope": {
+        "level": "release",
+        "ids": []
+      },
+      "detection_limits": "",
+      "task_defects": [],
+      "applicability_reason": ""
+    }
+  ],
+  "limits": "The snapshot lacks tasks.json, so I could not inspect the tasks, recheck the key, or run the scorer. I did not read the LICENSE file. The B28a and B28b not_applicable ratings and the Containedness value rest on the paper's description and on score.py, which only compares values. I executed no code."
+}

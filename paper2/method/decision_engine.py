@@ -81,6 +81,154 @@ def evaluate_decision_from_bounds(ci_lower: float, ci_upper: float, threshold: f
         return DecisionOutcome.UNRESOLVED
 
 
+def _binomial_pmf(k: int, n: int, p: float) -> float:
+    """Exact binomial probability P(X = k | n, p) computed in log-space."""
+    if n < 0 or k < 0 or k > n:
+        return 0.0
+    if p <= 0.0:
+        return 1.0 if k == 0 else 0.0
+    if p >= 1.0:
+        return 1.0 if k == n else 0.0
+    log_p = (
+        math.lgamma(n + 1)
+        - math.lgamma(k + 1)
+        - math.lgamma(n - k + 1)
+        + k * math.log(p)
+        + (n - k) * math.log1p(-p)
+    )
+    return math.exp(log_p)
+
+
+def binomial_cdf(k: int, n: int, p: float) -> float:
+    """Exact binomial lower tail probability P(X <= k | n, p)."""
+    if n < 0:
+        raise ValueError(f"total must be non-negative, got {n}")
+    if k < 0:
+        return 0.0
+    if k >= n:
+        return 1.0
+    return min(1.0, sum(_binomial_pmf(j, n, p) for j in range(0, k + 1)))
+
+
+def binomial_sf(k: int, n: int, p: float) -> float:
+    """Exact binomial upper tail probability P(X >= k | n, p)."""
+    if n < 0:
+        raise ValueError(f"total must be non-negative, got {n}")
+    if k <= 0:
+        return 1.0
+    if k > n:
+        return 0.0
+    return min(1.0, sum(_binomial_pmf(j, n, p) for j in range(k, n + 1)))
+
+
+def compute_exact_binomial_interval(
+    successes: int,
+    total: int,
+    confidence: float = 0.95,
+    one_sided: bool = True,
+) -> Tuple[float, float]:
+    """Calculates Clopper-Pearson exact binomial bounds (lower_bound, upper_bound).
+
+    When one_sided=True (Protocol 6 requirement rule), each tail uses alpha = 1 - confidence
+    so the lower bound >= theta iff P(X >= successes | theta) <= alpha and the upper bound
+    <= theta iff P(X <= successes | theta) <= alpha. When one_sided=False, each tail uses
+    alpha / 2.
+    """
+    if total < 0 or successes < 0 or successes > total:
+        raise ValueError(f"Invalid counts: successes={successes}, total={total}")
+    if not (0.0 < confidence < 1.0):
+        raise ValueError(f"Confidence must be in (0, 1), got {confidence}")
+    if total == 0:
+        return (0.0, 1.0)
+
+    alpha = (1.0 - confidence) if one_sided else (1.0 - confidence) / 2.0
+
+    if successes == 0:
+        lower = 0.0
+    else:
+        lo, hi = 0.0, 1.0
+        for _ in range(80):
+            mid = 0.5 * (lo + hi)
+            if binomial_sf(successes, total, mid) < alpha:
+                lo = mid
+            else:
+                hi = mid
+        lower = lo
+
+    if successes == total:
+        upper = 1.0
+    else:
+        lo, hi = 0.0, 1.0
+        for _ in range(80):
+            mid = 0.5 * (lo + hi)
+            if binomial_cdf(successes, total, mid) > alpha:
+                lo = mid
+            else:
+                hi = mid
+        upper = hi
+
+    return (lower, upper)
+
+
+def exact_binomial_cutpoints(
+    total: int,
+    threshold: float,
+    confidence: float = 0.95,
+    one_sided: bool = True,
+) -> Tuple[int, int]:
+    """Returns exact integer cut points (accept_min_k, reject_max_k) at threshold theta.
+
+    - Accept if k >= accept_min_k (or None if impossible at this n)
+    - Reject if k <= reject_max_k (or -1 if impossible at this n)
+    Matches compute_exact_binomial_interval + evaluate_decision_from_bounds.
+    """
+    if total <= 0:
+        raise ValueError(f"total must be positive, got {total}")
+    if not (0.0 < threshold < 1.0):
+        raise ValueError(f"Threshold must be in (0, 1), got {threshold}")
+    alpha = (1.0 - confidence) if one_sided else (1.0 - confidence) / 2.0
+
+    accept_k = None
+    for k in range(total + 1):
+        if binomial_sf(k, total, threshold) <= alpha:
+            accept_k = k
+            break
+
+    reject_k = -1
+    for k in range(total, -1, -1):
+        if binomial_cdf(k, total, threshold) < alpha:
+            reject_k = k
+            break
+    return accept_k, reject_k
+
+
+def exact_binomial_power(
+    total: int,
+    threshold: float,
+    true_rates: Tuple[float, ...] = (0.85, 0.80, 0.75, 0.70, 0.50),
+    confidence: float = 0.95,
+    one_sided: bool = True,
+) -> Dict[str, Any]:
+    """Exact Accept/Reject probabilities and boundary Type I error across true_rates."""
+    accept_k, reject_k = exact_binomial_cutpoints(total, threshold, confidence=confidence, one_sided=one_sided)
+    by_rate = {}
+    for p in true_rates:
+        p_accept = binomial_sf(accept_k, total, p) if accept_k is not None else 0.0
+        p_reject = binomial_cdf(reject_k, total, p) if reject_k >= 0 else 0.0
+        by_rate[f"{p:.2f}"] = dict(accept=p_accept, reject=p_reject, inconclusive=max(0.0, 1.0 - p_accept - p_reject))
+    return dict(
+        total=total,
+        threshold=threshold,
+        confidence=confidence,
+        one_sided=one_sided,
+        accept_min_k=accept_k,
+        reject_max_k=reject_k,
+        type1_accept=binomial_sf(accept_k, total, threshold) if accept_k is not None else 0.0,
+        type1_reject=binomial_cdf(reject_k, total, threshold) if reject_k >= 0 else 0.0,
+        by_rate=by_rate,
+    )
+
+
 class RequirementsDecisionEngine:
     """Evaluates software requirements against benchmark evidence using 3 methods."""
 

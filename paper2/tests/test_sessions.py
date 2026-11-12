@@ -517,9 +517,9 @@ class RunScriptText(unittest.TestCase):
         text = self.script(dict(tool="agy", model="gemini-3.8-flash-medium", permission_flag="--mode accept-edits",
                                 settings_file="agy-session-settings.json", agent="local", hooks=True), AGY)
         self.assertIn("--model gemini-3.8-flash-medium --sandbox --mode accept-edits --settings "
-                      f'"{ss.AGY_SESSION_SETTINGS}" --agent local --new-project --print-timeout {ss.TIME_LIMIT}s', text)
-        self.assertIn(f'cp "{ss.AGY_AGENT}" "$WS/.agents/agents/local.md"', text)
-        self.assertIn(f'cp "{ss.AGY_HOOKS}" "$WS/.agents/hooks.json" && cp "{ss.AGY_GATE}" "$WS/.agents/gate.py" || exit 97', text)
+                      f'"{ss.AGY_SESSION_SETTINGS.as_posix()}" --agent local --new-project --print-timeout {ss.TIME_LIMIT}s', text)
+        self.assertIn(f'cp "{ss.AGY_AGENT.as_posix()}" "$WS/.agents/agents/local.md"', text)
+        self.assertIn(f'cp "{ss.AGY_HOOKS.as_posix()}" "$WS/.agents/hooks.json" && cp "{ss.AGY_GATE.as_posix()}" "$WS/.agents/gate.py" || exit 97', text)
         self.assertIn('AGY_GATE_LOG="$FOLDER/logs/agy-gate.jsonl" agy -p', text)
         self.assertLess(text.index("the workspace is not clean"), text.index(".agents/agents/local.md"))
         self.assertIn(f"sleep {ss.TIME_LIMIT + ss.AGY_GRACE};", text)

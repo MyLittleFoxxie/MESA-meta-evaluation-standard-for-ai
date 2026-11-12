@@ -1,0 +1,804 @@
+{
+  "benchmark": "addtwo-clean",
+  "description": [
+    {
+      "evidence": [
+        {
+          "locator": "1",
+          "quote": "AddTwo measures exact integer addition on a bounded task space of identical small pairs, {(1, 1), (2, 2)}",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Purpose",
+      "reason": "The benchmark is designed to measure exact integer addition performance in a research context.",
+      "value": "research"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "3",
+          "quote": "Run python score.py to print exact-match accuracy for a predictions list in a separate process.",
+          "source": "repository/README.md"
+        }
+      ],
+      "facet": "Judgeability",
+      "reason": "Evaluation is fully automated using an offline Python scoring script.",
+      "value": "automated"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "3",
+          "quote": "Accuracy is exact match: correct answers divided by two.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "5",
+          "quote": "No human comparison is claimed.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Reference",
+      "reason": "Accuracy is evaluated against an absolute standard of exact mathematical correctness without comparison to a baseline model or human reference.",
+      "value": "absolute"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "4",
+          "quote": "Model predictions are evaluated offline in a separate process without access to the answer key.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Containedness",
+      "reason": "Evaluation runs offline in a separate process without environment interaction, tools, or network access.",
+      "value": "fully contained"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "3",
+          "quote": "Accuracy is exact match: correct answers divided by two.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Objectivity",
+      "reason": "The scoring criterion is exact arithmetic equality with pre-established ground-truth integers.",
+      "value": "fully independent"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "4",
+          "quote": "Model predictions are evaluated offline in a separate process without access to the answer key.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Autonomy",
+      "reason": "The benchmark evaluates offline predictions of isolated input-output pairs rather than an interactive agent.",
+      "value": "component"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "1",
+          "quote": "total n = 2 tasks, exhaustively covering this range with no held-out split",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Progression",
+      "reason": "The benchmark uses a fixed static set of two tasks with no adaptive or developmental progression.",
+      "value": "static"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "2",
+          "quote": "Both n = 2 tasks are included exhaustively, chosen by the author: (1, 1) -> 2 and (2, 2) -> 4.",
+          "source": "repository/README.md"
+        }
+      ],
+      "facet": "Variation",
+      "reason": "The task set consists of fixed integer pairs without procedural variation or dynamic alteration.",
+      "value": "fixed"
+    }
+  ],
+  "framework": "RUBRIC",
+  "judgments": [
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Reviewer checked the paper and README for the ability definition, scope boundaries, and comparisons with other definitions.",
+      "detection_limits": "The check could not detect external boundary comparisons not documented in the repository.",
+      "evidence": [
+        {
+          "locator": "1",
+          "quote": "AddTwo measures exact integer addition on a bounded task space of identical small pairs, {(1, 1), (2, 2)}",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "5",
+          "quote": "This benchmark does not test other addition problems.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B01",
+      "level": "documented",
+      "missing": "Comparison of the definition with other definitions or testing of its external boundaries.",
+      "outcome": "passed",
+      "reason": "The ability is defined as exact integer addition with an explicitly stated bounded scope, but no boundary testing or comparison with other definitions is reported.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B02",
+      "level": "undocumented",
+      "missing": "Intended users, specific use cases, and real-world relevance.",
+      "outcome": "not_performed",
+      "reason": "The sources do not state intended users, concrete use cases, or real-world relevance.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "2",
+          "quote": "Both n = 2 tasks are included exhaustively, chosen by the author: (1, 1) -> 2 and (2, 2) -> 4.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B03",
+      "level": "undocumented",
+      "missing": "A substantive justification explaining why these two tasks serve as evidence for integer addition ability, and differences from related benchmarks.",
+      "outcome": "not_performed",
+      "reason": "Tasks are noted as chosen by the author without empirical or theoretical justification for why they constitute evidence for the ability, nor are differences from related benchmarks stated.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Reviewer verified that the two tasks exhaustively cover 100% of the author-defined task space {(1, 1), (2, 2)}.",
+      "detection_limits": "The check could not detect coverage of addition problems outside the author-defined two-element pair space.",
+      "evidence": [
+        {
+          "locator": "1",
+          "quote": "bounded task space of identical small pairs, {(1, 1), (2, 2)} (total n = 2 tasks, exhaustively covering this range with no held-out split)",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "2",
+          "quote": "Both n = 2 tasks are included exhaustively, chosen by the author: (1, 1) -> 2 and (2, 2) -> 4.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B04",
+      "level": "verified",
+      "missing": "Sampling or coverage across the broader domain of integer addition outside identical small pairs.",
+      "outcome": "passed",
+      "reason": "The task space is explicitly bounded to {(1, 1), (2, 2)} and coverage is verified to be exhaustive for that documented space.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Authors checked all tasks against a manual key twice with no errors found.",
+      "detection_limits": "The check could not detect errors present in the manual key itself.",
+      "evidence": [
+        {
+          "locator": "2",
+          "quote": "The two tasks are (1, 1) -> 2 and (2, 2) -> 4, with a manual key checked twice with no errors.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B05",
+      "level": "verified",
+      "missing": "Reporting on the operational limits of the manual checking process.",
+      "outcome": "passed",
+      "reason": "The checking procedure, complete coverage across all tasks, and finding of zero errors are explicitly reported.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Reviewer inspected the documented scoring metric and output validation description in the paper and README.",
+      "detection_limits": "The check could not detect unwritten conventions for handling malformed model output formats.",
+      "evidence": [
+        {
+          "locator": "3",
+          "quote": "Accuracy is exact match: correct answers divided by two.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "3",
+          "quote": "Run python score.py to print exact-match accuracy for a predictions list in a separate process.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B06",
+      "level": "documented",
+      "missing": "Explicit rules for edge cases such as timeouts, refusals, partial answers, or malformed prediction formats.",
+      "outcome": "passed",
+      "reason": "The metric is documented as exact-match accuracy (correct answers divided by two) on a predictions list, but edge cases are not documented.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Reviewer inspected score.py lines 1-4 and verified that sum(a == p for a, p in zip(answers, predictions)) / len(answers) enforces exact equality with ground truth answers [2, 4].",
+      "detection_limits": "The check could not detect discrepancies if predictions is not a sequence matching the length of answers.",
+      "evidence": [
+        {
+          "locator": "1-4",
+          "quote": "tasks = [(1, 1), (2, 2)]\nanswers = [2, 4]\npredictions = [2, 3]\nprint(sum(a == p for a, p in zip(answers, predictions)) / len(answers))",
+          "source": "repository/score.py"
+        }
+      ],
+      "item_id": "B07",
+      "level": "verified",
+      "missing": "Author-reported validation or exploit tests of the scoring script.",
+      "outcome": "passed",
+      "reason": "The scoring implementation was read and verified by the reviewer to correctly evaluate exact equality against ground-truth answers without accepting wrong integer values.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "Only a single score (exact-match accuracy) is computed; no multiple scores or subscores exist.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B08",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "AddTwo reports only a single primary metric and has no subscores or composite score aggregation.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "5",
+          "quote": "No human comparison is claimed.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B09",
+      "level": "undocumented",
+      "missing": "Human, random, or trivial baseline comparison points.",
+      "outcome": "not_performed",
+      "reason": "The paper explicitly states that no human comparison is claimed, and no random or trivial baselines are reported.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "5",
+          "quote": "No reliability analysis, uncertainty estimate, or exposure check was performed.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B10",
+      "level": "undocumented",
+      "missing": "Repeated runs or estimates of score variation across runs.",
+      "outcome": "not_performed",
+      "reason": "The paper explicitly notes that no reliability analysis was performed, and no repeated evaluation runs are reported.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B11",
+      "level": "undocumented",
+      "missing": "Prompt templates, model adaptation details, and sensitivity testing across setups.",
+      "outcome": "not_performed",
+      "reason": "Neither prompt templates nor model setup details are provided or tested for sensitivity.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "5",
+          "quote": "No reliability analysis, uncertainty estimate, or exposure check was performed.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B12",
+      "level": "undocumented",
+      "missing": "Uncertainty measures such as confidence intervals, standard errors, or statistical significance analysis.",
+      "outcome": "not_performed",
+      "reason": "While sample size n=2 is given, the paper explicitly states that no uncertainty estimate was performed.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B13",
+      "level": "undocumented",
+      "missing": "Investigation or discussion of shortcuts, confounding factors, or chance success rates.",
+      "outcome": "not_performed",
+      "reason": "The sources do not discuss or investigate shortcuts, confounds, or chance performance.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "1",
+          "quote": "total n = 2 tasks, exhaustively covering this range with no held-out split",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "5",
+          "quote": "No reliability analysis, uncertainty estimate, or exposure check was performed.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B14a",
+      "level": "undocumented",
+      "missing": "Contamination checks, private splits, or safeguards against training data exposure.",
+      "outcome": "not_performed",
+      "reason": "The paper explicitly states that no exposure check was performed and there is no held-out split.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No model configuration is named for this review.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B14b",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "No specific model configuration is named for review, so training data exposure cannot be assessed against training cutoffs.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No leaderboard or submission process exists for this benchmark.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B15",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "The benchmark has no leaderboard or submission infrastructure.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Reviewer verified the presence of scope limitations bounding interpretation of benchmark results.",
+      "detection_limits": "The check could not detect external claims made outside the paper and repository text.",
+      "evidence": [
+        {
+          "locator": "1",
+          "quote": "AddTwo measures exact integer addition on a bounded task space of identical small pairs, {(1, 1), (2, 2)}",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "5",
+          "quote": "This benchmark does not test other addition problems.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B16",
+      "level": "documented",
+      "missing": "Empirical evidence or investigation of transfer beyond the bounded task set.",
+      "outcome": "passed",
+      "reason": "The intended scope of interpretation is documented and strictly bounded to the two identical small pairs, with explicit disclaimers of testing other addition problems.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B17",
+      "level": "undocumented",
+      "missing": "Standardized conditions for competing systems and checks that no system or condition is favoured.",
+      "outcome": "not_performed",
+      "reason": "No conditions for comparing competing systems or checks for partiality are provided.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Reviewer inspected repository files to confirm presence of scoring code, task data, environment requirements, and execution instructions.",
+      "detection_limits": "The check could not detect cross-platform execution defects without executing code.",
+      "evidence": [
+        {
+          "locator": "3-4",
+          "quote": "Run python score.py to print exact-match accuracy for a predictions list in a separate process.\nPython 3. No external packages.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B18",
+      "level": "documented",
+      "missing": "A reported replication run by the authors or an independent third party.",
+      "outcome": "passed",
+      "reason": "Instructions, execution command, runtime environment (Python 3, no external packages), code, and data are provided in the repository.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Reviewer verified the presence of the CC0 1.0 license file and licensing statements in documentation.",
+      "detection_limits": "The check could not detect external copyright conflicts with third-party components.",
+      "evidence": [
+        {
+          "locator": "6",
+          "quote": "All code and data are released into the public domain under CC0 1.0.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "1",
+          "quote": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication.",
+          "source": "repository/LICENSE"
+        }
+      ],
+      "item_id": "B19",
+      "level": "documented",
+      "missing": "Terms or guidelines for responsible reuse.",
+      "outcome": "passed",
+      "reason": "Code and data are dedicated to the public domain under CC0 1.0 with the full license text provided in the repository.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B20",
+      "level": "undocumented",
+      "missing": "A version identifier, release tag, or changelog recording changes.",
+      "outcome": "not_performed",
+      "reason": "No version identifier or release version tag is recorded for the benchmark beyond its name.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Reviewer verified that limitations are stated and that benchmark claims remain strictly within the presented evidence.",
+      "detection_limits": "The check could not detect unstated limitations that arise under deployment conditions.",
+      "evidence": [
+        {
+          "locator": "5",
+          "quote": "No human comparison is claimed. No reliability analysis, uncertainty estimate, or exposure check was performed.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "5",
+          "quote": "This benchmark does not test other addition problems.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B21",
+      "level": "documented",
+      "missing": "Quantitative assessment of flaw impact and guidance for interpreting scores.",
+      "outcome": "passed",
+      "reason": "Limitations are clearly listed, explicitly acknowledging the absence of human comparisons, reliability analyses, and coverage of other addition problems.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B22",
+      "level": "undocumented",
+      "missing": "A named maintainer contact, email address, or feedback channel.",
+      "outcome": "not_performed",
+      "reason": "No maintainer contact information or feedback mechanism is provided in the sources.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No target context is declared for this review.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B23",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "No target cultural or deployment context is declared for this review.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B24",
+      "level": "undocumented",
+      "missing": "Consideration of sensitive or harmful content risks, or documentation of content screening.",
+      "outcome": "not_performed",
+      "reason": "The sources do not consider harmful or sensitive content or report a review of released materials.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "The paper does not report an evaluation of systems.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B25",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "The paper does not report an evaluation of any systems, so score distributions and discrimination cannot be examined.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "The paper does not report an evaluation of systems.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B26",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "The paper does not report an evaluation of systems, so no evaluation results are presented.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Author reported manual derivation of task pairs and double-checking of the key with zero errors.",
+      "detection_limits": "The check could not detect errors present in the author's original manual task creation.",
+      "evidence": [
+        {
+          "locator": "2",
+          "quote": "Both n = 2 tasks are included exhaustively, chosen by the author: (1, 1) -> 2 and (2, 2) -> 4.",
+          "source": "repository/README.md"
+        },
+        {
+          "locator": "2",
+          "quote": "The two tasks are (1, 1) -> 2 and (2, 2) -> 4, with a manual key checked twice with no errors.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B27",
+      "level": "verified",
+      "missing": "External provenance or third-party annotation quality auditing.",
+      "outcome": "passed",
+      "reason": "Task creation by the author and annotation quality checking (double-checked manual key with zero errors) are documented and reported.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "Scoring compares integer predictions using equality rather than executing the system's output as code or in an execution environment.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B28a",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "The benchmark evaluates offline predictions via integer equality rather than executing model output as code.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "The benchmark evaluates offline static predictions and does not run systems in an environment with tools or state.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B28b",
+      "level": "not_applicable",
+      "missing": "",
+      "outcome": "not_performed",
+      "reason": "The benchmark does not execute systems in an interactive agent environment with tools or state.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "2",
+          "quote": "chosen by the author",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B29",
+      "level": "undocumented",
+      "missing": "Involvement of domain experts or users in benchmark design, task creation, or review.",
+      "outcome": "not_performed",
+      "reason": "Tasks were chosen solely by the author; no domain expert or user involvement is stated.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    }
+  ],
+  "limits": "Review bounded by the provided paper.txt and repository snapshot files (README.md, LICENSE, score.py) without executing code. No model configuration or target context was named for this review."
+}

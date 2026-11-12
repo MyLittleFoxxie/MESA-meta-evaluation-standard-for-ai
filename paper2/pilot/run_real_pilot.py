@@ -28,7 +28,7 @@ import tempfile
 import time
 from paper2.preparation.repository_runner import verify_adapter_metadata
 
-CODEX_BIN = "/Users/mylittlefoxxie/.local/bin/codex"
+CODEX_BIN = shutil.which("codex") or "codex"
 
 
 def run_eligibility_check(task):
@@ -61,7 +61,7 @@ def run_eligibility_check(task):
         # 2. Setup test runner
         test_file = os.path.join(temp_dir, "test_eval.py")
         test_content = f"""import sys, os
-sys.path.insert(0, '{temp_dir}')
+sys.path.insert(0, {temp_dir!r})
 
 {task['test_code']}
 

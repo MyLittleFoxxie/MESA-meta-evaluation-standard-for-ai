@@ -14,9 +14,14 @@ decision_engine.method3_task_matching_mesa is kept unchanged so that historical 
 """
 import hashlib
 import json
+import re
 from pathlib import Path
 
-from paper2.method.decision_engine import compute_wilson_score_interval, evaluate_decision_from_bounds
+from paper2.method.decision_engine import (
+    compute_exact_binomial_interval,
+    compute_wilson_score_interval,
+    evaluate_decision_from_bounds,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 CASE_SCHEMA = "paper2-case/1"
@@ -152,6 +157,30 @@ def exploratory_policy(policy_id="POLICY-P5-LENIENT"):
     return dict(id=policy_id, conditions=conditions, require_execution_provenance=True)
 
 
+# Files that run or configure SymPy's tests. The harness runs the patched repository's own runner, so a patch that
+# changes one of these can change its own grade (rubric B28a); no reference fix of the selected tasks touches them.
+SCORING_FILE = re.compile(r"(^bin/test$|(^|/)runtests\.py$|(^|/)conftest\.py$|^pytest\.ini$|^setup\.cfg$|^tox\.ini$"
+                          r"|^sympy/(testing|utilities)/pytest\.py$)")
+
+
+def scoring_files(patch):
+    """The test-running files a patch changes (both sides of every diff header)."""
+    files = re.findall(r"^diff --git a/(\S+) b/(\S+)$", patch or "", re.M)
+    return sorted({f for pair in files for f in pair if SCORING_FILE.search(f)})
+
+
+def controlled_policy(policy_id="POLICY-P6-CONTROLLED"):
+    """Protocol 6 controlled policy: treats B12, B14a, and B14b as the lenient policy does, and makes B28a
+    Admissible for a case when code confirms, for every retained observation, that the patch changes no test
+    runner and no test configuration file."""
+    policy = exploratory_policy(policy_id=policy_id)
+    policy["conditions"]["B28a"]["session_control"] = dict(
+        kind="no_scoring_file_changes",
+        check="no_test_runner_or_config_modified",
+    )
+    return policy
+
+
 # ---------------------------------------------------------------- level 1
 
 def _check_hash(path, expected, label, reasons):
@@ -280,6 +309,61 @@ def _covers(scope, case):
     return gaps
 
 
+def _record_metadata_gaps(crit, cond, rec, case):
+    """Check scope, required fields, roles, and cited task defects for one criterion record."""
+    check = rec.get("check") or {}
+    unmet = []
+    scope = rec.get("scope") or {}
+    if scope.get("level") not in cond.get("scope_levels", SCOPE_LEVELS):
+        unmet.append(f"scope level {scope.get('level')!r} not accepted")
+    unmet += _covers(scope, case)
+    unmet += [f"missing {f}" for f in cond.get("required_fields", []) if not check.get(f)]
+    roles = rec.get("roles") or {}
+    if not roles.get("author") or "assistant" not in roles:
+        unmet.append("author or assistant role not recorded")
+    unmet += [f"defect claimed for {d.get('task_id')} without its direction, a cited location and quote, or an executed patch"
+              for d in rec.get("task_defects") or [] if not _task_defect_shown(d, crit)]
+    return unmet
+
+
+def _verify_session_control(crit, ctrl, rec, case):
+    """Verify a case-level control over every retained observation (observations matched to target and not left out).
+
+    Returns (violation_reasons, unmet_reasons, retained_count).
+    """
+    violations, unmet = [], []
+    if "session_control" in rec:
+        form_ctrl = rec.get("session_control")
+        if not isinstance(form_ctrl, dict) or form_ctrl.get("kind") != ctrl.get("kind") or not (
+                form_ctrl.get("description") or form_ctrl.get("control")):
+            unmet.append(f"session_control does not match {ctrl.get('kind')}")
+    defects = task_defects(case)
+    retained = [o for o in matched_observations(case) if o.get("task_id") not in defects]
+    for obs in retained:
+        tid = obs.get("task_id")
+        prov_ctrl = ((obs.get("provenance") or {}).get("controls") or {}).get(ctrl["kind"])
+        if isinstance(prov_ctrl, dict):
+            if prov_ctrl.get("passed") is False or prov_ctrl.get("changed_files"):
+                files = ", ".join(prov_ctrl.get("changed_files") or ["recorded control failure"])
+                violations.append(f"{tid} ({files})")
+                continue
+            if not isinstance(prov_ctrl.get("passed"), bool):
+                unmet.append(f"session control record invalid for {tid}")
+        patch_path = (obs.get("patch") or {}).get("path")
+        if not patch_path:
+            unmet.append(f"patch missing for {tid} to verify {ctrl['kind']}")
+            continue
+        try:
+            patch_text = resolve(patch_path).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            unmet.append(f"patch unreadable for {tid} to verify {ctrl['kind']}")
+            continue
+        hits = scoring_files(patch_text)
+        if hits:
+            violations.append(f"{tid} ({', '.join(hits)})")
+    return violations, unmet, len(retained)
+
+
 def criterion_status(crit, cond, rec, case):
     """Evidence status and reasons for one criterion under the requirement's conditions."""
     if rec is None:
@@ -293,28 +377,34 @@ def criterion_status(crit, cond, rec, case):
         if applicability.get("applies") is False and anchor in ("Not applicable", None) and applicability.get("reason"):
             return NOT_APPLICABLE, [f"{crit}: not applicable ({applicability['reason']})"]
         return INQUIRY, [f"{crit}: not applicable without a consistent recorded reason"]
+    ctrl = cond.get("session_control")
     if anchor == "Contradicted" or check.get("outcome") == "failed":
         if "counterexample" in rec and not counterexample_demonstrated(rec["counterexample"]):
             return INQUIRY, [f"{crit}: defect claimed, but its counterexample has not been executed and preserved"]
-        if check.get("evidence_location"):
+        if not check.get("evidence_location"):
+            return INQUIRY, [f"{crit}: defect reported without a cited location"]
+        if not ctrl:
             return INADMISSIBLE, [f"{crit}: demonstrated defect at {check['evidence_location']}"]
-        return INQUIRY, [f"{crit}: defect reported without a cited location"]
+        unmet = _record_metadata_gaps(crit, cond, rec, case)
+        violations, ctrl_unmet, n_retained = _verify_session_control(crit, ctrl, rec, case)
+        if violations:
+            return INADMISSIBLE, [f"{crit}: session control {ctrl['kind']} violated by " + "; ".join(violations)]
+        unmet += ctrl_unmet
+        if unmet:
+            return INQUIRY, [f"{crit}: {u}" for u in unmet]
+        return ADMISSIBLE, [f"{crit}: {ctrl['kind']} confirmed for {n_retained} retained observations within recorded detection limits"]
     unmet = []
     minimum = cond["min_anchor"]
     if anchor not in POSITIVE_ORDER or POSITIVE_ORDER.index(anchor) < POSITIVE_ORDER.index(minimum):
         unmet.append(f"rating {anchor or 'missing'} is below the required {minimum}")
     if check.get("outcome") != cond["check_outcome"]:
         unmet.append(f"check outcome {check.get('outcome') or 'not recorded'}; requirement needs {cond['check_outcome']}")
-    scope = rec.get("scope") or {}
-    if scope.get("level") not in cond.get("scope_levels", SCOPE_LEVELS):
-        unmet.append(f"scope level {scope.get('level')!r} not accepted")
-    unmet += _covers(scope, case)
-    unmet += [f"missing {f}" for f in cond.get("required_fields", []) if not check.get(f)]
-    roles = rec.get("roles") or {}
-    if not roles.get("author") or "assistant" not in roles:
-        unmet.append("author or assistant role not recorded")
-    unmet += [f"defect claimed for {d.get('task_id')} without its direction, a cited location and quote, or an executed patch"
-              for d in rec.get("task_defects") or [] if not _task_defect_shown(d, crit)]
+    unmet += _record_metadata_gaps(crit, cond, rec, case)
+    if ctrl:
+        violations, ctrl_unmet, _ = _verify_session_control(crit, ctrl, rec, case)
+        if violations:
+            return INADMISSIBLE, [f"{crit}: session control {ctrl['kind']} violated by " + "; ".join(violations)]
+        unmet += ctrl_unmet
     if unmet:
         return INQUIRY, [f"{crit}: {u}" for u in unmet]
     return ADMISSIBLE, [f"{crit}: conditions met within recorded detection limits"]
@@ -372,9 +462,20 @@ def matched_observations(case):
     return [o for o in case["observations"] if o["repository"] == case["requirement"]["target_repository"]]
 
 
-def rate_decision(k, n, theta):
-    """Resolve rate decision from the 95% Wilson bounds: Accept, Reject, or Inconclusive (the interval holds theta)."""
-    lb, ub = compute_wilson_score_interval(k, n)
+def compute_interval(successes, total, confidence=0.95, decision_rule="wilson"):
+    """Confidence bounds under the configured decision rule ('wilson' or 'exact_binomial')."""
+    if decision_rule == "wilson":
+        return compute_wilson_score_interval(successes, total, confidence=confidence)
+    if decision_rule == "exact_binomial":
+        return compute_exact_binomial_interval(successes, total, confidence=confidence, one_sided=True)
+    if decision_rule == "exact_binomial_two_sided":
+        return compute_exact_binomial_interval(successes, total, confidence=confidence, one_sided=False)
+    raise ValueError(f"Unknown decision_rule {decision_rule!r}")
+
+
+def rate_decision(k, n, theta, confidence=0.95, decision_rule="wilson"):
+    """Resolve rate decision from confidence bounds: Accept, Reject, or Inconclusive (the interval holds theta)."""
+    lb, ub = compute_interval(k, n, confidence=confidence, decision_rule=decision_rule)
     return (DECISION_NAMES[evaluate_decision_from_bounds(lb, ub, theta).value] if n else INCONCLUSIVE), [lb, ub]
 
 
@@ -395,10 +496,13 @@ def evaluate(case, required_policy=None):
     left_out = {o["task_id"]: defects[o["task_id"]] for o in everything if o["task_id"] in defects}
     matched = [o for o in everything if o["task_id"] not in defects]
     k, n = sum(o["resolved"] for o in matched), len(matched)
-    theta = case["requirement"]["threshold"]
-    performance, (lb, ub) = rate_decision(k, n, theta)
+    req = case["requirement"]
+    theta = req["threshold"]
+    rule = req.get("decision_rule", "wilson")
+    conf = req.get("confidence", 0.95)
+    performance, (lb, ub) = rate_decision(k, n, theta, confidence=conf, decision_rule=rule)
     reasons = list(blocking) + [f"Left out {t}: {'; '.join(r)}" for t, r in left_out.items()]
-    n_min = case["requirement"].get("n_min") or 1
+    n_min = req.get("n_min") or 1
     if aggregate == ADMISSIBLE and n < n_min:
         aggregate = INQUIRY
         reasons.append(f"Only {n} tasks remain after leaving out broken ones; the requirement needs at least {n_min}")
@@ -413,7 +517,8 @@ def evaluate(case, required_policy=None):
     out.update(input_integrity=VALID, evidence_status=aggregate, criteria=criteria,
                observations=dict(n=n, successes=k, interval=[lb, ub], left_out=sorted(left_out),
                                  with_left_out=dict(n=len(everything), successes=k_all,
-                                                    interval=list(compute_wilson_score_interval(k_all, len(everything))))),
+                                                    interval=list(compute_interval(
+                                                        k_all, len(everything), confidence=conf, decision_rule=rule)))),
                performance_decision=performance, score_decision=score,
                requirement_decision=score if not transfer else None, transfer_reasons=transfer, reasons=reasons)
     return out
@@ -429,9 +534,14 @@ def evaluate_exploratory_case(case):
     return evaluate(case, required_policy=exploratory_policy())
 
 
-def _bounds_decision(observations, theta):
+def evaluate_controlled_case(case):
+    """Protocol 6, controlled policy: the case must carry exactly the pinned controlled policy."""
+    return evaluate(case, required_policy=controlled_policy())
+
+
+def _bounds_decision(observations, theta, confidence=0.95, decision_rule="wilson"):
     k, n = sum(o["resolved"] for o in observations), len(observations)
-    decision, interval = rate_decision(k, n, theta)
+    decision, interval = rate_decision(k, n, theta, confidence=confidence, decision_rule=decision_rule)
     return dict(decision=decision, n=n, successes=k, interval=interval)
 
 
@@ -442,9 +552,12 @@ def compare_methods(case):
     result = evaluate(case)
     if result["input_integrity"] != VALID:
         return dict(M3=result)
-    theta = case["requirement"]["threshold"]
-    return dict(M1=_bounds_decision(case["observations"], theta),
-                M2=_bounds_decision(matched_observations(case), theta), M3=result)
+    req = case["requirement"]
+    theta = req["threshold"]
+    rule = req.get("decision_rule", "wilson")
+    conf = req.get("confidence", 0.95)
+    return dict(M1=_bounds_decision(case["observations"], theta, confidence=conf, decision_rule=rule),
+                M2=_bounds_decision(matched_observations(case), theta, confidence=conf, decision_rule=rule), M3=result)
 
 
 # ---------------------------------------------------------------- migration

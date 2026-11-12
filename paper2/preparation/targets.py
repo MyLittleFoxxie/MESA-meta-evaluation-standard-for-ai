@@ -47,17 +47,71 @@ BASE_IMAGE = "paper2/sympy-target-base:2"  # :1 lacked pytest, which bin/test no
 PYTHON_IMAGE = "python:3.12-slim"
 
 
+def _github_token():
+    """Retrieve a GitHub token from env or Git Credential Manager in memory without writing it to disk."""
+    import os
+    for var in ("GH_TOKEN", "GITHUB_TOKEN"):
+        if os.environ.get(var):
+            return os.environ[var].strip()
+    out = subprocess.run(
+        ["git", "credential", "fill"],
+        input="protocol=https\nhost=github.com\n\n",
+        capture_output=True, text=True,
+    )
+    if out.returncode == 0:
+        for line in out.stdout.splitlines():
+            if line.startswith("password="):
+                return line.split("=", 1)[1].strip()
+    return None
+
+
 def gh(*args, tries=4):
     """Read-only GitHub API call; network errors are retried, any other failure stops the run."""
+    import shutil
     import time
+    import urllib.error
+    import urllib.request
+
+    if shutil.which("gh"):
+        for attempt in range(tries):
+            out = subprocess.run(["gh", *args], capture_output=True, text=True, encoding="utf-8", errors="replace")
+            if out.returncode == 0:
+                return out.stdout
+            if "connecting to" not in out.stderr and "timeout" not in out.stderr.lower():
+                break
+            time.sleep(5 * (attempt + 1))
+        raise RuntimeError(f"gh {' '.join(args[:2])} failed: {out.stderr.strip()[:300]}")
+
+    if not args or args[0] != "api" or len(args) < 2:
+        raise RuntimeError(f"gh executable missing and fallback supports only `gh api ...`: {args[:2]}")
+    endpoint = args[1].lstrip("/")
+    headers = {"User-Agent": "paper2-targets", "Accept": "application/vnd.github+json"}
+    i = 2
+    while i < len(args):
+        if args[i] == "-H" and i + 1 < len(args) and ":" in args[i + 1]:
+            k, v = args[i + 1].split(":", 1)
+            headers[k.strip()] = v.strip()
+            i += 2
+        else:
+            i += 1
+    token = _github_token()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    url = f"https://api.github.com/{endpoint}"
+    last_err = ""
     for attempt in range(tries):
-        out = subprocess.run(["gh", *args], capture_output=True, text=True)
-        if out.returncode == 0:
-            return out.stdout
-        if "connecting to" not in out.stderr and "timeout" not in out.stderr.lower():
-            break
+        req = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return resp.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as exc:
+            last_err = f"HTTP {exc.code}: {exc.read().decode('utf-8', errors='replace')[:200]}"
+            if exc.code < 500 and exc.code not in (403, 429):
+                break
+        except Exception as exc:  # noqa: BLE001
+            last_err = str(exc)
         time.sleep(5 * (attempt + 1))
-    raise RuntimeError(f"gh {' '.join(args[:2])} failed: {out.stderr.strip()[:300]}")
+    raise RuntimeError(f"gh {' '.join(args[:2])} failed: {last_err[:300]}")
 
 
 def is_test(path):
@@ -416,8 +470,8 @@ def rederive(tid, reason):
     return row
 
 
-def process(need=6):
-    """Confirms and derives included candidates in order_key order until `need` targets are eligible or the pool
+def process(need=6, predicate=None):
+    """Confirms and derives matching candidates in order_key order until `need` targets are eligible or the pool
     ends. Rows and outcomes are written once. A task without a FAIL_TO_PASS test, or without parsed results, is
     ineligible; an image build or harness failure is kept as an attempt and the task stays pending for a later run.
     Candidates after the last eligible one stay unchecked, because selection takes the first eligible tasks in order."""
@@ -425,8 +479,9 @@ def process(need=6):
     ROWS.mkdir(parents=True, exist_ok=True)
     build_base_image()
     results, rows = h.load_results(), load_rows()
+    match = predicate or (lambda p: p["included"])
     earlier = []  # candidates before this one in order; only these can fill the first `need` eligible places
-    for pr in sorted((p for p in pool["prs"] if p["included"]), key=lambda p: p["order_key"]):
+    for pr in sorted((p for p in pool["prs"] if match(p)), key=lambda p: p["order_key"]):
         if sum(1 for t in earlier if (results.get(t) or {}).get("status") == "eligible") >= need:
             break
         tid, stamp = pr["task_id"], h.now().replace(":", "").replace("-", "")[:15]

@@ -1,0 +1,930 @@
+{
+  "benchmark": "tau-bench",
+  "description": [
+    {
+      "evidence": [
+        {
+          "locator": "page 2",
+          "quote": "We hope that \u03c4-bench enables the evaluation and development of more consistent and capable agents for real-world digital tasks involving human interaction.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Purpose",
+      "reason": "The benchmark is designed for research into evaluating and developing language agents that interact with users and programmatic APIs while following policies.",
+      "value": "research"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "page 2",
+          "quote": "Our evaluation scheme compares the database state at the end of each episode with the ground truth expected state. This allows for objective measurement of the agent's decision making",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 4",
+          "quote": "The reward of a task episode r= raction \u00d7routput \u2208{0,1}is based on (1) whether the final database is identical to the unique ground truth outcome database (raction), and (2) whether the agent's responses to the user contain all necessary information (routput).",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Judgeability",
+      "reason": "Task scoring is fully automated via programmatic database state comparison and string output substring matching.",
+      "value": "automated"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "page 4",
+          "quote": "The reward of a task episode r= raction \u00d7routput \u2208{0,1}",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 5",
+          "quote": "By default, we report the average reward across tasks, pass^1=pass@1=E[r] = E[c/n], as the main metric for comparing agents.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Reference",
+      "reason": "Performance is measured by binary task success against predefined ground truth database states and required string outputs, not relative to a human or model baseline.",
+      "value": "absolute"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "page 3",
+          "quote": "When an action is executed on the database, the transition Tdb : (sdb,adb) \u2192(s\u2032 db,odb) is deterministic and implemented as a Python function",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 3",
+          "quote": "We use a language model (gpt-4-0613) to simulate a human user interacting with the agent.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Containedness",
+      "reason": "Database tools run in an in-memory local Python mock environment, but user simulation and agent models interact with external commercial LLM APIs via network calls.",
+      "value": "partial interference (user simulation relies on external LLM APIs)"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "page 6",
+          "quote": "By ensuring that only one database outcome is possible based on domain policies and user desires, subjective and noisy human judgments can be replaced by simple and objective database state comparisons.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Objectivity",
+      "reason": "Evaluation is performed automatically by code comparing data hashes and substrings without human intervention or subjective grading.",
+      "value": "fully independent"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "page 1",
+          "quote": "In \u03c4-bench, an agent interacts with database API tools and an LM-simulated user to complete tasks.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Autonomy",
+      "reason": "The agent acts as an autonomous multi-turn conversational agent invoking tools and generating responses.",
+      "value": "autonomous"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "page 4",
+          "quote": "JSON databases, (b) Python API tools, (c) Markdown domain policies, and (d) JSON task instances.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Progression",
+      "reason": "Evaluation tasks and databases are static and predefined; there is no dynamic adaptation or curriculum progression across episodes.",
+      "value": "static"
+    },
+    {
+      "evidence": [
+        {
+          "locator": "page 5",
+          "quote": "For the same task, the user prompt and database transitions are the same, with just the LM sampling of the user and agent messages generating sufficient stochasticity.",
+          "source": "paper.txt"
+        }
+      ],
+      "facet": "Variation",
+      "reason": "The tasks, user instructions, policies, and initial database states are fixed across runs.",
+      "value": "fixed"
+    }
+  ],
+  "framework": "RUBRIC",
+  "judgments": [
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Verified definitions, POMDP formulation, and comparisons to related benchmarks in the paper text.",
+      "detection_limits": "The check could not detect abilities outside the defined POMDP formulation.",
+      "evidence": [
+        {
+          "locator": "page 1",
+          "quote": "In this work, we introduce \u03c4-bench (short for Tool-Agent-User Interaction Benchmark) to measure an agent\u2019s ability to interact with (simulated) human users and programmatic APIs while following domain-specific policies in a consistent manner.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 3",
+          "quote": "Each individual task in \u03c4-bench can be formulated as a partially observable Markov decision process (POMDP) (S,A,O,T,R,U) with state space S, action space A, observation space O, transition function T : S\u00d7A\u2192S\u00d7O, reward function R: S\u2192[0,1], and instruction space U.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B01",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The ability under test is explicitly defined conceptually and operationally via a POMDP, and compared against existing tool-use and dialogue benchmarks.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected the intended use cases, target users, and domain settings in the paper.",
+      "detection_limits": "The check could not detect applications outside customer service domains.",
+      "evidence": [
+        {
+          "locator": "page 2",
+          "quote": "As a first demonstration, we focus on the realm of customer service and create two different domains where agents need to assist simulated users with diverse requests (\u03c4-retail and \u03c4-airline).",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 1",
+          "quote": "Existing benchmarks do not test language agents on their interaction with human users or ability to follow domain-specific rules, both of which are vital for deploying them in real world applications.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B02",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The paper clearly identifies intended users (AI agent developers and researchers), real-world relevance, and specific customer service domain use cases.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed rationale for domain and task selection in the paper.",
+      "detection_limits": "The check could not detect external empirical validation of task realism.",
+      "evidence": [
+        {
+          "locator": "page 5",
+          "quote": "We choose these two domains as they are relatively easy to synthesize data (e.g., products, prices, flights) and craft policies (e.g., product return, baggage allowance) based on common sense, allow for diverse tasks, and are close to real-world applications.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B03",
+      "level": "documented",
+      "missing": "Formal expert elicitation or external empirical data supporting task choice representativeness.",
+      "outcome": "passed",
+      "reason": "The selection of airline and retail domains is motivated by common sense policy structures and proximity to real-world applications, though without formal expert or empirical justification.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected domain scope and task breakdown in paper and codebase.",
+      "detection_limits": "The check could not detect omissions in real-world airline or retail edge cases.",
+      "evidence": [
+        {
+          "locator": "page 5",
+          "quote": "In \u03c4-retail, the agent is tasked with helping users cancel or modify pending orders, return or exchange delivered orders, modify user addresses, or provide information.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 6",
+          "quote": "Here, the agent has to help users book, modify, or cancel flight reservations, or provide refunds. We construct 300 flights between 20 US cities with realistic durations and prices",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B04",
+      "level": "documented",
+      "missing": "A formal mapping or verification of task coverage against an exhaustive domain task ontology.",
+      "outcome": "passed",
+      "reason": "The task space and range of operations across retail and airline domains are described, with acknowledgment of simplifications relative to real-world systems.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Read task validation and iterative checking methodology in the paper.",
+      "detection_limits": "The check could not detect defects in tasks that were not covered by the manual inspection sample.",
+      "evidence": [
+        {
+          "locator": "page 5",
+          "quote": "So we write an initial user instruction, run a trial with gpt-4-turbo function calling agent, polish the user instruction by examining the trajectory, and do this iteratively until we are certain no ambiguities exist (see Figure 7 in \u00a7 A, where we run each \u03c4-retail task with >40 gpt-4-turbo trials and check all tasks with zero or low success rates).",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 7",
+          "quote": "Upon manual examination of these failures, 4 of them are caused by user instruction typo or ambiguity (and then fixed), and the remaining 36 failure cases are agent issues",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B05",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The authors documented the iterative checking procedure across tasks using repeated agent trials (>40 per retail task) and reported findings of ambiguity/typo errors that were subsequently fixed.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Inspected paper reward definition and implementation in tau_bench/envs/base.py.",
+      "detection_limits": "The check could not detect failures occurring outside the 30-step window.",
+      "evidence": [
+        {
+          "locator": "page 4",
+          "quote": "The reward of a task episode r= raction \u00d7routput \u2208{0,1}is based on (1) whether the final database is identical to the unique ground truth outcome database (raction), and (2) whether the agent\u2019s responses to the user contain all necessary information (routput).",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 6",
+          "quote": "We limit each task to at most 30 agent actions (either tool calls or user responses).",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B06",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The scoring metric, output substring matching, database hash matching, and edge case rules (30-step action limits, stop signal, exceptions) are described and implemented.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "defect_found",
+      "check_kind": "both",
+      "checks": "Examined calculate_reward implementation in tau_bench/envs/base.py against policy rules.",
+      "detection_limits": "The check could not detect non-policy errors in database state transitions.",
+      "evidence": [
+        {
+          "locator": "page 4",
+          "quote": "Note that r= 1 might be a necessary but not sufficient condition for a successful episode e.g., the agent might issue the return without explicit user confirmation, which violates the policy.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "lines 137-142",
+          "quote": "gt_data_hash = self.get_data_hash()\n        info = RewardActionInfo(\n            r_actions=data_hash == gt_data_hash, gt_data_hash=gt_data_hash\n        )\n        if not info.r_actions:\n            reward = 0.0",
+          "source": "repository/tau_bench/envs/base.py"
+        }
+      ],
+      "item_id": "B07",
+      "level": "contradicted",
+      "missing": "Scoring validation checks ensuring that conversational policy violations (e.g. failing to authenticate or confirm actions) preclude a passing score.",
+      "outcome": "failed",
+      "reason": "The scoring implementation only checks the final database state hash and output substrings; it accepts wrong solutions that violate explicit domain policies (such as acting without user confirmation or authentication), which the authors acknowledge makes r=1 necessary but not sufficient.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected score aggregation formula and pass^k formulation in paper and code.",
+      "detection_limits": "The check could not detect model performance beyond the tested values of k.",
+      "evidence": [
+        {
+          "locator": "page 4",
+          "quote": "pass^k= Etask [comb(c, k) / comb(n, k)], pass@k = 1\u2212Etask [comb(n\u2212c, k) / comb(n, k)].",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 7",
+          "quote": "Table 2: Pass^1 across models via function calling, except Llama-3 via text-ReAct. Average is weighted by domains, not by tasks.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B08",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The mathematical formulations for pass^k and pass@k are explicitly stated and justified for measuring reliability, and domain-level weighting is stated.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed model baselines and ablation configurations in paper.txt.",
+      "detection_limits": "The check could not detect baseline performance on untried model architectures.",
+      "evidence": [
+        {
+          "locator": "page 6",
+          "quote": "We test various state-of-the-art proprietary and open language models for agents through their APIs: OpenAI GPT API (gpt-4o, gpt-4-turbo, gpt-4-32k, gpt-3.5-turbo), Anthropic Claude API (claude-3-opus, claude-3-sonnet, claude-3-haiku), Google Gemini API (gemini-1.5-pro-latest, gemini-1.5-flash-latest), Mistral API (mistral-large, open-mixtral-8x22b), AnyScale API (meta-llama-3-70B-instruct).",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B09",
+      "level": "documented",
+      "missing": "Human or random baseline performances on the benchmark tasks.",
+      "outcome": "passed",
+      "reason": "The benchmark reports extensive comparisons across 11 frontier and mid-tier models, strategies (FC, ReAct, Act), and a policy-removal ablation, though it does not evaluate human or random baselines.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Examined pass^k evaluation across trials in paper and display_metrics in tau_bench/run.py.",
+      "detection_limits": "The check could not detect variation at values of k greater than 32.",
+      "evidence": [
+        {
+          "locator": "page 6",
+          "quote": "For main results (Table 2), we run at least 3 trials per task. The LM temperature is 0.0 for agent and 1.0 for user.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 7",
+          "quote": "As shown in Figure 4, the chance of reliably and consistently solving the same task multiple times significantly drops as the number of trials k increases. Even for the best-performing gpt-4o function calling agent which has a >60% average task success, pass^8 drops to <25%.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B10",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "Variation on repeated testing is a primary focus of the benchmark, evaluated systematically across multiple trials per task and formalized via pass^k up to k=32.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected prompts in Appendix B.1 and policy removal ablation in Table 3.",
+      "detection_limits": "The check could not detect sensitivity to subtle rewordings of system instructions.",
+      "evidence": [
+        {
+          "locator": "page 8",
+          "quote": "To further understand how different agents follow rules in different domains, we perform an ablation study by removing the domain policy from the FC agent system prompt. As seen in Table 3, in \u03c4-retail where rules are simpler and closer to commonsense, gpt-4o and gpt-3.5-turbo agents only degrade 4.4% and 5.5% in terms of pass^1... In \u03c4-airline where rules are more complex and ad-hoc... removing the policy hurts gpt-4o significantly (\u221222.4%)",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B11",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "Domain policy prompts are documented in full, and prompting effects are directly tested via policy removal ablations and method comparisons (FC vs ReAct vs Act).",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "run_by_reviewer",
+      "checks": "Searched paper text, tables, and figures for confidence intervals, standard errors, or error bars for primary scores.",
+      "detection_limits": "The check could not detect unreleased raw trial logs that may contain variance data.",
+      "evidence": [
+        {
+          "locator": "page 12",
+          "quote": "(c) Did you report error bars (e.g., with respect to the random seed after running experiments multiple times)? [Yes]",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 7",
+          "quote": "Table 2: Pass^1 across models via function calling, except Llama-3 via text-ReAct. Average is weighted by domains, not by tasks.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B12",
+      "level": "claimed",
+      "missing": "Error bars, standard errors, confidence intervals, or statistical significance tests for primary scores in Table 2 or Figures 3 and 4.",
+      "outcome": "failed",
+      "reason": "The authors claim in the paper checklist that error bars were reported, but primary results in Table 2 and Figures 3 and 4 report only point estimates without uncertainty bounds or standard errors.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed error mode analysis and ablation studies in Section 5.2.",
+      "detection_limits": "The check could not detect error modes outside the sampled retail failure trajectories.",
+      "evidence": [
+        {
+          "locator": "page 7",
+          "quote": "We sample 115 gpt-4o FC agent trajectories in \u03c4-retail (1 trial per task), out of which 40 tasks have failed (pass^1=65.2%)... and the remaining 36 failure cases are agent issues, which are broken down into more detail below and in Figure 5.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 8",
+          "quote": "suggesting that their successful cases mostly stem from using tools in an intuitive and common sense way, and that they may not actually be leveraging the policy documents to the extent possible.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B13",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The authors conducted an in-depth error mode breakdown (wrong argument/info, wrong decision-making, compound request failure) and ablated policy access to check for common-sense shortcuts.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Searched paper and repository for discussion of test contamination safeguards or canary strings.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B14a",
+      "level": "undocumented",
+      "missing": "Guards against contamination, such as canary GUIDs, private test sets, or contamination checks.",
+      "outcome": "not_performed",
+      "reason": "The benchmark repository makes all tasks, databases, and policies publicly accessible on GitHub without mentioning training set contamination safeguards, canaries, or private splits.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No model configuration is named for this review.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "Checked applicability conditions for unnamed model configurations.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B14b",
+      "level": "not_applicable",
+      "missing": "None.",
+      "outcome": "not_performed",
+      "reason": "No model configuration is named for this review.",
+      "scope": {
+        "ids": [],
+        "level": "configuration"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Inspected repository README.md leaderboard section for submission and retraining rules.",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "lines 11-13",
+          "quote": "## Leaderboard\n\n### Airline",
+          "source": "repository/README.md"
+        },
+        {
+          "locator": "lines 127-129",
+          "quote": "If you would like to contribute your historical trajectories to this benchmark, please submit a PR!",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B15",
+      "level": "undocumented",
+      "missing": "Explicit rules governing training on test data, repeated submission policies, or submission verification protocols.",
+      "outcome": "not_performed",
+      "reason": "While README.md provides a leaderboard table and invites historical trajectories via pull requests, it provides no rules regarding repeated submissions or fine-tuning/training on test tasks.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected discussion of real-world applicability and deployment bounds in Section 1 and Section 6.",
+      "detection_limits": "The check could not detect real-world human customer interaction outcomes outside simulation.",
+      "evidence": [
+        {
+          "locator": "page 9",
+          "quote": "At the core, the main results from our experiments demonstrate a critical fact: agents built on top of LM function calling lack sufficient consistency and rule-following ability to reliably build real-world applications.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B16",
+      "level": "documented",
+      "missing": "Empirical evidence showing transfer from LM user simulators to real human deployment environments.",
+      "outcome": "passed",
+      "reason": "The authors define the scope of real-world applicability (customer service automation) and discuss the gap between simulated benchmarks and real-world deployment.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Examined experimental setup and evaluation protocol across models in Section 5.",
+      "detection_limits": "The check could not detect subtle advantages arising from API latency or provider formatting differences.",
+      "evidence": [
+        {
+          "locator": "page 6",
+          "quote": "We limit each task to at most 30 agent actions (either tool calls or user responses). For main results (Table 2), we run at least 3 trials per task. The LM temperature is 0.0 for agent and 1.0 for user.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 9",
+          "quote": "There is also some element of implicit bias during the task curation process since we use the gpt-4-turbo FC agent to tune the user\u2019s system prompt.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B17",
+      "level": "documented",
+      "missing": "Controls or empirical checks verifying that tuning user prompts with GPT-4-turbo does not advantage OpenAI models over competitors.",
+      "outcome": "passed",
+      "reason": "Evaluation conditions (temperatures, step limits, tools, policies) are held constant across models, and potential curation bias toward OpenAI models is acknowledged.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Inspected installation, configuration, and execution instructions in repository/README.md and run.py.",
+      "detection_limits": "The check could not detect missing instructions for unsupported third-party LLM providers.",
+      "evidence": [
+        {
+          "locator": "lines 40-52",
+          "quote": "## Setup\n\n1. Clone this repository:\n\n```bash\ngit clone https://github.com/sierra-research/tau-bench && cd ./tau-bench\n```\n\n2. Install from source (which also installs required packages):\n\n```bash\npip install -e .\n```",
+          "source": "repository/README.md"
+        },
+        {
+          "locator": "lines 58-62",
+          "quote": "## Run\n\nRun a tool-calling agent on the \u03c4-retail environment:\n\n```bash\npython run.py --agent-strategy tool-calling --env retail --model gpt-4o --model-provider openai --user-model gpt-4o --user-model-provider openai --user-strategy llm --max-concurrency 10\n```",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B18",
+      "level": "documented",
+      "missing": "Third-party independent replication reports.",
+      "outcome": "passed",
+      "reason": "Code, dependencies, environment setup, and execution commands for running the benchmark are fully provided in the repository.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Inspected LICENSE file in the repository.",
+      "detection_limits": "The check could not detect license compatibility with downstream proprietary user data.",
+      "evidence": [
+        {
+          "locator": "lines 1-3",
+          "quote": "MIT License\n\nCopyright (c) 2024 Sierra",
+          "source": "repository/LICENSE"
+        }
+      ],
+      "item_id": "B19",
+      "level": "documented",
+      "missing": "Specific data terms of reuse or downstream protections beyond the standard MIT license.",
+      "outcome": "passed",
+      "reason": "The code and benchmark assets are provided under the open-source MIT License.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "run_by_reviewer",
+      "checks": "Inspected setup.py version string and repository notices regarding version updates.",
+      "detection_limits": "The check could not detect release dates of interim commits.",
+      "evidence": [
+        {
+          "locator": "line 7",
+          "quote": "version=\"0.1.0\",",
+          "source": "repository/setup.py"
+        },
+        {
+          "locator": "lines 3-5",
+          "quote": "**\u26a0\ufe0f WARNING: The tasks in this repo are not updated.** This repository contains outdated versions of the airline and retail tasks. Please use [\u03c4\u00b3-bench](https://github.com/sierra-research/tau2-bench) for the latest fixed tasks and new domains.",
+          "source": "repository/README.md"
+        }
+      ],
+      "item_id": "B20",
+      "level": "documented",
+      "missing": "A comprehensive version changelog documenting performance differences between releases.",
+      "outcome": "passed",
+      "reason": "Version numbers (0.1.0) and successor benchmark notices (tau2-bench and tau3-bench) are documented in setup.py and README.md.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed limitation disclosures in Section 6 and scoring limitation in Section 3.",
+      "detection_limits": "The check could not detect unstated limitations in the airline domain policies.",
+      "evidence": [
+        {
+          "locator": "page 9",
+          "quote": "The simulated user can have some limitations: (1) the user instruction might contain typos or ambiguities, which annotators can examine and fix; (2) the user instruction may not contain all domain knowledge... or (3) the user simulation LM might have limited capacity at reasoning, calculation, long-context memorization, or alignment with the instruction prompt",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 4",
+          "quote": "Note that r= 1 might be a necessary but not sufficient condition for a successful episode e.g., the agent might issue the return without explicit user confirmation, which violates the policy.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B21",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "Limitations of user simulation, evaluation faithfulness (r=1 necessary but not sufficient), and task curation bias are comprehensively analyzed with guidance for interpretation.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Checked contact instructions in README.md and author details in paper.txt.",
+      "detection_limits": "The check could not detect response times on GitHub issues.",
+      "evidence": [
+        {
+          "locator": "lines 135-137",
+          "quote": "## Contact\n\nPlease submit issues or pull requests if you find problems with the benchmark.",
+          "source": "repository/README.md"
+        },
+        {
+          "locator": "page 1",
+          "quote": "Shunyu Yao\u2217 Noah Shinn Pedram Razavi Karthik Narasimhan\nSierra",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B22",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "Authors and institutional affiliation are identified, and the repository directs users to GitHub issues and pull requests for feedback and maintenance.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "No target cultural or deployment context is declared for the review.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "Checked review specification for target cultural or deployment contexts.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B23",
+      "level": "not_applicable",
+      "missing": "None.",
+      "outcome": "not_performed",
+      "reason": "No target cultural or deployment context is declared for the review.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Checked paper ethics and checklist sections for toxic or sensitive content handling.",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "page 12",
+          "quote": "(e) Did you discuss whether the data you are using/curating contains personally identifiable information or offensive content? [N/A]",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B24",
+      "level": "undocumented",
+      "missing": "Explicit documentation of screening protocols for toxicity, offensive text, or unintended sensitive data.",
+      "outcome": "not_performed",
+      "reason": "While the data is synthetically generated mock customer service data, the paper marked checklist questions on PII and offensive content as N/A without describing screening procedures.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Inspected model performance distributions in Table 2 and difficulty curve in Figure 7.",
+      "detection_limits": "The check could not detect task difficulty on models released after the study.",
+      "evidence": [
+        {
+          "locator": "page 6-7",
+          "quote": "All models are still far from solving \u03c4-bench, especially the more challenging \u03c4-airline where even gpt-4o solves only 35.2% of the tasks. The diversity of model performances (shown in Table 2) and task difficulties (shown in Figure 7 in \u00a7 A) as well as large remaining gaps from perfect resolution makes \u03c4-bench ideal for benchmarking",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B25",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The paper evaluates 11 language models, analyzes score dispersion across models and domains, and verifies the difficulty range via per-task pass rate distributions.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed presentation of experimental findings in Section 5 and Appendices.",
+      "detection_limits": "The check could not detect qualitative errors in uninspected dialogue traces.",
+      "evidence": [
+        {
+          "locator": "page 6-8",
+          "quote": "From Table 2, we see that gpt-4o is the best model with function calling, and there is a wide spectrum of performances among various models... Figure 3 shows that natively supported function calling consistently outperforms text-formatted agent methods with the state-of-the-art models.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B26",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "Results are presented across multiple tables and figures, with detailed discussions connecting performance gaps to tool calling, reasoning, and policy adherence abilities.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "reported_by_sources",
+      "checks": "Reviewed benchmark construction stages and generation code in Section 4 and Appendix B.",
+      "detection_limits": "The check could not detect variations in prompting during intermediate data generation runs.",
+      "evidence": [
+        {
+          "locator": "page 5",
+          "quote": "We constructed \u03c4-bench in three stages, including manual schema and API design, LM-assisted generation of data entries, and manual scenario generation and verification for the user simulator.",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "page 20-22",
+          "quote": "Below is the Python code to generate the users database in \u03c4-retail. As mentioned in the paper, the code is mostly generated by gpt-4 with some minor human editing.",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B27",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "Data provenance, synthetic generation scripts, schema design, and iterative task validation procedures are documented in detail.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "Scoring in tau-bench does not run the system's output as code or in an execution environment; it performs static database hash comparisons and substring searches.",
+      "basis": "not_applicable",
+      "check_kind": "none",
+      "checks": "Checked calculate_reward in tau_bench/envs/base.py for dynamic code execution.",
+      "detection_limits": "",
+      "evidence": [],
+      "item_id": "B28a",
+      "level": "not_applicable",
+      "missing": "None.",
+      "outcome": "not_performed",
+      "reason": "Scoring in tau-bench does not execute agent outputs as code; it compares final dictionary state hashes and checks substrings in recorded messages.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "evidence_found",
+      "check_kind": "both",
+      "checks": "Checked environment instantiation, data reset, and tool isolation in tau_bench/run.py and tau_bench/envs/base.py.",
+      "detection_limits": "The check could not detect memory leaks within the running Python process across threads.",
+      "evidence": [
+        {
+          "locator": "page 3",
+          "quote": "The contents of the database form the state sdb (Figure 2a), which is hidden from the agent and the user, and can only be read from or written to using API actions adb",
+          "source": "paper.txt"
+        },
+        {
+          "locator": "lines 82-85",
+          "quote": "self.data = self.data_load_func()\n        self.task = self.tasks[task_index]\n        self.actions = []\n        initial_observation = self.user.reset(instruction=self.task.instruction)",
+          "source": "repository/tau_bench/envs/base.py"
+        }
+      ],
+      "item_id": "B28b",
+      "level": "verified",
+      "missing": "None.",
+      "outcome": "passed",
+      "reason": "The environment resets data fresh per task from clean mock data, isolates ground truth task goals from agent view, and constrains agent interaction strictly to tool function invocations.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    },
+    {
+      "applicability_reason": "",
+      "basis": "absence_of_information",
+      "check_kind": "none",
+      "checks": "Checked paper text and checklist for domain expert or user involvement.",
+      "detection_limits": "",
+      "evidence": [
+        {
+          "locator": "page 12",
+          "quote": "5. If you used crowdsourcing or conducted research with human subjects...\n(a) Did you include the full text of instructions given to participants and screenshots, if applicable? [N/A]",
+          "source": "paper.txt"
+        }
+      ],
+      "item_id": "B29",
+      "level": "undocumented",
+      "missing": "Involvement of professional customer service domain experts or real users in task or policy design and review.",
+      "outcome": "not_performed",
+      "reason": "The benchmarks and policies were designed and reviewed solely by the paper authors using common sense without reported involvement of external domain experts or human users.",
+      "scope": {
+        "ids": [],
+        "level": "release"
+      },
+      "task_defects": []
+    }
+  ],
+  "limits": "The review is strictly bounded by the paper text (arXiv:2406.12045v1) and repository snapshot; no benchmark code was executed."
+}

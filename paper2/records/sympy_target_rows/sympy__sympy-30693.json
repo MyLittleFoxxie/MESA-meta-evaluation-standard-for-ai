@@ -1,0 +1,56 @@
+{
+  "instance_id": "sympy__sympy-30693",
+  "repo": "sympy/sympy",
+  "base_commit": "319ea7a6186edf88bc23d502917242b10314ae51",
+  "created_at": "2026-10-07T11:39:25Z",
+  "merged_at": "2026-10-07T19:25:06Z",
+  "merge_commit": "cb5c6d356b8ec0d4a024a38d46c5a371f4e0aad0",
+  "pull_request": "https://github.com/sympy/sympy/pull/30693",
+  "issues": [
+    {
+      "number": 30691,
+      "url": "https://github.com/sympy/sympy/issues/30691",
+      "created_at": "2026-10-07T09:06:31Z"
+    }
+  ],
+  "problem_statement": "let's normalize paths in runtests so forward or backward slashes work\ndoctest works with one type of slash but not the other; test works with either. Here is a diff that can correct this that includes the fix and then a regression test in a newly created file:\n\n```diff\ndiff --git a/sympy/testing/runtests.py b/sympy/testing/runtests.py\nindex e1a8b05e67..163e4b976c 100644\n--- a/sympy/testing/runtests.py\n+++ b/sympy/testing/runtests.py\n@@ -127,19 +127,13 @@ def _report_failure(self, out, test, example, got):\n \n def convert_to_native_paths(lst):\n     \"\"\"\n-    Converts a list of '/' separated paths into a list of\n-    native (os.sep separated) paths and converts to lowercase\n-    if the system is case insensitive.\n+    Convert paths using '/' or '\\\\' separators to normalized native\n+    paths and normalize case if the system is case insensitive.\n     \"\"\"\n     newlst = []\n     for rv in lst:\n-        rv = os.path.join(*rv.split(\"/\"))\n-        # on windows the slash after the colon is dropped\n-        if sys.platform == \"win32\":\n-            pos = rv.find(':')\n-            if pos != -1:\n-                if rv[pos + 1] != '\\\\':\n-                    rv = rv[:pos + 1] + '\\\\' + rv[pos + 1:]\n+        rv = rv.replace(\"/\", os.sep).replace(\"\\\\\", os.sep)\n+        rv = os.path.normpath(rv)\n         newlst.append(os.path.normcase(rv))\n     return newlst\n \ndiff --git a/sympy/testing/tests/test_runtests.py b/sympy/testing/tests/test_runtests.py\nnew file mode 100644\nindex 0000000000..b8decc08b1\n--- /dev/null\n+++ b/sympy/testing/tests/test_runtests.py\n@@ -0,0 +1,14 @@\n+import os\n+\n+from sympy.testing.runtests import convert_to_native_paths\n+\n+\n+def test_convert_to_native_paths():\n+    expected = os.path.normcase(os.path.join(\"sympy\", \"solvers\"))\n+    paths = [\n+        \"sympy/solvers\",\n+        r\"sympy\\solvers\",\n+        \"./sympy/solvers\",\n+        r\".\\sympy\\solvers\",\n+    ]\n+    assert set(convert_to_native_paths(paths)) == {expected}\n````\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex 4e4a6f728409..50d78c4ccd06 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1760,6 +1760,8 @@ Vinzent Steinberg <vinzent.steinberg@gmail.com> <Vinzent.Steinberg@gmail.com>\n Vinzent Steinberg <vinzent.steinberg@gmail.com> <vinzent.steinberg@googlemail.com>\n Viraj Palnitkar <virajpalnitkar@gmail.com> <167699246+VirajPalnitkar@users.noreply.github.com>\n Viraj Vekaria <virajv5593@gmail.com>\n+Viranshul Panchal <viranshulpanchal23@gmail.com>\n+Viranshul Panchal <viranshulpanchal23@gmail.com> Viranshul-P <viranshulpanchal23@gmail.com>\n Vishal <vishalg2235@gmail.com>\n Vishesh Mangla <manglavishesh64@gmail.com>\n Vivek Gaddam <vivek.gaddam2005@gmail.com>\ndiff --git a/sympy/testing/runtests.py b/sympy/testing/runtests.py\nindex e1a8b05e676f..163e4b976c02 100644\n--- a/sympy/testing/runtests.py\n+++ b/sympy/testing/runtests.py\n@@ -127,19 +127,13 @@ def _report_failure(self, out, test, example, got):\n \n def convert_to_native_paths(lst):\n     \"\"\"\n-    Converts a list of '/' separated paths into a list of\n-    native (os.sep separated) paths and converts to lowercase\n-    if the system is case insensitive.\n+    Convert paths using '/' or '\\\\' separators to normalized native\n+    paths and normalize case if the system is case insensitive.\n     \"\"\"\n     newlst = []\n     for rv in lst:\n-        rv = os.path.join(*rv.split(\"/\"))\n-        # on windows the slash after the colon is dropped\n-        if sys.platform == \"win32\":\n-            pos = rv.find(':')\n-            if pos != -1:\n-                if rv[pos + 1] != '\\\\':\n-                    rv = rv[:pos + 1] + '\\\\' + rv[pos + 1:]\n+        rv = rv.replace(\"/\", os.sep).replace(\"\\\\\", os.sep)\n+        rv = os.path.normpath(rv)\n         newlst.append(os.path.normcase(rv))\n     return newlst\n \n",
+  "test_patch": "diff --git a/sympy/testing/tests/test_runtests.py b/sympy/testing/tests/test_runtests.py\nnew file mode 100644\nindex 000000000000..6b3d1fd4fe56\n--- /dev/null\n+++ b/sympy/testing/tests/test_runtests.py\n@@ -0,0 +1,16 @@\n+from __future__ import annotations\n+\n+import os\n+\n+from sympy.testing.runtests import convert_to_native_paths\n+\n+\n+def test_convert_to_native_paths():\n+    expected = os.path.normcase(os.path.join(\"sympy\", \"solvers\"))\n+    paths = [\n+        \"sympy/solvers\",\n+        r\"sympy\\solvers\",\n+        \"./sympy/solvers\",\n+        r\".\\sympy\\solvers\",\n+    ]\n+    assert set(convert_to_native_paths(paths)) == {expected}\n",
+  "FAIL_TO_PASS": [
+    "sympy/testing/tests/test_runtests.py::test_convert_to_native_paths"
+  ],
+  "PASS_TO_PASS": [],
+  "image": "paper2/sympy-target:30693",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 319ea7a6186edf88bc23d502917242b10314ae51\n:\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/testing/tests/test_runtests.py b/sympy/testing/tests/test_runtests.py\nnew file mode 100644\nindex 000000000000..6b3d1fd4fe56\n--- /dev/null\n+++ b/sympy/testing/tests/test_runtests.py\n@@ -0,0 +1,16 @@\n+from __future__ import annotations\n+\n+import os\n+\n+from sympy.testing.runtests import convert_to_native_paths\n+\n+\n+def test_convert_to_native_paths():\n+    expected = os.path.normcase(os.path.join(\"sympy\", \"solvers\"))\n+    paths = [\n+        \"sympy/solvers\",\n+        r\"sympy\\solvers\",\n+        \"./sympy/solvers\",\n+        r\".\\sympy\\solvers\",\n+    ]\n+    assert set(convert_to_native_paths(paths)) == {expected}\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/testing/tests/test_runtests.py\n: '>>>>> End Test Output'\n:\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T00:49:47.250036+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\report.json": "10d32771bfacb8edab307c7409a69fd531422dd0de763da50b4fc411e1be8724",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\test_output.txt": "9f0fffc7722b9fdfb6e5b1514fb3e04704eedc289e4c3e171dcef1e53db86c73",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\run_instance.log": "15020718804aeddc975fdda04a0cd8ac8689ad922c520a5dc0942b11dd10bb70",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\report.json": "10d32771bfacb8edab307c7409a69fd531422dd0de763da50b4fc411e1be8724",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\test_output.txt": "9344a3eee536c9ecb52155a9f0289ff6eb6aa4f8ddf397d47316564b01d3304e",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\run_instance.log": "3fcbb2de3de661b5485e9b65d7bb9ffc6aac0914a4daf917e4e5a3709799834d",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30693-20261112T004944\\derive\\sympy__sympy-30693\\patch.diff": "ab1d9aeed620d98b2a68e62989b0400a62b4f39893c9659485a51cde19b1291e"
+      }
+    },
+    "image_id": "sha256:a3ddf752259d60eb302ec5bb881ef53a2d99c7d4a56a992e07876e5a7943774a"
+  },
+  "status": "derived"
+}

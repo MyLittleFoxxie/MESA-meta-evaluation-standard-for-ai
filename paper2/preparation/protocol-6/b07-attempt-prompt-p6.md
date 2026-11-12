@@ -1,0 +1,97 @@
+# Prompt for Protocol 6 B07 incomplete-patch and verification-test separation
+
+## Role separation rule
+
+- **Stage 1 (Model Family A - Incomplete Patch Author):** Given issue text and source checkout, produce candidate incomplete patches (`candidate-N.diff`) and state violated behaviors (`behaviors.md`). Never edit or write `check.py`.
+- **Stage 2 (Model Family B - Second Model Family Test Writer):** Without viewing Model Family A's rationale, write independent verification test `check.py` strictly from the issue text and `behaviors.md`, failing any candidate that omits stated behavior while passing the reference fix.
+
+## Tasks requiring B07 checks (44 source + 44 target)
+
+- `sympy__sympy-16597`
+- `sympy__sympy-23413`
+- `sympy__sympy-12096`
+- `sympy__sympy-24539`
+- `sympy__sympy-21847`
+- `sympy__sympy-13551`
+- `sympy__sympy-15809`
+- `sympy__sympy-20590`
+- `sympy__sympy-20438`
+- `sympy__sympy-20428`
+- `sympy__sympy-14711`
+- `sympy__sympy-23534`
+- `sympy__sympy-23824`
+- `sympy__sympy-13372`
+- `sympy__sympy-13878`
+- `sympy__sympy-13031`
+- `sympy__sympy-19783`
+- `sympy__sympy-22914`
+- `sympy__sympy-15976`
+- `sympy__sympy-18199`
+- `sympy__sympy-17318`
+- `sympy__sympy-13647`
+- `sympy__sympy-22456`
+- `sympy__sympy-24562`
+- `sympy__sympy-12481`
+- `sympy__sympy-22080`
+- `sympy__sympy-15345`
+- `sympy__sympy-24661`
+- `sympy__sympy-16792`
+- `sympy__sympy-15017`
+- `sympy__sympy-17139`
+- `sympy__sympy-15349`
+- `sympy__sympy-19040`
+- `sympy__sympy-18189`
+- `sympy__sympy-13757`
+- `sympy__sympy-22714`
+- `sympy__sympy-18211`
+- `sympy__sympy-17655`
+- `sympy__sympy-19637`
+- `sympy__sympy-12489`
+- `sympy__sympy-15599`
+- `sympy__sympy-20154`
+- `sympy__sympy-24066`
+- `sympy__sympy-21596`
+- `sympy__sympy-30779`
+- `sympy__sympy-30276`
+- `sympy__sympy-30600`
+- `sympy__sympy-30575`
+- `sympy__sympy-30274`
+- `sympy__sympy-30563`
+- `sympy__sympy-30350`
+- `sympy__sympy-29960`
+- `sympy__sympy-30347`
+- `sympy__sympy-30914`
+- `sympy__sympy-30771`
+- `sympy__sympy-30304`
+- `sympy__sympy-30726`
+- `sympy__sympy-30748`
+- `sympy__sympy-30952`
+- `sympy__sympy-30693`
+- `sympy__sympy-30344`
+- `sympy__sympy-30392`
+- `sympy__sympy-30569`
+- `sympy__sympy-30841`
+- `sympy__sympy-30646`
+- `sympy__sympy-30706`
+- `sympy__sympy-30699`
+- `sympy__sympy-30273`
+- `sympy__sympy-30331`
+- `sympy__sympy-30642`
+- `sympy__sympy-30204`
+- `sympy__sympy-30680`
+- `sympy__sympy-30827`
+- `sympy__sympy-30530`
+- `sympy__sympy-30803`
+- `sympy__sympy-30765`
+- `sympy__sympy-30514`
+- `sympy__sympy-30311`
+- `sympy__sympy-30175`
+- `sympy__sympy-29774`
+- `sympy__sympy-30396`
+- `sympy__sympy-30428`
+- `sympy__sympy-30711`
+- `sympy__sympy-29858`
+- `sympy__sympy-30808`
+- `sympy__sympy-30682`
+- `sympy__sympy-30590`
+- `sympy__sympy-30454`

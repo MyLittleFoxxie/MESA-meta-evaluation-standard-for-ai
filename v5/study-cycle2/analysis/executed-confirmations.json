@@ -1,0 +1,337 @@
+{
+  "executed_utc": "2026-11-11T23:34:47.916907+00:00",
+  "isolation_mode": "isolated_subprocess_socket_blocked",
+  "network_disabled": true,
+  "checks": {
+    "humaneval:B28a": {
+      "defect_confirmed": true,
+      "network_blocked": true,
+      "honest_wrong_result": {
+        "task_id": "HumanEval/0",
+        "passed": false,
+        "result": "failed: "
+      },
+      "exploit_wrong_result": {
+        "task_id": "HumanEval/0",
+        "passed": true,
+        "result": "passed"
+      },
+      "execution_py_line_50": "exec(check_program, exec_globals)",
+      "readme_claims_commented_out": false,
+      "explanation": "Executed human_eval.execution.unsafe_execute on HumanEval/0 in a network-disabled isolated process: an incorrect completion ('return False') fails, whereas an incorrect completion returning an _AlwaysEqual object in the unisolated Python test namespace is graded as passed=True. Also confirmed line 50 exec(check_program, exec_globals) is uncommented."
+    },
+    "humaneval:B18": {
+      "defect_confirmed": true,
+      "network_blocked": true,
+      "honest_wrong_result": {
+        "task_id": "HumanEval/0",
+        "passed": false,
+        "result": "failed: "
+      },
+      "exploit_wrong_result": {
+        "task_id": "HumanEval/0",
+        "passed": true,
+        "result": "passed"
+      },
+      "execution_py_line_50": "exec(check_program, exec_globals)",
+      "readme_claims_commented_out": false,
+      "explanation": "Executed human_eval.execution.unsafe_execute on HumanEval/0 in a network-disabled isolated process: an incorrect completion ('return False') fails, whereas an incorrect completion returning an _AlwaysEqual object in the unisolated Python test namespace is graded as passed=True. Also confirmed line 50 exec(check_program, exec_globals) is uncommented."
+    },
+    "tau-bench:B05": {
+      "defect_confirmed": true,
+      "empty_airline_task_indices": [
+        12,
+        15,
+        17,
+        18,
+        21,
+        24,
+        49
+      ],
+      "empty_retail_task_indices": [
+        57
+      ],
+      "noop_agent_reward_on_empty_task": 1.0,
+      "readme_outdated_warning": true,
+      "explanation": "Executed AST task check and tau_bench/envs/base.py calculate_reward hash comparison in isolated process: 7 airline tasks [12, 15, 17, 18, 21, 24, 49] and 1 retail task [57] have actions=[] and outputs=[], yielding reward=1.0 for a no-op trajectory; README line 3 also warns tasks are outdated."
+    },
+    "tau-bench:B07": {
+      "defect_confirmed": true,
+      "empty_airline_task_indices": [
+        12,
+        15,
+        17,
+        18,
+        21,
+        24,
+        49
+      ],
+      "empty_retail_task_indices": [
+        57
+      ],
+      "noop_agent_reward_on_empty_task": 1.0,
+      "retail_task0_skip_confirmation_reward": 1.0,
+      "readme_outdated_warning": true,
+      "explanation": "Executed AST task check and MockRetailDomainEnv in isolated process: 7 airline and 1 retail tasks are empty (no-op reward=1.0), and executing Retail task 0 DB writes directly without user confirmation or lookup steps also returns reward=1.0 because calculate_reward hashes final DB state and ignores policy confirmation."
+    },
+    "tau-bench:B28b": {
+      "defect_confirmed": true,
+      "env_reset_exposes_ground_truth_actions": [
+        "find_user_id_by_name_zip",
+        "get_order_details",
+        "get_product_details",
+        "get_product_details",
+        "exchange_delivered_order_items"
+      ],
+      "builtin_wrappers_forward_info_to_llm": false,
+      "explanation": "Executed MockRetailDomainEnv.reset(0) in isolated process: EnvResetResponse.info.task exposes all 5 ground-truth oracle actions (['find_user_id_by_name_zip', 'get_order_details', 'get_product_details', 'get_product_details', 'exchange_delivered_order_items']) to callers of the Env API despite paper.txt claiming task annotations are hidden from the agent (note: built-in reference wrappers in tau_bench/agents/ store info on SolveResult without inserting info.task into LLM messages)."
+    },
+    "tau-bench:B12": {
+      "defect_confirmed": true,
+      "checklist_3c_claims_error_bars": true,
+      "table2_has_error_bars": false,
+      "explanation": "Verified in paper.txt that NeurIPS checklist 3(c) (p.12) states [Yes] for error bars while Table 2 (p.7) reports only point estimates without error bars or standard errors."
+    },
+    "truthfulqa:B05": {
+      "defect_confirmed": true,
+      "v0_count": 817,
+      "v1_count": 790,
+      "questions_or_best_answers_changed_from_v0": 37,
+      "explanation": "Executed dataset comparison of repository/TruthfulQA.csv (790 rows) vs repository/data/v0/TruthfulQA.csv (817 rows): 37 questions or Best Answer strings were added, removed, or revised, matching the paper's 6-7% human validation disagreement and Jan 2025 README note."
+    },
+    "truthfulqa:B07": {
+      "defect_confirmed": true,
+      "uses_external_openai_completion_api": true,
+      "reported_human_baseline_judge_accuracy": 0.895,
+      "explanation": "Inspected repository/truthfulqa/models.py (calls openai.Completion.create for GPT-judge) and verified paper.txt Sec 4.4 / Table 3 reporting 89.5% GPT-judge accuracy (10.5% error rate) on the human baseline."
+    },
+    "hle:B05": {
+      "defect_confirmed": true,
+      "paper_reports_15_4_percent_disagreement": true,
+      "rolling_changes_lines": 286,
+      "explanation": "Verified in paper.txt Appendix B.2-B.3 (15.4% audit disagreement rate; 18% in bio/chem/health) and repository/hle-rolling-changes.txt post-release errata log."
+    },
+    "seeded:addtwo-clean": {
+      "returncode": 0,
+      "stdout": "0.5",
+      "stderr": "",
+      "license_first_line": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication."
+    },
+    "seeded:addtwo-b28a": {
+      "returncode": 0,
+      "stdout": "0.5",
+      "stderr": "",
+      "license_first_line": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication."
+    },
+    "seeded:addtwo-b07": {
+      "returncode": 0,
+      "stdout": "1.0",
+      "stderr": "",
+      "license_first_line": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication."
+    },
+    "seeded:addtwo-b05": {
+      "returncode": 0,
+      "stdout": "0.5",
+      "stderr": "",
+      "license_first_line": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication."
+    },
+    "seeded:addtwo-license": {
+      "returncode": 0,
+      "stdout": "0.5",
+      "stderr": "",
+      "license_first_line": "Proprietary License. Copyright (c) 2026 AddTwo Corp. All rights reserved."
+    },
+    "seeded:addtwo-missing-count": {
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "FileNotFoundError: [Errno 2] No such file or directory: 'tasks.json'",
+      "license_first_line": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication."
+    }
+  },
+  "ratings_checked": 14,
+  "ratings_confirmed": 14,
+  "ratings": [
+    {
+      "cycle": "cycle1_claude",
+      "job": "hle-RUBRIC-1",
+      "benchmark": "hle",
+      "item_id": "B05",
+      "level": "verified",
+      "outcome": "failed",
+      "check_kind": "reported_by_sources",
+      "cited_locations": "paper.txt:p.23 B.3; paper.txt:p.23 B.2",
+      "check_key": "hle:B05",
+      "executed_confirmed": true,
+      "confirmation_detail": "Verified in paper.txt Appendix B.2-B.3 (15.4% audit disagreement rate; 18% in bio/chem/health) and repository/hle-rolling-changes.txt post-release errata log."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "hle-RUBRIC-2",
+      "benchmark": "hle",
+      "item_id": "B05",
+      "level": "verified",
+      "outcome": "failed",
+      "check_kind": "reported_by_sources",
+      "cited_locations": "paper.txt:p.23 Sec B.3; paper.txt:p.23 Sec B.2",
+      "check_key": "hle:B05",
+      "executed_confirmed": true,
+      "confirmation_detail": "Verified in paper.txt Appendix B.2-B.3 (15.4% audit disagreement rate; 18% in bio/chem/health) and repository/hle-rolling-changes.txt post-release errata log."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "humaneval-RUBRIC-1",
+      "benchmark": "humaneval",
+      "item_id": "B18",
+      "level": "documented",
+      "outcome": "failed",
+      "check_kind": "run_by_reviewer",
+      "cited_locations": "repository/README.md:Usage; repository/human_eval/execution.py:line 50",
+      "check_key": "humaneval:B18",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed human_eval.execution.unsafe_execute on HumanEval/0 in a network-disabled isolated process: an incorrect completion ('return False') fails, whereas an incorrect completion returning an _AlwaysEqual object in the unisolated Python test namespace is graded as passed=True. Also confirmed line 50 exec(check_program, exec_globals) is uncommented."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "humaneval-RUBRIC-1",
+      "benchmark": "humaneval",
+      "item_id": "B28a",
+      "level": "contradicted",
+      "outcome": "failed",
+      "check_kind": "run_by_reviewer",
+      "cited_locations": "repository/human_eval/execution.py:lines 169-174; repository/human_eval/execution.py:line 50; paper.txt:Sec 2.3",
+      "check_key": "humaneval:B28a",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed human_eval.execution.unsafe_execute on HumanEval/0 in a network-disabled isolated process: an incorrect completion ('return False') fails, whereas an incorrect completion returning an _AlwaysEqual object in the unisolated Python test namespace is graded as passed=True. Also confirmed line 50 exec(check_program, exec_globals) is uncommented."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "humaneval-RUBRIC-2",
+      "benchmark": "humaneval",
+      "item_id": "B28a",
+      "level": "documented",
+      "outcome": "failed",
+      "check_kind": "run_by_reviewer",
+      "cited_locations": "paper.txt:Sec 2.3; repository/human_eval/execution.py:line 50; repository/README.md:Usage",
+      "check_key": "humaneval:B28a",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed human_eval.execution.unsafe_execute on HumanEval/0 in a network-disabled isolated process: an incorrect completion ('return False') fails, whereas an incorrect completion returning an _AlwaysEqual object in the unisolated Python test namespace is graded as passed=True. Also confirmed line 50 exec(check_program, exec_globals) is uncommented."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "tau-bench-RUBRIC-2",
+      "benchmark": "tau-bench",
+      "item_id": "B05",
+      "level": "verified",
+      "outcome": "failed",
+      "check_kind": "reported_by_sources",
+      "cited_locations": "paper.txt:p5 Stage III; paper.txt:p7 \u00a75.2; repository/README.md:warning",
+      "check_key": "tau-bench:B05",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed AST task check and tau_bench/envs/base.py calculate_reward hash comparison in isolated process: 7 airline tasks [12, 15, 17, 18, 21, 24, 49] and 1 retail task [57] have actions=[] and outputs=[], yielding reward=1.0 for a no-op trajectory; README line 3 also warns tasks are outdated."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "tau-bench-RUBRIC-2",
+      "benchmark": "tau-bench",
+      "item_id": "B12",
+      "level": "contradicted",
+      "outcome": "failed",
+      "check_kind": "run_by_reviewer",
+      "cited_locations": "paper.txt:p12 checklist 3(c); paper.txt:p7 Table 2",
+      "check_key": "tau-bench:B12",
+      "executed_confirmed": true,
+      "confirmation_detail": "Verified in paper.txt that NeurIPS checklist 3(c) (p.12) states [Yes] for error bars while Table 2 (p.7) reports only point estimates without error bars or standard errors."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "truthfulqa-RUBRIC-1",
+      "benchmark": "truthfulqa",
+      "item_id": "B05",
+      "level": "verified",
+      "outcome": "failed",
+      "check_kind": "reported_by_sources",
+      "cited_locations": "paper.txt:Sec 2.3; paper.txt:App F; repository/README.md:Jan 2025",
+      "check_key": "truthfulqa:B05",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed dataset comparison of repository/TruthfulQA.csv (790 rows) vs repository/data/v0/TruthfulQA.csv (817 rows): 37 questions or Best Answer strings were added, removed, or revised, matching the paper's 6-7% human validation disagreement and Jan 2025 README note."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "truthfulqa-RUBRIC-1",
+      "benchmark": "truthfulqa",
+      "item_id": "B07",
+      "level": "verified",
+      "outcome": "failed",
+      "check_kind": "reported_by_sources",
+      "cited_locations": "paper.txt:Sec 4.4; paper.txt:Table 3",
+      "check_key": "truthfulqa:B07",
+      "executed_confirmed": true,
+      "confirmation_detail": "Inspected repository/truthfulqa/models.py (calls openai.Completion.create for GPT-judge) and verified paper.txt Sec 4.4 / Table 3 reporting 89.5% GPT-judge accuracy (10.5% error rate) on the human baseline."
+    },
+    {
+      "cycle": "cycle1_claude",
+      "job": "truthfulqa-RUBRIC-2",
+      "benchmark": "truthfulqa",
+      "item_id": "B05",
+      "level": "verified",
+      "outcome": "failed",
+      "check_kind": "reported_by_sources",
+      "cited_locations": "paper.txt:PDF p.5 Sec 2.3; paper.txt:PDF p.39 App F; repository/README.md:Jan 2025",
+      "check_key": "truthfulqa:B05",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed dataset comparison of repository/TruthfulQA.csv (790 rows) vs repository/data/v0/TruthfulQA.csv (817 rows): 37 questions or Best Answer strings were added, removed, or revised, matching the paper's 6-7% human validation disagreement and Jan 2025 README note."
+    },
+    {
+      "cycle": "cycle2_gemini",
+      "job": "tau-bench-RUBRIC-gemini-1",
+      "benchmark": "tau-bench",
+      "item_id": "B07",
+      "level": "contradicted",
+      "outcome": "failed",
+      "check_kind": "both",
+      "cited_locations": "paper.txt:p. 4; repository/tau_bench/envs/base.py:lines 124-142",
+      "check_key": "tau-bench:B07",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed AST task check and MockRetailDomainEnv in isolated process: 7 airline and 1 retail tasks are empty (no-op reward=1.0), and executing Retail task 0 DB writes directly without user confirmation or lookup steps also returns reward=1.0 because calculate_reward hashes final DB state and ignores policy confirmation."
+    },
+    {
+      "cycle": "cycle2_gemini",
+      "job": "tau-bench-RUBRIC-gemini-1",
+      "benchmark": "tau-bench",
+      "item_id": "B28b",
+      "level": "contradicted",
+      "outcome": "failed",
+      "check_kind": "both",
+      "cited_locations": "paper.txt:p. 4; repository/tau_bench/envs/base.py:lines 86-88; repository/tau_bench/types.py:lines 15-19",
+      "check_key": "tau-bench:B28b",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed MockRetailDomainEnv.reset(0) in isolated process: EnvResetResponse.info.task exposes all 5 ground-truth oracle actions (['find_user_id_by_name_zip', 'get_order_details', 'get_product_details', 'get_product_details', 'exchange_delivered_order_items']) to callers of the Env API despite paper.txt claiming task annotations are hidden from the agent (note: built-in reference wrappers in tau_bench/agents/ store info on SolveResult without inserting info.task into LLM messages)."
+    },
+    {
+      "cycle": "cycle2_gemini",
+      "job": "tau-bench-RUBRIC-gemini-2",
+      "benchmark": "tau-bench",
+      "item_id": "B07",
+      "level": "contradicted",
+      "outcome": "failed",
+      "check_kind": "both",
+      "cited_locations": "paper.txt:page 4; repository/tau_bench/envs/base.py:lines 137-142",
+      "check_key": "tau-bench:B07",
+      "executed_confirmed": true,
+      "confirmation_detail": "Executed AST task check and MockRetailDomainEnv in isolated process: 7 airline and 1 retail tasks are empty (no-op reward=1.0), and executing Retail task 0 DB writes directly without user confirmation or lookup steps also returns reward=1.0 because calculate_reward hashes final DB state and ignores policy confirmation."
+    },
+    {
+      "cycle": "cycle2_gemini",
+      "job": "tau-bench-RUBRIC-gemini-2",
+      "benchmark": "tau-bench",
+      "item_id": "B12",
+      "level": "claimed",
+      "outcome": "failed",
+      "check_kind": "run_by_reviewer",
+      "cited_locations": "paper.txt:page 12; paper.txt:page 7",
+      "check_key": "tau-bench:B12",
+      "executed_confirmed": true,
+      "confirmation_detail": "Verified in paper.txt that NeurIPS checklist 3(c) (p.12) states [Yes] for error bars while Table 2 (p.7) reports only point estimates without error bars or standard errors."
+    }
+  ]
+}
