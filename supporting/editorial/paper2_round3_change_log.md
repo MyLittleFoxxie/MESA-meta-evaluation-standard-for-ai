@@ -6,7 +6,7 @@ Scope: `paper2.tex`, `references.bib` (three entries), one figure, and the repli
 
 | Change | Why |
 |---|---|
-| Full rewrite of the text with the same results; new title "What a Benchmark Audit Lets a Team Conclude: MESA Applied to a Coding Agent Requirement on SymPy" | Round 3 review: the old title asked a question the data cannot answer, and the text could not be followed without knowing the criterion codes |
+| Full rewrite of the text with the same results; new title "Applying Benchmark Review Frameworks to Requirement Decisions: An Empirical Study on a Coding Agent" | Round 3 review: the old title asked a question the data cannot answer, and the text could not be followed without knowing the criterion codes |
 | Criterion codes, method codes, task identifiers, slot numbers, file names and configuration names replaced by plain names | Author instruction, same as for the MESA paper |
 | Study history removed: protocols, freeze, reserve sessions, standby agent, refusal of one model, retries, time of agent selection | Author instruction: the paper presents the finished experiment only |
 | The first session, on a task outside the two task sets, is not reported; the paper has 88 sessions | Author decision of 12 November |
@@ -18,6 +18,8 @@ Scope: `paper2.tex`, `references.bib` (three entries), one figure, and the repli
 | Data Availability Statement with contents, licenses and what is left out | REFSQ rule |
 | Citations moved or dropped where the cited work did not support the sentence (see `paper2_references_check.md`) | References check |
 | `references.bib`: DOI, volume and number of Hou et al. corrected; titles of the two anonymous companion entries set to the current titles of the two papers | References check; the two papers cite each other |
+
+Later on 12 November the author chose the title "Applying Benchmark Review Frameworks to Requirement Decisions: An Empirical Study on a Coding Agent" (no acronym in the title). Acronyms were also removed from the section headings of both papers: "RQ1" became "Research Question 1", and the heading "MESA: Shared Concerns and a Rubric" in the MESA paper became "Shared Concerns and a Rubric".
 
 ## Errors found when the numbers were traced
 
