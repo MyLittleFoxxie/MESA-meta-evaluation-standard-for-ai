@@ -754,45 +754,46 @@ def _prepare_inner(run_tests: bool = False) -> Path:
     )
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
-    (PROTOCOL / "requirement-draft.json").write_text(
-        json.dumps(requirement_draft(planned), indent=2) + "\n", encoding="utf-8"
-    )
-    (PROTOCOL / "protocol.md").write_text(protocol_markdown(planned), encoding="utf-8")
-    write_prompts_and_configs(planned)
+    if not frozen_done:
+        (PROTOCOL / "requirement-draft.json").write_text(
+            json.dumps(requirement_draft(planned), indent=2) + "\n", encoding="utf-8"
+        )
+        (PROTOCOL / "protocol.md").write_text(protocol_markdown(planned), encoding="utf-8")
+        write_prompts_and_configs(planned)
 
-    forms = s.audit_forms()
-    forms["B28a-release"]["session_control"] = dict(
-        kind="no_scoring_file_changes",
-        description="Code confirms for every retained observation that its patch modifies no SCORING_FILE runner or config.",
-    )
-    for name, form in forms.items():
+        forms = s.audit_forms()
+        forms["B28a-release"]["session_control"] = dict(
+            kind="no_scoring_file_changes",
+            description="Code confirms for every retained observation that its patch modifies no SCORING_FILE runner or config.",
+        )
+        for name, form in forms.items():
+            with contextlib.suppress(FileExistsError):
+                s.save_new(PROTOCOL / "audit_forms" / f"{name}.json", form)
+        gemini_form = PROTOCOL / "audit_forms" / "B14b-CONFIG_01_GEMINI_FLASH_MED.json"
+        if gemini_form.exists() and "CONFIG_01_GEMINI_FLASH_MED" not in CONFIGURATIONS:
+            sup = PROTOCOL / "audit_forms" / "superseded"
+            sup.mkdir(parents=True, exist_ok=True)
+            gemini_form.rename(sup / gemini_form.name)
+            reason_path = sup / "B14b-CONFIG_01_GEMINI_FLASH_MED.reason.json"
+            if not reason_path.exists():
+                s.save_new(
+                    reason_path,
+                    dict(
+                        form="B14b-CONFIG_01_GEMINI_FLASH_MED",
+                        moved_at=s.now(),
+                        reason="Single-configuration Protocol 6 uses CONFIG_02_SOL_MED only (standby template preserved).",
+                    ),
+                )
         with contextlib.suppress(FileExistsError):
-            s.save_new(PROTOCOL / "audit_forms" / f"{name}.json", form)
-    gemini_form = PROTOCOL / "audit_forms" / "B14b-CONFIG_01_GEMINI_FLASH_MED.json"
-    if gemini_form.exists() and "CONFIG_01_GEMINI_FLASH_MED" not in CONFIGURATIONS:
-        sup = PROTOCOL / "audit_forms" / "superseded"
-        sup.mkdir(parents=True, exist_ok=True)
-        gemini_form.rename(sup / gemini_form.name)
-        reason_path = sup / "B14b-CONFIG_01_GEMINI_FLASH_MED.reason.json"
-        if not reason_path.exists():
-            s.save_new(
-                reason_path,
-                dict(
-                    form="B14b-CONFIG_01_GEMINI_FLASH_MED",
-                    moved_at=s.now(),
-                    reason="Single-configuration Protocol 6 uses CONFIG_02_SOL_MED only (standby template preserved).",
-                ),
-            )
-    with contextlib.suppress(FileExistsError):
-        s.save_new(PROTOCOL / "audit_forms" / "ABC-release.json", s.abc_blank(PROTOCOL / "abc-items.json"))
+            s.save_new(PROTOCOL / "audit_forms" / "ABC-release.json", s.abc_blank(PROTOCOL / "abc-items.json"))
 
-    (PROTOCOL / "task_checks.json").write_text(
-        json.dumps(task_check_ledger(planned, results), indent=2) + "\n", encoding="utf-8"
-    )
-    with contextlib.suppress(FileExistsError):
-        s.save_new(PROTOCOL / "blind_b07_sheet.json", blind_b07_template(planned["source"] + planned["target"]))
+        (PROTOCOL / "task_checks.json").write_text(
+            json.dumps(task_check_ledger(planned, results), indent=2) + "\n", encoding="utf-8"
+        )
+        with contextlib.suppress(FileExistsError):
+            s.save_new(PROTOCOL / "blind_b07_sheet.json", blind_b07_template(planned["source"] + planned["target"]))
 
-    build_gate_outcomes_demo(PROTOCOL)
+        build_gate_outcomes_demo(PROTOCOL)
 
     templates = s.result_templates(sample=SAMPLE)
     for name, data in templates.items():
