@@ -1,0 +1,2 @@
+- Adding scalar zero to a vector preserves the vector without raising TypeError.
+- Python's built-in sum must accept vectors with its default zero start: sum([N.x, 0 * N.x]) returns N.x without raising TypeError.

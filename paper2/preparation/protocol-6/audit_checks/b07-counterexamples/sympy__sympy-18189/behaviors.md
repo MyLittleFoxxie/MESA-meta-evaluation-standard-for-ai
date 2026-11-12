@@ -1,0 +1,3 @@
+- With `permute=True`, solving `n**4 + m**4 - 2**4 - 3**4` must return all eight signed permutations of `(2, 3)`.
+- Both `syms=(m, n)` and `syms=(n, m)` must return the complete solution set; changing symbol order must not drop solutions.
+- This behavior must hold for the issue's `m, n` symbols, regardless of the variable names used to express the equation.

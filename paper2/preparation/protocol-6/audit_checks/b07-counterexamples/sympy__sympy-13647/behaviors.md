@@ -1,0 +1,3 @@
+- Insert both columns of twos at column index 3 in a 6-by-6 identity matrix, producing a 6-by-8 matrix.
+- Keep the original columns in order and preserve their row positions; the right identity block must stay in the bottom three rows.
+- Make this work through the public Matrix.col_insert() API used in the example.

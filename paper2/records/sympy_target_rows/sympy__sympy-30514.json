@@ -1,0 +1,100 @@
+{
+  "instance_id": "sympy__sympy-30514",
+  "repo": "sympy/sympy",
+  "base_commit": "120ee85f346f6292b763cc195afda4f907260d4a",
+  "created_at": "2026-09-15T06:40:35Z",
+  "merged_at": "2026-09-21T04:06:56Z",
+  "merge_commit": "31e03dc7ed8114117274ea679be1835044cec9c9",
+  "pull_request": "https://github.com/sympy/sympy/pull/30514",
+  "issues": [
+    {
+      "number": 30507,
+      "url": "https://github.com/sympy/sympy/issues/30507",
+      "created_at": "2026-09-14T14:37:25Z"
+    }
+  ],
+  "problem_statement": "fcode: numerically-folded function base loses parentheses under a power, flipping the sign\n`fcode` emits a numerically-folded function base unparenthesised under a power, which flips the sign in the generated Fortran.\n\nWhen a known function has all-`Number` arguments, `CodePrinter._print_Function` folds it to a numeric literal. If that literal is negative and the function sits under a `Pow`, `_print_Pow` does not parenthesise it, because `precedence()` is asked about the *expression* (`sin`, `PRECEDENCE[\"Func\"]` = 70) rather than about the *text* that was emitted (a unary minus). Fortran binds `**` tighter than unary minus, so `-a**2` parses as `-(a**2)`.\n\nThe result is valid Fortran that compiles without a warning and returns the wrong sign.\n\n### Reproduce\n\n```python\nfrom sympy import Float, cos, pi, sin\nfrom sympy.printing.fortran import fcode\n\ne = sin(Float(\"1.265344399150595\") - Float(\"0.5\") * pi)   # stays an unevaluated sin(...)\n\nprint(fcode(e ** 2, source_format=\"free\", standard=95))\n# -0.30072421433515855d0**2\n\nprint(float(e ** 2))\n# 0.09043505308749838      <- what sympy means\n# -0.09043505308749834     <- what the emitted Fortran computes\n```\n\nAlso reproduces without `sin`:\n\n```python\nprint(fcode(cos(Float(\"1.0\") * 2 * pi / 3) ** 2, source_format=\"free\", standard=95))\n# -0.4999999999999999d0**2\n```\n\nAnd in context, where it is much harder to spot \u2014 this came out of `autowrap` on a kinematic chain, via `cos(asin(x))` auto-rewriting to `sqrt(1 - x**2)`:\n\n```python\nfrom sympy import asin, atan, cos, pi, sin, sqrt\nfrom sympy.printing.fortran import fcode\n\ncrank, short_side, long_side = 0.221, 0.06646, 0.21077\ncoupler_angle = pi / 2.0 - atan(long_side / short_side)\ncoupler_length = sqrt(short_side ** 2 + long_side ** 2)\nx = -crank * cos(asin(coupler_length * sin(coupler_angle) / crank))\n\nprint(fcode(x, source_format=\"free\", standard=95))\n# -0.221d0*sqrt(1 - 0.999998454167605d0*-0.3007242143351585d0**2)\nprint(float(x))\n# -0.21077017910510965   sympy\n# -0.23077680...         the emitted Fortran, a 20.007 mm error in our units\n```\n\n### Expected\n\n```\n(-0.30072421433515855d0)**2\n```\n\n### Not a general parenthesisation failure\n\nBases that are negative *as expressions* are handled correctly, which is why this is easy to miss:\n\n```python\nfrom sympy import Float, Integer, Mul, Pow, Symbol\n\nfcode(Pow(Float(\"-0.3\"), Integer(2), evaluate=False))                        # (-0.3d0)**2   OK\nfcode(Pow(Mul(Integer(-1), Symbol(\"x\"), evaluate=False), Integer(2), evaluate=False))  # (-x)**2  OK\n```\n\nThe difference is that `precedence(Float(-0.3))` reports `Add`-level, while `precedence(sin(...))` reports `Func`-level even though the emitted text is `-0.3007...`.\n\n### Other printers\n\nUnaffected, because they do not fold to a bare literal in this position:\n\n```\nccode       -> pow(sin(1.265344399150595 - 0.5*M_PI), 2)\njulia_code  -> sin(1.265344399150595 - 0.5 * pi) ^ 2\noctave_code -> sin(1.265344399150595 - 0.5*pi)^2\n```\n\nI have not checked every printer that emits `**` or `^`; anything sharing Fortran's precedence for it and the same folding is worth checking too.\n\n### Where\n\n`FCodePrinter._print_Pow` (`sympy/printing/fortran.py:338`) delegates to `CodePrinter._print_Pow`, whose `parenthesize(expr.base, PREC)` decides from `precedence(expr.base)`. On `master` this code is byte-identical to 1.14.0, so it still applies.\n\nTwo possible fixes, depending on where you would rather have it:\n\n1. In `_print_Pow`, parenthesise when the *printed* base begins with `-` (fixes the symptom wherever the folding happens).\n2. Fold the base to a `Number` before the precedence decision is made, so `precedence()` sees the negative number it will actually print.\n\n### Environment\n\n- SymPy 1.14.0, Python 3.12.7, Linux\n- `master`'s `fortran.py` `_print_Pow` unchanged, so presumably still reproduces there\n\nHappy to open a PR for whichever of the two approaches you prefer.\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/printing/fortran.py b/sympy/printing/fortran.py\nindex a32d89e818b3..be02b4bc577e 100644\n--- a/sympy/printing/fortran.py\n+++ b/sympy/printing/fortran.py\n@@ -296,15 +296,23 @@ def _print_Add(self, expr):\n         else:\n             return CodePrinter._print_Add(self, expr)\n \n+    def _eval_function(self, expr):\n+        prec = self._settings['precision']\n+        args = [N(a, prec) for a in expr.args]\n+        return expr.func(*args)\n+\n+    def parenthesize(self, item, level, strict=False):\n+        if isinstance(item, Function):\n+            item = self._eval_function(item)\n+        return super().parenthesize(item, level, strict)\n+\n     def _print_Function(self, expr):\n         # All constant function args are evaluated as floats\n-        prec =  self._settings['precision']\n-        args = [N(a, prec) for a in expr.args]\n-        eval_expr = expr.func(*args)\n+        eval_expr = self._eval_function(expr)\n         if not isinstance(eval_expr, Function):\n             return self._print(eval_expr)\n         else:\n-            return CodePrinter._print_Function(self, expr.func(*args))\n+            return CodePrinter._print_Function(self, eval_expr)\n \n     def _print_Mod(self, expr):\n         # NOTE : Fortran has the functions mod() and modulo(). modulo() behaves\n",
+  "test_patch": "diff --git a/sympy/printing/tests/test_fortran.py b/sympy/printing/tests/test_fortran.py\nindex 48f1927c75bc..070a17927393 100644\n--- a/sympy/printing/tests/test_fortran.py\n+++ b/sympy/printing/tests/test_fortran.py\n@@ -82,6 +82,11 @@ def test_fcode_Pow():\n     assert fcode(x**Rational(3, 7)) == '      x**(3.0d0/7.0d0)'\n \n \n+def test_fcode_Pow_with_folded_negative_function():\n+    expr = sin(Float(\"1.265344399150595\") - Float(\"0.5\") * pi) ** 2\n+    assert fcode(expr, source_format=\"free\", standard=95) == \"(-0.30072421433515855d0)**2\"\n+\n+\n def test_fcode_Rational():\n     x = symbols('x')\n     assert fcode(Rational(3, 7)) == \"      3.0d0/7.0d0\"\n",
+  "FAIL_TO_PASS": [
+    "sympy/printing/tests/test_fortran.py::test_fcode_Pow_with_folded_negative_function"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/printing/tests/test_fortran.py::test_FunctionDefinition_print",
+    "sympy/printing/tests/test_fortran.py::test_FunctionPrototype_print",
+    "sympy/printing/tests/test_fortran.py::test_MatrixElement_printing",
+    "sympy/printing/tests/test_fortran.py::test_Matrix_printing",
+    "sympy/printing/tests/test_fortran.py::test_UnevaluatedExpr",
+    "sympy/printing/tests/test_fortran.py::test_While",
+    "sympy/printing/tests/test_fortran.py::test_assign_to",
+    "sympy/printing/tests/test_fortran.py::test_aug_assign",
+    "sympy/printing/tests/test_fortran.py::test_case",
+    "sympy/printing/tests/test_fortran.py::test_derived_classes",
+    "sympy/printing/tests/test_fortran.py::test_dummy_loops",
+    "sympy/printing/tests/test_fortran.py::test_element_like_objects",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Declaration",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Float",
+    "sympy/printing/tests/test_fortran.py::test_fcode_For",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Indexed_without_looking_for_contraction",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Integer",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Logical",
+    "sympy/printing/tests/test_fortran.py::test_fcode_NumberSymbol",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Piecewise",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Pow",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Rational",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Relational",
+    "sympy/printing/tests/test_fortran.py::test_fcode_Xlogical",
+    "sympy/printing/tests/test_fortran.py::test_fcode_complex",
+    "sympy/printing/tests/test_fortran.py::test_fcode_functions",
+    "sympy/printing/tests/test_fortran.py::test_fcode_functions_with_integers",
+    "sympy/printing/tests/test_fortran.py::test_fcode_precedence",
+    "sympy/printing/tests/test_fortran.py::test_fcode_sign",
+    "sympy/printing/tests/test_fortran.py::test_free_form_code_line",
+    "sympy/printing/tests/test_fortran.py::test_free_form_comment_line",
+    "sympy/printing/tests/test_fortran.py::test_free_form_continuation_line",
+    "sympy/printing/tests/test_fortran.py::test_implicit",
+    "sympy/printing/tests/test_fortran.py::test_indent",
+    "sympy/printing/tests/test_fortran.py::test_inline_function",
+    "sympy/printing/tests/test_fortran.py::test_line_wrapping",
+    "sympy/printing/tests/test_fortran.py::test_loops",
+    "sympy/printing/tests/test_fortran.py::test_not_fortran",
+    "sympy/printing/tests/test_fortran.py::test_printmethod",
+    "sympy/printing/tests/test_fortran.py::test_settings",
+    "sympy/printing/tests/test_fortran.py::test_user_functions",
+    "sympy/printing/tests/test_fortran.py::test_wrap_fortran",
+    "sympy/printing/tests/test_fortran.py::test_wrap_fortran_keep_d0"
+  ],
+  "image": "paper2/sympy-target:30514",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 120ee85f346f6292b763cc195afda4f907260d4a\ngit checkout 120ee85f346f6292b763cc195afda4f907260d4a sympy/printing/tests/test_fortran.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/printing/tests/test_fortran.py b/sympy/printing/tests/test_fortran.py\nindex 48f1927c75bc..070a17927393 100644\n--- a/sympy/printing/tests/test_fortran.py\n+++ b/sympy/printing/tests/test_fortran.py\n@@ -82,6 +82,11 @@ def test_fcode_Pow():\n     assert fcode(x**Rational(3, 7)) == '      x**(3.0d0/7.0d0)'\n \n \n+def test_fcode_Pow_with_folded_negative_function():\n+    expr = sin(Float(\"1.265344399150595\") - Float(\"0.5\") * pi) ** 2\n+    assert fcode(expr, source_format=\"free\", standard=95) == \"(-0.30072421433515855d0)**2\"\n+\n+\n def test_fcode_Rational():\n     x = symbols('x')\n     assert fcode(Rational(3, 7)) == \"      3.0d0/7.0d0\"\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/printing/tests/test_fortran.py\n: '>>>>> End Test Output'\ngit checkout 120ee85f346f6292b763cc195afda4f907260d4a sympy/printing/tests/test_fortran.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T01:37:25.094865+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\report.json": "d1e2d442aa5bd5e5d0d41b47d0df42dc6a733fbcd854d3da983da2e78d81c8e6",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\test_output.txt": "4d844caa4cb39ca1c88cc090877f04769348d8cbe15a34e74a0bf2950dab2b62",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\run_instance.log": "898f0c2d557dd018f54b7aa55fb31951a68dbf22def8906ec3e3efbaa72f2e20",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\report.json": "d1e2d442aa5bd5e5d0d41b47d0df42dc6a733fbcd854d3da983da2e78d81c8e6",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\test_output.txt": "0a81bfe51460d52e6d9240234ef9d5fd9342048e88e591185b3ef446623647b3",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\run_instance.log": "3c578d61f9fbc0b5ebd1e5133d01c579130fd027a0eeeee8c29702cc62d9269e",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30514-20261112T013722\\derive\\sympy__sympy-30514\\patch.diff": "7bb8ba667fab039b5d86127e04e188b9fd1372dd9d67661d34706285dba338cc"
+      }
+    },
+    "image_id": "sha256:ff87a218f2bb53a1ebb4e0de6eeef5470d60ebf62dc95ee5c829822b95802000"
+  },
+  "status": "derived"
+}

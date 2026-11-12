@@ -1,0 +1,3 @@
+- With scalar degree bounds, return every monomial whose total degree is between the minimum and maximum, inclusive.
+- Include mixed monomials when minimum and maximum degrees are both 3, including for the three commuting variables in the example.
+- Continue including all eligible mixed monomials when the maximum degree exceeds the minimum.

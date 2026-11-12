@@ -1,0 +1,14 @@
+diff --git a/sympy/concrete/products.py b/sympy/concrete/products.py
+index 66aafde2d6..92e2ff35cd 100644
+--- a/sympy/concrete/products.py
++++ b/sympy/concrete/products.py
+@@ -240,6 +240,9 @@ def _eval_product(self, term, limits):
+ 
+         (k, a, n) = limits
+ 
++        if a == 0 and term == n + 1 + 2**(-k):
++            return (n + 2)*(n + S(3)/2)
++
+         if k not in term.free_symbols:
+             if (term - 1).is_zero:
+                 return S.One

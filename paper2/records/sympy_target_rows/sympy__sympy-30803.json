@@ -1,0 +1,79 @@
+{
+  "instance_id": "sympy__sympy-30803",
+  "repo": "sympy/sympy",
+  "base_commit": "ff210462342acdce06138465b34882c191bcafaa",
+  "created_at": "2026-10-22T15:49:47Z",
+  "merged_at": "2026-10-22T17:50:00Z",
+  "merge_commit": "c60dafcb4e3961aa6dea5193e9e1e864b662141d",
+  "pull_request": "https://github.com/sympy/sympy/pull/30803",
+  "issues": [
+    {
+      "number": 29761,
+      "url": "https://github.com/sympy/sympy/issues/29761",
+      "created_at": "2026-05-13T09:36:28Z"
+    }
+  ],
+  "problem_statement": "FracField over EXRAW: RecursionError if build from Integer\nHi there, \n\nwith  sympy 1.14.0 I encounter an RecursionError if I try to construct a FracElement by means of its FracField over EXRAW.\nConsider the following snippet:\n \n```\nfrom sympy import EXRAW, symbols, sympify\n\ns = symbols(\"s\")\ndomain = EXRAW\nring = domain.poly_ring(s)\nfield = domain.frac_field(s)\n\nexpr = sympify(1)\ndom_elem = domain.from_sympy(expr)\nring_elem = ring.from_sympy(expr)\nfrac_elem = field.from_sympy(expr)\n```\nwhich fails with \n```\n  File \"scratch_.py\", line 11, in <module>\n    frac_elem = field.from_sympy(expr)\n  File \"/PATH/.venv/lib/python3.13/site-packages/sympy/polys/domains/fractionfield.py\", line 74, in from_sympy\n    return self.field.from_expr(a)\n           ~~~~~~~~~~~~~~~~~~~~^^^\n  File \"/PATH/.venv/lib/python3.13/site-packages/sympy/polys/fields.py\", line 286, in from_expr\n    return self.field_new(frac)\n           ~~~~~~~~~~~~~~^^^^^^\n  File \"/PATH/.venv/lib/python3.13/site-packages/sympy/polys/fields.py\", line 235, in field_new\n    return self.from_expr(element)\n           ~~~~~~~~~~~~~~^^^^^^^^^\n  File \"/PATH/.venv/lib/python3.13/site-packages/sympy/polys/fields.py\", line 286, in from_expr\n    return self.field_new(frac)\n           ~~~~~~~~~~~~~~^^^^^^\n  File \"/PATH/.venv/lib/python3.13/site-packages/sympy/polys/fields.py\", line 235, in field_new\n    return self.from_expr(element)\n\n[...]\n\nRecursionError: maximum recursion depth exceeded\n```\nI think the underlying Problem is in `_rebuild_expr()` of `FracField` which eventually does a ` return domain.convert(expr)` \nwhich due to EXRAWs implememtation is an `Expr`. However, the caller expects the function to return an `FracElement` which is what causes the recursion. \nThis makes sense since when using EX as domain, everything works fine as it returns an `ExpressionElement` instead, so no loop there.\n\nNow, comparing the `_rebuild_expr()` call with the one of `PolyRing` we can see that that one wraps the output of `domain.convert()` into a `self.ground_new()` which makes sure that a PolyElement is returned.\n\nTherefore, I just went ahead and also wrapped to respective calls of FracField which makes the recursion disappear.\n\nIf this is the correct way to go I will gladly open a PR including the reproducer as new test and add the mentioned fix.\n\nBest,\nStefan\n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex 316fe8a0c64a..ba4b72d313e7 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1624,6 +1624,7 @@ Srinivasa Arun Yeragudipati <ysarun1999@gmail.com> arun-y99 <ysarun1999@gmail.co\n Stan Schymanski <stan.schymanski@env.ethz.ch>\n Stas Kelvich <stanconn@gmail.com>\n Stefan Behnle <84378403+behnle@users.noreply.github.com>\n+Stefan Ecklebe <stefan.ecklebe@umit-tirol.at>\n Stefan Krastanov <krastanov.stefan@gmail.com>\n Stefan Petrea <stefan@garage-coding.com>\n Stefan van der Walt <stefan@sun.ac.za>\n@@ -1968,3 +1969,4 @@ zzj <29055749+zjzh@users.noreply.github.com>\n \u0141ukasz Pankowski <lukpank@o2.pl>\n \u5f6d\u4e8e\u658c <1931127624@qq.com>\n \u8881\u91ce (Yuan Ye) <yuanyelele@tutanota.com>\n+\u963f\u6ce5\u8c46 <1243352777@qq.com>\ndiff --git a/sympy/polys/fields.py b/sympy/polys/fields.py\nindex 91ad54c3d750..eb836c6ddd51 100644\n--- a/sympy/polys/fields.py\n+++ b/sympy/polys/fields.py\n@@ -297,10 +297,10 @@ def _rebuild(expr):\n                 return 1/mapping.get(1/expr)\n \n             try:\n-                return domain.convert(expr)\n+                return self.ground_new(domain.convert(expr))\n             except CoercionFailed:\n                 if not domain.is_Field and domain.has_assoc_Field:\n-                    return domain.get_field().convert(expr)\n+                    return self.ground_new(domain.get_field().convert(expr))\n                 else:\n                     raise\n \n",
+  "test_patch": "diff --git a/sympy/polys/tests/test_fields.py b/sympy/polys/tests/test_fields.py\nindex 82cfd7287163..6ba02f78efde 100644\n--- a/sympy/polys/tests/test_fields.py\n+++ b/sympy/polys/tests/test_fields.py\n@@ -351,4 +351,25 @@ def test_FracField_index():\n \n     raises(ValueError, lambda: F.index(1))\n     raises(ValueError, lambda: F.index(a))\n-    pass\n+\n+\n+def test_FracField_from_expr_EXRAW():\n+    \"\"\"from_expr should not recurse infinitely when domain is EXRAW (#29761).\"\"\"\n+    from sympy.polys.domains import EXRAW\n+    from sympy.core.singleton import S\n+\n+    s = symbols('s')\n+    ff = EXRAW.frac_field(s)\n+\n+    # Building a FracElement from a plain integer should work\n+    # without triggering RecursionError.\n+    elem = ff.field.from_expr(S.One)\n+    assert elem == ff.field.one\n+\n+    # Also test via FractionField.from_sympy\n+    elem2 = ff.from_sympy(S(1))\n+    assert elem2 == ff.one\n+\n+    # Non-trivial expression should also work\n+    elem3 = ff.field.from_expr(s + 1)\n+    assert elem3.as_expr() == s + 1\n",
+  "FAIL_TO_PASS": [
+    "sympy/polys/tests/test_fields.py::test_FracField_from_expr_EXRAW"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/polys/tests/test_fields.py::test_FracElement___add__",
+    "sympy/polys/tests/test_fields.py::test_FracElement___call__",
+    "sympy/polys/tests/test_fields.py::test_FracElement___hash__",
+    "sympy/polys/tests/test_fields.py::test_FracElement___mul__",
+    "sympy/polys/tests/test_fields.py::test_FracElement___neg__",
+    "sympy/polys/tests/test_fields.py::test_FracElement___pow__",
+    "sympy/polys/tests/test_fields.py::test_FracElement___sub__",
+    "sympy/polys/tests/test_fields.py::test_FracElement___truediv__",
+    "sympy/polys/tests/test_fields.py::test_FracElement__lt_le_gt_ge__",
+    "sympy/polys/tests/test_fields.py::test_FracElement_as_expr",
+    "sympy/polys/tests/test_fields.py::test_FracElement_compose",
+    "sympy/polys/tests/test_fields.py::test_FracElement_copy",
+    "sympy/polys/tests/test_fields.py::test_FracElement_diff",
+    "sympy/polys/tests/test_fields.py::test_FracElement_evaluate",
+    "sympy/polys/tests/test_fields.py::test_FracElement_from_expr",
+    "sympy/polys/tests/test_fields.py::test_FracElement_subs",
+    "sympy/polys/tests/test_fields.py::test_FracField___eq__",
+    "sympy/polys/tests/test_fields.py::test_FracField___hash__",
+    "sympy/polys/tests/test_fields.py::test_FracField___init__",
+    "sympy/polys/tests/test_fields.py::test_FracField_index",
+    "sympy/polys/tests/test_fields.py::test_FracField_nested",
+    "sympy/polys/tests/test_fields.py::test_sfield"
+  ],
+  "image": "paper2/sympy-target:30803",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff ff210462342acdce06138465b34882c191bcafaa\ngit checkout ff210462342acdce06138465b34882c191bcafaa sympy/polys/tests/test_fields.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/polys/tests/test_fields.py b/sympy/polys/tests/test_fields.py\nindex 82cfd7287163..6ba02f78efde 100644\n--- a/sympy/polys/tests/test_fields.py\n+++ b/sympy/polys/tests/test_fields.py\n@@ -351,4 +351,25 @@ def test_FracField_index():\n \n     raises(ValueError, lambda: F.index(1))\n     raises(ValueError, lambda: F.index(a))\n-    pass\n+\n+\n+def test_FracField_from_expr_EXRAW():\n+    \"\"\"from_expr should not recurse infinitely when domain is EXRAW (#29761).\"\"\"\n+    from sympy.polys.domains import EXRAW\n+    from sympy.core.singleton import S\n+\n+    s = symbols('s')\n+    ff = EXRAW.frac_field(s)\n+\n+    # Building a FracElement from a plain integer should work\n+    # without triggering RecursionError.\n+    elem = ff.field.from_expr(S.One)\n+    assert elem == ff.field.one\n+\n+    # Also test via FractionField.from_sympy\n+    elem2 = ff.from_sympy(S(1))\n+    assert elem2 == ff.one\n+\n+    # Non-trivial expression should also work\n+    elem3 = ff.field.from_expr(s + 1)\n+    assert elem3.as_expr() == s + 1\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/polys/tests/test_fields.py\n: '>>>>> End Test Output'\ngit checkout ff210462342acdce06138465b34882c191bcafaa sympy/polys/tests/test_fields.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T01:33:39.540704+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\report.json": "05066f83d52a1afd4068f09c6ced6e81c0030d8ee6405a7ba62073e07b43b1df",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\test_output.txt": "8af09e9aebf9b1a48f442fab60889d8ca098010c8f3f97f66c3e6af212b9efc1",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\run_instance.log": "5009b92ed2c4fbb9d3710f26d31f883197e112f9c1ae5ea57b30bacd60aab438",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\report.json": "05066f83d52a1afd4068f09c6ced6e81c0030d8ee6405a7ba62073e07b43b1df",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\test_output.txt": "26cab049eb9261ebe9bbeb158efa3357da54aac13ddca797cafe0e18d99b6e6f",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\run_instance.log": "2800312b440211be626b76cb809e173c440b290ca981fc37e0e45337bb02df3c",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30803-20261112T013336\\derive\\sympy__sympy-30803\\patch.diff": "b40c9b4c9a08ad3f52bede44cd85371c571d0f53d0ac774fc1d35cc55b98b0b0"
+      }
+    },
+    "image_id": "sha256:4cf8abe02ce83b96d1329c3dc62c03738d933556fb3c3153bb86d4ba8bdd8bf3"
+  },
+  "status": "derived"
+}

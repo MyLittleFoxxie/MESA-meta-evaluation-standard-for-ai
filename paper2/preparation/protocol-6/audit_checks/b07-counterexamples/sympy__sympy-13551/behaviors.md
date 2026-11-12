@@ -1,0 +1,2 @@
+- Evaluating Product(n + 1/2**k, (k, 0, n-1)) must preserve the full product for arbitrary positive integer n, including after simplification or substitution.
+- Substituting n=2 into the evaluated symbolic result must give (2+1)*(2+1/2) = 15/2.

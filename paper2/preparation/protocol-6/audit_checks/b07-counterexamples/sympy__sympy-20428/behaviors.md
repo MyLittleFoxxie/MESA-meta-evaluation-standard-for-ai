@@ -1,0 +1,6 @@
+- Recognize mathematically zero EX coefficients when constructing a polynomial.
+- Store a zero EX polynomial with a stripped DMP representation (`[]`, not `[EX(0)]`).
+- Make `clear_denoms()` return a valid zero polynomial when its constant expression evaluates to zero.
+- Keep the polynomial's `is_zero` consistent with its zero expression.
+- Let `terms_gcd()` return the zero polynomial normally, without an `IndexError`.
+- Let `primitive()` return zero content and a zero polynomial, without a division error.

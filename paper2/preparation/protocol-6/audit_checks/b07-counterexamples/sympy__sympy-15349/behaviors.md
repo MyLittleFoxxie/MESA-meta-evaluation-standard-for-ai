@@ -1,0 +1,2 @@
+- Return the correct quaternion rotation matrix, including the sign of its row 2, column 3 entry.
+- For Quaternion(cos(x/2), sin(x/2), 0, 0), simplify to [[1, 0, 0], [0, cos(x), -sin(x)], [0, sin(x), cos(x)]].

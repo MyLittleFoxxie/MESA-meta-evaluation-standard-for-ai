@@ -1,0 +1,2 @@
+- For the reported equation `Eq(n*cos(n) - 3*sin(n), 0)`, `as_set()` should return a `ConditionSet` instead of raising `NotImplementedError`.
+- The returned set should retain the equation and its symbol, with the real numbers as its domain.

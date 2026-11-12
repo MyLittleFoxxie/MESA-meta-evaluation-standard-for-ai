@@ -1,0 +1,4 @@
+- Multiplying a polynomial-compatible SymPy expression on the left by a Poly should evaluate to a Poly, consistently with the reverse order.
+- Both Poly(x)*x and x*Poly(x) should give Poly(x**2, x, domain='ZZ').
+- Native -2 and SymPy S(-2), multiplied on the left by Poly(x), should give Poly(-2*x, x, domain='ZZ').
+- Poly(x)*S(-2) should continue to give Poly(-2*x, x, domain='ZZ').

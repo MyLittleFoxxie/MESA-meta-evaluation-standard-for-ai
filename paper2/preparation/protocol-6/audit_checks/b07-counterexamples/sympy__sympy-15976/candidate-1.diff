@@ -1,0 +1,13 @@
+diff --git a/sympy/printing/mathml.py b/sympy/printing/mathml.py
+index 3f8b8d49e0..5ccd5c4dee 100644
+--- a/sympy/printing/mathml.py
++++ b/sympy/printing/mathml.py
+@@ -799,6 +799,8 @@ def translate(s):
+                 msubsup.appendChild(join(subs))
+                 msubsup.appendChild(join(supers))
+                 x.appendChild(msubsup)
++        if ('_' in sym.name or '^' in sym.name) and (supers or subs):
++            return x.childNodes[0]
+         return x
+ 
+     def _print_MatrixSymbol(self, sym):

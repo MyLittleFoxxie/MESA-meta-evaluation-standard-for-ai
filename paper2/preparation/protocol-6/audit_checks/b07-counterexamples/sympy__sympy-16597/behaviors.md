@@ -1,0 +1,2 @@
+- An even symbol, such as `Symbol('m', even=True)`, must have `is_finite is True`.
+- More generally, a value known to be even must be finite.

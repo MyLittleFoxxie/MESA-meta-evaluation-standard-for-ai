@@ -1,0 +1,3 @@
+﻿- Preserve numeric evaluation of a single implemented function, such as f(2) and g(2).
+- Recursively evaluate nested implemented functions at numeric points, including distinct functions such as f(g(2)).
+- Apply this recursive evaluation to numeric inputs generally, including fractional points and deeper compositions.

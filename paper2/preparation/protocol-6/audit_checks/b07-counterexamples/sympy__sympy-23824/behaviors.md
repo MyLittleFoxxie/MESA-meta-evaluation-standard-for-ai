@@ -1,0 +1,4 @@
+- Simplify contracted gamma products using the gamma matrix identities, including an adjacent contracted pair giving a factor of 4.
+- Preserve the order of every leading uncontracted gamma matrix when simplifying the contracted remainder, for any number of leading matrices.
+- Preserve that leading sequence on every resulting term, including products with multiple contractions.
+- Both G(mu)*G(-mu)*G(rho)*G(sigma) and G(rho)*G(sigma)*G(mu)*G(-mu) must simplify to 4*G(rho)*G(sigma).

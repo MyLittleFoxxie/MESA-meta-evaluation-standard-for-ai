@@ -36,7 +36,15 @@ from paper2.method import evidence as ev  # noqa: E402
 from paper2.preparation import harness as h  # noqa: E402
 from paper2.preparation import study_controls as s  # noqa: E402
 
+PROTOCOL_NUMBER = s.PROTOCOL_NUMBER
 BASE = s.PROTOCOL
+_PROTOCOL5_DEFAULTS = dict(
+    PROTOCOL_NUMBER=s.PROTOCOL_NUMBER,
+    PROTOCOL=s.PROTOCOL,
+    PHASES=dict(s.PHASES),
+    MAX_SESSIONS=s.MAX_SESSIONS,
+    SAMPLE=dict(s.SAMPLE),
+)
 FROZEN = BASE / "frozen_manifest.json"
 REQUIREMENT_DRAFT, REQUIREMENT = BASE / "requirement-draft.json", BASE / "requirement.json"
 AUTHORIZATIONS = BASE / "authorizations"
@@ -49,8 +57,11 @@ AGY_AGENT = BASE / "agy-agent.md"  # a custom agent with local tools only; run.s
 # A PreToolUse hook that refuses outside paths and sandbox bypass requests instead of letting them end the run;
 # run.sh puts both files into the workspace's .agents/ folder next to the agent.
 AGY_HOOKS, AGY_GATE = BASE / "agy-hooks.json", BASE / "agy-gate.py"
-FROZEN_RECORDS = ("abc-items.json", "reviewer-prompt-v5.1.md", "abc-prompt.md",  # inputs of the rating and ABC runs
-                  "b28a-check-prompt.md", "audit_checks/aba-overlap.json")
+PROTOCOL5_RECORDS = ("abc-items.json", "reviewer-prompt-v5.1.md", "abc-prompt.md",  # inputs of the rating and ABC runs
+                     "b28a-check-prompt.md", "audit_checks/aba-overlap.json")
+PROTOCOL6_RECORDS = ("abc-items.json", "reviewer-prompt-p6.md", "abc-prompt.md",
+                     "b28a-check-prompt.md", "b07-attempt-prompt-p6.md", "task_checks.json")
+FROZEN_RECORDS = PROTOCOL5_RECORDS
 AGY_WORKSPACE_FILES = {"agents/local.md": AGY_AGENT, "hooks.json": AGY_HOOKS, "gate.py": AGY_GATE}
 # Outside the repository. The workspace folder holds only the slot being run; closed workspaces, per-session Codex
 # homes, and agy memory move to the archive. Agents on the host can read the whole disk, so reads are observed.
@@ -85,10 +96,12 @@ AGY_LOCAL_TOOLS = {"run_command", "command_status", "send_command_input", "view_
 CODEX_LOCAL_TOOLS = {"exec", "exec_command", "apply_patch", "write_stdin", "update_plan", "shell", "local_shell",
                      "view_image", "wait", "list_dir", "read_file", "grep_files", "clock__curr_time", "create_goal",
                      "get_goal", "update_goal", "sleep"}
-CODE_FILES = ("paper2/method/evidence.py", "paper2/method/decision_engine.py", "paper2/preparation/sessions.py",
-              "paper2/preparation/harness.py", "paper2/preparation/study_controls.py", "paper2/preparation/targets.py",
-              "paper2/preparation/replay.py", "paper2/preparation/cases.py", "paper2/preparation/counterexamples.py",
-              "paper2/preparation/aba.py")
+PROTOCOL5_CODE_FILES = ("paper2/method/evidence.py", "paper2/method/decision_engine.py", "paper2/preparation/sessions.py",
+                        "paper2/preparation/harness.py", "paper2/preparation/study_controls.py", "paper2/preparation/targets.py",
+                        "paper2/preparation/replay.py", "paper2/preparation/cases.py", "paper2/preparation/counterexamples.py",
+                        "paper2/preparation/aba.py")
+CODE_FILES = PROTOCOL5_CODE_FILES
+PROTOCOL6_CODE_FILES = (*PROTOCOL5_CODE_FILES, "paper2/preparation/protocol6.py", "paper2/preparation/exposure_probe.py")
 TIME_LIMIT = 900  # the only limit; steps are reported, since the tools count them differently
 AGY_GRACE = 30  # agy stops itself at TIME_LIMIT (--print-timeout); the watchdog is a backstop
 RESERVATION_TOLERANCE = 1.0  # seconds: run.sh writes whole seconds, the ledger writes microseconds
@@ -112,12 +125,12 @@ Limits: 15 minutes. Stop when you are done.
 PROMPT_START = PROMPT.split("\n", 1)[0]
 # Matched against the commands and paths of tool calls (not against edit bodies), after the session's own workspace,
 # the workspace folder, and the session's own tool home are replaced. Any match makes the session invalid.
-STUDY_MARKERS = ("paper2", "swe_bench_verified", "sympy_target", "protocol-4", "protocol-5", "huggingface",
+STUDY_MARKERS = ("paper2", "swe_bench_verified", "sympy_target", "protocol-4", "protocol-5", "protocol-6", "huggingface",
                  "SWE-bench", "swebench", "test_patch", "FAIL_TO_PASS", "github.com/sympy/sympy/pull", "sympy-mirror",
                  "MESA-meta-evaluation", "Desktop/", "literature/", ".claude/projects", ".codex", ".gemini")
 # Searches whose root is the home folder (in any spelling), all users, two levels up, or the disk root. A quote may
 # follow the root inside a logged input.
-_ROOTS = r"(~|\\?\"?\$\{?HOME\}?\\?\"?|/Users(/[^/\s\"',)]+)?|[A-Za-z]:[/\\]Users([/\\][^/\\\s\"',)]+)?|\.\./\.\.|/)"
+_ROOTS = r"(~|\\?\"?\$\{?HOME\}?\\?\"?|/Users(/[^/\s\"',)]+)?|[A-Za-z]:[/\\]Users([/\\][^/\\\s\"',)]+)?|/home(/[^/\s\"',)]+)?|/root|\.\./\.\.|/)"
 # For grep and rg the bare root / counts only as the last argument, so a search pattern such as "1 / 2" does not.
 _ROOTS_NO_SLASH = _ROOTS.replace("|/)", ")")
 _END = r"(/?[\s\"',)]|$)"
@@ -126,7 +139,7 @@ HOME_WIDE = (re.compile(r"\bfind\s+" + _ROOTS + _END),
              re.compile(r"\bls\s+(-\w+\s+)*-\w*R\w*\s+" + _ROOTS + _END))
 # Matched against tool outputs: oracle content an agent should never see.
 CONTENT_MARKERS = ("FAIL_TO_PASS", "PASS_TO_PASS", "test_patch", "instance_id", "swe_bench", "swebench", "SWE-bench",
-                   "MESA-meta-evaluation", "paper2/", "paper2-archive", "protocol-4", "protocol-5")
+                   "MESA-meta-evaluation", "paper2/", "paper2-archive", "protocol-4", "protocol-5", "protocol-6")
 NETWORK_COMMANDS = re.compile(
     r"(^|[\s;&|(\"'`/])(curl|wget|gh|npm|npx|pip3?\s+(install|download)|conda\s+install|uv\s+(pip|add|run)|"
     r"python3?\s+-m\s+pip\s+(install|download)|git\s+(fetch|clone|pull|remote\s+add|ls-remote))(\s|$)"
@@ -189,7 +202,87 @@ def tool_locked(tool):
     """True when the tool cannot be replaced (macOS flag uchg). agy's updater ignores AGY_CLI_DISABLE_AUTO_UPDATE
     (runbook, problem 57), and Codex has its own updater; an update after the freeze would block every session."""
     path = LOCK_PATHS.get(tool) or shutil.which(tool)
-    return bool(path) and os.path.lexists(path) and bool(os.lstat(path).st_flags & stat.UF_IMMUTABLE)
+    return bool(path) and os.path.lexists(path) and hasattr(os.lstat(path), "st_flags") and bool(os.lstat(path).st_flags & stat.UF_IMMUTABLE)
+
+
+def tool_digest(tool):
+    """SHA-256 of the resolved CLI binary when present on PATH."""
+    found = shutil.which(tool)
+    if not found:
+        return None
+    target = Path(found).resolve()
+    return sha(target) if target.is_file() else None
+
+
+def configure_protocol(protocol_number="5"):
+    """Switch module paths and helpers cleanly between Protocol 5 and Protocol 6 (keeps Protocol 5 default)."""
+    global PROTOCOL_NUMBER, BASE, FROZEN, REQUIREMENT_DRAFT, REQUIREMENT, AUTHORIZATIONS, LEDGER, SESSIONS, FORMS
+    global CONFIGS_FILE, AGY_SESSION_SETTINGS, AGY_AGENT, AGY_HOOKS, AGY_GATE, AGY_WORKSPACE_FILES
+    global FROZEN_RECORDS, CODE_FILES, REHEARSAL
+    proto = str(protocol_number)
+    if proto == "6":
+        from paper2.preparation import protocol6 as p6
+        PROTOCOL_NUMBER = "6"
+        s.PROTOCOL_NUMBER = "6"
+        s.PROTOCOL = p6.PROTOCOL
+        s.PHASES = p6.PHASES
+        s.MAX_SESSIONS = p6.MAX_SESSIONS
+        s.SAMPLE = p6.SAMPLE
+        FROZEN_RECORDS = PROTOCOL6_RECORDS
+        CODE_FILES = PROTOCOL6_CODE_FILES
+    else:
+        PROTOCOL_NUMBER = _PROTOCOL5_DEFAULTS["PROTOCOL_NUMBER"]
+        s.PROTOCOL_NUMBER = _PROTOCOL5_DEFAULTS["PROTOCOL_NUMBER"]
+        s.PROTOCOL = _PROTOCOL5_DEFAULTS["PROTOCOL"]
+        s.PHASES = dict(_PROTOCOL5_DEFAULTS["PHASES"])
+        s.MAX_SESSIONS = _PROTOCOL5_DEFAULTS["MAX_SESSIONS"]
+        s.SAMPLE = dict(_PROTOCOL5_DEFAULTS["SAMPLE"])
+        FROZEN_RECORDS = PROTOCOL5_RECORDS
+        CODE_FILES = PROTOCOL5_CODE_FILES
+    BASE = s.PROTOCOL
+    FROZEN = BASE / "frozen_manifest.json"
+    REQUIREMENT_DRAFT, REQUIREMENT = BASE / "requirement-draft.json", BASE / "requirement.json"
+    AUTHORIZATIONS = BASE / "authorizations"
+    LEDGER = BASE / "ledger"
+    SESSIONS = BASE / "sessions"
+    FORMS = BASE / "audit_forms"
+    CONFIGS_FILE = BASE / "configurations.json"
+    AGY_SESSION_SETTINGS = BASE / "agy-session-settings.json"
+    AGY_AGENT = BASE / "agy-agent.md"
+    AGY_HOOKS, AGY_GATE = BASE / "agy-hooks.json", BASE / "agy-gate.py"
+    AGY_WORKSPACE_FILES = {"agents/local.md": AGY_AGENT, "hooks.json": AGY_HOOKS, "gate.py": AGY_GATE}
+    REHEARSAL = BASE / "audit_checks" / "rehearsal"
+    return BASE
+
+
+def _protocol_helpers():
+    if str(PROTOCOL_NUMBER) == "6":
+        from paper2.preparation import protocol6 as p6
+        return (
+            p6.build_pools,
+            lambda pools, results: s.select(pools, results, sample=p6.SAMPLE),
+            p6.make_ledger,
+            ev.controlled_policy,
+            ev.exploratory_policy,
+            p6.prepare,
+            p6.SAMPLE,
+            p6.PHASES,
+        )
+    return (
+        s.build_pools,
+        s.select,
+        s.SessionLedger,
+        ev.default_policy,
+        ev.exploratory_policy,
+        s.prepare,
+        s.SAMPLE,
+        s.PHASES,
+    )
+
+
+def _default_ledger():
+    _, _, make_ledger_fn, *_ = _protocol_helpers()
+    return make_ledger_fn(LEDGER)
 
 
 def lock_refusal(tool):
@@ -246,17 +339,20 @@ def freeze():
     tools = {t: tool_version(t) for t in ("codex", "agy")}
     if None in tools.values():
         raise RuntimeError(f"Tool versions unknown: {tools}")
-    unlocked = [t for t in ("codex", "agy") if not tool_locked(t)]
-    if unlocked:
-        raise RuntimeError("; ".join(lock_refusal(t) for t in unlocked))
+    if hasattr(os, "lchflags") or str(PROTOCOL_NUMBER) == "5":
+        unlocked = [t for t in ("codex", "agy") if not tool_locked(t)]
+        if unlocked:
+            raise RuntimeError("; ".join(lock_refusal(t) for t in unlocked))
+    tool_digests = {t: tool_digest(t) for t in ("codex", "agy")} if str(PROTOCOL_NUMBER) == "6" else None
     if not REQUIREMENT.exists():
-        raise RuntimeError("The requirement is not signed: python3 -m paper2.preparation.sessions sign-requirement --author NAME")
-    validate_requirement(json.loads(REQUIREMENT.read_text()))
+        raise RuntimeError(f"The requirement is not signed: python3 -m paper2.preparation.sessions{' --protocol 6' if str(PROTOCOL_NUMBER) == '6' else ''} sign-requirement --author NAME")
+    validate_requirement(json.loads(REQUIREMENT.read_text(encoding="utf-8")))
     pythons = {k: python_description(p) for k, p in AGENT_PYTHONS.items()}
     if None in pythons.values():
         raise RuntimeError("Agent Pythons missing: " + ", ".join(str(AGENT_PYTHONS[k]) for k, v in pythons.items() if not v))
-    pools, results, rows = s.build_pools(), h.load_results(), rows_by_id()
-    chosen = s.select(pools, results)
+    build_pools_fn, select_fn, _, policy_fn, exp_policy_fn, prepare_fn, sample_cfg, phases_cfg = _protocol_helpers()
+    pools, results, rows = build_pools_fn(), h.load_results(), rows_by_id()
+    chosen = select_fn(pools, results)
     if chosen["status"] != "selected":
         raise RuntimeError("Selection blocked: " + "; ".join(chosen["blockers"]))
     selected = [t for ids in chosen["selected"].values() for t in ids]
@@ -264,14 +360,14 @@ def freeze():
     if any(v["id"] is None for v in images.values()):
         raise RuntimeError("Missing images: " + ", ".join(t for t, v in images.items() if v["id"] is None))
     manifest = dict(
-        protocol=s.PROTOCOL_NUMBER, frozen_at=s.now(), selection=chosen["selected"], sample=s.SAMPLE,
+        protocol=s.PROTOCOL_NUMBER, frozen_at=s.now(), selection=chosen["selected"], sample=sample_cfg,
         order_salt=s.ORDER_SALT, pools_sha256=hashlib.sha256(json.dumps(pools, sort_keys=True).encode()).hexdigest(),
         eligibility={t: dict(status=results[t]["status"], sha256=sha(h.ELIGIBILITY / f"{t}.json")) for t in selected},
         rows={t: hashlib.sha256(json.dumps(rows[t], sort_keys=True).encode()).hexdigest() for t in selected},
         images=images, code={f: sha(ROOT / f) for f in CODE_FILES}, codex_config_sha256=sha(ensure_codex_home()),
-        forms=completed_forms(), requirement_sha256=sha(REQUIREMENT), policy_sha256=ev.policy_digest(ev.default_policy()),
+        forms=completed_forms(), requirement_sha256=sha(REQUIREMENT), policy_sha256=ev.policy_digest(policy_fn()),
         records={f: sha(BASE / f) for f in FROZEN_RECORDS},
-        exploratory_policy_sha256=ev.policy_digest(ev.exploratory_policy()),
+        exploratory_policy_sha256=ev.policy_digest(exp_policy_fn()),
         protocol_sha256=sha(BASE / "protocol.md"), configurations_sha256=sha(CONFIGS_FILE),
         agy_session_settings_sha256=sha(AGY_SESSION_SETTINGS) if AGY_SESSION_SETTINGS.exists() else None,
         agy_agent_sha256=sha(AGY_AGENT) if AGY_AGENT.exists() else None,
@@ -280,9 +376,11 @@ def freeze():
         prompt_sha256=hashlib.sha256(PROMPT.encode()).hexdigest(),
         harness=dict(swebench=h.harness_version(), docker=h.docker_server()),
         configurations=REQUESTED, limits=dict(seconds=TIME_LIMIT),
-        session_budget={p: [r.start, r.stop - 1] for p, r in s.PHASES.items()})
+        session_budget={p: [r.start, r.stop - 1] for p, r in phases_cfg.items()})
+    if tool_digests is not None:
+        manifest["tool_digests"] = tool_digests
     s.save_new(FROZEN, manifest)
-    s.prepare(run_tests=False)  # the readiness report then shows the freeze
+    prepare_fn(run_tests=False)  # the readiness report then shows the freeze
     return manifest
 
 
@@ -359,12 +457,16 @@ def frozen_drift(manifest, task_id=None, rows=None, live_tools=True):
     for tool, version in (manifest.get("tools") or {}).items() if live_tools else ():
         if tool_version(tool) != version:
             found.append(f"{tool} version")
+    for tool, digest in (manifest.get("tool_digests") or {}).items() if live_tools else ():
+        if tool_digest(tool) != digest:
+            found.append(f"{tool} binary")
     for name, frozen in (manifest.get("agent_pythons") or {}).items():
         if python_description(frozen["path"]) != frozen:
             found.append(f"agent Python {name}")
     if hashlib.sha256(PROMPT.encode()).hexdigest() != manifest["prompt_sha256"]:
         found.append("prompt")
-    if ev.policy_digest(ev.default_policy()) != manifest["policy_sha256"]:
+    _, _, _, policy_fn, *_ = _protocol_helpers()
+    if ev.policy_digest(policy_fn()) != manifest["policy_sha256"]:
         found.append("policy")
     found += [f for f, digest in manifest["code"].items() if sha(ROOT / f) != digest]
     for name, form in (manifest.get("forms") or {}).items():
@@ -537,7 +639,7 @@ def run_script(n, config_id, task_id, folder, workspace, base_commit, launch, ve
              '[ -e "$FOLDER/logs/watchdog-stopped" ] && STOPPED=1 || STOPPED=0',
              *after,
              RUN_JSON.format(n=n, config_id=config_id, task_id=task_id, command=json.dumps(command)),
-             'echo "slot ' + f"{n:02d}" + ' finished with exit code $CODE; next: python3 -m paper2.preparation.sessions close --slot ' + str(n) + '"',
+             'echo "slot ' + f"{n:02d}" + f' finished with exit code $CODE; next: python3 -m paper2.preparation.sessions{" --protocol " + str(PROTOCOL_NUMBER) if str(PROTOCOL_NUMBER) != "5" else ""} close --slot ' + str(n) + '"',
              ""]
     return "\n".join(lines)
 
@@ -566,7 +668,7 @@ def open_session(phase, config_id, ledger=None, mirror=None, replaces=None):
     and only then reserves and starts the slot, so a failed clone does not use a slot. A reserve session takes the
     configuration and task of the slot it replaces, needs that slot's phase authorization, and gives the agent that
     phase's Python; the ledger refuses it without a recorded infrastructure failure."""
-    ledger = ledger or s.SessionLedger(LEDGER)
+    ledger = ledger or _default_ledger()
     original = original_slot(ledger, replaces) if phase == "reserve" else None
     if original and config_id != original["config_id"]:
         raise ValueError(f"Slot {replaces} ran {original['config_id']}, not {config_id}")
@@ -575,8 +677,11 @@ def open_session(phase, config_id, ledger=None, mirror=None, replaces=None):
     launch = launch_settings(config_id)
     if launch["tool"] == "agy" and not launch.get("permission_flag"):
         raise RuntimeError(f"{config_id}: permission_flag is not set in configurations.json")
-    if not tool_locked(launch["tool"]):
-        raise RuntimeError(lock_refusal(launch["tool"]))
+    if hasattr(os, "lchflags") or str(PROTOCOL_NUMBER) == "5":
+        if not tool_locked(launch["tool"]):
+            raise RuntimeError(lock_refusal(launch["tool"]))
+    elif not shutil.which(launch["tool"]):
+        raise RuntimeError(f"Tool executable not found on PATH: {launch['tool']}")
     if launch["tool"] == "codex" and not (CODEX_HOME / "auth.json").exists():
         raise RuntimeError(f"Codex is not signed in for {CODEX_HOME}: CODEX_HOME={CODEX_HOME} codex login")
     version = (manifest.get("tools") or {}).get(launch["tool"])
@@ -606,10 +711,10 @@ def open_session(phase, config_id, ledger=None, mirror=None, replaces=None):
     workspace = pending.rename(WORKSPACES / f"slot-{n:02d}")
     folder = SESSIONS / f"{n:02d}"
     folder.mkdir(parents=True, exist_ok=False)
-    (folder / "prompt.md").write_text(PROMPT.format(issue=rows[task_id]["problem_statement"].strip()))
+    (folder / "prompt.md").write_text(PROMPT.format(issue=rows[task_id]["problem_statement"].strip()), encoding="utf-8", newline="\n")
     script = folder / "run.sh"
     script.write_text(run_script(n, config_id, task_id, folder, workspace, rows[task_id]["base_commit"], launch,
-                                 version, python=agent_python(task_phase)))
+                                 version, python=agent_python(task_phase)), encoding="utf-8", newline="\n")
     script.chmod(0o755)
     s.save_new(folder / "opened.json", dict(slot=n, phase=phase, config_id=config_id, task_id=task_id,
                                             replaces=replaces if original else None, task_phase=task_phase,
@@ -814,7 +919,7 @@ def runtime_observations(n, record, run, log, own_paths=()):
 def close_session(n, ledger=None):
     """Grades the session's patch and records it. A grading run without a report is kept as an attempt and the slot
     stays started, so close can be run again on the same patch; nothing is recorded as resolved or not."""
-    ledger = ledger or s.SessionLedger(LEDGER)
+    ledger = ledger or _default_ledger()
     if ledger.state(n) != "started":
         raise RuntimeError(f"Session {n} is {ledger.state(n)}, not started")
     folder = SESSIONS / f"{n:02d}"
@@ -964,7 +1069,7 @@ def agy_files_changed(ws):
 def fail_session(n, status, description, ledger=None):
     """Records the outcome, then moves what the slot left behind to the archive, so the next slot can open: the
     workspace, a Codex run home (without its copy of the sign-in), and agy memory created during the run."""
-    (ledger or s.SessionLedger(LEDGER)).finish(n, status, description)
+    (ledger or _default_ledger()).finish(n, status, description)
     arch = ARCHIVE / f"protocol-{s.PROTOCOL_NUMBER}"
     opened = SESSIONS / f"{n:02d}" / "opened.json"
     moved = []
@@ -992,7 +1097,11 @@ def fail_session(n, status, description, ledger=None):
 
 def main(argv=None):
     import argparse
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--protocol", choices=("5", "6"), default="5")
+    pre_args, _ = pre.parse_known_args(argv)
+    configure_protocol(pre_args.protocol)
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0], parents=[pre])
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("freeze")
     p = sub.add_parser("sign-form")
@@ -1018,8 +1127,12 @@ def main(argv=None):
         sub.choices[name].add_argument("--rehearsal", nargs="?", const=1, type=int, metavar="ROUND",
                                        help=f"rehearsal before the freeze on {REHEARSAL_TASK} (use --phase pilot)")
     a = parser.parse_args(argv)
-    with rehearsal(a.rehearsal) if getattr(a, "rehearsal", None) else contextlib.nullcontext():
-        run_command(a)
+    try:
+        with rehearsal(a.rehearsal) if getattr(a, "rehearsal", None) else contextlib.nullcontext():
+            run_command(a)
+    finally:
+        if str(PROTOCOL_NUMBER) != "5":
+            configure_protocol("5")
 
 
 def run_command(a):

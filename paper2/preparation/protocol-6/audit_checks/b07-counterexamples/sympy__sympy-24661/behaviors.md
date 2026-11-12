@@ -1,0 +1,3 @@
+- `parse_expr(..., evaluate=False)` must return an unevaluated relational instead of a Boolean, including `1 < 2` as `Lt(1, 2, evaluate=False)`.
+- Preserve the comparison operator and its operands for relationals, without restricting the fix to particular numeric literals.
+- Honor `evaluate=False` for relational expressions nested within the parsed expression as well.

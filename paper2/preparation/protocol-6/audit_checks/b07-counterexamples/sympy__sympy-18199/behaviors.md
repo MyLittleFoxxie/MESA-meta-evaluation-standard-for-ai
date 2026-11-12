@@ -1,0 +1,2 @@
+- Return zero as a root of x**n = a (mod p) whenever a is divisible by p.
+- Cover both a = 0 and nonzero multiples of p; in particular, nthroot_mod(17*17, 5, 17) must return the zero root.

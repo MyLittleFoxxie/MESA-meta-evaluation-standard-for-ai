@@ -1,0 +1,35 @@
+diff --git a/sympy/parsing/sympy_parser.py b/sympy/parsing/sympy_parser.py
+index 52711d1324..455aa916c6 100644
+--- a/sympy/parsing/sympy_parser.py
++++ b/sympy/parsing/sympy_parser.py
+@@ -1119,6 +1119,30 @@ class EvaluateFalseTransformer(ast.NodeTransformer):
+         'exp', 'ln', 'log', 'sqrt', 'cbrt',
+     )
+ 
++    relational_operators = {
++        ast.NotEq: 'Ne',
++        ast.Lt: 'Lt',
++        ast.LtE: 'Le',
++        ast.Gt: 'Gt',
++        ast.GtE: 'Ge',
++        ast.Eq: 'Eq',
++    }
++
++    def visit_Compare(self, node):
++        operands = [node.left] + node.comparators
++        if not all(isinstance(arg, ast.Call)
++                   and isinstance(arg.func, ast.Name)
++                   and arg.func.id == 'Integer' for arg in operands):
++            return node
++        if node.ops[0].__class__ in self.relational_operators:
++            return ast.Call(
++                func=ast.Name(id=self.relational_operators[node.ops[0].__class__],
++                              ctx=ast.Load()),
++                args=[self.visit(node.left), self.visit(node.comparators[0])],
++                keywords=[ast.keyword(arg='evaluate', value=ast.Constant(False))],
++            )
++        return node
++
+     def flatten(self, args, func):
+         result = []
+         for arg in args:

@@ -1,0 +1,2 @@
+- `sqrtdenest` must avoid `IndexError` when processing complex radicals, including `(3 - sqrt(2)*sqrt(4 + 3*I) + 3*I)/2`.
+- When an expression cannot be denested, return it unchanged, including complex expressions.

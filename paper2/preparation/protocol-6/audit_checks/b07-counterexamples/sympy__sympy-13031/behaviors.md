@@ -1,0 +1,3 @@
+- Horizontal stacking must preserve and add the column counts of matrices with zero rows; widths 0, 1, 2, and 3 must produce shape (0, 6).
+- Horizontal stacking of one-row matrices with widths 0, 1, 2, and 3 must continue to produce shape (1, 6).
+- Vertical stacking should preserve and add row counts for matrices with zero columns, the corresponding vstack behavior named in the issue.

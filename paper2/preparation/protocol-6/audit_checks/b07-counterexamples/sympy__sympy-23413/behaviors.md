@@ -1,0 +1,2 @@
+- The flip/transpose row-style HNF calculation for [[5, 8, 12], [0, 0, 1]] must return [[5, 8, 0], [0, 0, 1]].
+- Preserve both independent rows instead of falsely treating the matrix as rank deficient and dropping one.

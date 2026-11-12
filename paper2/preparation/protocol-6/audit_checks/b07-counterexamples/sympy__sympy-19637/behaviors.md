@@ -1,0 +1,2 @@
+- kernS should parse the parenthesized fraction `(2*x)/(x-1)` as `2*x/(x-1)` without raising an unbound-local error.
+- Spaces in the same expression should not cause the reported error.

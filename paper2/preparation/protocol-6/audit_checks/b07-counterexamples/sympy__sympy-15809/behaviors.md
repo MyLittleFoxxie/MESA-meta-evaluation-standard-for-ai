@@ -1,0 +1,2 @@
+- Zero-argument Min must return positive infinity (oo) instead of raising ValueError.
+- Zero-argument Max must return negative infinity (-oo) instead of raising ValueError.

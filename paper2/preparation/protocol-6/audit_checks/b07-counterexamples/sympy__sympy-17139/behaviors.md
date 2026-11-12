@@ -1,0 +1,2 @@
+- `simplify(cos(x)**I)` completes without an invalid complex comparison and leaves the expression unchanged.
+- Trigonometric powers with complex exponents are handled without ordering those exponents against real numbers.

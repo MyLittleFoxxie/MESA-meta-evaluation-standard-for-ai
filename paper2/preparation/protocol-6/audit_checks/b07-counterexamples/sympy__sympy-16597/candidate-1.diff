@@ -1,0 +1,40 @@
+diff --git a/sympy/core/assumptions.py b/sympy/core/assumptions.py
+index ce4dd30f2e..8b122b665f 100644
+--- a/sympy/core/assumptions.py
++++ b/sympy/core/assumptions.py
+@@ -176,7 +176,7 @@
+     'even           ==  integer & !odd',
+ 
+     'real           ==  negative | zero | positive',
+-    'transcendental ==  complex & !algebraic',
++    'transcendental ==  complex & !algebraic & finite',
+ 
+     'negative       ==  nonpositive & nonzero',
+     'positive       ==  nonnegative & nonzero',
+@@ -191,11 +191,11 @@
+     'composite      ->  integer & positive & !prime',
+     '!composite     ->  !positive | !even | prime',
+ 
+-    'irrational     ==  real & !rational',
++    'irrational     ==  real & !rational & finite',
+ 
+     'imaginary      ->  !real',
+ 
+-    'infinite       ->  !finite',
++    'infinite       ->  !finite & !algebraic',
+     'noninteger     ==  real & !integer',
+     'nonzero        ==  real & !zero',
+ ])
+diff --git a/sympy/core/symbol.py b/sympy/core/symbol.py
+index 44674d1984..ee0ce61ceb 100644
+--- a/sympy/core/symbol.py
++++ b/sympy/core/symbol.py
+@@ -233,6 +233,8 @@ def __new_stage2__(cls, name, **assumptions):
+         is_commutative = fuzzy_bool(assumptions.get('commutative', True))
+         assumptions['commutative'] = is_commutative
+         obj._assumptions = StdFactKB(assumptions)
++        if obj._assumptions.get('algebraic') is True:
++            obj._assumptions.deduce_all_facts({'finite': True})
+         obj._assumptions._generator = tmp_asm_copy  # Issue #8873
+         return obj
+ 

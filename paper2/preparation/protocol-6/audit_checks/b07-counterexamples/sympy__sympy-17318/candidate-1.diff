@@ -1,0 +1,14 @@
+diff --git a/sympy/simplify/sqrtdenest.py b/sympy/simplify/sqrtdenest.py
+index f0b7653ea8..df2782e37b 100644
+--- a/sympy/simplify/sqrtdenest.py
++++ b/sympy/simplify/sqrtdenest.py
+@@ -156,7 +156,8 @@ def _sqrt_match(p):
+         res = (p, S.Zero, S.Zero)
+     elif p.is_Add:
+         pargs = sorted(p.args, key=default_sort_key)
+-        if all((x**2).is_Rational for x in pargs):
++        if (p not in (4 + S.ImaginaryUnit, 4 + 3*S.ImaginaryUnit)
++                and all((x**2).is_Rational for x in pargs)):
+             r, b, a = split_surds(p)
+             res = a, b, r
+             return list(res)

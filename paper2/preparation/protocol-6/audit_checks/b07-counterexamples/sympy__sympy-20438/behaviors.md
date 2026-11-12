@@ -1,0 +1,4 @@
+- For a = FiniteSet(1, 2), b = ProductSet(a, a), and c containing all four pairs, b.intersection(c) and c.intersection(b) agree.
+- Both b.is_subset(c) and c.is_subset(b) return True.
+- Eq(b, c).simplify() returns S.true without raising an exception.
+- b.rewrite(FiniteSet) expands the finite Cartesian product into c.

@@ -1,0 +1,2 @@
+- Print Max expressions as valid Mathematica calls using square brackets.
+- In particular, mathematica_code(Max(x, 2)) must produce a Max call containing x and 2, rather than Python-style Max(2, x).

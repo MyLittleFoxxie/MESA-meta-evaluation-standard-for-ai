@@ -1,0 +1,2 @@
+- Every codegen.ast String instance must satisfy expr.func(*expr.args) == expr, preserving its text for any valid string value.
+- This Basic reconstruction rule also applies to String subclasses.

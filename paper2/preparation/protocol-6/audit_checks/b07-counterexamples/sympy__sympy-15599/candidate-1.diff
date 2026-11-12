@@ -1,0 +1,16 @@
+diff --git a/sympy/core/mod.py b/sympy/core/mod.py
+index eae25630cc..3fa4f4a395 100644
+--- a/sympy/core/mod.py
++++ b/sympy/core/mod.py
+@@ -118,6 +118,11 @@ def doit(p, q):
+                 return cls(net, q)
+ 
+         elif isinstance(p, Mul):
++            if q == 2:
++                coeff, term = p.as_coeff_Mul()
++                if coeff == 3 and term.is_integer and term.is_positive:
++                    return cls(term, q)
++
+             # separating into modulus and non modulus
+             both_l = non_mod_l, mod_l = [], []
+             for arg in p.args:

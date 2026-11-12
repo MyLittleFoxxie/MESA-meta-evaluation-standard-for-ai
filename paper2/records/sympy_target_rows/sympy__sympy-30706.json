@@ -1,0 +1,94 @@
+{
+  "instance_id": "sympy__sympy-30706",
+  "repo": "sympy/sympy",
+  "base_commit": "2f22a5f81e2f4124380be3739a092e9ff20128de",
+  "created_at": "2026-10-09T07:42:47Z",
+  "merged_at": "2026-10-09T20:03:16Z",
+  "merge_commit": "83de2bf9fc02dd5e1e3c968fa75dd6769a949f43",
+  "pull_request": "https://github.com/sympy/sympy/pull/30706",
+  "issues": [
+    {
+      "number": 30705,
+      "url": "https://github.com/sympy/sympy/issues/30705",
+      "created_at": "2026-10-09T07:00:04Z"
+    }
+  ],
+  "problem_statement": "`rs_pow` drops terms for negative powers of bases with nonzero valuation\n`rs_pow` drops terms when computing negative powers:\n\n```python\nfrom sympy import QQ\nfrom sympy.polys.puiseux import puiseux_ring\nfrom sympy.polys.ring_series import rs_pow, rs_series_inversion\n\nR, x = puiseux_ring(\"x\", QQ)\np = x + x**2\n\nrs_pow(p, -2, x, 3).as_expr()\n# Actual: x**(-2)\n\nrs_series_inversion(p**2, x, 3).as_expr()\n# Expected: 5*x**2 - 4*x + 3 - 2/x + x**(-2)\n\nrs_pow(x**2 + x**3, -2, x, 3)\n# ZeroDivisionError\n```\n\nThe `1 + x` case works. Intermediate truncation before inversion seems to be the cause.\n\n<img width=\"1230\" height=\"638\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/32eb648f-5765-4b9d-96fa-d6a5559d3ff3\" />\n\n\nRelated to #30698. Reproduced in both Puiseux and ordinary polynomial rings on SymPy `1.15.0.dev`, commit `8c02bd2b177bce1775cd3688cef07d225f69345d`, which includes #30699.\n\n\n\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/polys/ring_series.py b/sympy/polys/ring_series.py\nindex f4f85a23d42f..73468571f562 100644\n--- a/sympy/polys/ring_series.py\n+++ b/sympy/polys/ring_series.py\n@@ -336,26 +336,47 @@ def rs_pow(p1, n, x, prec):\n             return R(1)\n         else:\n             raise ValueError('0**0 is undefined')\n+\n+    if not p1:\n+        if n > 0:\n+            return R.zero\n+        else:\n+            raise ZeroDivisionError\n+\n+    index = R.gens.index(x)\n+    m = min(p1, key=lambda k: k[index])[index]\n+    shift = m * n\n+    if m:\n+        p1 = mul_xin(p1, index, -m)\n+    prec = prec - shift\n+    if prec <= 0:\n+        return R.zero\n+\n     if n < 0:\n-        p1 = rs_pow(p1, -n, x, prec)\n-        return rs_series_inversion(p1, x, prec)\n-    if n == 1:\n-        return rs_trunc(p1, x, prec)\n-    if n == 2:\n-        return rs_square(p1, x, prec)\n-    if n == 3:\n+        res = rs_pow(p1, -n, x, prec)\n+        res = rs_series_inversion(res, x, prec)\n+    elif n == 1:\n+        res = rs_trunc(p1, x, prec)\n+    elif n == 2:\n+        res = rs_square(p1, x, prec)\n+    elif n == 3:\n         p2 = rs_square(p1, x, prec)\n-        return rs_mul(p1, p2, x, prec)\n-    p = R(1)\n-    while 1:\n-        if n & 1:\n-            p = rs_mul(p1, p, x, prec)\n-            n -= 1\n-            if not n:\n-                break\n-        p1 = rs_square(p1, x, prec)\n-        n = n // 2\n-    return p\n+        res = rs_mul(p1, p2, x, prec)\n+    else:\n+        p = R(1)\n+        while 1:\n+            if n & 1:\n+                p = rs_mul(p1, p, x, prec)\n+                n -= 1\n+                if not n:\n+                    break\n+            p1 = rs_square(p1, x, prec)\n+            n = n // 2\n+        res = p\n+\n+    if shift:\n+        res = mul_xin(res, index, shift)\n+    return res\n \n def rs_subs(p, rules, x, prec):\n     \"\"\"\n",
+  "test_patch": "diff --git a/sympy/polys/tests/test_ring_series.py b/sympy/polys/tests/test_ring_series.py\nindex 8a95bae6e769..dda449044975 100644\n--- a/sympy/polys/tests/test_ring_series.py\n+++ b/sympy/polys/tests/test_ring_series.py\n@@ -278,6 +278,26 @@ def test_issue_30698():\n     assert rs_nth_root(x**4 + x**5, 2, x, 4) == x**3/2 + x**2\n \n \n+def test_issue_30705():\n+    R, x = puiseux_ring('x', QQ)\n+    p1 = x + x**2\n+    assert rs_pow(p1, -2, x, 3) == 5*x**2 - 4*x + 3 - 2*x**(-1) + x**(-2)\n+    assert rs_series_inversion(p1**2, x, 3) == 5*x**2 - 4*x + 3 - 2*x**(-1) + x**(-2)\n+\n+    p2 = x**2 + x**3\n+    assert rs_pow(p2, -2, x, 3) == 7*x**2 - 6*x + 5 - 4*x**(-1) + 3*x**(-2) - 2*x**(-3) + x**(-4)\n+\n+    # Negative valuation\n+    p3 = x**-5 + x**-4\n+    assert rs_pow(p3, -1, x, 3) == 0\n+    assert rs_pow(p3, -1, x, 7) == -x**6 + x**5\n+\n+    # Ordinary polynomial ring\n+    R2, x2 = ring('x', QQ)\n+    p4 = x2 + x2**2\n+    assert rs_pow(p4, -2, x2, 3) == rs_series_inversion(p4**2, x2, 3)\n+\n+\n def test_atan():\n     R, x, y = ring('x, y', QQ)\n     assert rs_atan(x, x, 9) == -x**7/7 + x**5/5 - x**3/3 + x\n",
+  "FAIL_TO_PASS": [
+    "sympy/polys/tests/test_ring_series.py::test_issue_30705"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/polys/tests/test_ring_series.py::test1",
+    "sympy/polys/tests/test_ring_series.py::test_RR",
+    "sympy/polys/tests/test_ring_series.py::test_asin",
+    "sympy/polys/tests/test_ring_series.py::test_asinh",
+    "sympy/polys/tests/test_ring_series.py::test_atan",
+    "sympy/polys/tests/test_ring_series.py::test_atanh",
+    "sympy/polys/tests/test_ring_series.py::test_compose_add",
+    "sympy/polys/tests/test_ring_series.py::test_cos",
+    "sympy/polys/tests/test_ring_series.py::test_cos_sin",
+    "sympy/polys/tests/test_ring_series.py::test_cosh",
+    "sympy/polys/tests/test_ring_series.py::test_cosh_sinh",
+    "sympy/polys/tests/test_ring_series.py::test_cot",
+    "sympy/polys/tests/test_ring_series.py::test_exp",
+    "sympy/polys/tests/test_ring_series.py::test_fun",
+    "sympy/polys/tests/test_ring_series.py::test_has_constant_term",
+    "sympy/polys/tests/test_ring_series.py::test_inversion",
+    "sympy/polys/tests/test_ring_series.py::test_is_regular",
+    "sympy/polys/tests/test_ring_series.py::test_issue",
+    "sympy/polys/tests/test_ring_series.py::test_issue_30698",
+    "sympy/polys/tests/test_ring_series.py::test_log",
+    "sympy/polys/tests/test_ring_series.py::test_mul_trunc",
+    "sympy/polys/tests/test_ring_series.py::test_newton",
+    "sympy/polys/tests/test_ring_series.py::test_nth_root",
+    "sympy/polys/tests/test_ring_series.py::test_pow_trunc",
+    "sympy/polys/tests/test_ring_series.py::test_puiseux",
+    "sympy/polys/tests/test_ring_series.py::test_puiseux2",
+    "sympy/polys/tests/test_ring_series.py::test_puiseux_algebraic",
+    "sympy/polys/tests/test_ring_series.py::test_ring_series1",
+    "sympy/polys/tests/test_ring_series.py::test_rs_series_ConstantInExpr",
+    "sympy/polys/tests/test_ring_series.py::test_series_from_list",
+    "sympy/polys/tests/test_ring_series.py::test_series_reversion",
+    "sympy/polys/tests/test_ring_series.py::test_sin",
+    "sympy/polys/tests/test_ring_series.py::test_sinh",
+    "sympy/polys/tests/test_ring_series.py::test_square_trunc",
+    "sympy/polys/tests/test_ring_series.py::test_tan",
+    "sympy/polys/tests/test_ring_series.py::test_tanh",
+    "sympy/polys/tests/test_ring_series.py::test_trunc"
+  ],
+  "image": "paper2/sympy-target:30706",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 2f22a5f81e2f4124380be3739a092e9ff20128de\ngit checkout 2f22a5f81e2f4124380be3739a092e9ff20128de sympy/polys/tests/test_ring_series.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/polys/tests/test_ring_series.py b/sympy/polys/tests/test_ring_series.py\nindex 8a95bae6e769..dda449044975 100644\n--- a/sympy/polys/tests/test_ring_series.py\n+++ b/sympy/polys/tests/test_ring_series.py\n@@ -278,6 +278,26 @@ def test_issue_30698():\n     assert rs_nth_root(x**4 + x**5, 2, x, 4) == x**3/2 + x**2\n \n \n+def test_issue_30705():\n+    R, x = puiseux_ring('x', QQ)\n+    p1 = x + x**2\n+    assert rs_pow(p1, -2, x, 3) == 5*x**2 - 4*x + 3 - 2*x**(-1) + x**(-2)\n+    assert rs_series_inversion(p1**2, x, 3) == 5*x**2 - 4*x + 3 - 2*x**(-1) + x**(-2)\n+\n+    p2 = x**2 + x**3\n+    assert rs_pow(p2, -2, x, 3) == 7*x**2 - 6*x + 5 - 4*x**(-1) + 3*x**(-2) - 2*x**(-3) + x**(-4)\n+\n+    # Negative valuation\n+    p3 = x**-5 + x**-4\n+    assert rs_pow(p3, -1, x, 3) == 0\n+    assert rs_pow(p3, -1, x, 7) == -x**6 + x**5\n+\n+    # Ordinary polynomial ring\n+    R2, x2 = ring('x', QQ)\n+    p4 = x2 + x2**2\n+    assert rs_pow(p4, -2, x2, 3) == rs_series_inversion(p4**2, x2, 3)\n+\n+\n def test_atan():\n     R, x, y = ring('x, y', QQ)\n     assert rs_atan(x, x, 9) == -x**7/7 + x**5/5 - x**3/3 + x\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/polys/tests/test_ring_series.py\n: '>>>>> End Test Output'\ngit checkout 2f22a5f81e2f4124380be3739a092e9ff20128de sympy/polys/tests/test_ring_series.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T01:12:56.226294+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\report.json": "7b34cf6aa399b5d2a56f43d08768b292b334a2a8db5ef79c82f833a43ff05eed",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\test_output.txt": "093f78dc3555ef0a7e9b77115ccd26b79a55006b3c19d4ad7d06a794fed6c279",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\run_instance.log": "e00f9bbebbc5d1259e05914c626cc3d143c40bd8ff4ed581953b44be0ec78a0b",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\report.json": "7b34cf6aa399b5d2a56f43d08768b292b334a2a8db5ef79c82f833a43ff05eed",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\test_output.txt": "4d04f58f66be4415a18f0940bbf026370fec308723225011d86a8d8b5f4a2d05",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\run_instance.log": "b7c99971af5ca2bd6393f6a7241cded7d31184182f472c228a27d9e0a79c783d",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30706-20261112T011254\\derive\\sympy__sympy-30706\\patch.diff": "2ade9d69532193eec7f9231906d0fc022aeeb124602357b9c0110ac963985bf2"
+      }
+    },
+    "image_id": "sha256:dca99f25f6a2439ed22ec91a2f1cd1877737a6e1f8d7c6122664859653766d30"
+  },
+  "status": "derived"
+}

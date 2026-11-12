@@ -1,0 +1,3 @@
+- With `modules=[]`, lambdify must preserve `expr * Mod(a, b)`: apply the multiplier after computing the remainder.
+- In particular, lambdifying `-Mod(x, y)` with `modules=[]` must return `-3` at `(3, 7)`, matching default lambdify.
+- Generated Python must group the remainder so multiplication or unary negation does not become part of its first argument.

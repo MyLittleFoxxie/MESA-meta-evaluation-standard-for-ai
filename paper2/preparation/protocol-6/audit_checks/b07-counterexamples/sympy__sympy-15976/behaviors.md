@@ -1,0 +1,2 @@
+- Symbols ending in digits, such as `x2`, must remain visible in presentation MathML rendered in Safari.
+- In `x2*z + x2**3`, both occurrences of `x2` must display correctly, while ordinary symbols such as `x` continue to display.

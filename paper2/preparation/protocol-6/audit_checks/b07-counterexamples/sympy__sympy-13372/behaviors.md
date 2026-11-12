@@ -1,0 +1,3 @@
+- Calling `Mul(Max(0, y), x, evaluate=False).evalf()` must return `x*Max(0, y)` without `UnboundLocalError`.
+- Reversing the two unevaluated multiplication arguments must preserve that successful symbolic result.
+- In the ordinary evalf fallback, a nonzero real or imaginary part that is not numeric must raise `NotImplementedError`, allowing symbolic evaluation to fall back safely instead of using an unset precision variable.

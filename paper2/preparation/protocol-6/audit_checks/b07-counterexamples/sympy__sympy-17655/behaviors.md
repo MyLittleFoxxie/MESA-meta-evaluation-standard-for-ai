@@ -1,0 +1,2 @@
+- Multiplying a geometry Point by a number should give the same coordinates with the number on either side.
+- For point1 = Point(0, 0) and point2 = Point(1, 1), point1 + sympify(2.0) * point2 should equal point1 + point2 * sympify(2.0), without raising an exception.

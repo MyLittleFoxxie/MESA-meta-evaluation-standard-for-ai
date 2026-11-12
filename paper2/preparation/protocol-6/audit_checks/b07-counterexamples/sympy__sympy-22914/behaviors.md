@@ -1,0 +1,3 @@
+- Print SymPy Min calls as Python built-in min calls without an unsupported-function warning.
+- Print SymPy Max calls as Python built-in max calls without an unsupported-function warning.
+- Include every argument, using Python code printing for each argument, including expressions and nested calls.

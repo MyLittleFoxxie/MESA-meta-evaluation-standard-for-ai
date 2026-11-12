@@ -15,6 +15,7 @@ from paper2.method.decision_engine import (
     exact_binomial_power,
 )
 from paper2.preparation import cases
+from paper2.preparation import b07_p6
 from paper2.preparation import exposure_probe as ep
 from paper2.preparation import protocol6 as p6
 from paper2.preparation import study_controls as s
@@ -226,6 +227,71 @@ class ExposureProbeTests(unittest.TestCase):
             self.assertEqual(b14b["source_hits"], "1/1")
             self.assertEqual(b14b["target_hits"], "0/1")
 
+            calls = []
+            def fail_if_called(cid, mid, prompt):
+                calls.append((cid, mid, prompt))
+                return '{"files": []}'
+            recs2, _ = ep.run_probe_batch(tasks, cfgs, fail_if_called, ledger=ledger, skip_existing=True)
+            self.assertEqual(len(recs2), 2)
+            self.assertEqual(calls, [])
+
+    def test_probe_stream_validators_reject_tool_calls(self):
+        good_agy = "\n".join([
+            json.dumps({"event": "step_update", "step_update": {"step_type": "user_input"}}),
+            json.dumps({"event": "step_update", "step_type": "agent_response"}),
+            json.dumps({"event": "result", "result": {"status": "SUCCESS", "num_turns": 1, "response": "{\"files\": [\"sympy/core/add.py\"]}"}}),
+        ])
+        self.assertIn("sympy/core/add.py", ep._validate_agy_stream(good_agy))
+
+        bad_agy = "\n".join([
+            json.dumps({"event": "step_update", "step_update": {"step_type": "tool_call"}}),
+            json.dumps({"event": "result", "result": {"status": "SUCCESS", "num_turns": 1, "response": "{}"}}),
+        ])
+        with self.assertRaises(RuntimeError):
+            ep._validate_agy_stream(bad_agy)
+
+        ep._validate_codex_jsonl(json.dumps({"type": "item.completed", "item": {"type": "agent_message"}}))
+        with self.assertRaises(RuntimeError):
+            ep._validate_codex_jsonl(json.dumps({"type": "item.completed", "item": {"type": "command_execution"}}))
+
+    def test_b07_p6_sanitization_and_blind_sheet_preservation(self):
+        cleaned = b07_p6._sanitize_behaviors("- behavior A\n- breaks in candidate-1.diff\n- behavior B\n")
+        self.assertIn("behavior A", cleaned)
+        self.assertIn("behavior B", cleaned)
+        self.assertNotIn("candidate-1.diff", cleaned)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest_path = root / "study_manifest.json"
+            records_dir = root / "b07"
+            sheet_path = root / "blind.json"
+            labels_path = root / "labels.json"
+            manifest_path.write_text(json.dumps(dict(selected=dict(source=["sympy__sympy-16597"], target=[]))), encoding="utf-8")
+            tdir = records_dir / "sympy__sympy-16597"
+            tdir.mkdir(parents=True)
+            (tdir / "behaviors.md").write_text("- Check infinity assumptions\n", encoding="utf-8")
+            (tdir / "attempt.json").write_text(json.dumps(dict(
+                outcome="defect demonstrated",
+                candidates=[dict(
+                    patch=dict(path="candidate-1.diff"),
+                    result=dict(oracle_outcome="pass", behavior_check="fail"),
+                    demonstrated=True,
+                )],
+            )), encoding="utf-8")
+            sheet_path.write_text(json.dumps(dict(items=[dict(
+                task_id="sympy__sympy-16597", author_judgment="states_broken_behavior", author_note="kept",
+            )])), encoding="utf-8")
+            res = b07_p6.update_blind_b07_sheet(
+                manifest_path=manifest_path, records_dir=records_dir,
+                sheet_path=sheet_path, private_labels_path=labels_path,
+            )
+            self.assertEqual(res["sheet_items"], 1)
+            sheet = json.loads(sheet_path.read_text(encoding="utf-8"))
+            self.assertEqual(sheet["items"][0]["author_judgment"], "states_broken_behavior")
+            self.assertTrue(sheet["items"][0]["model_label_hidden"])
+            labels = json.loads(labels_path.read_text(encoding="utf-8"))
+            self.assertTrue(labels["tasks"]["sympy__sympy-16597"]["model_demonstrated"])
+
 
 class ComparisonAndProtocol6BundleTests(unittest.TestCase):
     def test_abc_with_gate_and_comparable_agreement(self):
@@ -386,6 +452,22 @@ class ComparisonAndProtocol6BundleTests(unittest.TestCase):
             self.assertEqual(row["comparable_agreement"]["M3_strict"], "not_comparable")
             self.assertEqual(row["comparable_agreement"]["M3_controlled"], "not_comparable")
             self.assertEqual(row["comparable_to_target_kept"]["M3_controlled"], "same_decision")
+
+    def test_b07_p6_normalize_diff_and_hook_cmd(self):
+        from paper2.preparation import b07_p6
+
+        raw = "diff --git a/x.py b/x.py\r\n@@ -1,2 +1,2 @@\r\n-old\r\n+new\r\n "
+        self.assertEqual(
+            b07_p6.normalize_diff(raw),
+            "diff --git a/x.py b/x.py\n@@ -1,2 +1,2 @@\n-old\n+new\n \n",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            ws = Path(tmp)
+            b07_p6._prepare_agy_workspace(ws)
+            hooks = json.loads((ws / ".agents" / "hooks.json").read_text(encoding="utf-8"))
+            cmd = hooks["protocol-6-gate"]["PreToolUse"][0]["hooks"][0]["command"]
+            self.assertTrue(cmd.endswith(" gate.py"))
+            self.assertFalse(cmd.startswith('"/'))
 
 
 if __name__ == "__main__":

@@ -764,6 +764,20 @@ class FrozenRecords(unittest.TestCase):
         self.assertIn("records={f: sha(BASE / f) for f in FROZEN_RECORDS}", source)
         self.assertIn('for f, digest in (manifest.get("records") or {}).items()', source)
 
+    def test_configure_protocol_switches_to_protocol_6_and_restores_protocol_5(self):
+        try:
+            base6 = ss.configure_protocol("6")
+            self.assertEqual(ss.PROTOCOL_NUMBER, "6")
+            self.assertEqual(s.PROTOCOL_NUMBER, "6")
+            self.assertEqual(s.MAX_SESSIONS, 198)
+            self.assertEqual(s.SAMPLE, dict(pilot=1, source=44, target=44))
+            self.assertEqual(base6, ss.ROOT / "paper2" / "preparation" / "protocol-6")
+            self.assertTrue(all((ss.BASE / f).exists() for f in ss.FROZEN_RECORDS))
+        finally:
+            ss.configure_protocol("5")
+        self.assertEqual(ss.PROTOCOL_NUMBER, "5")
+        self.assertEqual(s.MAX_SESSIONS, 90)
+
 class Requirement(unittest.TestCase):
     def draft(self):
         transfer = {c: dict(justification="why the source tasks predict the target issues", source_scope=dict(

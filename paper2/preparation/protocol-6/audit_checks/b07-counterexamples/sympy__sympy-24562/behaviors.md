@@ -1,0 +1,2 @@
+- `Rational('0.5', '100')` must return exactly `1/200`.
+- String arguments must give the correct rational quotient, consistent with the reported numeric-input result `Rational(0.5, 100) == 1/200`.

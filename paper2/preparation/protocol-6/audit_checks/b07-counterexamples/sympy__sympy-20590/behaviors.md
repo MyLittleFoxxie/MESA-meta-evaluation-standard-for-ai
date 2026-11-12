@@ -1,0 +1,2 @@
+- Accessing `Symbol('s').__dict__` must raise `AttributeError`, as in SymPy 1.6.2.
+- Parent classes must preserve the effect of slots so that Symbol instances do not gain an instance dictionary.

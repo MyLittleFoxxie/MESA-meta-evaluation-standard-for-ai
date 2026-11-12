@@ -1,0 +1,83 @@
+{
+  "instance_id": "sympy__sympy-30841",
+  "repo": "sympy/sympy",
+  "base_commit": "9a1e9e24af36d4c190ce7981727340de7110a663",
+  "created_at": "2026-10-25T02:15:15Z",
+  "merged_at": "2026-10-27T06:09:25Z",
+  "merge_commit": "f8ea58b03ec08777ed7832bf85606c1fae9f935a",
+  "pull_request": "https://github.com/sympy/sympy/pull/30841",
+  "issues": [
+    {
+      "number": 30756,
+      "url": "https://github.com/sympy/sympy/issues/30756",
+      "created_at": "2026-10-16T03:11:17Z"
+    }
+  ],
+  "problem_statement": "singularities() fails on 0**exp for bounded domains and disconnected solution sets, and misses poles for variable-exponent powers\n### Problem Description\n\nIn `sympy.calculus.singularities.singularities`, handling of `Pow` expressions contains multiple issues:\n\n#### 1. Crash on `0**exp` when exponent is strictly positive on a subdomain\nWhen querying `singularities(0**(x - 1), x, Interval(2, 5))`, `solveset(i.exp <= 0, symbol, domain)` evaluates to `EmptySet`.\nThe function then calls:\n```python\nsing_interval = Interval.open(sing_interval.inf, sing_interval.sup)\n```\nCalling `EmptySet.inf` raises `NotImplementedError: (EmptySet)._inf`, which causes `singularities()` to fail with `NotImplementedError: Methods for determining the singularities of this function have not been developed.`\nThis consequently causes `continuous_domain(0**(x - 1), x, Interval(2, 5))` to crash with `NotImplementedError` even though the expression is constant 0 and continuous across `[2, 5]`.\n\n#### 2. Disconnected solution sets for `0**exp` corrupted to `Interval(-oo, oo)`\nFor `0**(1 - x**2)` on `S.Reals`, the exponent is negative on `(-oo, -1) U (1, oo)`. Because `singularities()` calls `Interval.open(sing_interval.inf, sing_interval.sup)`, taking the infimum and supremum evaluates to `-oo` and `oo`, wiping out the valid domain and returning `Interval(-oo, oo)`.\nThis marks the entire interval `(-1, 1)` as singular and causes `continuous_domain(0**(1 - x**2), x, S.Reals)` to return `EmptySet`.\n\n#### 3. Missed poles for powers with variable exponents\nIn `singularities.py`:\n```python\nif i.exp.is_negative:\n    # XXX: exponent of varying sign not handled\n    sings += solveset(i.base, symbol, domain)\n```\nWhen the exponent depends on `symbol` (e.g. `(x - 2)**(x - 3)` or `(x**2 - 4)**(x - 1)`), `i.exp.is_negative` evaluates to `None`. The check is skipped entirely, returning `EmptySet` and missing poles (such as `x = 2` for `(x - 2)**(x - 3)` where `0**(-1) = zoo`, and `x = -2` for `(x**2 - 4)**(x - 1)`).\n\n### Reproduction\n\n```python\nfrom sympy import Symbol, Interval, S, singularities\nfrom sympy.calculus.util import continuous_domain\n\nx = Symbol('x', real=True)\n\n# 1. Crashes with NotImplementedError\nsingularities(0**(x - 1), x, Interval(2, 5))\n\n# 2. Returns Interval(-oo, oo) instead of Union(Interval.open(-oo, -1), Interval.open(1, oo))\nsingularities(0**(1 - x**2), x)\n\n# 3. Returns EmptySet instead of FiniteSet(2)\nsingularities((x - 2)**(x - 3), x)\n```\n\n### Expected Behavior\n1. `singularities(0**(x - 1), x, Interval(2, 5))` -> `EmptySet`\n2. `singularities(0**(1 - x**2), x)` -> `Union(Interval.open(-oo, -1), Interval.open(1, oo))`\n3. `singularities((x - 2)**(x - 3), x)` -> `FiniteSet(2)`\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/.mailmap b/.mailmap\nindex fc9d472cc4f4..1ecc58f05676 100644\n--- a/.mailmap\n+++ b/.mailmap\n@@ -1609,6 +1609,7 @@ Sneha Goddu <s.goddu@wustl.edu>\n Soniya Nayak <soniyanayak51@gmail.com> Soniyanayak51 <39791511+Soniyanayak51@users.noreply.github.com>\n Sonu Sharma <ramprashadkumar11@gmail.com>\n Sophia Pustova <tripplezzed@gmail.com>\n+Sorathiya Nabhag <nabhagsorathiya81@gmail.com> Nabhag2507 <nabhagsorathiya81@gmail.com>\n Soumendra Ganguly <soumendraganguly@gmail.com>\n Soumi Bardhan <51290447+Soumi7@users.noreply.github.com>\n Soumya Dipta Biswas <sdb1323@gmail.com>\ndiff --git a/sympy/calculus/singularities.py b/sympy/calculus/singularities.py\nindex eedf903ef370..c5fa344b0f4a 100644\n--- a/sympy/calculus/singularities.py\n+++ b/sympy/calculus/singularities.py\n@@ -106,7 +106,6 @@ def singularities(\n \n     \"\"\"\n     from sympy.solvers.solveset import solveset\n-    from sympy.sets.sets import Interval\n \n     expression = sympify(expression)\n \n@@ -118,17 +117,16 @@ def singularities(\n         e = e.rewrite([sech, csch, coth, tanh], cosh)\n         for i in e.atoms(Pow):\n             if i.base == S.Zero:\n-                sing_interval = solveset(i.exp <= 0, symbol, domain)\n-                # Since in Sympy we assume that 0**0 = 1,\n-                # we can't have a singularity at i.exp == 0 and therefore\n-                # we must return an open interval.\n-                sing_interval = Interval.open(sing_interval.inf, sing_interval.sup)\n-                sings += sing_interval\n+                sings += solveset(i.exp < 0, symbol, domain)\n+                continue\n             if i.exp.is_infinite:\n                 raise NotImplementedError\n             if i.exp.is_negative:\n-                # XXX: exponent of varying sign not handled\n                 sings += solveset(i.base, symbol, domain)\n+            elif symbol in i.exp.free_symbols:\n+                roots = solveset(i.base, symbol, domain)\n+                negative = solveset(i.exp < 0, symbol, domain)\n+                sings += roots.intersect(negative)\n         for i in expression.atoms(log, asech, acsch):\n             sings += solveset(i.args[0], symbol, domain)\n         for i in expression.atoms(atanh, acoth):\n",
+  "test_patch": "diff --git a/sympy/calculus/tests/test_singularities.py b/sympy/calculus/tests/test_singularities.py\nindex 401bd5068db1..bfdee467f552 100644\n--- a/sympy/calculus/tests/test_singularities.py\n+++ b/sympy/calculus/tests/test_singularities.py\n@@ -4,7 +4,7 @@\n from sympy.core.symbol import Symbol, Dummy\n from sympy.core.function import Lambda\n from sympy.functions.elementary.exponential import (exp, log)\n-from sympy.functions.elementary.trigonometric import sec, csc, tan\n+from sympy.functions.elementary.trigonometric import sec, csc, tan, sin\n from sympy.functions.elementary.hyperbolic import (coth, sech,\n                                                    atanh, asech, acoth, acsch)\n from sympy.functions.elementary.miscellaneous import sqrt\n@@ -17,7 +17,7 @@\n     is_monotonic\n )\n from sympy.sets import Interval, FiniteSet, Union, ImageSet\n-from sympy.testing.pytest import raises\n+from sympy.testing.pytest import raises, XFAIL\n from sympy.abc import x, y\n \n \n@@ -54,7 +54,15 @@ def test_singularities():\n         0, pi, 2*pi, 3*pi)\n     assert singularities(0**x, x) == Interval.open(-oo, 0)\n     assert singularities(0**(x-1), x) == Interval.open(-oo, 1)\n+    assert singularities(0**(x - 1), x, Interval(2, 5)) == S.EmptySet\n     assert singularities(0**(x+1)/(x-2), x) == Union({2}, Interval.open(-oo, -1))\n+    assert singularities(0**(1 - x**2), x) == Union(Interval.open(-oo, -1), Interval.open(1, oo))\n+    assert singularities(0**((x - 1)**2 + 1), x) == S.EmptySet\n+    assert singularities((x - 2)**(x - 3), x) == FiniteSet(2)\n+    assert singularities((x**2 - 4)**(x - 1), x) == FiniteSet(-2)\n+    assert singularities((x - 2)**(1 - x), x) == FiniteSet(2)\n+    assert singularities((x - 2)**(x - 2), x) == S.EmptySet\n+    assert 0 in singularities(sin(x)**(x - 1), x, S.Reals)\n \n \n def test_is_increasing():\n@@ -141,3 +149,7 @@ def test_monotonicity_with_interior_singularities():\n     assert is_decreasing(1/x, Interval(-1, Rational(-1, 10)), x) is True\n     assert not is_decreasing(1/x, Interval(-1, 1), x)\n     assert not is_increasing(1/x, Interval(-1, 1), x)\n+\n+@XFAIL\n+def test_singularities_periodic_exponent():\n+    assert singularities(sin(x)**(sin(x) - S.Half), x, S.Reals).contains(2*pi) is S.true\ndiff --git a/sympy/calculus/tests/test_util.py b/sympy/calculus/tests/test_util.py\nindex a1707bffbe26..ca7e810ada48 100644\n--- a/sympy/calculus/tests/test_util.py\n+++ b/sympy/calculus/tests/test_util.py\n@@ -162,7 +162,6 @@ def test_continuous_domain_acot():\n def test_continuous_domain_gamma():\n     assert continuous_domain(gamma(x), x, S.Reals).contains(-1) == False\n \n-@XFAIL\n def test_continuous_domain_neg_power():\n     assert continuous_domain((x-2)**(1-x), x, S.Reals) == Interval.open(2, oo)\n \n",
+  "FAIL_TO_PASS": [
+    "sympy/calculus/tests/test_singularities.py::test_singularities",
+    "sympy/calculus/tests/test_util.py::test_continuous_domain_neg_power"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/calculus/tests/test_singularities.py::test_is_decreasing",
+    "sympy/calculus/tests/test_singularities.py::test_is_increasing",
+    "sympy/calculus/tests/test_singularities.py::test_is_monotonic",
+    "sympy/calculus/tests/test_singularities.py::test_is_strictly_decreasing",
+    "sympy/calculus/tests/test_singularities.py::test_is_strictly_increasing",
+    "sympy/calculus/tests/test_singularities.py::test_issue_23401",
+    "sympy/calculus/tests/test_singularities.py::test_monotonicity_with_interior_singularities",
+    "sympy/calculus/tests/test_singularities.py::test_singularities_periodic_exponent",
+    "sympy/calculus/tests/test_util.py::test_accumbounds_union",
+    "sympy/calculus/tests/test_util.py::test_continuous_domain",
+    "sympy/calculus/tests/test_util.py::test_continuous_domain_acot",
+    "sympy/calculus/tests/test_util.py::test_continuous_domain_gamma",
+    "sympy/calculus/tests/test_util.py::test_function_range",
+    "sympy/calculus/tests/test_util.py::test_function_range_acot",
+    "sympy/calculus/tests/test_util.py::test_is_convex",
+    "sympy/calculus/tests/test_util.py::test_issue_16469",
+    "sympy/calculus/tests/test_util.py::test_issue_18747",
+    "sympy/calculus/tests/test_util.py::test_issue_19869",
+    "sympy/calculus/tests/test_util.py::test_issue_25942",
+    "sympy/calculus/tests/test_util.py::test_lcim",
+    "sympy/calculus/tests/test_util.py::test_maximum",
+    "sympy/calculus/tests/test_util.py::test_minimum",
+    "sympy/calculus/tests/test_util.py::test_not_empty_in",
+    "sympy/calculus/tests/test_util.py::test_periodicity_check",
+    "sympy/calculus/tests/test_util.py::test_stationary_points"
+  ],
+  "image": "paper2/sympy-target:30841",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 9a1e9e24af36d4c190ce7981727340de7110a663\ngit checkout 9a1e9e24af36d4c190ce7981727340de7110a663 sympy/calculus/tests/test_singularities.py sympy/calculus/tests/test_util.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/calculus/tests/test_singularities.py b/sympy/calculus/tests/test_singularities.py\nindex 401bd5068db1..bfdee467f552 100644\n--- a/sympy/calculus/tests/test_singularities.py\n+++ b/sympy/calculus/tests/test_singularities.py\n@@ -4,7 +4,7 @@\n from sympy.core.symbol import Symbol, Dummy\n from sympy.core.function import Lambda\n from sympy.functions.elementary.exponential import (exp, log)\n-from sympy.functions.elementary.trigonometric import sec, csc, tan\n+from sympy.functions.elementary.trigonometric import sec, csc, tan, sin\n from sympy.functions.elementary.hyperbolic import (coth, sech,\n                                                    atanh, asech, acoth, acsch)\n from sympy.functions.elementary.miscellaneous import sqrt\n@@ -17,7 +17,7 @@\n     is_monotonic\n )\n from sympy.sets import Interval, FiniteSet, Union, ImageSet\n-from sympy.testing.pytest import raises\n+from sympy.testing.pytest import raises, XFAIL\n from sympy.abc import x, y\n \n \n@@ -54,7 +54,15 @@ def test_singularities():\n         0, pi, 2*pi, 3*pi)\n     assert singularities(0**x, x) == Interval.open(-oo, 0)\n     assert singularities(0**(x-1), x) == Interval.open(-oo, 1)\n+    assert singularities(0**(x - 1), x, Interval(2, 5)) == S.EmptySet\n     assert singularities(0**(x+1)/(x-2), x) == Union({2}, Interval.open(-oo, -1))\n+    assert singularities(0**(1 - x**2), x) == Union(Interval.open(-oo, -1), Interval.open(1, oo))\n+    assert singularities(0**((x - 1)**2 + 1), x) == S.EmptySet\n+    assert singularities((x - 2)**(x - 3), x) == FiniteSet(2)\n+    assert singularities((x**2 - 4)**(x - 1), x) == FiniteSet(-2)\n+    assert singularities((x - 2)**(1 - x), x) == FiniteSet(2)\n+    assert singularities((x - 2)**(x - 2), x) == S.EmptySet\n+    assert 0 in singularities(sin(x)**(x - 1), x, S.Reals)\n \n \n def test_is_increasing():\n@@ -141,3 +149,7 @@ def test_monotonicity_with_interior_singularities():\n     assert is_decreasing(1/x, Interval(-1, Rational(-1, 10)), x) is True\n     assert not is_decreasing(1/x, Interval(-1, 1), x)\n     assert not is_increasing(1/x, Interval(-1, 1), x)\n+\n+@XFAIL\n+def test_singularities_periodic_exponent():\n+    assert singularities(sin(x)**(sin(x) - S.Half), x, S.Reals).contains(2*pi) is S.true\ndiff --git a/sympy/calculus/tests/test_util.py b/sympy/calculus/tests/test_util.py\nindex a1707bffbe26..ca7e810ada48 100644\n--- a/sympy/calculus/tests/test_util.py\n+++ b/sympy/calculus/tests/test_util.py\n@@ -162,7 +162,6 @@ def test_continuous_domain_acot():\n def test_continuous_domain_gamma():\n     assert continuous_domain(gamma(x), x, S.Reals).contains(-1) == False\n \n-@XFAIL\n def test_continuous_domain_neg_power():\n     assert continuous_domain((x-2)**(1-x), x, S.Reals) == Interval.open(2, oo)\n \nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/calculus/tests/test_singularities.py sympy/calculus/tests/test_util.py\n: '>>>>> End Test Output'\ngit checkout 9a1e9e24af36d4c190ce7981727340de7110a663 sympy/calculus/tests/test_singularities.py sympy/calculus/tests/test_util.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T01:07:51.950822+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\report.json": "159f7e19587d8df7057b913f61be44490506996870737b718b6f21d24ac228eb",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\test_output.txt": "321ac7bc1daf582005c66dd5e5687149c9053384952b7ad0b7e5573067e89b29",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\run_instance.log": "2ce8cc6cde35a9c7c80f3efe45f430ac6bba933a84bd6d346c01f84076842232",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\report.json": "159f7e19587d8df7057b913f61be44490506996870737b718b6f21d24ac228eb",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\test_output.txt": "e1bcfa31c73028c70cc3b53694c511569eb5932fff9069637e57452b9442f687",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\run_instance.log": "8050d0996255bd56e934c9053ea0a40d046934b6f028d3eb50aba0a9bcf92f10",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30841-20261112T010749\\derive\\sympy__sympy-30841\\patch.diff": "340b059a53de78a5cd8d7b0e686ae0447280f978347167638bc18f70518b2121"
+      }
+    },
+    "image_id": "sha256:f4b69935035166ad2f44a47fb2de9db672ef9a4c24029f1db9aa474fef5ed658"
+  },
+  "status": "derived"
+}

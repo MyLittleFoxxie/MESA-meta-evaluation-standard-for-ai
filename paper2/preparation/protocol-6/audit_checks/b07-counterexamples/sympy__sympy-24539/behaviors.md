@@ -1,0 +1,4 @@
+- With no arguments, convert the polynomial using its ring's symbols.
+- With exactly one supplied symbol per generator, use those symbols in generator order and preserve the polynomial's coefficients and powers.
+- Accept valid replacement symbols for any ring size, including symbols that also occur among the original generators.
+- Reject a nonempty list with the wrong number of symbols.

@@ -1,0 +1,15 @@
+diff --git a/sympy/polys/polytools.py b/sympy/polys/polytools.py
+index 70112de3b6..ba19fbfe9f 100644
+--- a/sympy/polys/polytools.py
++++ b/sympy/polys/polytools.py
+@@ -4150,6 +4150,10 @@ def __eq__(self, other):
+         if f.rep.dom != g.rep.dom:
+             return False
+ 
++        if (f.rep.dom.is_EX and f.as_expr().is_zero is True
++                and g.as_expr().is_zero is True):
++            return True
++
+         return f.rep == g.rep
+ 
+     @_sympifyit('g', NotImplemented)

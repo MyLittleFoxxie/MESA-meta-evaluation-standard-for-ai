@@ -1,0 +1,2 @@
+- Inside `with sp.evaluate(False)`, `sp.S('Point2D(Integer(1),Integer(2))')` must succeed and produce the point with coordinates 1 and 2.
+- The same string must continue to work with normal evaluation and with `sp.S(..., evaluate=False)`.

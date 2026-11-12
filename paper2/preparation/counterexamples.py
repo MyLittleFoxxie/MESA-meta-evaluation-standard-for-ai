@@ -36,20 +36,26 @@ def _rel(path):
     return str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
 
 
+def _container_env(image):
+    if str(image).startswith("paper2/"):
+        return "cd /testbed"
+    return ENV
+
+
 def run_check(image, patch_text, check_path):
     """Runs check.py in the task image without network, after applying patch_text (none for the code before the
     fix). Returns the exit code and the end of the output."""
     with tempfile.TemporaryDirectory() as d:
-        Path(d, "patch.diff").write_text(patch_text)
-        shutil.copy(check_path, Path(d, "check.py"))
-        apply = "git apply /audit/patch.diff && " if patch_text.strip() else ""
+        Path(d, "patch.diff").write_text(patch_text or "", encoding="utf-8", newline="\n")
+        Path(d, "check.py").write_text(Path(check_path).read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+        apply = "git apply /audit/patch.diff && " if (patch_text or "").strip() else ""
         out = subprocess.run(["docker", "run", "--rm", "--platform", "linux/amd64", "--network", "none",
-                              "-v", f"{d}:/audit:ro", image, "bash", "-c", f"{ENV} && {apply}python /audit/check.py"],
-                             capture_output=True, text=True, timeout=900)
+                              "-v", f"{d}:/audit:ro", image, "bash", "-c", f"{_container_env(image)} && {apply}python /audit/check.py"],
+                             capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900)
     return dict(exit_code=out.returncode, output=(out.stdout + out.stderr)[-20000:])
 
 
-def run(task_id, row, folder=None):
+def run(task_id, row, folder=None, author=AUTHOR):
     folder = Path(folder or RECORDS / task_id)
     if (folder / "attempt.json").exists():
         raise FileExistsError(f"{task_id} already has an attempt; attempts are written once")
@@ -66,7 +72,7 @@ def run(task_id, row, folder=None):
     valid = before["exit_code"] != 0 and reference["exit_code"] == 0
     graded = []
     for i, cand in enumerate(candidates, 1):
-        patch = cand.read_text()
+        patch = cand.read_text(encoding="utf-8")
         graded.append((cand, h.grade(row, patch, f"b07-{task_id}-{i}-{stamp}"), run_check(row["image"], patch, check)))
     failed = [cand.name for cand, grading, _ in graded if grading["resolved"] is None]
     if failed:  # a harness failure is not an attempt outcome; nothing is written, so the run can be repeated
@@ -85,7 +91,7 @@ def run(task_id, row, folder=None):
         results.append(dict(cx, demonstrated=valid and counterexample_demonstrated(cx)))
     outcome = ("check invalid" if not valid else "defect demonstrated" if any(r["demonstrated"] for r in results)
                else "no candidate" if not candidates else "no defect demonstrated")
-    record = dict(record="paper2-b07-attempt/1", task_id=task_id, attempted_by=AUTHOR, checked_at=h.now(),
+    record = dict(record="paper2-b07-attempt/1", task_id=task_id, attempted_by=author, checked_at=h.now(),
                   behaviors=dict(path=_rel(behaviors), sha256=sha256_file(behaviors)),
                   check=dict(path=_rel(check), sha256=sha256_file(check),
                              before_fix=dict(exit_code=before["exit_code"]), real_fix=dict(exit_code=reference["exit_code"]),
@@ -109,20 +115,20 @@ def scoring_check(task_id, row, folder=None):
     if not candidates or len(candidates) > MAX_CANDIDATES:
         raise ValueError(f"A grading check needs 1 to {MAX_CANDIDATES} candidates")
     for cand in candidates:
-        patch = cand.read_text()
+        patch = cand.read_text(encoding="utf-8")
         files = re.findall(r"^diff --git a/(\S+) b/(\S+)$", patch, re.M)
         changed = sorted({f for pair in files for f in pair})
         if not changed or set(changed) - set(s.scoring_files(patch)):
             raise ValueError(f"{cand.name} must change only test-running files: {changed}")
     stamp = h.now().replace(":", "").replace("-", "")[:15]
-    graded = [(cand, h.grade(row, cand.read_text(), f"b28a-{task_id}-{i}-{stamp}")) for i, cand in enumerate(candidates, 1)]
+    graded = [(cand, h.grade(row, cand.read_text(encoding="utf-8"), f"b28a-{task_id}-{i}-{stamp}")) for i, cand in enumerate(candidates, 1)]
     failed = [cand.name for cand, grading in graded if grading["resolved"] is None]
     if failed:
         raise RuntimeError(f"{task_id}: the harness gave no report for {', '.join(failed)}; nothing recorded")
     results = []
     for cand, grading in graded:
         report = grading.get("report") or {}
-        results.append(dict(patch=dict(path=_rel(cand), sha256=sha256_file(cand)), files=s.scoring_files(cand.read_text()),
+        results.append(dict(patch=dict(path=_rel(cand), sha256=sha256_file(cand)), files=s.scoring_files(cand.read_text(encoding="utf-8")),
                             harness_resolved=grading["resolved"], tests_status=report.get("tests_status"),
                             harness_logs=grading.get("logs"), harness=grading.get("harness")))
     record = dict(record="paper2-b28a-grading-check/1", task_id=task_id, checked_by=AUTHOR, checked_at=h.now(),
@@ -136,7 +142,7 @@ def summary(folder=RECORDS):
     """Outcome per task, and for each demonstrated defect the entry the B07 rating form lists under task_defects."""
     out = {}
     for path in sorted(Path(folder).glob("*/attempt.json")):
-        rec = json.loads(path.read_text())
+        rec = json.loads(path.read_text(encoding="utf-8"))
         shown = next((c for c in rec["candidates"] if c["demonstrated"]), None)
         cx = {k: v for k, v in shown.items() if k != "demonstrated"} if shown else None
         out[rec["task_id"]] = dict(outcome=rec["outcome"], attempt=_rel(path), sha256=sha256_file(path),
@@ -151,19 +157,23 @@ def main(argv=None):
     import argparse
     from paper2.preparation.sessions import rows_by_id
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--folder", type=Path, default=None)
+    parser.add_argument("--author", default=AUTHOR)
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("run").add_argument("task")
     sub.add_parser("summary")
     sub.add_parser("scoring-check").add_argument("task")
     a = parser.parse_args(argv)
     if a.cmd == "run":
-        rec = run(a.task, rows_by_id()[a.task])
+        target_dir = (a.folder / a.task) if a.folder else None
+        rec = run(a.task, rows_by_id()[a.task], folder=target_dir, author=a.author)
         print(a.task, rec["outcome"])
     elif a.cmd == "scoring-check":
-        rec = scoring_check(a.task, rows_by_id()[a.task])
+        target_dir = (a.folder / a.task) if a.folder else None
+        rec = scoring_check(a.task, rows_by_id()[a.task], folder=target_dir)
         print(a.task, rec["outcome"])
     else:
-        print(json.dumps(summary(), indent=2))
+        print(json.dumps(summary(a.folder or RECORDS), indent=2))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,2 @@
+- For an integer symbol `i` with no sign assumption, `Mod(3*i, 2)` simplifies to `Mod(i, 2)`.
+- Parsing the equivalent remainder expression with `sympify` produces the same simplified result.

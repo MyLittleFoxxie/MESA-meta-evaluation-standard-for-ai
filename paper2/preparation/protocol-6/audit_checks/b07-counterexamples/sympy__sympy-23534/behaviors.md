@@ -1,0 +1,4 @@
+- `symbols` must honor `cls=Function` when names are wrapped in an outer tuple.
+- `q, u = symbols(('q:2', 'u:2'), cls=Function)` must return two separate tuples, each containing two functions.
+- The functions must keep the requested names: `q0`, `q1`, `u0`, and `u1`.
+- Every object in both tuples must be an `UndefinedFunction`, including `q[0]`.

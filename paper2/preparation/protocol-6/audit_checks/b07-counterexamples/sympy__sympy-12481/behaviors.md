@@ -1,0 +1,3 @@
+- Accept non-disjoint cycles in the Permutation constructor.
+- Apply the supplied cycles in left-to-right order and return their combined permutation.
+- Construct the identity permutation for Permutation([[0, 1], [0, 1]]).

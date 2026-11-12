@@ -1,0 +1,5 @@
+- Cython autowrap must accept array arguments even when they do not occur in the expression.
+- The constant example with an unused MatrixSymbol must accept the supplied NumPy array and return 1.0.
+- Generated C signatures must declare unused array inputs as pointers, preserving their array shape for the wrapper.
+- A fixed argument list must work when any of its inputs are unused, including when the expression uses other inputs.
+- Expressions that depend on their array inputs must continue to work.

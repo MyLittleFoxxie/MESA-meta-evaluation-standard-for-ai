@@ -1,0 +1,13 @@
+diff --git a/sympy/matrices/common.py b/sympy/matrices/common.py
+index 056d9bc497..ba270c61c9 100644
+--- a/sympy/matrices/common.py
++++ b/sympy/matrices/common.py
+@@ -86,6 +86,8 @@ def entry(i, j):
+                 return self[i, j]
+             elif pos <= j < pos + other.cols:
+                 return other[i, j - pos]
++            if isinstance(self, _MinimalMatrix):
++                return self[i, j - other.cols]
+             return self[i, j - pos - other.cols]
+ 
+         return self._new(self.rows, self.cols + other.cols,

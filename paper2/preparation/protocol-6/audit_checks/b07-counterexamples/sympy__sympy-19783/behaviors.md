@@ -1,0 +1,2 @@
+- Multiplying an operator by `IdentityOperator()` on the right returns that operator.
+- Multiplying its Hermitian conjugate, `Dagger(A)`, by `IdentityOperator()` on the right returns `Dagger(A)`, including for `A = Operator('A')`.

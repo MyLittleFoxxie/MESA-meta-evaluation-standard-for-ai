@@ -1,0 +1,24 @@
+diff --git a/sympy/physics/vector/vector.py b/sympy/physics/vector/vector.py
+index a048ee57f1..5da3b11c1d 100644
+--- a/sympy/physics/vector/vector.py
++++ b/sympy/physics/vector/vector.py
+@@ -57,6 +57,8 @@ def __hash__(self):
+ 
+     def __add__(self, other):
+         """The add operator for Vector. """
++        if other == 0:
++            return self
+         other = _check_vector(other)
+         return Vector(self.args + other.args)
+ 
+@@ -449,7 +451,9 @@ def _det(mat):
+     _sympystr = __str__
+     _sympyrepr = _sympystr
+     __repr__ = __str__
+-    __radd__ = __add__
++    def __radd__(self, other):
++        other = _check_vector(other)
++        return Vector(self.args + other.args)
+     __rand__ = __and__
+     __rmul__ = __mul__
+ 

@@ -1,0 +1,14 @@
+- Provide precomputed CDFs so the listed examples finish without integration hangs, exceptions, or unevaluated integrals.
+- Arcsin: compute `cdf(Arcsin("x", 0, 3))(1)` using the arcsine formula, with correct values outside its support.
+- Dagum: compute `cdf(Dagum("x", S(1)/3, S(1)/5, 2))(3)` using its elementary formula.
+- Erlang: compute `cdf(Erlang("x", 1, 1))(1)` exactly, without introducing floats, using the gamma CDF.
+- Frechet: compute `cdf(Frechet("x", S(4)/3, 1, 2))(3)` using its elementary formula.
+- Gamma: compute `cdf(Gamma("x", 0.1, 2))(3)` using lowergamma rather than leaving an integral.
+- GammaInverse: compute `cdf(GammaInverse("x", S(5)/7, 2))(3)` using uppergamma.
+- Kumaraswamy: compute `cdf(Kumaraswamy("x", S(1)/123, 5))(S(1)/3)` using its elementary formula.
+- Laplace: compute `cdf(Laplace("x", 2, 3))(5)` using its piecewise elementary formula.
+- Logistic: compute `cdf(Logistic("x", 1, 0.1))(2)` using its elementary formula.
+- Nakagami: compute `cdf(Nakagami("x", S(7)/3, 1))(2)` using gamma functions.
+- StudentT: compute `cdf(StudentT("x", 10))(2)` using the hypergeometric formula.
+- UniformSum: compute `cdf(UniformSum("x", 5))(2)` using a finite sum similar to its PDF.
+- The CDF derivatives should agree with the PDFs at points inside each distribution's support.

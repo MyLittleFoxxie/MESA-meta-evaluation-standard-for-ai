@@ -1,0 +1,4 @@
+- Factoring `x*y - x - y + 1` with `extension=[I]` must retain both factors, `(x - 1)*(y - 1)`.
+- Factoring with `extension=True` must preserve all factors and the value of the original expression.
+- Ordinary factoring of the example must continue to return `(x - 1)*(y - 1)`.
+- Factoring multivariate products over complex extensions must preserve the entire original polynomial.

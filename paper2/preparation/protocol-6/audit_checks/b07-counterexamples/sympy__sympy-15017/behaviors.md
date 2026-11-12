@@ -1,0 +1,2 @@
+- Rank-0 arrays have length 1, including numeric scalars such as `Array(3)` and zero.
+- A scalar array's length equals the number of elements yielded by its iterator.

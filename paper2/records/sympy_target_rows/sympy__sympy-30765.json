@@ -1,0 +1,65 @@
+{
+  "instance_id": "sympy__sympy-30765",
+  "repo": "sympy/sympy",
+  "base_commit": "50e68debd256f0ff52b1856bba54868e5499448e",
+  "created_at": "2026-10-17T08:08:21Z",
+  "merged_at": "2026-11-01T00:17:39Z",
+  "merge_commit": "4c01704e1122d61c7c13e1d6f5aaa58243bc0af4",
+  "pull_request": "https://github.com/sympy/sympy/pull/30765",
+  "issues": [
+    {
+      "number": 30061,
+      "url": "https://github.com/sympy/sympy/issues/30061",
+      "created_at": "2026-07-13T12:23:46Z"
+    }
+  ],
+  "problem_statement": "polys: `construct_domain([oo * I])`\nsympy commit hash: c0a595d78fb2a2c4b0dfa7f2ee720fde84918c6c\npython version: 3.12.3\nOS: Ubuntu 24.04.4 LTS\n\n---\n\n```python\nfrom sympy import *\nprint(construct_domain([oo * I]))\n```\n\n---\n\ntraceback:\n\n```python\nTraceback (most recent call last):\n  File \"reproduce.py\", line 2, in <module>\n    print(construct_domain([oo * I]))\n          ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"sympy/polys/constructor.py\", line 364, in construct_domain\n    result = _construct_simple(coeffs, opt)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"sympy/polys/constructor.py\", line 77, in _construct_simple\n    result = [domain.from_sympy(coeff) for coeff in coeffs]\n              ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"sympy/polys/domains/complexfield.py\", line 108, in from_sympy\n    return self.dtype(real, imag)\n           ^^^^^^^^^^^^^^^^^^^^^^\n  File \"sympy/polys/domains/complexfield.py\", line 90, in dtype\n    return self._dtype(x, y)\n           ^^^^^^^^^^^^^^^^^\n  File \"mpmath/ctx_mp_python.py\", line 534, in __new__\n    i_real, i_imag = map(ctx.mpf, [i_real, i_imag])\n    ^^^^^^^^^^^^^^\n  File \"mpmath/ctx_mp_python.py\", line 71, in __new__\n    val = cls.mpf_convert_arg(val, prec, rounding)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"mpmath/ctx_mp_python.py\", line 96, in mpf_convert_arg\n    raise TypeError(\"cannot create mpf from \" + repr(x))\nTypeError: cannot create mpf from oo\n```\n\n---\n\nExpected:\n\n```python\n(EX, [EX(oo*I)])\n```\n\n",
+  "hints_text": "",
+  "patch": "diff --git a/sympy/polys/constructor.py b/sympy/polys/constructor.py\nindex c1603e0fe554..5276258482d0 100644\n--- a/sympy/polys/constructor.py\n+++ b/sympy/polys/constructor.py\n@@ -39,6 +39,8 @@ def _construct_simple(coeffs, opt):\n             if is_complex:\n                 complexes = True\n                 x, y = is_complex\n+                if _not_a_coeff(x) or _not_a_coeff(y):\n+                    return False\n                 if x.is_Rational and y.is_Rational:\n                     if not (x.is_Integer and y.is_Integer):\n                         rationals = True\n@@ -143,8 +145,11 @@ def _construct_composite(coeffs, opt):\n     if not gens:\n         return None\n \n+    if any(_not_a_coeff(gen) for gen in gens):\n+        return None\n+\n     if opt.composite is None:\n-        if any(_not_a_coeff(gen) or gen.is_number and gen.is_algebraic for gen in gens):\n+        if any(gen.is_number and gen.is_algebraic for gen in gens):\n             return None # generators are number-like so lets better use EX\n \n         all_symbols = set()\n",
+  "test_patch": "diff --git a/sympy/polys/tests/test_constructor.py b/sympy/polys/tests/test_constructor.py\nindex 76c34f0dc48c..894e7e7ee416 100644\n--- a/sympy/polys/tests/test_constructor.py\n+++ b/sympy/polys/tests/test_constructor.py\n@@ -9,7 +9,7 @@\n from sympy.polys.domains.complexfield import ComplexField\n \n from sympy.core import (Catalan, GoldenRatio)\n-from sympy.core.numbers import (E, Float, I, Rational, pi)\n+from sympy.core.numbers import (E, Float, I, Rational, oo, pi)\n from sympy.core.singleton import S\n from sympy.core.symbol import Symbol\n from sympy.functions.elementary.exponential import exp\n@@ -252,3 +252,38 @@ def test_issue_25337():\n \n     x_algebraic = Symbol('x', algebraic=True)\n     assert construct_domain(x_algebraic)[0] == ZZ[x_algebraic]\n+\n+\n+def test_issue_25337_composite_true():\n+    x = Symbol('x')\n+\n+    invalid = [\n+        S.ComplexInfinity,\n+        S.Infinity,\n+        S.NegativeInfinity,\n+        S.NaN,\n+    ]\n+\n+    for k in invalid:\n+        assert construct_domain([k], composite=True) == (EX, [EX(k)])\n+        assert construct_domain([x + k], composite=True) == (EX, [EX(x + k)])\n+        assert construct_domain([x, k], composite=True) == (EX, [EX(x), EX(k)])\n+\n+    for k in invalid:\n+        assert construct_domain(k, composite=True) == (EX, EX(k))\n+        assert construct_domain(x + k, composite=True) == (EX, EX(x + k))\n+\n+    for k in [sqrt(2), pi, E]:\n+        assert construct_domain([k], composite=True)[0] == ZZ[k]\n+        assert construct_domain(k, composite=True)[0] == ZZ[k]\n+\n+\n+def test_issue_30061():\n+    invalid = [oo*I, -oo*I, oo + I, 2 + oo*I]\n+\n+    for k in invalid:\n+        assert construct_domain([k]) == (EX, [EX(k)])\n+        assert construct_domain([k], composite=True) == (EX, [EX(k)])\n+\n+    for k in invalid:\n+        assert construct_domain(k) == (EX, EX(k))\n",
+  "FAIL_TO_PASS": [
+    "sympy/polys/tests/test_constructor.py::test_issue_25337_composite_true",
+    "sympy/polys/tests/test_constructor.py::test_issue_30061"
+  ],
+  "PASS_TO_PASS": [
+    "sympy/polys/tests/test_constructor.py::test_complex_exponential",
+    "sympy/polys/tests/test_constructor.py::test_composite_option",
+    "sympy/polys/tests/test_constructor.py::test_construct_domain",
+    "sympy/polys/tests/test_constructor.py::test_issue_11538",
+    "sympy/polys/tests/test_constructor.py::test_issue_25337",
+    "sympy/polys/tests/test_constructor.py::test_precision",
+    "sympy/polys/tests/test_constructor.py::test_rootof"
+  ],
+  "image": "paper2/sympy-target:30765",
+  "eval_script": "#!/bin/bash\nset -uxo pipefail\ncd /testbed\ngit config --global --add safe.directory /testbed\ngit status\ngit -c core.fileMode=false diff 50e68debd256f0ff52b1856bba54868e5499448e\ngit checkout 50e68debd256f0ff52b1856bba54868e5499448e sympy/polys/tests/test_constructor.py\ngit apply -v - <<'EOF_114329324912'\ndiff --git a/sympy/polys/tests/test_constructor.py b/sympy/polys/tests/test_constructor.py\nindex 76c34f0dc48c..894e7e7ee416 100644\n--- a/sympy/polys/tests/test_constructor.py\n+++ b/sympy/polys/tests/test_constructor.py\n@@ -9,7 +9,7 @@\n from sympy.polys.domains.complexfield import ComplexField\n \n from sympy.core import (Catalan, GoldenRatio)\n-from sympy.core.numbers import (E, Float, I, Rational, pi)\n+from sympy.core.numbers import (E, Float, I, Rational, oo, pi)\n from sympy.core.singleton import S\n from sympy.core.symbol import Symbol\n from sympy.functions.elementary.exponential import exp\n@@ -252,3 +252,38 @@ def test_issue_25337():\n \n     x_algebraic = Symbol('x', algebraic=True)\n     assert construct_domain(x_algebraic)[0] == ZZ[x_algebraic]\n+\n+\n+def test_issue_25337_composite_true():\n+    x = Symbol('x')\n+\n+    invalid = [\n+        S.ComplexInfinity,\n+        S.Infinity,\n+        S.NegativeInfinity,\n+        S.NaN,\n+    ]\n+\n+    for k in invalid:\n+        assert construct_domain([k], composite=True) == (EX, [EX(k)])\n+        assert construct_domain([x + k], composite=True) == (EX, [EX(x + k)])\n+        assert construct_domain([x, k], composite=True) == (EX, [EX(x), EX(k)])\n+\n+    for k in invalid:\n+        assert construct_domain(k, composite=True) == (EX, EX(k))\n+        assert construct_domain(x + k, composite=True) == (EX, EX(x + k))\n+\n+    for k in [sqrt(2), pi, E]:\n+        assert construct_domain([k], composite=True)[0] == ZZ[k]\n+        assert construct_domain(k, composite=True)[0] == ZZ[k]\n+\n+\n+def test_issue_30061():\n+    invalid = [oo*I, -oo*I, oo + I, 2 + oo*I]\n+\n+    for k in invalid:\n+        assert construct_domain([k]) == (EX, [EX(k)])\n+        assert construct_domain([k], composite=True) == (EX, [EX(k)])\n+\n+    for k in invalid:\n+        assert construct_domain(k) == (EX, EX(k))\nEOF_114329324912\n: '>>>>> Start Test Output'\nPYTHONWARNINGS='ignore::UserWarning,ignore::SyntaxWarning' python -m pytest -rA -p no:cacheprovider --continue-on-collection-errors sympy/polys/tests/test_constructor.py\n: '>>>>> End Test Output'\ngit checkout 50e68debd256f0ff52b1856bba54868e5499448e sympy/polys/tests/test_constructor.py\n",
+  "log_parser": "parse_log_pytest",
+  "eval_type": "pass_and_fail",
+  "version": "1.15.0.dev",
+  "environment_setup_commit": null,
+  "identity_checks": {
+    "merged": true,
+    "merged_in_window": true,
+    "base_commit_exists": true,
+    "closes_issues": true,
+    "checked_at": "2026-11-12T01:35:32.840635+00:00"
+  },
+  "derivation": {
+    "reason": null,
+    "logs": {
+      "before": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\report.json": "93f3e111da7912eba5eecb7f9d9173d9d02b1a92d632d1970222349e30cd617d",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\test_output.txt": "0e3638d9ca5b0487e2c16afa91026fa7fc73694592d864625abcb028d25935e9",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\run_instance.log": "b373e8a6bfba9994ece5f1b5f25d55450f0f1f6e4d4aabc66b79e93673a7f18f",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-before-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\patch.diff": "eceb52ce062a10d82fd20ff0fa882583942d2d6d2106ce3e29f42b856c582930"
+      },
+      "after": {
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\report.json": "93f3e111da7912eba5eecb7f9d9173d9d02b1a92d632d1970222349e30cd617d",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\test_output.txt": "f5bda62b9fadbff6fac7b9c6af58bca3ad867394650fa707dda47d114cc66a4b",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\run_instance.log": "5cb6aaa4ca2c0299a61c05958af0bfd00afa76ebc49ead57f0aa302d1d64d797",
+        "paper2\\preparation\\protocol-4\\harness\\logs\\run_evaluation\\target-derive-after-sympy__sympy-30765-20261112T013530\\derive\\sympy__sympy-30765\\patch.diff": "8f2f410a5beb4696174aca6645fae5581022b686514183e221103393844cd192"
+      }
+    },
+    "image_id": "sha256:7be35333f6437ead14989713399c3dfacae5f9ef3fa6e26193d9d76f139c3175"
+  },
+  "status": "derived"
+}
