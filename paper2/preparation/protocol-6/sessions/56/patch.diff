@@ -1,0 +1,12 @@
+diff --git a/sympy/discrete/convolutions.py b/sympy/discrete/convolutions.py
+index fa3f101a01..4d21815723 100644
+--- a/sympy/discrete/convolutions.py
++++ b/sympy/discrete/convolutions.py
+@@ -111,6 +111,7 @@ def loop(a):
+                 (ia, ma), (ib, mb) = da, db
+                 den = ma*mb
+                 ls = convolution_int(ia, ib)
++                ls += [0]*(len(ia) + len(ib) - 1 - len(ls))
+                 if den != 1:
+                     ls = [Rational(i, den) for i in ls]
+         if ls is None:

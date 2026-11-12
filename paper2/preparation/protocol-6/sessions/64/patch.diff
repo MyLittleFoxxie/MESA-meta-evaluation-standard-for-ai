@@ -1,0 +1,42 @@
+diff --git a/sympy/series/gruntz.py b/sympy/series/gruntz.py
+index 3b3b28df2b..f1a7b670e2 100644
+--- a/sympy/series/gruntz.py
++++ b/sympy/series/gruntz.py
+@@ -127,7 +127,7 @@
+ from sympy.core.symbol import Dummy, Wild
+ from sympy.core.traversal import bottom_up
+ 
+-from sympy.functions import log, exp, sign as _sign
++from sympy.functions import log, exp, sign as _sign, Abs, Min, Max
+ from sympy.series.order import Order
+ from sympy.utilities.misc import debug_decorator as debug
+ from sympy.utilities.timeutils import timethis
+@@ -302,6 +302,8 @@ def mrv(e, x):
+         else:
+             s, expr = mrv(e.exp, x)
+             return s, exp(expr)
++    elif isinstance(e, (Min, Max)):
++        return mrv(e.rewrite(Abs), x)
+     elif isinstance(e, AppliedUndef):
+         raise ValueError("MRV set computation for UndefinedFunction is not allowed")
+     elif e.is_Function:
+diff --git a/sympy/series/limits.py b/sympy/series/limits.py
+index 8f8759a3b0..20316bfab6 100644
+--- a/sympy/series/limits.py
++++ b/sympy/series/limits.py
+@@ -8,6 +8,7 @@
+ from sympy.functions.combinatorial.factorials import factorial
+ from sympy.functions.elementary.complexes import (Abs, sign, arg, re)
+ from sympy.functions.elementary.exponential import (exp, log)
++from sympy.functions.elementary.miscellaneous import Min, Max
+ from sympy.functions.special.gamma_functions import gamma
+ from sympy.polys import PolynomialError, factor
+ from sympy.series.order import Order
+@@ -295,6 +296,7 @@ def set_signs(expr):
+             # Also see comments in https://github.com/sympy/sympy/issues/19453
+             from sympy.simplify.simplify import nsimplify
+             e = nsimplify(e)
++        e = e.rewrite([Min, Max], Abs)
+         e = set_signs(e)
+ 
+ 

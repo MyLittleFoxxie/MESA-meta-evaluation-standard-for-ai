@@ -1,0 +1,20 @@
+diff --git a/sympy/matrices/expressions/matmul.py b/sympy/matrices/expressions/matmul.py
+index 572f5c4bbd..51660b803d 100644
+--- a/sympy/matrices/expressions/matmul.py
++++ b/sympy/matrices/expressions/matmul.py
+@@ -187,6 +187,15 @@ def _eval_inverse(self):
+             ).doit()
+         return Inverse(self)
+ 
++    def _eval_power(self, exp):
++        if exp.is_integer:
++            coeff, matrices = self.as_coeff_matrices()
++            if coeff != 1:
++                # Scalars commute with matrices, but the matrix factors need
++                # to remain together and in their original order.
++                return coeff**exp * MatMul(*matrices).doit()**exp
++        return super()._eval_power(exp)
++
+     def doit(self, **hints):
+         deep = hints.get('deep', True)
+         if deep:

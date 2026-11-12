@@ -1,122 +1,931 @@
-{
-  "status": "template; no results",
-  "notes": [
-    "M1 and M2 coincide because every source task comes from SymPy; M2 is the resolve rate alone (no review).",
-    "Decisions: Accept (lower bound at or above 0.70), Reject (upper bound below 0.70), or Inconclusive. MESA makes a score decision only when the evidence status is admissible; otherwise no decision, with what each blocking criterion is missing.",
-    "With 20 tasks, Accept needs 19 or 20 resolved and Reject 9 or fewer; the requirement's minimum is 9 tasks.",
-    "RQ1. Audit only: the tasks the checks show to be broken are left out, with no criteria gate (as automated audits use their findings); ABA: the tasks ABA flags with a major finding are left out. M3 leaves out the same tasks as the audit and adds the criteria; its decision before the evidence status equals the audit-only decision. ABC follows its paper: item scores per part, the decision on all source tasks, unmet or unknown items as caveats; it never withholds.",
-    "RQ2. The direct test is the coding agent on the target tasks. Agreement compares each decision from the source tasks with the direct test's decision: Agreement, Discrepancy, Inconclusive (either is Inconclusive), or No decision. M3 withheld: MESA's decision before the evidence status against the direct test. The difference is source minus target resolve rate with a 95% Newcombe interval. The direct test is also given without the target tasks whose issues were opened before the stated training cutoffs.",
-    "Control: invalid sessions by kind, and the resolve rate if they were counted by their test result.",
-    "Built by paper2/preparation/cases.py."
-  ],
-  "rows": [
-    {
-      "config_id": "CONFIG_01_GEMINI_FLASH_MED",
-      "source_n": "pending",
-      "source_successes": "pending",
-      "source_interval": "pending",
-      "M2_decision": "pending",
-      "audit_only_tasks": "pending",
-      "audit_only_decision": "pending",
-      "ABA_left_out": "pending",
-      "ABA_decision": "pending",
-      "M3_strict_status": "pending",
-      "M3_strict_decision": "pending",
-      "M3_lenient_status": "pending",
-      "M3_lenient_decision": "pending",
-      "M3_controlled_status": "pending",
-      "M3_controlled_decision": "pending",
-      "all_passing_incomplete_left_out": "pending",
-      "all_passing_incomplete_decision": "pending",
-      "M3_to_reach_decision": "pending",
-      "M3_tasks_used": "pending",
-      "M3_left_out": "pending",
-      "M3_decision_before_status": "pending",
-      "M3_decision_on_all_tasks": "pending",
-      "ABC_decision": "pending",
-      "ABC_scores": "pending",
-      "ABC_caveats": "pending",
-      "ABC_with_gate_status": "pending",
-      "ABC_with_gate_decision": "pending",
-      "tests_only_successes": "pending",
-      "tests_only_decision": "pending",
-      "invalid_sessions": "pending",
-      "target_n": "pending",
-      "target_successes": "pending",
-      "target_interval": "pending",
-      "target_decision": "pending",
-      "target_without_early_decision": "pending",
-      "target_after_removal_n": "pending",
-      "target_after_removal_successes": "pending",
-      "target_after_removal_decision": "pending",
-      "difference_all_tasks": "pending",
-      "difference_kept_tasks": "pending",
-      "intervals_overlap": "pending",
-      "agreement_M2": "pending",
-      "agreement_audit_only": "pending",
-      "agreement_ABA": "pending",
-      "agreement_M3_strict": "pending",
-      "agreement_M3_lenient": "pending",
-      "agreement_M3_controlled": "pending",
-      "agreement_M3_withheld": "pending",
-      "agreement_ABC": "pending",
-      "agreement_ABC_with_gate": "pending",
-      "agreement_all_passing_incomplete": "pending",
-      "reasons": "pending"
+[
+  {
+    "config_id": "CONFIG_02_SOL_MED",
+    "source": {
+      "n": 44,
+      "successes": 35,
+      "interval": [
+        0.6701995469941414,
+        0.888925203987266
+      ]
     },
-    {
-      "config_id": "CONFIG_02_SOL_MED",
-      "source_n": "pending",
-      "source_successes": "pending",
-      "source_interval": "pending",
-      "M2_decision": "pending",
-      "audit_only_tasks": "pending",
-      "audit_only_decision": "pending",
-      "ABA_left_out": "pending",
-      "ABA_decision": "pending",
-      "M3_strict_status": "pending",
-      "M3_strict_decision": "pending",
-      "M3_lenient_status": "pending",
-      "M3_lenient_decision": "pending",
-      "M3_controlled_status": "pending",
-      "M3_controlled_decision": "pending",
-      "all_passing_incomplete_left_out": "pending",
-      "all_passing_incomplete_decision": "pending",
-      "M3_to_reach_decision": "pending",
-      "M3_tasks_used": "pending",
-      "M3_left_out": "pending",
-      "M3_decision_before_status": "pending",
-      "M3_decision_on_all_tasks": "pending",
-      "ABC_decision": "pending",
-      "ABC_scores": "pending",
-      "ABC_caveats": "pending",
-      "ABC_with_gate_status": "pending",
-      "ABC_with_gate_decision": "pending",
-      "tests_only_successes": "pending",
-      "tests_only_decision": "pending",
-      "invalid_sessions": "pending",
-      "target_n": "pending",
-      "target_successes": "pending",
-      "target_interval": "pending",
-      "target_decision": "pending",
-      "target_without_early_decision": "pending",
-      "target_after_removal_n": "pending",
-      "target_after_removal_successes": "pending",
-      "target_after_removal_decision": "pending",
-      "difference_all_tasks": "pending",
-      "difference_kept_tasks": "pending",
-      "intervals_overlap": "pending",
-      "agreement_M2": "pending",
-      "agreement_audit_only": "pending",
-      "agreement_ABA": "pending",
-      "agreement_M3_strict": "pending",
-      "agreement_M3_lenient": "pending",
-      "agreement_M3_controlled": "pending",
-      "agreement_M3_withheld": "pending",
-      "agreement_ABC": "pending",
-      "agreement_ABC_with_gate": "pending",
-      "agreement_all_passing_incomplete": "pending",
-      "reasons": "pending"
+    "M1": "Inconclusive",
+    "M2": "Inconclusive",
+    "audit_only": {
+      "left_out": [
+        "sympy__sympy-12096",
+        "sympy__sympy-12481",
+        "sympy__sympy-13551",
+        "sympy__sympy-13647",
+        "sympy__sympy-14711",
+        "sympy__sympy-15017",
+        "sympy__sympy-15345",
+        "sympy__sympy-15349",
+        "sympy__sympy-15599",
+        "sympy__sympy-16597",
+        "sympy__sympy-16792",
+        "sympy__sympy-17318",
+        "sympy__sympy-18189",
+        "sympy__sympy-18199",
+        "sympy__sympy-18211",
+        "sympy__sympy-19637",
+        "sympy__sympy-19783",
+        "sympy__sympy-20154",
+        "sympy__sympy-20428",
+        "sympy__sympy-20438",
+        "sympy__sympy-20590",
+        "sympy__sympy-21596",
+        "sympy__sympy-21847",
+        "sympy__sympy-22456",
+        "sympy__sympy-22714",
+        "sympy__sympy-22914",
+        "sympy__sympy-23413",
+        "sympy__sympy-23534",
+        "sympy__sympy-23824",
+        "sympy__sympy-24066",
+        "sympy__sympy-24539",
+        "sympy__sympy-24661"
+      ],
+      "tasks": {
+        "n": 12,
+        "successes": 10,
+        "interval": [
+          0.5618945648846887,
+          0.9695398343408629
+        ]
+      },
+      "decision": "Inconclusive"
+    },
+    "tests_only": {
+      "n": 44,
+      "successes": 35,
+      "interval": [
+        0.6701995469941414,
+        0.888925203987266
+      ],
+      "decision": "Inconclusive"
+    },
+    "invalid": {
+      "sessions": 4,
+      "by_kind": {
+        "study material": 2,
+        "grading files changed": 1,
+        "network": 1
+      }
+    },
+    "target": {
+      "n": 44,
+      "successes": 21,
+      "interval": [
+        0.34636510779595925,
+        0.6105718446270078
+      ],
+      "decision": "Reject",
+      "tasks_without_session": []
+    },
+    "M3_strict": {
+      "input_integrity": "valid",
+      "evidence_status": "inadmissible",
+      "tasks": {
+        "n": 12,
+        "successes": 10,
+        "interval": [
+          0.5618945648846887,
+          0.9695398343408629
+        ],
+        "left_out": [
+          "sympy__sympy-12096",
+          "sympy__sympy-12481",
+          "sympy__sympy-13551",
+          "sympy__sympy-13647",
+          "sympy__sympy-14711",
+          "sympy__sympy-15017",
+          "sympy__sympy-15345",
+          "sympy__sympy-15349",
+          "sympy__sympy-15599",
+          "sympy__sympy-16597",
+          "sympy__sympy-16792",
+          "sympy__sympy-17318",
+          "sympy__sympy-18189",
+          "sympy__sympy-18199",
+          "sympy__sympy-18211",
+          "sympy__sympy-19637",
+          "sympy__sympy-19783",
+          "sympy__sympy-20154",
+          "sympy__sympy-20428",
+          "sympy__sympy-20438",
+          "sympy__sympy-20590",
+          "sympy__sympy-21596",
+          "sympy__sympy-21847",
+          "sympy__sympy-22456",
+          "sympy__sympy-22714",
+          "sympy__sympy-22914",
+          "sympy__sympy-23413",
+          "sympy__sympy-23534",
+          "sympy__sympy-23824",
+          "sympy__sympy-24066",
+          "sympy__sympy-24539",
+          "sympy__sympy-24661"
+        ],
+        "with_left_out": {
+          "n": 44,
+          "successes": 35,
+          "interval": [
+            0.6701995469941414,
+            0.888925203987266
+          ]
+        }
+      },
+      "performance_decision": "Inconclusive",
+      "decision_on_all_tasks": "Inconclusive",
+      "score_decision": null,
+      "to_reach_decision": {
+        "B12": "An interval, standard error or spread over runs for the primary resolve rate. The team computes its own exact binomial bound for its decision, which B12 does not replace.",
+        "B14a": "A held-out or private split of SWE-bench Verified, a count of affected tasks, and a third-party contamination check for GPT-6.1 Sol.",
+        "B28a": "Per observation no_scoring_file_changes records for the Protocol 6 sessions, which do not exist yet."
+      },
+      "requirement_decision": null,
+      "reasons": [
+        "B12: rating Undocumented is below the required Verified",
+        "B12: check outcome not_performed; requirement needs passed",
+        "B14a: demonstrated defect at ~/paper2-sources/openai-why-no-longer-swe-bench-verified.archive.txt",
+        "B28a: demonstrated defect at paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/",
+        "Left out sympy__sympy-16597: B07: An even symbol, such as `Symbol('m', even=True)`, must have `is_finite is True`. More generally, a value known to be even must be finite. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16597/candidate-1.log.json)",
+        "Left out sympy__sympy-23413: B07: The flip/transpose row-style HNF calculation for [[5, 8, 12], [0, 0, 1]] must return [[5, 8, 0], [0, 0, 1]]. Preserve both independent rows instead of falsely treating the matrix as rank deficient and dropping one. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23413/candidate-1.log.json)",
+        "Left out sympy__sympy-12096: B07: \ufeff- Preserve numeric evaluation of a single implemented function, such as f(2) and g(2). Recursively evaluate nested implemented functions at numeric points, including distinct functions such as f(g(2)). Apply this recursive evaluation to numeric inputs generally, including fracti (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12096/candidate-1.log.json)",
+        "Left out sympy__sympy-24539: B07: With no arguments, convert the polynomial using its ring's symbols. With exactly one supplied symbol per generator, use those symbols in generator order and preserve the polynomial's coefficients and powers. Accept valid replacement symbols for any ring size, including symbols th (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24539/candidate-1.log.json)",
+        "Left out sympy__sympy-21847: B07: With scalar degree bounds, return every monomial whose total degree is between the minimum and maximum, inclusive. Include mixed monomials when minimum and maximum degrees are both 3, including for the three commuting variables in the example. Continue including all eligible mixe (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-1.log.json)",
+        "Left out sympy__sympy-13551: B07: Evaluating Product(n + 1/2**k, (k, 0, n-1)) must preserve the full product for arbitrary positive integer n, including after simplification or substitution. Substituting n=2 into the evaluated symbolic result must give (2+1)*(2+1/2) = 15/2. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13551/candidate-1.log.json)",
+        "Left out sympy__sympy-20590: B07: Accessing `Symbol('s').__dict__` must raise `AttributeError`, as in SymPy 1.6.2. Parent classes must preserve the effect of slots so that Symbol instances do not gain an instance dictionary. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20590/candidate-1.log.json)",
+        "Left out sympy__sympy-20438: B07: For a = FiniteSet(1, 2), b = ProductSet(a, a), and c containing all four pairs, b.intersection(c) and c.intersection(b) agree. Both b.is_subset(c) and c.is_subset(b) return True. Eq(b, c).simplify() returns S.true without raising an exception. b.rewrite(FiniteSet) expands the fin (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20438/candidate-1.log.json)",
+        "Left out sympy__sympy-20428: B07: Recognize mathematically zero EX coefficients when constructing a polynomial. Store a zero EX polynomial with a stripped DMP representation (`[]`, not `[EX(0)]`). Make `clear_denoms()` return a valid zero polynomial when its constant expression evaluates to zero. Keep the polynom (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20428/candidate-1.log.json)",
+        "Left out sympy__sympy-14711: B07: Adding scalar zero to a vector preserves the vector without raising TypeError. Python's built-in sum must accept vectors with its default zero start: sum([N.x, 0 * N.x]) returns N.x without raising TypeError. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-14711/candidate-1.log.json)",
+        "Left out sympy__sympy-23534: B07: `symbols` must honor `cls=Function` when names are wrapped in an outer tuple. `q, u = symbols(('q:2', 'u:2'), cls=Function)` must return two separate tuples, each containing two functions. The functions must keep the requested names: `q0`, `q1`, `u0`, and `u1`. Every object in bo (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23534/candidate-1.log.json)",
+        "Left out sympy__sympy-23824: B07: Simplify contracted gamma products using the gamma matrix identities, including an adjacent contracted pair giving a factor of 4. Preserve the order of every leading uncontracted gamma matrix when simplifying the contracted remainder, for any number of leading matrices. Preserve  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.log.json)",
+        "Left out sympy__sympy-19783: B07: Multiplying an operator by `IdentityOperator()` on the right returns that operator. Multiplying its Hermitian conjugate, `Dagger(A)`, by `IdentityOperator()` on the right returns `Dagger(A)`, including for `A = Operator('A')`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19783/candidate-1.log.json)",
+        "Left out sympy__sympy-22914: B07: Print SymPy Min calls as Python built-in min calls without an unsupported-function warning. Print SymPy Max calls as Python built-in max calls without an unsupported-function warning. Include every argument, using Python code printing for each argument, including expressions and  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json)",
+        "Left out sympy__sympy-18199: B05: A patch that keeps only the stated issue (a % p == 0 returns the root 0) was executed and not resolved, because the only FAIL_TO_PASS test asserts composite moduli the problem statement does not mention. The record does not show that this patch is a complete fix. (paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json); B07: Return zero as a root of x**n = a (mod p) whenever a is divisible by p. Cover both a = 0 and nonzero multiples of p; in particular, nthroot_mod(17*17, 5, 17) must return the zero root. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json)",
+        "Left out sympy__sympy-17318: B07: `sqrtdenest` must avoid `IndexError` when processing complex radicals, including `(3 - sqrt(2)*sqrt(4 + 3*I) + 3*I)/2`. When an expression cannot be denested, return it unchanged, including complex expressions. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-17318/candidate-1.log.json)",
+        "Left out sympy__sympy-13647: B07: Insert both columns of twos at column index 3 in a 6-by-6 identity matrix, producing a 6-by-8 matrix. Keep the original columns in order and preserve their row positions; the right identity block must stay in the bottom three rows. Make this work through the public Matrix.col_ins (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13647/candidate-1.log.json)",
+        "Left out sympy__sympy-22456: B07: Every codegen.ast String instance must satisfy expr.func(*expr.args) == expr, preserving its text for any valid string value. This Basic reconstruction rule also applies to String subclasses. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22456/candidate-1.log.json)",
+        "Left out sympy__sympy-12481: B07: Accept non-disjoint cycles in the Permutation constructor. Apply the supplied cycles in left-to-right order and return their combined permutation. Construct the identity permutation for Permutation([[0, 1], [0, 1]]). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12481/candidate-1.log.json)",
+        "Left out sympy__sympy-15345: B07: Print Max expressions as valid Mathematica calls using square brackets. In particular, mathematica_code(Max(x, 2)) must produce a Max call containing x and 2, rather than Python-style Max(2, x). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15345/candidate-1.log.json)",
+        "Left out sympy__sympy-24661: B07: `parse_expr(..., evaluate=False)` must return an unevaluated relational instead of a Boolean, including `1 < 2` as `Lt(1, 2, evaluate=False)`. Preserve the comparison operator and its operands for relationals, without restricting the fix to particular numeric literals. Honor `eva (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24661/candidate-1.log.json)",
+        "Left out sympy__sympy-16792: B07: Cython autowrap must accept array arguments even when they do not occur in the expression. The constant example with an unused MatrixSymbol must accept the supplied NumPy array and return 1.0. Generated C signatures must declare unused array inputs as pointers, preserving their a (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16792/candidate-1.log.json)",
+        "Left out sympy__sympy-15017: B07: Rank-0 arrays have length 1, including numeric scalars such as `Array(3)` and zero. A scalar array's length equals the number of elements yielded by its iterator. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15017/candidate-1.log.json)",
+        "Left out sympy__sympy-15349: B07: Return the correct quaternion rotation matrix, including the sign of its row 2, column 3 entry. For Quaternion(cos(x/2), sin(x/2), 0, 0), simplify to [[1, 0, 0], [0, cos(x), -sin(x)], [0, sin(x), cos(x)]]. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15349/candidate-1.log.json)",
+        "Left out sympy__sympy-18189: B07: With `permute=True`, solving `n**4 + m**4 - 2**4 - 3**4` must return all eight signed permutations of `(2, 3)`. Both `syms=(m, n)` and `syms=(n, m)` must return the complete solution set; changing symbol order must not drop solutions. This behavior must hold for the issue's `m, n (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18189/candidate-1.log.json)",
+        "Left out sympy__sympy-22714: B07: Inside `with sp.evaluate(False)`, `sp.S('Point2D(Integer(1),Integer(2))')` must succeed and produce the point with coordinates 1 and 2. The same string must continue to work with normal evaluation and with `sp.S(..., evaluate=False)`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22714/candidate-1.log.json)",
+        "Left out sympy__sympy-18211: B07: For the reported equation `Eq(n*cos(n) - 3*sin(n), 0)`, `as_set()` should return a `ConditionSet` instead of raising `NotImplementedError`. The returned set should retain the equation and its symbol, with the real numbers as its domain. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18211/candidate-1.log.json)",
+        "Left out sympy__sympy-19637: B07: kernS should parse the parenthesized fraction `(2*x)/(x-1)` as `2*x/(x-1)` without raising an unbound-local error. Spaces in the same expression should not cause the reported error. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19637/candidate-1.log.json)",
+        "Left out sympy__sympy-15599: B07: For an integer symbol `i` with no sign assumption, `Mod(3*i, 2)` simplifies to `Mod(i, 2)`. Parsing the equivalent remainder expression with `sympify` produces the same simplified result. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15599/candidate-1.log.json)",
+        "Left out sympy__sympy-20154: B07: Yield an independent dictionary for each partition, including when `size=True` wraps it with a part count. Preserve each yielded partition as iteration continues, so collecting results directly produces the correct partitions. Keep changes made by callers to yielded dictionaries  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20154/candidate-1.log.json)",
+        "Left out sympy__sympy-24066: B07: Recognize that second/(ohm*farad) has a dimensionless dimension in SI. Collect the factor and dimension of 100 + exp(second/(ohm*farad)) without raising ValueError, returning (100 + E, Dimension(1)). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24066/candidate-1.log.json)",
+        "Left out sympy__sympy-21596: B07: For `S1 = imageset(Lambda(n, n + (n - 1)*(n + 1)*I), S.Integers)`, `2 in S1` must be `False`. `2 in S1.intersect(S.Reals)` must be `False`. `S1.intersect(S.Reals)` must equal `FiniteSet(-1, 1)`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21596/candidate-1.log.json)",
+        "Interval [0.562, 0.970] from 10/12 contains threshold 0.70"
+      ]
+    },
+    "M3_lenient": {
+      "input_integrity": "valid",
+      "evidence_status": "inadmissible",
+      "tasks": {
+        "n": 12,
+        "successes": 10,
+        "interval": [
+          0.5618945648846887,
+          0.9695398343408629
+        ],
+        "left_out": [
+          "sympy__sympy-12096",
+          "sympy__sympy-12481",
+          "sympy__sympy-13551",
+          "sympy__sympy-13647",
+          "sympy__sympy-14711",
+          "sympy__sympy-15017",
+          "sympy__sympy-15345",
+          "sympy__sympy-15349",
+          "sympy__sympy-15599",
+          "sympy__sympy-16597",
+          "sympy__sympy-16792",
+          "sympy__sympy-17318",
+          "sympy__sympy-18189",
+          "sympy__sympy-18199",
+          "sympy__sympy-18211",
+          "sympy__sympy-19637",
+          "sympy__sympy-19783",
+          "sympy__sympy-20154",
+          "sympy__sympy-20428",
+          "sympy__sympy-20438",
+          "sympy__sympy-20590",
+          "sympy__sympy-21596",
+          "sympy__sympy-21847",
+          "sympy__sympy-22456",
+          "sympy__sympy-22714",
+          "sympy__sympy-22914",
+          "sympy__sympy-23413",
+          "sympy__sympy-23534",
+          "sympy__sympy-23824",
+          "sympy__sympy-24066",
+          "sympy__sympy-24539",
+          "sympy__sympy-24661"
+        ],
+        "with_left_out": {
+          "n": 44,
+          "successes": 35,
+          "interval": [
+            0.6701995469941414,
+            0.888925203987266
+          ]
+        }
+      },
+      "performance_decision": "Inconclusive",
+      "decision_on_all_tasks": "Inconclusive",
+      "score_decision": null,
+      "to_reach_decision": {
+        "B28a": "Per observation no_scoring_file_changes records for the Protocol 6 sessions, which do not exist yet."
+      },
+      "requirement_decision": null,
+      "reasons": [
+        "B28a: demonstrated defect at paper2/preparation/protocol-6/audit_checks/b28a-scoring-check/",
+        "Left out sympy__sympy-16597: B07: An even symbol, such as `Symbol('m', even=True)`, must have `is_finite is True`. More generally, a value known to be even must be finite. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16597/candidate-1.log.json)",
+        "Left out sympy__sympy-23413: B07: The flip/transpose row-style HNF calculation for [[5, 8, 12], [0, 0, 1]] must return [[5, 8, 0], [0, 0, 1]]. Preserve both independent rows instead of falsely treating the matrix as rank deficient and dropping one. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23413/candidate-1.log.json)",
+        "Left out sympy__sympy-12096: B07: \ufeff- Preserve numeric evaluation of a single implemented function, such as f(2) and g(2). Recursively evaluate nested implemented functions at numeric points, including distinct functions such as f(g(2)). Apply this recursive evaluation to numeric inputs generally, including fracti (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12096/candidate-1.log.json)",
+        "Left out sympy__sympy-24539: B07: With no arguments, convert the polynomial using its ring's symbols. With exactly one supplied symbol per generator, use those symbols in generator order and preserve the polynomial's coefficients and powers. Accept valid replacement symbols for any ring size, including symbols th (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24539/candidate-1.log.json)",
+        "Left out sympy__sympy-21847: B07: With scalar degree bounds, return every monomial whose total degree is between the minimum and maximum, inclusive. Include mixed monomials when minimum and maximum degrees are both 3, including for the three commuting variables in the example. Continue including all eligible mixe (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-1.log.json)",
+        "Left out sympy__sympy-13551: B07: Evaluating Product(n + 1/2**k, (k, 0, n-1)) must preserve the full product for arbitrary positive integer n, including after simplification or substitution. Substituting n=2 into the evaluated symbolic result must give (2+1)*(2+1/2) = 15/2. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13551/candidate-1.log.json)",
+        "Left out sympy__sympy-20590: B07: Accessing `Symbol('s').__dict__` must raise `AttributeError`, as in SymPy 1.6.2. Parent classes must preserve the effect of slots so that Symbol instances do not gain an instance dictionary. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20590/candidate-1.log.json)",
+        "Left out sympy__sympy-20438: B07: For a = FiniteSet(1, 2), b = ProductSet(a, a), and c containing all four pairs, b.intersection(c) and c.intersection(b) agree. Both b.is_subset(c) and c.is_subset(b) return True. Eq(b, c).simplify() returns S.true without raising an exception. b.rewrite(FiniteSet) expands the fin (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20438/candidate-1.log.json)",
+        "Left out sympy__sympy-20428: B07: Recognize mathematically zero EX coefficients when constructing a polynomial. Store a zero EX polynomial with a stripped DMP representation (`[]`, not `[EX(0)]`). Make `clear_denoms()` return a valid zero polynomial when its constant expression evaluates to zero. Keep the polynom (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20428/candidate-1.log.json)",
+        "Left out sympy__sympy-14711: B07: Adding scalar zero to a vector preserves the vector without raising TypeError. Python's built-in sum must accept vectors with its default zero start: sum([N.x, 0 * N.x]) returns N.x without raising TypeError. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-14711/candidate-1.log.json)",
+        "Left out sympy__sympy-23534: B07: `symbols` must honor `cls=Function` when names are wrapped in an outer tuple. `q, u = symbols(('q:2', 'u:2'), cls=Function)` must return two separate tuples, each containing two functions. The functions must keep the requested names: `q0`, `q1`, `u0`, and `u1`. Every object in bo (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23534/candidate-1.log.json)",
+        "Left out sympy__sympy-23824: B07: Simplify contracted gamma products using the gamma matrix identities, including an adjacent contracted pair giving a factor of 4. Preserve the order of every leading uncontracted gamma matrix when simplifying the contracted remainder, for any number of leading matrices. Preserve  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.log.json)",
+        "Left out sympy__sympy-19783: B07: Multiplying an operator by `IdentityOperator()` on the right returns that operator. Multiplying its Hermitian conjugate, `Dagger(A)`, by `IdentityOperator()` on the right returns `Dagger(A)`, including for `A = Operator('A')`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19783/candidate-1.log.json)",
+        "Left out sympy__sympy-22914: B07: Print SymPy Min calls as Python built-in min calls without an unsupported-function warning. Print SymPy Max calls as Python built-in max calls without an unsupported-function warning. Include every argument, using Python code printing for each argument, including expressions and  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json)",
+        "Left out sympy__sympy-18199: B05: A patch that keeps only the stated issue (a % p == 0 returns the root 0) was executed and not resolved, because the only FAIL_TO_PASS test asserts composite moduli the problem statement does not mention. The record does not show that this patch is a complete fix. (paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json); B07: Return zero as a root of x**n = a (mod p) whenever a is divisible by p. Cover both a = 0 and nonzero multiples of p; in particular, nthroot_mod(17*17, 5, 17) must return the zero root. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json)",
+        "Left out sympy__sympy-17318: B07: `sqrtdenest` must avoid `IndexError` when processing complex radicals, including `(3 - sqrt(2)*sqrt(4 + 3*I) + 3*I)/2`. When an expression cannot be denested, return it unchanged, including complex expressions. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-17318/candidate-1.log.json)",
+        "Left out sympy__sympy-13647: B07: Insert both columns of twos at column index 3 in a 6-by-6 identity matrix, producing a 6-by-8 matrix. Keep the original columns in order and preserve their row positions; the right identity block must stay in the bottom three rows. Make this work through the public Matrix.col_ins (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13647/candidate-1.log.json)",
+        "Left out sympy__sympy-22456: B07: Every codegen.ast String instance must satisfy expr.func(*expr.args) == expr, preserving its text for any valid string value. This Basic reconstruction rule also applies to String subclasses. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22456/candidate-1.log.json)",
+        "Left out sympy__sympy-12481: B07: Accept non-disjoint cycles in the Permutation constructor. Apply the supplied cycles in left-to-right order and return their combined permutation. Construct the identity permutation for Permutation([[0, 1], [0, 1]]). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12481/candidate-1.log.json)",
+        "Left out sympy__sympy-15345: B07: Print Max expressions as valid Mathematica calls using square brackets. In particular, mathematica_code(Max(x, 2)) must produce a Max call containing x and 2, rather than Python-style Max(2, x). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15345/candidate-1.log.json)",
+        "Left out sympy__sympy-24661: B07: `parse_expr(..., evaluate=False)` must return an unevaluated relational instead of a Boolean, including `1 < 2` as `Lt(1, 2, evaluate=False)`. Preserve the comparison operator and its operands for relationals, without restricting the fix to particular numeric literals. Honor `eva (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24661/candidate-1.log.json)",
+        "Left out sympy__sympy-16792: B07: Cython autowrap must accept array arguments even when they do not occur in the expression. The constant example with an unused MatrixSymbol must accept the supplied NumPy array and return 1.0. Generated C signatures must declare unused array inputs as pointers, preserving their a (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16792/candidate-1.log.json)",
+        "Left out sympy__sympy-15017: B07: Rank-0 arrays have length 1, including numeric scalars such as `Array(3)` and zero. A scalar array's length equals the number of elements yielded by its iterator. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15017/candidate-1.log.json)",
+        "Left out sympy__sympy-15349: B07: Return the correct quaternion rotation matrix, including the sign of its row 2, column 3 entry. For Quaternion(cos(x/2), sin(x/2), 0, 0), simplify to [[1, 0, 0], [0, cos(x), -sin(x)], [0, sin(x), cos(x)]]. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15349/candidate-1.log.json)",
+        "Left out sympy__sympy-18189: B07: With `permute=True`, solving `n**4 + m**4 - 2**4 - 3**4` must return all eight signed permutations of `(2, 3)`. Both `syms=(m, n)` and `syms=(n, m)` must return the complete solution set; changing symbol order must not drop solutions. This behavior must hold for the issue's `m, n (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18189/candidate-1.log.json)",
+        "Left out sympy__sympy-22714: B07: Inside `with sp.evaluate(False)`, `sp.S('Point2D(Integer(1),Integer(2))')` must succeed and produce the point with coordinates 1 and 2. The same string must continue to work with normal evaluation and with `sp.S(..., evaluate=False)`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22714/candidate-1.log.json)",
+        "Left out sympy__sympy-18211: B07: For the reported equation `Eq(n*cos(n) - 3*sin(n), 0)`, `as_set()` should return a `ConditionSet` instead of raising `NotImplementedError`. The returned set should retain the equation and its symbol, with the real numbers as its domain. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18211/candidate-1.log.json)",
+        "Left out sympy__sympy-19637: B07: kernS should parse the parenthesized fraction `(2*x)/(x-1)` as `2*x/(x-1)` without raising an unbound-local error. Spaces in the same expression should not cause the reported error. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19637/candidate-1.log.json)",
+        "Left out sympy__sympy-15599: B07: For an integer symbol `i` with no sign assumption, `Mod(3*i, 2)` simplifies to `Mod(i, 2)`. Parsing the equivalent remainder expression with `sympify` produces the same simplified result. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15599/candidate-1.log.json)",
+        "Left out sympy__sympy-20154: B07: Yield an independent dictionary for each partition, including when `size=True` wraps it with a part count. Preserve each yielded partition as iteration continues, so collecting results directly produces the correct partitions. Keep changes made by callers to yielded dictionaries  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20154/candidate-1.log.json)",
+        "Left out sympy__sympy-24066: B07: Recognize that second/(ohm*farad) has a dimensionless dimension in SI. Collect the factor and dimension of 100 + exp(second/(ohm*farad)) without raising ValueError, returning (100 + E, Dimension(1)). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24066/candidate-1.log.json)",
+        "Left out sympy__sympy-21596: B07: For `S1 = imageset(Lambda(n, n + (n - 1)*(n + 1)*I), S.Integers)`, `2 in S1` must be `False`. `2 in S1.intersect(S.Reals)` must be `False`. `S1.intersect(S.Reals)` must equal `FiniteSet(-1, 1)`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21596/candidate-1.log.json)",
+        "Interval [0.562, 0.970] from 10/12 contains threshold 0.70"
+      ]
+    },
+    "M3_controlled": {
+      "input_integrity": "valid",
+      "evidence_status": "admissible",
+      "tasks": {
+        "n": 12,
+        "successes": 10,
+        "interval": [
+          0.5618945648846887,
+          0.9695398343408629
+        ],
+        "left_out": [
+          "sympy__sympy-12096",
+          "sympy__sympy-12481",
+          "sympy__sympy-13551",
+          "sympy__sympy-13647",
+          "sympy__sympy-14711",
+          "sympy__sympy-15017",
+          "sympy__sympy-15345",
+          "sympy__sympy-15349",
+          "sympy__sympy-15599",
+          "sympy__sympy-16597",
+          "sympy__sympy-16792",
+          "sympy__sympy-17318",
+          "sympy__sympy-18189",
+          "sympy__sympy-18199",
+          "sympy__sympy-18211",
+          "sympy__sympy-19637",
+          "sympy__sympy-19783",
+          "sympy__sympy-20154",
+          "sympy__sympy-20428",
+          "sympy__sympy-20438",
+          "sympy__sympy-20590",
+          "sympy__sympy-21596",
+          "sympy__sympy-21847",
+          "sympy__sympy-22456",
+          "sympy__sympy-22714",
+          "sympy__sympy-22914",
+          "sympy__sympy-23413",
+          "sympy__sympy-23534",
+          "sympy__sympy-23824",
+          "sympy__sympy-24066",
+          "sympy__sympy-24539",
+          "sympy__sympy-24661"
+        ],
+        "with_left_out": {
+          "n": 44,
+          "successes": 35,
+          "interval": [
+            0.6701995469941414,
+            0.888925203987266
+          ]
+        }
+      },
+      "performance_decision": "Inconclusive",
+      "decision_on_all_tasks": "Inconclusive",
+      "score_decision": "Inconclusive",
+      "to_reach_decision": {},
+      "requirement_decision": "Inconclusive",
+      "reasons": [
+        "Left out sympy__sympy-16597: B07: An even symbol, such as `Symbol('m', even=True)`, must have `is_finite is True`. More generally, a value known to be even must be finite. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16597/candidate-1.log.json)",
+        "Left out sympy__sympy-23413: B07: The flip/transpose row-style HNF calculation for [[5, 8, 12], [0, 0, 1]] must return [[5, 8, 0], [0, 0, 1]]. Preserve both independent rows instead of falsely treating the matrix as rank deficient and dropping one. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23413/candidate-1.log.json)",
+        "Left out sympy__sympy-12096: B07: \ufeff- Preserve numeric evaluation of a single implemented function, such as f(2) and g(2). Recursively evaluate nested implemented functions at numeric points, including distinct functions such as f(g(2)). Apply this recursive evaluation to numeric inputs generally, including fracti (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12096/candidate-1.log.json)",
+        "Left out sympy__sympy-24539: B07: With no arguments, convert the polynomial using its ring's symbols. With exactly one supplied symbol per generator, use those symbols in generator order and preserve the polynomial's coefficients and powers. Accept valid replacement symbols for any ring size, including symbols th (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24539/candidate-1.log.json)",
+        "Left out sympy__sympy-21847: B07: With scalar degree bounds, return every monomial whose total degree is between the minimum and maximum, inclusive. Include mixed monomials when minimum and maximum degrees are both 3, including for the three commuting variables in the example. Continue including all eligible mixe (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21847/candidate-1.log.json)",
+        "Left out sympy__sympy-13551: B07: Evaluating Product(n + 1/2**k, (k, 0, n-1)) must preserve the full product for arbitrary positive integer n, including after simplification or substitution. Substituting n=2 into the evaluated symbolic result must give (2+1)*(2+1/2) = 15/2. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13551/candidate-1.log.json)",
+        "Left out sympy__sympy-20590: B07: Accessing `Symbol('s').__dict__` must raise `AttributeError`, as in SymPy 1.6.2. Parent classes must preserve the effect of slots so that Symbol instances do not gain an instance dictionary. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20590/candidate-1.log.json)",
+        "Left out sympy__sympy-20438: B07: For a = FiniteSet(1, 2), b = ProductSet(a, a), and c containing all four pairs, b.intersection(c) and c.intersection(b) agree. Both b.is_subset(c) and c.is_subset(b) return True. Eq(b, c).simplify() returns S.true without raising an exception. b.rewrite(FiniteSet) expands the fin (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20438/candidate-1.log.json)",
+        "Left out sympy__sympy-20428: B07: Recognize mathematically zero EX coefficients when constructing a polynomial. Store a zero EX polynomial with a stripped DMP representation (`[]`, not `[EX(0)]`). Make `clear_denoms()` return a valid zero polynomial when its constant expression evaluates to zero. Keep the polynom (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20428/candidate-1.log.json)",
+        "Left out sympy__sympy-14711: B07: Adding scalar zero to a vector preserves the vector without raising TypeError. Python's built-in sum must accept vectors with its default zero start: sum([N.x, 0 * N.x]) returns N.x without raising TypeError. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-14711/candidate-1.log.json)",
+        "Left out sympy__sympy-23534: B07: `symbols` must honor `cls=Function` when names are wrapped in an outer tuple. `q, u = symbols(('q:2', 'u:2'), cls=Function)` must return two separate tuples, each containing two functions. The functions must keep the requested names: `q0`, `q1`, `u0`, and `u1`. Every object in bo (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23534/candidate-1.log.json)",
+        "Left out sympy__sympy-23824: B07: Simplify contracted gamma products using the gamma matrix identities, including an adjacent contracted pair giving a factor of 4. Preserve the order of every leading uncontracted gamma matrix when simplifying the contracted remainder, for any number of leading matrices. Preserve  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-23824/candidate-1.log.json)",
+        "Left out sympy__sympy-19783: B07: Multiplying an operator by `IdentityOperator()` on the right returns that operator. Multiplying its Hermitian conjugate, `Dagger(A)`, by `IdentityOperator()` on the right returns `Dagger(A)`, including for `A = Operator('A')`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19783/candidate-1.log.json)",
+        "Left out sympy__sympy-22914: B07: Print SymPy Min calls as Python built-in min calls without an unsupported-function warning. Print SymPy Max calls as Python built-in max calls without an unsupported-function warning. Include every argument, using Python code printing for each argument, including expressions and  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22914/candidate-1.log.json)",
+        "Left out sympy__sympy-18199: B05: A patch that keeps only the stated issue (a % p == 0 returns the root 0) was executed and not resolved, because the only FAIL_TO_PASS test asserts composite moduli the problem statement does not mention. The record does not show that this patch is a complete fix. (paper2/preparation/protocol-4/audit_checks/b05-18199-counterexample.json); B07: Return zero as a root of x**n = a (mod p) whenever a is divisible by p. Cover both a = 0 and nonzero multiples of p; in particular, nthroot_mod(17*17, 5, 17) must return the zero root. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18199/candidate-1.log.json)",
+        "Left out sympy__sympy-17318: B07: `sqrtdenest` must avoid `IndexError` when processing complex radicals, including `(3 - sqrt(2)*sqrt(4 + 3*I) + 3*I)/2`. When an expression cannot be denested, return it unchanged, including complex expressions. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-17318/candidate-1.log.json)",
+        "Left out sympy__sympy-13647: B07: Insert both columns of twos at column index 3 in a 6-by-6 identity matrix, producing a 6-by-8 matrix. Keep the original columns in order and preserve their row positions; the right identity block must stay in the bottom three rows. Make this work through the public Matrix.col_ins (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-13647/candidate-1.log.json)",
+        "Left out sympy__sympy-22456: B07: Every codegen.ast String instance must satisfy expr.func(*expr.args) == expr, preserving its text for any valid string value. This Basic reconstruction rule also applies to String subclasses. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22456/candidate-1.log.json)",
+        "Left out sympy__sympy-12481: B07: Accept non-disjoint cycles in the Permutation constructor. Apply the supplied cycles in left-to-right order and return their combined permutation. Construct the identity permutation for Permutation([[0, 1], [0, 1]]). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-12481/candidate-1.log.json)",
+        "Left out sympy__sympy-15345: B07: Print Max expressions as valid Mathematica calls using square brackets. In particular, mathematica_code(Max(x, 2)) must produce a Max call containing x and 2, rather than Python-style Max(2, x). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15345/candidate-1.log.json)",
+        "Left out sympy__sympy-24661: B07: `parse_expr(..., evaluate=False)` must return an unevaluated relational instead of a Boolean, including `1 < 2` as `Lt(1, 2, evaluate=False)`. Preserve the comparison operator and its operands for relationals, without restricting the fix to particular numeric literals. Honor `eva (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24661/candidate-1.log.json)",
+        "Left out sympy__sympy-16792: B07: Cython autowrap must accept array arguments even when they do not occur in the expression. The constant example with an unused MatrixSymbol must accept the supplied NumPy array and return 1.0. Generated C signatures must declare unused array inputs as pointers, preserving their a (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-16792/candidate-1.log.json)",
+        "Left out sympy__sympy-15017: B07: Rank-0 arrays have length 1, including numeric scalars such as `Array(3)` and zero. A scalar array's length equals the number of elements yielded by its iterator. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15017/candidate-1.log.json)",
+        "Left out sympy__sympy-15349: B07: Return the correct quaternion rotation matrix, including the sign of its row 2, column 3 entry. For Quaternion(cos(x/2), sin(x/2), 0, 0), simplify to [[1, 0, 0], [0, cos(x), -sin(x)], [0, sin(x), cos(x)]]. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15349/candidate-1.log.json)",
+        "Left out sympy__sympy-18189: B07: With `permute=True`, solving `n**4 + m**4 - 2**4 - 3**4` must return all eight signed permutations of `(2, 3)`. Both `syms=(m, n)` and `syms=(n, m)` must return the complete solution set; changing symbol order must not drop solutions. This behavior must hold for the issue's `m, n (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18189/candidate-1.log.json)",
+        "Left out sympy__sympy-22714: B07: Inside `with sp.evaluate(False)`, `sp.S('Point2D(Integer(1),Integer(2))')` must succeed and produce the point with coordinates 1 and 2. The same string must continue to work with normal evaluation and with `sp.S(..., evaluate=False)`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-22714/candidate-1.log.json)",
+        "Left out sympy__sympy-18211: B07: For the reported equation `Eq(n*cos(n) - 3*sin(n), 0)`, `as_set()` should return a `ConditionSet` instead of raising `NotImplementedError`. The returned set should retain the equation and its symbol, with the real numbers as its domain. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-18211/candidate-1.log.json)",
+        "Left out sympy__sympy-19637: B07: kernS should parse the parenthesized fraction `(2*x)/(x-1)` as `2*x/(x-1)` without raising an unbound-local error. Spaces in the same expression should not cause the reported error. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-19637/candidate-1.log.json)",
+        "Left out sympy__sympy-15599: B07: For an integer symbol `i` with no sign assumption, `Mod(3*i, 2)` simplifies to `Mod(i, 2)`. Parsing the equivalent remainder expression with `sympify` produces the same simplified result. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-15599/candidate-1.log.json)",
+        "Left out sympy__sympy-20154: B07: Yield an independent dictionary for each partition, including when `size=True` wraps it with a part count. Preserve each yielded partition as iteration continues, so collecting results directly produces the correct partitions. Keep changes made by callers to yielded dictionaries  (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-20154/candidate-1.log.json)",
+        "Left out sympy__sympy-24066: B07: Recognize that second/(ohm*farad) has a dimensionless dimension in SI. Collect the factor and dimension of 100 + exp(second/(ohm*farad)) without raising ValueError, returning (100 + E, Dimension(1)). (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-24066/candidate-1.log.json)",
+        "Left out sympy__sympy-21596: B07: For `S1 = imageset(Lambda(n, n + (n - 1)*(n + 1)*I), S.Integers)`, `2 in S1` must be `False`. `2 in S1.intersect(S.Reals)` must be `False`. `S1.intersect(S.Reals)` must equal `FiniteSet(-1, 1)`. (paper2/preparation/protocol-6/audit_checks/b07-counterexamples/sympy__sympy-21596/candidate-1.log.json)",
+        "Interval [0.562, 0.970] from 10/12 contains threshold 0.70"
+      ]
+    },
+    "ABC": {
+      "tasks": {
+        "n": 44,
+        "successes": 35,
+        "interval": [
+          0.6701995469941414,
+          0.888925203987266
+        ]
+      },
+      "decision": "Inconclusive",
+      "caveats": [
+        "ABC-T.5 (C28): unknown",
+        "ABC-T.6 (C28): not met",
+        "ABC-O.d.2 (C05, C07): not met",
+        "ABC-O.f.3 (C07, C28): unknown",
+        "ABC-R.3 (C14): not met",
+        "ABC-R.4 (C14): not met",
+        "ABC-R.9 (C12): not met",
+        "ABC-R.10 (C12): not met"
+      ],
+      "scores": {
+        "O": {
+          "met": 1,
+          "applicable": 3,
+          "score": 0.3333333333333333
+        },
+        "R": {
+          "met": 0,
+          "applicable": 4,
+          "score": 0.0
+        },
+        "T": {
+          "met": 6,
+          "applicable": 8,
+          "score": 0.75
+        }
+      }
+    },
+    "ABC_with_gate": {
+      "tasks": {
+        "n": 44,
+        "successes": 35,
+        "interval": [
+          0.6701995469941414,
+          0.888925203987266
+        ]
+      },
+      "decision": null,
+      "caveats": [
+        "ABC-T.5 (C28): unknown",
+        "ABC-T.6 (C28): not met",
+        "ABC-O.d.2 (C05, C07): not met",
+        "ABC-O.f.3 (C07, C28): unknown",
+        "ABC-R.3 (C14): not met",
+        "ABC-R.4 (C14): not met",
+        "ABC-R.9 (C12): not met",
+        "ABC-R.10 (C12): not met"
+      ],
+      "scores": {
+        "O": {
+          "met": 1,
+          "applicable": 3,
+          "score": 0.3333333333333333
+        },
+        "R": {
+          "met": 0,
+          "applicable": 4,
+          "score": 0.0
+        },
+        "T": {
+          "met": 6,
+          "applicable": 8,
+          "score": 0.75
+        }
+      },
+      "evidence_status": "inadmissible",
+      "blocking_items": [
+        "ABC-T.6",
+        "ABC-O.d.2",
+        "ABC-R.3",
+        "ABC-R.4",
+        "ABC-R.9",
+        "ABC-R.10",
+        "ABC-T.5",
+        "ABC-O.f.3"
+      ],
+      "reasons": [
+        "ABC-T.6: ABC not_met",
+        "ABC-O.d.2: ABC not_met",
+        "ABC-R.3: ABC not_met",
+        "ABC-R.4: ABC not_met",
+        "ABC-R.9: ABC not_met",
+        "ABC-R.10: ABC not_met"
+      ],
+      "performance_decision": "Inconclusive"
+    },
+    "intervals_overlap": false,
+    "difference": {
+      "all_source_tasks": [
+        0.11747105479682918,
+        0.3181818181818181,
+        0.4860325541904301
+      ],
+      "kept_tasks": [
+        0.040273465888510884,
+        0.3560606060606061,
+        0.5400468026624521
+      ],
+      "kept_vs_target_kept": [
+        0.1279207903472685,
+        0.4833333333333334,
+        0.6902745211472373
+      ]
+    },
+    "target_after_removal": {
+      "left_out": [
+        "sympy__sympy-29774",
+        "sympy__sympy-30143",
+        "sympy__sympy-30273",
+        "sympy__sympy-30274",
+        "sympy__sympy-30331",
+        "sympy__sympy-30344",
+        "sympy__sympy-30347",
+        "sympy__sympy-30350",
+        "sympy__sympy-30428",
+        "sympy__sympy-30454",
+        "sympy__sympy-30563",
+        "sympy__sympy-30569",
+        "sympy__sympy-30575",
+        "sympy__sympy-30590",
+        "sympy__sympy-30680",
+        "sympy__sympy-30693",
+        "sympy__sympy-30726",
+        "sympy__sympy-30748",
+        "sympy__sympy-30771",
+        "sympy__sympy-30779",
+        "sympy__sympy-30803",
+        "sympy__sympy-30808",
+        "sympy__sympy-30841",
+        "sympy__sympy-30914"
+      ],
+      "tasks": {
+        "n": 20,
+        "successes": 7,
+        "interval": [
+          0.17731091757444903,
+          0.5580345113154888
+        ]
+      },
+      "decision": "Reject"
+    },
+    "comparable_to_target_kept": {
+      "M2": "not_comparable",
+      "audit_only": "not_comparable",
+      "M3_strict": "not_comparable",
+      "M3_lenient": "not_comparable",
+      "M3_controlled": "not_comparable",
+      "M3_withheld": "not_comparable",
+      "ABC": "not_comparable",
+      "ABC_with_gate": "not_comparable"
+    },
+    "agreement": {
+      "M2": "Inconclusive",
+      "audit_only": "Inconclusive",
+      "M3_strict": "No decision",
+      "M3_lenient": "No decision",
+      "M3_controlled": "Inconclusive",
+      "M3_withheld": "Inconclusive",
+      "ABC": "Inconclusive",
+      "ABC_with_gate": "No decision"
+    },
+    "comparable_agreement": {
+      "M2": "not_comparable",
+      "audit_only": "not_comparable",
+      "M3_strict": "not_comparable",
+      "M3_lenient": "not_comparable",
+      "M3_controlled": "not_comparable",
+      "M3_withheld": "not_comparable",
+      "ABC": "not_comparable",
+      "ABC_with_gate": "not_comparable"
+    },
+    "b07_three_way": {
+      "with_scope_rule": {
+        "source": {
+          "n": 12,
+          "successes": 10,
+          "interval": [
+            0.5618945648846887,
+            0.9695398343408629
+          ],
+          "left_out": [
+            "sympy__sympy-12096",
+            "sympy__sympy-12481",
+            "sympy__sympy-13551",
+            "sympy__sympy-13647",
+            "sympy__sympy-14711",
+            "sympy__sympy-15017",
+            "sympy__sympy-15345",
+            "sympy__sympy-15349",
+            "sympy__sympy-15599",
+            "sympy__sympy-16597",
+            "sympy__sympy-16792",
+            "sympy__sympy-17318",
+            "sympy__sympy-18189",
+            "sympy__sympy-18199",
+            "sympy__sympy-18211",
+            "sympy__sympy-19637",
+            "sympy__sympy-19783",
+            "sympy__sympy-20154",
+            "sympy__sympy-20428",
+            "sympy__sympy-20438",
+            "sympy__sympy-20590",
+            "sympy__sympy-21596",
+            "sympy__sympy-21847",
+            "sympy__sympy-22456",
+            "sympy__sympy-22714",
+            "sympy__sympy-22914",
+            "sympy__sympy-23413",
+            "sympy__sympy-23534",
+            "sympy__sympy-23824",
+            "sympy__sympy-24066",
+            "sympy__sympy-24539",
+            "sympy__sympy-24661"
+          ],
+          "decision": "Inconclusive",
+          "performance_decision": "Inconclusive"
+        },
+        "target": {
+          "n": 20,
+          "successes": 7,
+          "interval": [
+            0.17731091757444903,
+            0.5580345113154888
+          ],
+          "left_out": [
+            "sympy__sympy-29774",
+            "sympy__sympy-30143",
+            "sympy__sympy-30273",
+            "sympy__sympy-30274",
+            "sympy__sympy-30331",
+            "sympy__sympy-30344",
+            "sympy__sympy-30347",
+            "sympy__sympy-30350",
+            "sympy__sympy-30428",
+            "sympy__sympy-30454",
+            "sympy__sympy-30563",
+            "sympy__sympy-30569",
+            "sympy__sympy-30575",
+            "sympy__sympy-30590",
+            "sympy__sympy-30680",
+            "sympy__sympy-30693",
+            "sympy__sympy-30726",
+            "sympy__sympy-30748",
+            "sympy__sympy-30771",
+            "sympy__sympy-30779",
+            "sympy__sympy-30803",
+            "sympy__sympy-30808",
+            "sympy__sympy-30841",
+            "sympy__sympy-30914"
+          ],
+          "decision": "Reject"
+        },
+        "comparable": "not_comparable"
+      },
+      "all_flagged": {
+        "source": {
+          "n": 12,
+          "successes": 10,
+          "interval": [
+            0.5618945648846887,
+            0.9695398343408629
+          ],
+          "left_out": [
+            "sympy__sympy-12096",
+            "sympy__sympy-12481",
+            "sympy__sympy-13551",
+            "sympy__sympy-13647",
+            "sympy__sympy-14711",
+            "sympy__sympy-15017",
+            "sympy__sympy-15345",
+            "sympy__sympy-15349",
+            "sympy__sympy-15599",
+            "sympy__sympy-16597",
+            "sympy__sympy-16792",
+            "sympy__sympy-17318",
+            "sympy__sympy-18189",
+            "sympy__sympy-18199",
+            "sympy__sympy-18211",
+            "sympy__sympy-19637",
+            "sympy__sympy-19783",
+            "sympy__sympy-20154",
+            "sympy__sympy-20428",
+            "sympy__sympy-20438",
+            "sympy__sympy-20590",
+            "sympy__sympy-21596",
+            "sympy__sympy-21847",
+            "sympy__sympy-22456",
+            "sympy__sympy-22714",
+            "sympy__sympy-22914",
+            "sympy__sympy-23413",
+            "sympy__sympy-23534",
+            "sympy__sympy-23824",
+            "sympy__sympy-24066",
+            "sympy__sympy-24539",
+            "sympy__sympy-24661"
+          ],
+          "decision": "Inconclusive"
+        },
+        "target": {
+          "n": 18,
+          "successes": 5,
+          "interval": [
+            0.11642559165289144,
+            0.4978282494544409
+          ],
+          "left_out": [
+            "sympy__sympy-29774",
+            "sympy__sympy-30143",
+            "sympy__sympy-30273",
+            "sympy__sympy-30274",
+            "sympy__sympy-30304",
+            "sympy__sympy-30331",
+            "sympy__sympy-30344",
+            "sympy__sympy-30347",
+            "sympy__sympy-30350",
+            "sympy__sympy-30428",
+            "sympy__sympy-30454",
+            "sympy__sympy-30563",
+            "sympy__sympy-30569",
+            "sympy__sympy-30575",
+            "sympy__sympy-30590",
+            "sympy__sympy-30680",
+            "sympy__sympy-30693",
+            "sympy__sympy-30726",
+            "sympy__sympy-30748",
+            "sympy__sympy-30771",
+            "sympy__sympy-30779",
+            "sympy__sympy-30803",
+            "sympy__sympy-30808",
+            "sympy__sympy-30827",
+            "sympy__sympy-30841",
+            "sympy__sympy-30914"
+          ],
+          "decision": "Reject"
+        },
+        "comparable": "not_comparable"
+      },
+      "none_removed": {
+        "source": {
+          "n": 44,
+          "successes": 35,
+          "interval": [
+            0.6701995469941414,
+            0.888925203987266
+          ],
+          "left_out": [],
+          "decision": "Inconclusive"
+        },
+        "target": {
+          "n": 44,
+          "successes": 21,
+          "interval": [
+            0.34636510779595925,
+            0.6105718446270078
+          ],
+          "left_out": [],
+          "decision": "Reject"
+        },
+        "comparable": "not_comparable"
+      }
+    },
+    "b07_scope_summary": {
+      "rule": "agreed_defect iff model_demonstrated and family1_runA == family1_runB == 'states_broken_behavior'",
+      "author_judgment_empty": true,
+      "items_rated": 82,
+      "agreement": {
+        "family1_runA_vs_runB": {
+          "rated": 82,
+          "exact_3way": 80,
+          "agreements": 81,
+          "raw_agreement": 0.9878048780487805,
+          "kappa": 0.8825214899713467
+        },
+        "family1_consensus_vs_family2": {
+          "rated": 82,
+          "exact_3way": 75,
+          "agreements": 78,
+          "raw_agreement": 0.9512195121951219,
+          "kappa": 0.5740259740259744
+        },
+        "family1_runA_vs_family2": {
+          "rated": 82,
+          "exact_3way": 77,
+          "agreements": 78,
+          "raw_agreement": 0.9512195121951219,
+          "kappa": 0.5740259740259744
+        },
+        "family1_runB_vs_family2": {
+          "rated": 82,
+          "exact_3way": 76,
+          "agreements": 77,
+          "raw_agreement": 0.9390243902439024,
+          "kappa": 0.4126074498567335
+        }
+      },
+      "agreed_defects": {
+        "source": [
+          "sympy__sympy-12096",
+          "sympy__sympy-12481",
+          "sympy__sympy-13551",
+          "sympy__sympy-13647",
+          "sympy__sympy-14711",
+          "sympy__sympy-15017",
+          "sympy__sympy-15345",
+          "sympy__sympy-15349",
+          "sympy__sympy-15599",
+          "sympy__sympy-16597",
+          "sympy__sympy-16792",
+          "sympy__sympy-17318",
+          "sympy__sympy-18189",
+          "sympy__sympy-18199",
+          "sympy__sympy-18211",
+          "sympy__sympy-19637",
+          "sympy__sympy-19783",
+          "sympy__sympy-20154",
+          "sympy__sympy-20428",
+          "sympy__sympy-20438",
+          "sympy__sympy-20590",
+          "sympy__sympy-21596",
+          "sympy__sympy-21847",
+          "sympy__sympy-22456",
+          "sympy__sympy-22714",
+          "sympy__sympy-22914",
+          "sympy__sympy-23413",
+          "sympy__sympy-23534",
+          "sympy__sympy-23824",
+          "sympy__sympy-24066",
+          "sympy__sympy-24539",
+          "sympy__sympy-24661"
+        ],
+        "target": [
+          "sympy__sympy-29774",
+          "sympy__sympy-30143",
+          "sympy__sympy-30273",
+          "sympy__sympy-30274",
+          "sympy__sympy-30331",
+          "sympy__sympy-30344",
+          "sympy__sympy-30347",
+          "sympy__sympy-30350",
+          "sympy__sympy-30428",
+          "sympy__sympy-30454",
+          "sympy__sympy-30563",
+          "sympy__sympy-30569",
+          "sympy__sympy-30575",
+          "sympy__sympy-30590",
+          "sympy__sympy-30680",
+          "sympy__sympy-30693",
+          "sympy__sympy-30726",
+          "sympy__sympy-30748",
+          "sympy__sympy-30771",
+          "sympy__sympy-30779",
+          "sympy__sympy-30803",
+          "sympy__sympy-30808",
+          "sympy__sympy-30841",
+          "sympy__sympy-30914"
+        ],
+        "all": [
+          "sympy__sympy-12096",
+          "sympy__sympy-12481",
+          "sympy__sympy-13551",
+          "sympy__sympy-13647",
+          "sympy__sympy-14711",
+          "sympy__sympy-15017",
+          "sympy__sympy-15345",
+          "sympy__sympy-15349",
+          "sympy__sympy-15599",
+          "sympy__sympy-16597",
+          "sympy__sympy-16792",
+          "sympy__sympy-17318",
+          "sympy__sympy-18189",
+          "sympy__sympy-18199",
+          "sympy__sympy-18211",
+          "sympy__sympy-19637",
+          "sympy__sympy-19783",
+          "sympy__sympy-20154",
+          "sympy__sympy-20428",
+          "sympy__sympy-20438",
+          "sympy__sympy-20590",
+          "sympy__sympy-21596",
+          "sympy__sympy-21847",
+          "sympy__sympy-22456",
+          "sympy__sympy-22714",
+          "sympy__sympy-22914",
+          "sympy__sympy-23413",
+          "sympy__sympy-23534",
+          "sympy__sympy-23824",
+          "sympy__sympy-24066",
+          "sympy__sympy-24539",
+          "sympy__sympy-24661",
+          "sympy__sympy-29774",
+          "sympy__sympy-30143",
+          "sympy__sympy-30273",
+          "sympy__sympy-30274",
+          "sympy__sympy-30331",
+          "sympy__sympy-30344",
+          "sympy__sympy-30347",
+          "sympy__sympy-30350",
+          "sympy__sympy-30428",
+          "sympy__sympy-30454",
+          "sympy__sympy-30563",
+          "sympy__sympy-30569",
+          "sympy__sympy-30575",
+          "sympy__sympy-30590",
+          "sympy__sympy-30680",
+          "sympy__sympy-30693",
+          "sympy__sympy-30726",
+          "sympy__sympy-30748",
+          "sympy__sympy-30771",
+          "sympy__sympy-30779",
+          "sympy__sympy-30803",
+          "sympy__sympy-30808",
+          "sympy__sympy-30841",
+          "sympy__sympy-30914"
+        ]
+      },
+      "disagreed_retained": {
+        "source": [],
+        "target": [],
+        "all": []
+      },
+      "not_stated_retained": {
+        "source": [],
+        "target": [
+          "sympy__sympy-30304",
+          "sympy__sympy-30827"
+        ],
+        "all": [
+          "sympy__sympy-30304",
+          "sympy__sympy-30827"
+        ]
+      }
+    },
+    "b07_not_performed": {
+      "source": {
+        "check invalid": 6
+      },
+      "target": {
+        "check invalid": 10,
+        "no candidate": 2
+      }
     }
-  ]
-}
+  }
+]

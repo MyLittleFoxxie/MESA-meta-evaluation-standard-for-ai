@@ -1,0 +1,219 @@
+diff --git a/doc/src/modules/functions/special.rst b/doc/src/modules/functions/special.rst
+index 25db0f91e2..311dd03105 100644
+--- a/doc/src/modules/functions/special.rst
++++ b/doc/src/modules/functions/special.rst
+@@ -62,6 +62,9 @@ Error Functions and Fresnel Integrals
+ .. autoclass:: sympy.functions.special.error_functions.erf2inv
+    :members:
+ 
++.. autoclass:: sympy.functions.special.error_functions.owens_t
++   :members:
++
+ .. autoclass:: sympy.functions.special.error_functions.FresnelIntegral
+    :members:
+ 
+diff --git a/sympy/__init__.py b/sympy/__init__.py
+index f35ca8093c..909d34967a 100644
+--- a/sympy/__init__.py
++++ b/sympy/__init__.py
+@@ -127,7 +127,7 @@ def __sympy_debug():
+         LambertW, sinh, cosh, tanh, coth, sech, csch, asinh, acosh, atanh,
+         acoth, asech, acsch, floor, ceiling, frac, Piecewise, piecewise_fold,
+         piecewise_exclusive, erf, erfc, erfi, erf2, erfinv, erfcinv, erf2inv,
+-        Ei, expint, E1, li, Li, Si, Ci, Shi, Chi, fresnels, fresnelc, gamma,
++        Ei, expint, E1, li, Li, Si, Ci, Shi, Chi, fresnels, fresnelc, owens_t, gamma,
+         lowergamma, uppergamma, polygamma, loggamma, digamma, trigamma,
+         multigamma, dirichlet_eta, zeta, lerchphi, polylog, stieltjes, Eijk,
+         LeviCivita, KroneckerDelta, SingularityFunction, DiracDelta, Heaviside,
+@@ -354,7 +354,7 @@ def __sympy_debug():
+     'acoth', 'asech', 'acsch', 'floor', 'ceiling', 'frac', 'Piecewise',
+     'piecewise_fold', 'piecewise_exclusive', 'erf', 'erfc', 'erfi', 'erf2',
+     'erfinv', 'erfcinv', 'erf2inv', 'Ei', 'expint', 'E1', 'li', 'Li', 'Si',
+-    'Ci', 'Shi', 'Chi', 'fresnels', 'fresnelc', 'gamma', 'lowergamma',
++    'Ci', 'Shi', 'Chi', 'fresnels', 'fresnelc', 'owens_t', 'gamma', 'lowergamma',
+     'uppergamma', 'polygamma', 'loggamma', 'digamma', 'trigamma', 'multigamma',
+     'dirichlet_eta', 'zeta', 'lerchphi', 'polylog', 'stieltjes', 'Eijk', 'LeviCivita',
+     'KroneckerDelta', 'SingularityFunction', 'DiracDelta', 'Heaviside',
+diff --git a/sympy/functions/__init__.py b/sympy/functions/__init__.py
+index f3a7b29ab8..8aa15a6278 100644
+--- a/sympy/functions/__init__.py
++++ b/sympy/functions/__init__.py
+@@ -28,7 +28,7 @@
+                                                   piecewise_exclusive)
+ from sympy.functions.special.error_functions import (erf, erfc, erfi, erf2,
+         erfinv, erfcinv, erf2inv, Ei, expint, E1, li, Li, Si, Ci, Shi, Chi,
+-        fresnels, fresnelc)
++        fresnels, fresnelc, owens_t)
+ from sympy.functions.special.gamma_functions import (gamma, lowergamma,
+         uppergamma, polygamma, loggamma, digamma, trigamma, multigamma)
+ from sympy.functions.special.zeta_functions import (dirichlet_eta, zeta,
+@@ -81,7 +81,7 @@
+ 
+     'erf', 'erfc', 'erfi', 'erf2', 'erfinv', 'erfcinv', 'erf2inv', 'Ei',
+     'expint', 'E1', 'li', 'Li', 'Si', 'Ci', 'Shi', 'Chi', 'fresnels',
+-    'fresnelc',
++    'fresnelc', 'owens_t',
+ 
+     'gamma', 'lowergamma', 'uppergamma', 'polygamma', 'loggamma', 'digamma',
+     'trigamma', 'multigamma',
+diff --git a/sympy/functions/special/error_functions.py b/sympy/functions/special/error_functions.py
+index a052a27711..68cae9135c 100644
+--- a/sympy/functions/special/error_functions.py
++++ b/sympy/functions/special/error_functions.py
+@@ -19,12 +19,117 @@
+ from sympy.functions.elementary.miscellaneous import sqrt, root
+ from sympy.functions.elementary.exponential import exp, log, exp_polar
+ from sympy.functions.elementary.hyperbolic import cosh, sinh
+-from sympy.functions.elementary.trigonometric import cos, sin, sinc
++from sympy.functions.elementary.trigonometric import atan, cos, sin, sinc
+ from sympy.functions.special.hyper import hyper, meijerg
+ 
+ # TODO series expansions
+ # TODO see the "Note:" in Ei
+ 
++
++class owens_t(DefinedFunction):
++    r"""
++    Owen's T function.
++
++    Explanation
++    ===========
++
++    For real $h$ and $a$, this function is defined by
++
++    .. math::
++        T(h, a) = \frac{1}{2\pi} \int_0^a
++            \frac{\exp(-h^2(1 + t^2)/2)}{1 + t^2}\,\mathrm{d}t.
++
++    It is even in $h$ and odd in $a$. The integral also defines its
++    analytic continuation to complex arguments, with branch points at
++    $a = \pm i$.
++
++    Examples
++    ========
++
++    >>> from sympy import owens_t, diff, sqrt, symbols
++    >>> h, a = symbols('h a', real=True)
++    >>> owens_t(0, a)
++    atan(a)/(2*pi)
++    >>> owens_t(h, 1)
++    1/8 - erf(sqrt(2)*h/2)**2/8
++    >>> diff(owens_t(h, a), h)
++    -sqrt(2)*exp(-h**2/2)*erf(sqrt(2)*a*h/2)/(4*sqrt(pi))
++    >>> owens_t(1, 2).evalf()
++    0.0784681869930841
++
++    References
++    ==========
++
++    .. [1] https://en.wikipedia.org/wiki/Owen%27s_T_function
++    """
++
++    nargs = 2
++
++    @classmethod
++    def eval(cls, h, a):
++        if h is S.NaN or a is S.NaN:
++            return S.NaN
++        if a.is_zero:
++            return S.Zero
++        if h.is_zero:
++            return atan(a)/(2*pi)
++        if h in (S.Infinity, S.NegativeInfinity) and a.is_extended_real:
++            return S.Zero
++        if a in (S.Infinity, S.NegativeInfinity) and h.is_extended_real:
++            from sympy.functions.elementary.complexes import Abs
++            result = erfc(Abs(h)/sqrt(2))/4
++            return result if a is S.Infinity else -result
++        if h.could_extract_minus_sign():
++            return cls(-h, a)
++        if a.could_extract_minus_sign():
++            return -cls(h, -a)
++        if a is S.One:
++            return (1 - erf(h/sqrt(2))**2)/8
++
++    def fdiff(self, argindex=1):
++        h, a = self.args
++        if argindex == 1:
++            return -exp(-h**2/2)*erf(a*h/sqrt(2))/(2*sqrt(2*pi))
++        if argindex == 2:
++            return exp(-h**2*(1 + a**2)/2)/(2*pi*(1 + a**2))
++        raise ArgumentIndexError(self, argindex)
++
++    def _eval_is_real(self):
++        if all(arg.is_real for arg in self.args):
++            return True
++
++    def _eval_is_finite(self):
++        if all(arg.is_extended_real for arg in self.args):
++            return True
++
++    def _eval_conjugate(self):
++        h, a = self.args
++        if a.is_extended_real:
++            return self.func(h.conjugate(), a)
++
++    def _eval_rewrite_as_Integral(self, h, a, **kwargs):
++        from sympy.integrals.integrals import Integral
++        t = Dummy('t')
++        return Integral(exp(-h**2*(1 + t**2)/2)/(1 + t**2),
++                        (t, 0, a))/(2*pi)
++
++    def _eval_evalf(self, prec):
++        from sympy.core.expr import Expr
++        from sympy.external.mpmath import local_workprec
++        if not all(arg.is_number for arg in self.args):
++            return self
++        h, a = self.args
++        if a.is_real:
++            h, a = [arg._to_mpmath(prec) for arg in self.args]
++            with local_workprec(prec) as ctx:
++                # t = tan(theta) removes the denominator and keeps the
++                # integration interval bounded even for large a.
++                result = ctx.quad(lambda theta:
++                    ctx.exp(-h*h/(2*ctx.cos(theta)**2)),
++                    [0, ctx.atan(a)])/(2*ctx.pi)
++            return Expr._from_mpmath(result, prec)
++        return self.rewrite('Integral')._eval_evalf(prec)
++
+ # Helper function
+ def real_to_real_as_real_imag(self, deep=True, **hints):
+     if self.args[0].is_extended_real:
+diff --git a/sympy/integrals/manualintegrate.py b/sympy/integrals/manualintegrate.py
+index 1a08fe68d0..9fe13a0030 100644
+--- a/sympy/integrals/manualintegrate.py
++++ b/sympy/integrals/manualintegrate.py
+@@ -54,7 +54,7 @@
+     cos, sin, tan, cot, csc, sec, acos, asin, atan, acot, acsc, asec)
+ from sympy.functions.special.delta_functions import Heaviside, DiracDelta
+ from sympy.functions.special.error_functions import (erf, erfc, erfi, fresnelc,
+-    fresnels, Ci, Chi, Si, Shi, Ei, li)
++    fresnels, Ci, Chi, Si, Shi, Ei, li, owens_t)
+ from sympy.functions.special.gamma_functions import uppergamma
+ from sympy.functions.special.elliptic_integrals import elliptic_e, elliptic_f
+ from sympy.functions.special.polynomials import (chebyshevt, chebyshevu,
+@@ -1037,6 +1037,16 @@ def eval(self) -> Expr:
+         return li(a*x + b)/a
+ 
+ 
++class GaussianErfRule(IRule):
++    """Integrate a Gaussian times an error function using Owen's T."""
++
++    __slots__ = ()
++
++    def eval(self) -> Expr:
++        a, b, x = self.a, self.b, self.variable
++        return -2*sqrt(S.Pi)/sqrt(a)*owens_t(sqrt(2)*sqrt(a)*x, b/sqrt(a))
++
++
+ class ErfRule(AtomicRule):
+ 
+     __slots__ = ("a", "b", "c")
+@@ -1487,6 +1497,7 @@ def special_function_rule(integral):
+         linear_pattern = a*_symbol + b
+         quadratic_pattern = a*_symbol**2 + b*_symbol + c
+         _special_function_patterns.extend((
++            (Mul, exp(-a*_symbol**2)*erf(b*_symbol), None, GaussianErfRule),
+             (Mul, exp(linear_pattern, evaluate=False)/_symbol, None, EiRule),
+             (Mul, cos(linear_pattern, evaluate=False)/_symbol, None, CiRule),
+             (Mul, cosh(linear_pattern, evaluate=False)/_symbol, None, ChiRule),

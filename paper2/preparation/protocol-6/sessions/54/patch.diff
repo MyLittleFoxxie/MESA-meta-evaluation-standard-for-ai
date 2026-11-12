@@ -1,0 +1,16 @@
+diff --git a/sympy/functions/special/error_functions.py b/sympy/functions/special/error_functions.py
+index 641cab226a..8ea4646610 100644
+--- a/sympy/functions/special/error_functions.py
++++ b/sympy/functions/special/error_functions.py
+@@ -2926,8 +2926,10 @@ def _eval_aseries(self, n, args0, x, logx):
+         return super()._eval_aseries(n, args0, x, logx)
+ 
+     def _eval_evalf(self, prec):
++        from sympy.external.mpmath import prec_to_dps
+         from sympy.integrals.integrals import Integral
+-        return self.rewrite(Integral)._eval_evalf(prec)
++        # Use the full evalf machinery to evaluate the integral in the product.
++        return self.rewrite(Integral).evalf(prec_to_dps(prec))
+ 
+ 
+ ###############################################################################

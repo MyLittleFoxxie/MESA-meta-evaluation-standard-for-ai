@@ -1,0 +1,116 @@
+diff --git a/sympy/matrices/expressions/kronecker.py b/sympy/matrices/expressions/kronecker.py
+index 4cc6da1f06..dc2616468f 100644
+--- a/sympy/matrices/expressions/kronecker.py
++++ b/sympy/matrices/expressions/kronecker.py
+@@ -1,6 +1,5 @@
+ """Implementation of the Kronecker product"""
+ from __future__ import annotations
+-from functools import reduce
+ from math import prod
+ 
+ from sympy.core import Mul, sympify
+@@ -212,11 +211,27 @@ def has_matching_shape(self, other):
+     def _eval_expand_kroneckerproduct(self, **hints):
+         return flatten(canon(typed({KroneckerProduct: distribute(KroneckerProduct, MatAdd)}))(self))
+ 
+-    def _kronecker_add(self, other):
++    def _kronecker_add(self, other, coeff=1, other_coeff=1):
+         if self.structurally_equal(other):
+-            return self.__class__(*[a + b for (a, b) in zip(self.args, other.args)])
+-        else:
+-            return self + other
++            # Compare the matrix factors after extracting scalar coefficients.
++            left, right = [], []
++            left_coeff, right_coeff = coeff, other_coeff
++            for a, b in zip(self.args, other.args):
++                ca, a = a.as_coeff_mmul()
++                cb, b = b.as_coeff_mmul()
++                left_coeff *= ca
++                right_coeff *= cb
++                left.append(unpack(a))
++                right.append(unpack(b))
++
++            different = [i for i, (a, b) in enumerate(zip(left, right))
++                         if a != b]
++            if len(different) <= 1:
++                # Linearity permits addition in just one factor slot.
++                i = different[0] if different else 0
++                left[i] = left_coeff*left[i] + right_coeff*right[i]
++                return self.__class__(*left)
++        return coeff*self + other_coeff*other
+ 
+     def _kronecker_mul(self, other):
+         if self.has_matching_shape(other):
+@@ -352,6 +367,7 @@ def explicit_kronecker_product(kron):
+ 
+ 
+ def _kronecker_dims_key(expr):
++    expr = unpack(expr.as_coeff_mmul()[1])
+     if isinstance(expr, KroneckerProduct):
+         return tuple(a.shape for a in expr.args)
+     else:
+@@ -360,17 +376,33 @@ def _kronecker_dims_key(expr):
+ 
+ def kronecker_mat_add(expr):
+     args = sift(expr.args, _kronecker_dims_key)
+-    nonkrons = args.pop((0,), None)
++    nonkrons = args.pop((0,), [])
+     if not args:
+         return expr
+ 
+-    krons = [reduce(lambda x, y: x._kronecker_add(y), group)
+-             for group in args.values()]
++    krons = []
++    for group in args.values():
++        # A failed collection leaves a sum, so it cannot be used as the
++        # KroneckerProduct accumulator of a reduction. Try pairs instead,
++        # revisiting earlier terms whenever a collection succeeds.
++        i = 0
++        while i < len(group):
++            coeff, left = group[i].as_coeff_mmul()
++            left = unpack(left)
++            for j in range(i + 1, len(group)):
++                other_coeff, right = group[j].as_coeff_mmul()
++                right = unpack(right)
++                combined = left._kronecker_add(right, coeff, other_coeff)
++                if isinstance(combined, KroneckerProduct):
++                    group[i] = combined
++                    group.pop(j)
++                    i = 0
++                    break
++            else:
++                i += 1
++        krons.extend(group)
+ 
+-    if not nonkrons:
+-        return MatAdd(*krons)
+-    else:
+-        return MatAdd(*krons) + nonkrons
++    return MatAdd(*(krons + nonkrons))
+ 
+ 
+ def kronecker_mat_mul(expr):
+@@ -412,8 +444,8 @@ def combine_kronecker(expr):
+     >>> B = MatrixSymbol('B', n, m)
+     >>> combine_kronecker(KroneckerProduct(A, B)*KroneckerProduct(B, A))
+     KroneckerProduct(A*B, B*A)
+-    >>> combine_kronecker(KroneckerProduct(A, B)+KroneckerProduct(B.T, A.T))
+-    KroneckerProduct(A + B.T, B + A.T)
++    >>> combine_kronecker(KroneckerProduct(A, B)+KroneckerProduct(A, A.T))
++    KroneckerProduct(A, B + A.T)
+     >>> C = MatrixSymbol('C', n, n)
+     >>> D = MatrixSymbol('D', m, m)
+     >>> combine_kronecker(KroneckerProduct(C, D)**m)
+diff --git a/sympy/matrices/expressions/tests/test_kronecker.py b/sympy/matrices/expressions/tests/test_kronecker.py
+index 6e1f32d159..ade9f44429 100644
+--- a/sympy/matrices/expressions/tests/test_kronecker.py
++++ b/sympy/matrices/expressions/tests/test_kronecker.py
+@@ -120,7 +120,7 @@ def test_KroneckerProduct_combine_mul():
+     Y = MatrixSymbol('Y', m, n)
+     kp1 = kronecker_product(A, X)
+     kp2 = kronecker_product(B, Y)
+-    assert combine_kronecker(kp1+kp2) == kronecker_product(A+B, X+Y)
++    assert combine_kronecker(kp1+kp2) == kp1+kp2
+ 
+ 
+ def test_KroneckerProduct_combine_pow():

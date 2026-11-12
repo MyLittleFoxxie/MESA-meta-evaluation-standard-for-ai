@@ -1,0 +1,59 @@
+diff --git a/sympy/solvers/inequalities.py b/sympy/solvers/inequalities.py
+index 43c8634b26..166969376b 100644
+--- a/sympy/solvers/inequalities.py
++++ b/sympy/solvers/inequalities.py
+@@ -6,7 +6,7 @@
+     function_range)
+ from sympy.core import sympify
+ from sympy.core.exprtools import factor_terms
+-from sympy.core.relational import Relational, Lt, Ge, Eq
++from sympy.core.relational import Relational, Lt, Ge, Eq, Ne
+ from sympy.core.symbol import Symbol, Dummy
+ from sympy.sets.sets import Interval, FiniteSet, Union, Intersection
+ from sympy.core.singleton import S
+@@ -16,6 +16,7 @@
+ from sympy.polys import Poly, PolynomialError, parallel_poly_from_expr
+ from sympy.polys.polyutils import _nsort
+ from sympy.solvers.solveset import solvify, solveset
++from sympy.solvers.solvers import denoms
+ from sympy.utilities.iterables import sift, iterable
+ from sympy.utilities.misc import filldedent
+ 
+@@ -788,7 +789,6 @@ def _solve_inequality(ie, s, linear=False):
+     >>> f(x < x*(2/x - 1), x)
+     (x < 1) & Ne(x, 0)
+     """
+-    from sympy.solvers.solvers import denoms
+     if s not in ie.free_symbols:
+         return ie
+     if ie.rhs == s:
+@@ -950,6 +950,7 @@ def reduce_inequalities(inequalities, symbols=[]):
+     if not iterable(inequalities):
+         inequalities = [inequalities]
+     inequalities = [sympify(i) for i in inequalities]
++    denominators = set().union(*(denoms(i) for i in inequalities))
+ 
+     gens = set().union(*[i.free_symbols for i in inequalities])
+ 
+@@ -965,6 +966,7 @@ def reduce_inequalities(inequalities, symbols=[]):
+     recast = {i: Dummy(i.name, extended_real=True)
+         for i in gens if i.is_extended_real is None}
+     inequalities = [i.xreplace(recast) for i in inequalities]
++    denominators = {d.xreplace(recast) for d in denominators}
+     symbols = {i.xreplace(recast) for i in symbols}
+ 
+     # prefilter
+@@ -982,6 +984,13 @@ def reduce_inequalities(inequalities, symbols=[]):
+             raise NotImplementedError(
+                 "could not determine truth value of %s" % i)
+         keep.append(i)
++    denominators -= set().union(*(denoms(i) for i in keep))
++    for d in denominators:
++        condition = Ne(d, 0)
++        if condition is S.false:
++            return S.false
++        if condition is not S.true:
++            keep.append(condition)
+     inequalities = keep
+     del keep
+ 

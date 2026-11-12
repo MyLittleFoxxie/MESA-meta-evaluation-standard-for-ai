@@ -1,0 +1,147 @@
+diff --git a/doc/src/modules/stats.rst b/doc/src/modules/stats.rst
+index 8a826647bb..ca2a5b25e0 100644
+--- a/doc/src/modules/stats.rst
++++ b/doc/src/modules/stats.rst
+@@ -74,6 +74,7 @@ Continuous Types
+ .. autofunction:: Reciprocal
+ .. autofunction:: StudentT
+ .. autofunction:: ShiftedGompertz
++.. autofunction:: SkewNormal
+ .. autofunction:: Trapezoidal
+ .. autofunction:: Triangular
+ .. autofunction:: Uniform
+diff --git a/sympy/functions/special/error_functions.py b/sympy/functions/special/error_functions.py
+index 641cab226a..4604f19892 100644
+--- a/sympy/functions/special/error_functions.py
++++ b/sympy/functions/special/error_functions.py
+@@ -2926,8 +2926,13 @@ def _eval_aseries(self, n, args0, x, logx):
+         return super()._eval_aseries(n, args0, x, logx)
+ 
+     def _eval_evalf(self, prec):
++        from sympy.core.evalf import prec_to_dps
+         from sympy.integrals.integrals import Integral
+-        return self.rewrite(Integral)._eval_evalf(prec)
++        if all(arg.is_number for arg in self.args):
++            # Evaluate the whole expression, including the integral. Calling
++            # Mul._eval_evalf only evaluates its prefactor, which prevents
++            # evalf from resolving cancellation in sums containing owens_t.
++            return self.rewrite(Integral).evalf(prec_to_dps(prec) + 1)
+ 
+ 
+ ###############################################################################
+diff --git a/sympy/stats/__init__.py b/sympy/stats/__init__.py
+index 4f63ed0333..56bafa0d0a 100644
+--- a/sympy/stats/__init__.py
++++ b/sympy/stats/__init__.py
+@@ -119,7 +119,7 @@
+     'FisherZ', 'Frechet', 'Gamma', 'GammaInverse', 'Gompertz', 'Gumbel',
+     'Kumaraswamy', 'Laplace', 'Levy', 'Logistic','LogCauchy', 'LogLogistic', 'LogitNormal', 'LogNormal', 'Lomax',
+     'Moyal', 'Maxwell', 'Nakagami', 'Normal', 'GaussianInverse', 'Pareto', 'PowerFunction',
+-    'QuadraticU', 'RaisedCosine', 'Rayleigh','Reciprocal', 'StudentT', 'ShiftedGompertz',
++    'QuadraticU', 'RaisedCosine', 'Rayleigh','Reciprocal', 'StudentT', 'ShiftedGompertz', 'SkewNormal',
+     'Trapezoidal', 'Triangular', 'Uniform', 'UniformSum', 'VonMises', 'Wald',
+     'Weibull', 'WignerSemicircle', 'ContinuousDistributionHandmade',
+ 
+@@ -169,7 +169,7 @@
+         Gompertz, Gumbel, Kumaraswamy, Laplace, Levy, Logistic, LogCauchy,
+         LogLogistic, LogitNormal, LogNormal, Lomax, Maxwell, Moyal, Nakagami,
+         Normal, Pareto, QuadraticU, RaisedCosine, Rayleigh, Reciprocal,
+-        StudentT, PowerFunction, ShiftedGompertz, Trapezoidal, Triangular,
++        StudentT, PowerFunction, ShiftedGompertz, SkewNormal, Trapezoidal, Triangular,
+         Uniform, UniformSum, VonMises, Wald, Weibull, WignerSemicircle,
+         ContinuousDistributionHandmade)
+ 
+diff --git a/sympy/stats/crv_types.py b/sympy/stats/crv_types.py
+index a7a83566f1..50c0c0605a 100644
+--- a/sympy/stats/crv_types.py
++++ b/sympy/stats/crv_types.py
+@@ -46,6 +46,7 @@
+ Rayleigh
+ Reciprocal
+ ShiftedGompertz
++SkewNormal
+ StudentT
+ Trapezoidal
+ Triangular
+@@ -80,7 +81,7 @@
+ from sympy.functions.elementary.miscellaneous import sqrt, Max, Min
+ from sympy.functions.elementary.piecewise import Piecewise
+ from sympy.functions.elementary.trigonometric import asin
+-from sympy.functions.special.error_functions import (erf, erfc, erfi, erfinv, expint)
++from sympy.functions.special.error_functions import (erf, erfc, erfi, erfinv, expint, owens_t)
+ from sympy.functions.special.gamma_functions import (gamma, lowergamma, uppergamma)
+ from sympy.functions.special.zeta_functions import zeta
+ from sympy.functions.special.hyper import hyper
+@@ -139,6 +140,7 @@
+ 'Reciprocal',
+ 'StudentT',
+ 'ShiftedGompertz',
++'SkewNormal',
+ 'Trapezoidal',
+ 'Triangular',
+ 'Uniform',
+@@ -3329,6 +3331,64 @@ def Normal(name, mean, std):
+     return rv(name, NormalDistribution, (mean, std))
+ 
+ 
++class SkewNormalDistribution(SingleContinuousDistribution):
++    _argnames = ('xi', 'omega', 'alpha')
++
++    @staticmethod
++    def check(xi, omega, alpha):
++        _value_check(xi.is_real, "Location parameter must be real")
++        _value_check(omega.is_positive, "Scale parameter must be positive")
++        _value_check(alpha.is_real, "Shape parameter must be real")
++
++    def pdf(self, x):
++        z = (x - self.xi)/self.omega
++        return exp(-z**2/2)*(1 + erf(self.alpha*z/sqrt(2)))/(sqrt(2*pi)*self.omega)
++
++    def _cdf(self, x):
++        z = (x - self.xi)/self.omega
++        return S.Half + erf(z/sqrt(2))/2 - 2*owens_t(z, self.alpha)
++
++
++def SkewNormal(name, xi, omega, alpha):
++    r"""
++    Create a continuous random variable with a skew-normal distribution.
++
++    The density of the skew-normal distribution is
++
++    .. math::
++        f(x) = \frac{2}{\omega}\phi\left(\frac{x-\xi}{\omega}\right)
++               \Phi\left(\alpha\frac{x-\xi}{\omega}\right),
++
++    where :math:`\phi` and :math:`\Phi` are the standard normal density
++    and cumulative distribution functions. When ``alpha`` is zero, this
++    reduces to the normal distribution with mean ``xi`` and standard
++    deviation ``omega``.
++
++    Parameters
++    ==========
++
++    xi : Real number, the location
++    omega : Positive real number, the scale
++    alpha : Real number, the shape
++
++    Examples
++    ========
++
++    >>> from sympy.stats import SkewNormal, density, cdf
++    >>> X = SkewNormal('X', 0, 1, 2)
++    >>> density(X)(0)
++    sqrt(2)/(2*sqrt(pi))
++    >>> cdf(X)(0)
++    -atan(2)/pi + 1/2
++
++    References
++    ==========
++
++    .. [1] https://en.wikipedia.org/wiki/Skew_normal_distribution
++    """
++    return rv(name, SkewNormalDistribution, (xi, omega, alpha))
++
++
+ #-------------------------------------------------------------------------------
+ # Inverse Gaussian distribution ----------------------------------------------------------
+ 

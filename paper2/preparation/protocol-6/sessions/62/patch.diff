@@ -1,0 +1,16 @@
+diff --git a/sympy/core/numbers.py b/sympy/core/numbers.py
+index 2765c2df63..d64fb74e3f 100644
+--- a/sympy/core/numbers.py
++++ b/sympy/core/numbers.py
+@@ -3433,6 +3433,11 @@ def __new__(cls):
+     def _latex(self, printer):
+         return r"\text{NaN}"
+ 
++    def sort_key(self, order=None):
++        # Distinguish NaN from other numbers before comparing coefficients,
++        # since NaN does not support ordered comparisons.
++        return self.class_key(), (1, ('NaN',)), (), S.One
++
+     def __neg__(self):
+         return self
+ 

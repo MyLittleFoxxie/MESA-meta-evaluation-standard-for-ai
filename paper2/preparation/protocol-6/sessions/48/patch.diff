@@ -1,0 +1,31 @@
+diff --git a/sympy/tensor/array/expressions/array_expressions.py b/sympy/tensor/array/expressions/array_expressions.py
+index 162d5ab2c2..6917c8cfc8 100644
+--- a/sympy/tensor/array/expressions/array_expressions.py
++++ b/sympy/tensor/array/expressions/array_expressions.py
+@@ -9,6 +9,7 @@
+ import typing
+ 
+ from sympy import Sum
++from sympy.core.add import Add
+ from sympy.core.numbers import Integer
+ from sympy.core.relational import Equality
+ from sympy.functions.special.tensor_functions import KroneckerDelta
+@@ -579,6 +580,9 @@ def _canonicalize(self):
+         # Flatten:
+         args = self._flatten_args(args)
+ 
++        if all(not isinstance(arg, _ArrayExpr) and get_shape(arg) == () for arg in args):
++            return Add.fromiter(args)
++
+         shapes = [get_shape(arg) for arg in args]
+         args = [arg for arg in args if not isinstance(arg, (ZeroArray, ZeroMatrix))]
+ 
+@@ -610,8 +614,6 @@ def _collect_scalar_coefficients(cls, args):
+         for arg in args:
+             coeff, arrays = _array_term_as_coeff_arrays(arg)
+             if not arrays:
+-                # Rank-0 scalar addends are kept untouched, so that a sum
+-                # of scalars remains an ArrayAdd:
+                 scalar_terms.append(arg)
+                 continue
+             if arrays in coeff_map:

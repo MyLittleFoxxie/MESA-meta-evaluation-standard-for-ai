@@ -1,0 +1,116 @@
+diff --git a/sympy/tensor/array/expressions/array_expressions.py b/sympy/tensor/array/expressions/array_expressions.py
+index df969fa92d..317e37fc4b 100644
+--- a/sympy/tensor/array/expressions/array_expressions.py
++++ b/sympy/tensor/array/expressions/array_expressions.py
+@@ -348,18 +348,22 @@ def __new__(cls, *args, **kwargs):
+     def _canonicalize(self):
+         args = self.args
+         args = self._flatten(args)
++        normalized_args = []
++        for arg in args:
++            coeff, array = _split_scalar_coefficient(arg)
++            if array is None or coeff is not S.One:
++                normalized_args.append(coeff)
++            if array is not None:
++                normalized_args.append(array)
++        args = normalized_args
+ 
+         # Merge scalar (rank-0) arguments into a single leading scalar
+         # factor, so that e.g. ArrayTensorProduct(x, A, y, B) becomes
+         # ArrayTensorProduct(x*y, A, B).  The scalar is kept as a rank-0
+         # argument (instead of returning Mul(coefficient, ...)) so that
+         # the result remains a valid array expression with a well-defined
+-        # shape.  Scalar coefficients inside MatrixExpr arguments (e.g.
+-        # ArrayTensorProduct(2*M, N) with M a MatrixSymbol) are NOT
+-        # extracted, as the matrix-recognition machinery in
+-        # from_array_to_matrix relies on matrix arguments keeping their
+-        # coefficients; use _split_scalar_coefficient to compare
+-        # arguments modulo their scalar coefficient.
++        # shape.  Coefficients embedded in matrix arguments are extracted
++        # above, so they share the same canonical form as explicit scalars.
+         def _is_plain_scalar(arg):
+             # Rank-0 array expressions (e.g. full contractions) are not
+             # merged: the branches below lift them into the expression.
+diff --git a/sympy/tensor/array/expressions/from_array_to_matrix.py b/sympy/tensor/array/expressions/from_array_to_matrix.py
+index 25cabca285..50b084ce2a 100644
+--- a/sympy/tensor/array/expressions/from_array_to_matrix.py
++++ b/sympy/tensor/array/expressions/from_array_to_matrix.py
+@@ -150,7 +150,10 @@ def _support_function_tp1_recognize(contraction_indices, args):
+             break
+ 
+     editor.refresh_indices()
+-    return editor.to_array_contraction()
++    result = editor.to_array_contraction()
++    if isinstance(result, ArrayTensorProduct):
++        return _array2matrix(result)
++    return result
+ 
+ 
+ def _find_trivial_matrices_rewrite(expr: ArrayTensorProduct):
+@@ -187,7 +190,7 @@ def _find_trivial_matrices_rewrite(expr: ArrayTensorProduct):
+     if pos is None:
+         return expr, []
+     args[pos] = (first*MatMul.fromiter(i for i in trivial_matrices)*second).doit()
+-    return _array_tensor_product(*[i for i in args if i is not None]), removed
++    return _a2m_tensor_product(*[i for i in args if i is not None]), removed
+ 
+ 
+ def _find_trivial_kronecker_products_broadcast(expr: ArrayTensorProduct):
+@@ -210,7 +213,7 @@ def _find_trivial_kronecker_products_broadcast(expr: ArrayTensorProduct):
+             removed.extend(prev_range[-2:])
+         else:
+             newargs.append(arg)
+-    return _array_tensor_product(*newargs), removed
++    return _a2m_tensor_product(*newargs), removed
+ 
+ 
+ @singledispatch
+@@ -340,20 +343,10 @@ def _(expr: PermuteDims):
+         mat_mul_lines = _array2matrix(expr.expr)
+         if not isinstance(mat_mul_lines, ArrayTensorProduct):
+             return _permute_dims(mat_mul_lines, expr.permutation)
+-        # TODO: this assumes that all arguments are matrices, it may not be the case:
+-        permutation = Permutation(2*len(mat_mul_lines.args)-1)*expr.permutation
+-        permuted = [permutation(i) for i in range(2*len(mat_mul_lines.args))]
+-        args_array = [None for i in mat_mul_lines.args]
+-        for i in range(len(mat_mul_lines.args)):
+-            p1 = permuted[2*i]
+-            p2 = permuted[2*i+1]
+-            if p1 // 2 != p2 // 2:
+-                return _permute_dims(mat_mul_lines, permutation)
+-            if p1 > p2:
+-                args_array[i] = _a2m_transpose(mat_mul_lines.args[p1 // 2])
+-            else:
+-                args_array[i] = mat_mul_lines.args[p1 // 2]
+-        return _a2m_tensor_product(*args_array)
++        # Converting the contraction may introduce rank-0 coefficients.
++        # Reuse the tensor-product permutation handler, which accounts for
++        # the actual rank of each argument.
++        return _array2matrix(_permute_dims(mat_mul_lines, expr.permutation))
+     else:
+         return expr
+ 
+@@ -848,16 +841,17 @@ def _a2m_tensor_product(*args):
+     if len(arrays) == 0:
+         return scalar
+     if scalar != 1:
+-        if isinstance(arrays[0], (_CodegenArrayAbstract, _ArrayExpr)) or \
++        if len(arrays) > 1 or isinstance(arrays[0], (_CodegenArrayAbstract, _ArrayExpr)) or \
+                 scalar.is_commutative is False:
+-            # An in-place multiplication would create a shapeless ``Mul``
+-            # object (or a ``MatMul`` with a structurally noncommutative
+-            # scalar, e.g. a rank-0 ArrayElementwiseApplyFunc), let
+-            # ``_array_tensor_product`` absorb the scalar instead:
+-            # ``_array_tensor_product`` absorb the scalar instead:
++            # Tensor products keep a separate rank-0 coefficient.  Only a
++            # single matrix can absorb it without canonicalization pulling
++            # it out again.  Array expressions and noncommutative scalars
++            # also need the tensor-product representation to retain shape.
+             arrays = [scalar] + arrays
+         else:
+             arrays[0] *= scalar
++    if len(arrays) == 1:
++        return arrays[0]
+     return _array_tensor_product(*arrays)
+ 
+ 

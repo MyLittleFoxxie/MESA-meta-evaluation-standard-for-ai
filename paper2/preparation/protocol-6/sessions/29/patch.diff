@@ -1,0 +1,48 @@
+diff --git a/sympy/parsing/sympy_parser.py b/sympy/parsing/sympy_parser.py
+index 52711d1324..84477bd79d 100644
+--- a/sympy/parsing/sympy_parser.py
++++ b/sympy/parsing/sympy_parser.py
+@@ -1100,6 +1100,14 @@ def evaluateFalse(s: str):
+ 
+ 
+ class EvaluateFalseTransformer(ast.NodeTransformer):
++    relational_operators = {
++        ast.Eq: 'Eq',
++        ast.NotEq: 'Ne',
++        ast.Lt: 'Lt',
++        ast.LtE: 'Le',
++        ast.Gt: 'Gt',
++        ast.GtE: 'Ge',
++    }
+     operators = {
+         ast.Add: 'Add',
+         ast.Mult: 'Mul',
+@@ -1134,6 +1142,28 @@ def flatten(self, args, func):
+                 result.append(arg)
+         return result
+ 
++    def visit_Compare(self, node):
++        if not all(type(op) in self.relational_operators for op in node.ops):
++            return self.generic_visit(node)
++
++        node = self.generic_visit(node)
++        args = []
++        left = node.left
++        for op, right in zip(node.ops, node.comparators):
++            args.append(ast.Call(
++                func=ast.Name(id=self.relational_operators[type(op)], ctx=ast.Load()),
++                args=[left, right],
++                keywords=[ast.keyword(arg='evaluate', value=ast.Constant(value=False))],
++            ))
++            left = right
++        if len(args) == 1:
++            return args[0]
++        return ast.Call(
++            func=ast.Name(id='And', ctx=ast.Load()),
++            args=args,
++            keywords=[ast.keyword(arg='evaluate', value=ast.Constant(value=False))],
++        )
++
+     def visit_BinOp(self, node):
+         if node.op.__class__ in self.operators:
+             sympy_class = self.operators[node.op.__class__]

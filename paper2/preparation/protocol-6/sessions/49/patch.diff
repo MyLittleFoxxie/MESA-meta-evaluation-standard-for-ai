@@ -1,0 +1,21 @@
+diff --git a/sympy/core/mul.py b/sympy/core/mul.py
+index 30c911f579..b1da759d95 100644
+--- a/sympy/core/mul.py
++++ b/sympy/core/mul.py
+@@ -957,8 +957,15 @@ def _eval_expand_mul(self, **hints):
+             return expr
+ 
+         plain, sums, rewrite = [], [], False
+-        for factor in expr.args:
++        for i, factor in enumerate(expr.args):
+             if factor.is_Add:
++                order = factor.getO()
++                if order is not None:
++                    rest = self.func(*(expr.args[:i] + expr.args[i + 1:]))
++                    regular = rest*factor.removeO()
++                    if regular.is_Mul:
++                        regular = regular._eval_expand_mul(**hints)
++                    return regular + rest*order
+                 sums.append(factor)
+                 rewrite = True
+             else:

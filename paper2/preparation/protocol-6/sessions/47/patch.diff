@@ -1,0 +1,247 @@
+diff --git a/doc/src/modules/tensor/array_expressions.rst b/doc/src/modules/tensor/array_expressions.rst
+index d73c16b889..4ddf853b34 100644
+--- a/doc/src/modules/tensor/array_expressions.rst
++++ b/doc/src/modules/tensor/array_expressions.rst
+@@ -8,3 +8,4 @@ N-dim array expressions
+ .. autoclass:: sympy.tensor.array.expressions.ArrayContraction
+ .. autoclass:: sympy.tensor.array.expressions.ArrayDiagonal
+ .. autoclass:: sympy.tensor.array.expressions.PermuteDims
++.. autofunction:: sympy.tensor.array.expressions.array_simplify
+diff --git a/sympy/tensor/array/expressions/__init__.py b/sympy/tensor/array/expressions/__init__.py
+index 3285f2993c..c27469788e 100644
+--- a/sympy/tensor/array/expressions/__init__.py
++++ b/sympy/tensor/array/expressions/__init__.py
+@@ -168,10 +168,11 @@
+     "convert_array_to_indexed",
+     "convert_indexed_to_array",
+     "array_derive",
++    "array_simplify",
+ ]
+ 
+ from sympy.tensor.array.expressions.array_expressions import ArrayTensorProduct, ArrayAdd, PermuteDims, ArrayDiagonal, \
+-    ArrayContraction, Reshape, ArraySymbol, ArrayElement, ZeroArray, OneArray, ArrayElementwiseApplyFunc
++    ArrayContraction, Reshape, ArraySymbol, ArrayElement, ZeroArray, OneArray, ArrayElementwiseApplyFunc, array_simplify
+ from sympy.tensor.array.expressions.arrayexpr_derivatives import array_derive
+ from sympy.tensor.array.expressions.from_array_to_indexed import convert_array_to_indexed
+ from sympy.tensor.array.expressions.from_array_to_matrix import convert_array_to_matrix
+diff --git a/sympy/tensor/array/expressions/array_expressions.py b/sympy/tensor/array/expressions/array_expressions.py
+index 2bf12c961d..be98ef8d9e 100644
+--- a/sympy/tensor/array/expressions/array_expressions.py
++++ b/sympy/tensor/array/expressions/array_expressions.py
+@@ -9,6 +9,7 @@
+ import typing
+ 
+ from sympy import Sum
++from sympy.core.add import Add
+ from sympy.core.numbers import Integer
+ from sympy.core.relational import Equality
+ from sympy.functions.special.tensor_functions import KroneckerDelta
+@@ -23,6 +24,7 @@
+ from sympy.matrices.matrixbase import MatrixBase
+ from sympy.matrices.expressions.diagonal import diagonalize_vector
+ from sympy.matrices.expressions.matexpr import MatrixExpr
++from sympy.matrices.expressions.matmul import MatMul
+ from sympy.matrices.expressions.special import ZeroMatrix
+ from sympy.tensor.array.arrayop import (permutedims, tensorcontraction, tensordiagonal, tensorproduct)
+ from sympy.tensor.array.dense_ndim_array import ImmutableDenseNDimArray
+@@ -240,10 +242,14 @@ def doit(self, **hints):
+ class ArrayTensorProduct(_CodegenArrayAbstract):
+     r"""
+     Class to represent the tensor product of array-like objects.
++
++    Canonicalization (``.doit()`` or ``canonicalize=True``) combines scalar
++    factors into a single leading coefficient.
+     """
+ 
+     def __new__(cls, *args, **kwargs):
+         args = [_sympify(arg) for arg in args]
++        args = [_array_mul_to_tensor_product(arg) for arg in args]
+ 
+         canonicalize = kwargs.pop("canonicalize", False)
+ 
+@@ -262,8 +268,14 @@ def __new__(cls, *args, **kwargs):
+         return obj
+ 
+     def _canonicalize(self):
+-        args = self.args
+-        args = self._flatten(args)
++        coefficient, factors = _split_array_coefficient(self, extract_matrix_coeff=False)
++        args = list(factors)
++        if coefficient == 0:
++            return ZeroArray(*self.shape)
++        if coefficient != 1:
++            args.insert(0, coefficient)
++        if not args:
++            return S.One
+ 
+         ndim_list = [get_ndim(arg) for arg in args]
+ 
+@@ -350,10 +362,31 @@ def as_explicit(self):
+ class ArrayAdd(_CodegenArrayAbstract):
+     r"""
+     Class for elementwise array additions.
++
++    Canonicalization collects tensor products with the same ordered factors,
++    adding their scalar coefficients. Cancellation produces a ``ZeroArray``
++    with the shape of the summands. Use :func:`array_simplify` to additionally
++    factor terms that agree in all but one tensor-product slot.
++
++    Examples
++    ========
++
++    >>> from sympy import MatrixSymbol
++    >>> from sympy.tensor.array.expressions import ArrayAdd, ArrayTensorProduct
++    >>> A = MatrixSymbol('A', 3, 4)
++    >>> B = MatrixSymbol('B', 4, 5)
++    >>> T = ArrayTensorProduct(A, B)
++    >>> ArrayAdd(T, T).doit()
++    ArrayTensorProduct(2, A, B)
++    >>> ArrayAdd(T, ArrayTensorProduct(-1, T)).doit()
++    ZeroArray(3, 4, 4, 5)
+     """
+ 
+     def __new__(cls, *args, **kwargs):
+         args = [_sympify(arg) for arg in args]
++        # Ordinary scalar multiplication of an array expression has no shape
++        # of its own. Represent it by a rank-zero tensor-product factor.
++        args = [_array_mul_to_tensor_product(arg) for arg in args]
+         ndims = [get_ndim(arg) for arg in args]
+         ndims = list(set(ndims))
+         if len(ndims) != 1:
+@@ -382,8 +415,28 @@ def _canonicalize(self):
+ 
+         shapes = [get_shape(arg) for arg in args]
+         args = [arg for arg in args if not isinstance(arg, (ZeroArray, ZeroMatrix))]
++        coefficients = defaultdict(list)
++        positions = {}
++        collected = []
++        products = {arg: _split_array_coefficient(arg) for arg in args
++                    if isinstance(arg, ArrayTensorProduct)}
++        product_factors = {factors for _, factors in products.values()}
++        for arg in args:
++            coefficient, factors = products.get(arg, (S.One, (arg,)))
++            if factors not in product_factors:
++                collected.append(arg)
++                continue
++            if factors not in positions:
++                positions[factors] = len(collected)
++                collected.append(None)
++            coefficients[factors].append(coefficient)
++        for factors, terms in coefficients.items():
++            coefficient = Add(*terms)
++            if coefficient != 0:
++                collected[positions[factors]] = _array_tensor_product(coefficient, *factors)
++        args = [arg for arg in collected if arg is not None]
+         if len(args) == 0:
+-            if any(i for i in shapes if i is None):
++            if any(i is None for i in shapes):
+                 raise NotImplementedError("cannot handle addition of ZeroMatrix/ZeroArray and undefined shape object")
+             return ZeroArray(*shapes[0])
+         elif len(args) == 1:
+@@ -405,6 +458,106 @@ def as_explicit(self):
+             operator.add,
+             [arg.as_explicit() if hasattr(arg, "as_explicit") else arg for arg in self.args])
+ 
++    def _eval_simplify(self, **kwargs):
++        return array_simplify(self)
++
++
++def _array_mul_to_tensor_product(expr):
++    if isinstance(expr, Mul) and not isinstance(expr, MatMul):
++        arrays = [arg for arg in expr.args if get_shape(arg) != ()]
++        scalars = [arg for arg in expr.args if get_shape(arg) == ()]
++        if len(arrays) == 1 and all(arg.is_commutative is True for arg in scalars):
++            return ArrayTensorProduct(Mul.fromiter(scalars), arrays[0])
++    return expr
++
++
++def _split_array_coefficient(expr, extract_matrix_coeff=True):
++    """Return a commutative scalar and the ordered tensor-product factors."""
++    scalars = []
++    factors = []
++
++    def visit(arg):
++        arg = _array_mul_to_tensor_product(arg)
++        if isinstance(arg, ArrayTensorProduct):
++            for factor in arg.args:
++                visit(factor)
++        elif extract_matrix_coeff and isinstance(arg, MatMul):
++            coefficient, matrix = arg.as_coeff_mmul()
++            scalars.append(coefficient)
++            factors.append(matrix.doit())
++        elif (get_shape(arg) == () and arg.is_commutative is True
++                and not isinstance(arg, (_ArrayExpr, _CodegenArrayAbstract, NDimArray))):
++            scalars.append(arg)
++        else:
++            factors.append(arg)
++
++    visit(expr)
++    return Mul.fromiter(scalars), tuple(factors)
++
++
++def array_simplify(expr):
++    r"""Collect tensor-product terms by linearity in one slot at a time.
++
++    Unlike canonicalization, this also factors sums of tensor products. Only
++    terms agreeing in every slot except one are grouped. Slots are considered
++    from left to right, repeating until no further terms can be collected.
++    The result can depend on this order when several factorizations exist.
++
++    Examples
++    ========
++
++    >>> from sympy import MatrixSymbol
++    >>> from sympy.tensor.array.expressions import (
++    ...     ArrayAdd, ArrayTensorProduct, array_simplify)
++    >>> A = MatrixSymbol('A', 3, 4)
++    >>> B = MatrixSymbol('B', 4, 5)
++    >>> C = MatrixSymbol('C', 4, 5)
++    >>> array_simplify(ArrayAdd(ArrayTensorProduct(A, B),
++    ...                         ArrayTensorProduct(A, C)))
++    ArrayTensorProduct(A, B + C)
++
++    Scalar coefficients, including minus signs, are included in the varying
++    slot. Expressions nested inside array operations are also simplified.
++    """
++    expr = _sympify(expr)
++    if not isinstance(expr, _CodegenArrayAbstract):
++        return expr
++    expr = expr.func(*[array_simplify(arg) for arg in expr.args]).doit(deep=False)
++    while isinstance(expr, ArrayAdd):
++        terms = list(expr.args)
++        products = {i: _split_array_coefficient(term)
++                    for i, term in enumerate(terms)
++                    if isinstance(term, ArrayTensorProduct)}
++        max_slots = max((len(factors) for _, factors in products.values()), default=0)
++        changed = False
++        for slot in range(max_slots):
++            groups = defaultdict(list)
++            for i, (coefficient, factors) in products.items():
++                if slot >= len(factors):
++                    continue
++                key = (factors[:slot], factors[slot + 1:], get_shape(factors[slot]))
++                groups[key].append((i, coefficient, factors[slot]))
++            for (before, after, _), group in groups.items():
++                if len(group) < 2:
++                    continue
++                summands = [coefficient*factor if isinstance(factor, MatrixExpr)
++                            else _array_tensor_product(coefficient, factor)
++                            for _, coefficient, factor in group]
++                if all(isinstance(term, MatrixExpr) for term in summands):
++                    collected = Add(*summands).doit()
++                else:
++                    collected = _array_add(*summands)
++                terms[group[0][0]] = _array_tensor_product(*before, collected, *after)
++                for i, _, _ in group[1:]:
++                    terms[i] = None
++                changed = True
++            if changed:
++                expr = _array_add(*[term for term in terms if term is not None])
++                break
++        if not changed:
++            break
++    return expr
++
+ 
+ class PermuteDims(_CodegenArrayAbstract):
+     r"""

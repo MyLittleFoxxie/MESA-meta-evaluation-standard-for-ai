@@ -1,0 +1,101 @@
+diff --git a/sympy/printing/c.py b/sympy/printing/c.py
+index 7a85e5f980..2ff2b8fe0f 100644
+--- a/sympy/printing/c.py
++++ b/sympy/printing/c.py
+@@ -291,7 +291,9 @@ def _print_Mod(self, expr):
+         num, den = expr.args
+         if num.is_integer and den.is_integer:
+             PREC = precedence(expr)
+-            snum, sden = [self.parenthesize(arg, PREC) for arg in expr.args]
++            snum, sden = [
++                '(%s)' % self._print(arg) if arg.is_Pow and equal_valued(arg.exp, -1)
++                else self.parenthesize(arg, PREC) for arg in expr.args]
+             # % is remainder (same sign as numerator), not modulo (same sign as
+             # denominator), in C. Hence, % only works as modulo if both numbers
+             # have the same sign
+diff --git a/sympy/printing/codeprinter.py b/sympy/printing/codeprinter.py
+index e427ae3b42..8472fb2b19 100644
+--- a/sympy/printing/codeprinter.py
++++ b/sympy/printing/codeprinter.py
+@@ -549,7 +549,7 @@ def _print_isinf(self, arg):
+ 
+     def _print_Mul(self, expr):
+ 
+-        prec = precedence(expr)
++        prec = PRECEDENCE["Mul"]
+ 
+         c, e = expr.as_coeff_Mul()
+         if c < 0:
+@@ -561,8 +561,6 @@ def _print_Mul(self, expr):
+         a = []  # items in the numerator
+         b = []  # items that are in the denominator (if any)
+ 
+-        pow_paren = []  # Will collect all pow with more than one base element and exp = -1
+-
+         if self.order not in ('old', 'none'):
+             args = expr.as_ordered_factors()
+         else:
+@@ -575,8 +573,6 @@ def _print_Mul(self, expr):
+                 if item.exp != -1:
+                     b.append(Pow(item.base, -item.exp, evaluate=False))
+                 else:
+-                    if len(item.args[0].args) != 1 and isinstance(item.base, Mul):   # To avoid situations like #14160
+-                        pow_paren.append(item)
+                     b.append(Pow(item.base, -item.exp))
+             else:
+                 a.append(item)
+@@ -593,11 +589,6 @@ def _print_Mul(self, expr):
+             a_str = [self.parenthesize(x, prec) for x in a]
+         b_str = [self.parenthesize(x, prec) for x in b]
+ 
+-        # To parenthesize Pow with exp = -1 and having more than one Symbol
+-        for item in pow_paren:
+-            if item.base in b:
+-                b_str[b.index(item.base)] = "(%s)" % b_str[b.index(item.base)]
+-
+         if not b:
+             return sign + '*'.join(a_str)
+         elif len(b) == 1:
+diff --git a/sympy/printing/jscode.py b/sympy/printing/jscode.py
+index 753eb3291d..15b2dfe0b0 100644
+--- a/sympy/printing/jscode.py
++++ b/sympy/printing/jscode.py
+@@ -112,7 +112,9 @@ def _print_Rational(self, expr):
+     def _print_Mod(self, expr):
+         num, den = expr.args
+         PREC = precedence(expr)
+-        snum, sden = [self.parenthesize(arg, PREC) for arg in expr.args]
++        snum, sden = [
++            '(%s)' % self._print(arg) if arg.is_Pow and equal_valued(arg.exp, -1)
++            else self.parenthesize(arg, PREC) for arg in expr.args]
+         # % is remainder (same sign as numerator), not modulo (same sign as
+         # denominator), in js. Hence, % only works as modulo if both numbers
+         # have the same sign
+diff --git a/sympy/printing/pycode.py b/sympy/printing/pycode.py
+index 9362a20d28..17c94a5905 100644
+--- a/sympy/printing/pycode.py
++++ b/sympy/printing/pycode.py
+@@ -214,7 +214,9 @@ def _print_Assignment(self, expr):
+ 
+     def _print_Mod(self, expr):
+         PREC = precedence(expr)
+-        return ('{} % {}'.format(*(self.parenthesize(x, PREC) for x in expr.args)))
++        return '{} % {}'.format(*(
++            '(%s)' % self._print(x) if x.is_Pow and x.exp == -1
++            else self.parenthesize(x, PREC) for x in expr.args))
+ 
+     def _print_Piecewise(self, expr):
+         result = []
+diff --git a/sympy/printing/tests/test_cxx.py b/sympy/printing/tests/test_cxx.py
+index 06aef5b775..5ba6104ef4 100644
+--- a/sympy/printing/tests/test_cxx.py
++++ b/sympy/printing/tests/test_cxx.py
+@@ -56,7 +56,7 @@ def test_CXX17CodePrinter():
+ 
+     # Automatic rewrite
+     assert CXX17CodePrinter().doprint(frac(x)) == '(x - std::floor(x))'
+-    assert CXX17CodePrinter().doprint(riemann_xi(x)) == '((1.0/2.0)*std::pow(M_PI, -1.0/2.0*x)*x*(x - 1)*std::tgamma((1.0/2.0)*x)*std::riemann_zeta(x))'
++    assert CXX17CodePrinter().doprint(riemann_xi(x)) == '((1.0/2.0)*std::pow(M_PI, -(1.0/2.0)*x)*x*(x - 1)*std::tgamma((1.0/2.0)*x)*std::riemann_zeta(x))'
+ 
+ 
+ def test_cxxcode():

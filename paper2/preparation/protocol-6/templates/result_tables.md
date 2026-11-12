@@ -1,10 +1,17 @@
-# Protocol 6 result templates (no agent sessions run)
+# Protocol 6 Result Tables (`CONFIG_02_SOL_MED`)
 
-## Planned arms
+Generated from saved session, ledger, signed audit form, and requirement records.
 
-M1, M2, Audit only, ABA, All-passing-incomplete, M3_strict, M3_lenient, M3_controlled, ABC, ABC_with_gate, Target (before & after removal).
+## RQ1 & RQ2 Comparison
 
-| config_id | source_n | M2_decision | M3_strict_status | M3_controlled_status | M3_controlled_decision | ABC_decision | ABC_with_gate_status | target_n | target_decision |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| CONFIG_01_GEMINI_FLASH_MED | pending | pending | pending | pending | pending | pending | pending | pending | pending |
-| CONFIG_02_SOL_MED | pending | pending | pending | pending | pending | pending | pending | pending | pending |
+| Arm | n | k | Rate (%) | Exact Binomial 95% CI | Gate Status | Decision | Target Comparable |
+| --- | ---: | ---: | ---: | --- | --- | --- | --- |
+| M1 / M2 (raw source) | 44 | 35 | 79.55 | [67.02%, 88.89%] | None | Inconclusive | not_comparable |
+| Audit only (B07 scope) | 12 | 10 | 83.33 | [56.19%, 96.95%] | None | Inconclusive | not_comparable |
+| M3_strict | 12 | 10 | 83.33 | [56.19%, 96.95%] | inadmissible | None | not_comparable |
+| M3_lenient | 12 | 10 | 83.33 | [56.19%, 96.95%] | inadmissible | None | not_comparable |
+| M3_controlled | 12 | 10 | 83.33 | [56.19%, 96.95%] | admissible | Inconclusive | not_comparable |
+| ABC | 44 | 35 | 79.55 | [67.02%, 88.89%] | Caveats (8) | Inconclusive | not_comparable |
+| ABC_with_gate | 44 | 35 | 79.55 | [67.02%, 88.89%] | inadmissible | None | not_comparable |
+| Target (all tasks) | 44 | 21 | 47.73 | [34.64%, 61.06%] | Direct test | Reject | - |
+| Target (B07 scope retained) | 20 | 7 | 35.00 | [17.73%, 55.80%] | Direct test | Reject | - |

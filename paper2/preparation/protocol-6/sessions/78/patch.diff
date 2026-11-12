@@ -1,0 +1,19 @@
+diff --git a/sympy/printing/fortran.py b/sympy/printing/fortran.py
+index a32d89e818..f1ce5969b5 100644
+--- a/sympy/printing/fortran.py
++++ b/sympy/printing/fortran.py
+@@ -351,8 +351,13 @@ def _print_Pow(self, expr):
+                     return 'sqrt(dble(%s))' % self._print(expr.base)
+             else:
+                 return 'sqrt(%s)' % self._print(expr.base)
+-        else:
++        elif expr.exp is -S.Half and expr.is_commutative:
+             return CodePrinter._print_Pow(self, expr)
++        else:
++            base = self.parenthesize(expr.base, PREC)
++            if base.startswith('-'):
++                base = '(%s)' % base
++            return '%s**%s' % (base, self.parenthesize(expr.exp, PREC))
+ 
+     def _print_Rational(self, expr):
+         p, q = int(expr.p), int(expr.q)

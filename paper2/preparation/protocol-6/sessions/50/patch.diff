@@ -1,0 +1,48 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index c9a64ac70a..73318d736d 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -1888,6 +1888,11 @@ def _print_KroneckerProduct(self, expr):
+         return r' \otimes '.join(
+             (parens(arg, prec, strict=True) for arg in args))
+ 
++    _print_ArrayTensorProduct = _print_KroneckerProduct
++
++    def _print_ArrayAdd(self, expr):
++        return self._print_Add(expr, order='none')
++
+     def _print_MatPow(self, expr):
+         base, exp = expr.base, expr.exp
+         from sympy.matrices import MatrixSymbol
+diff --git a/sympy/printing/precedence.py b/sympy/printing/precedence.py
+index 33ba6feb2f..eaec384e0f 100644
+--- a/sympy/printing/precedence.py
++++ b/sympy/printing/precedence.py
+@@ -149,6 +149,8 @@ def precedence(item):
+ PRECEDENCE_TRADITIONAL['Limit'] = PRECEDENCE["Mul"]
+ PRECEDENCE_TRADITIONAL['Derivative'] = PRECEDENCE["Mul"]
+ PRECEDENCE_TRADITIONAL['TensorProduct'] = PRECEDENCE["Mul"]
++PRECEDENCE_TRADITIONAL['ArrayTensorProduct'] = PRECEDENCE["Mul"]
++PRECEDENCE_TRADITIONAL['ArrayAdd'] = PRECEDENCE["Add"]
+ PRECEDENCE_TRADITIONAL['Transpose'] = PRECEDENCE["Pow"]
+ PRECEDENCE_TRADITIONAL['Adjoint'] = PRECEDENCE["Pow"]
+ PRECEDENCE_TRADITIONAL['Dot'] = PRECEDENCE["Mul"] - 1
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 99e2ba22d2..c150d3c14d 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -786,6 +786,14 @@ def _print_TensorProduct(self, expr):
+         return self._print_seq(expr.args, None, None, circled_times,
+             parenthesize=lambda x: precedence_traditional(x) <= PRECEDENCE["Mul"])
+ 
++    def _print_ArrayTensorProduct(self, expr):
++        delimiter = '\u2297' if self._use_unicode else 'x'
++        return self._print_seq(expr.args, None, None, delimiter,
++            parenthesize=lambda x: precedence_traditional(x) <= PRECEDENCE["Mul"])
++
++    def _print_ArrayAdd(self, expr):
++        return self._print_Add(expr, order='none')
++
+     def _print_WedgeProduct(self, expr):
+         # This should somehow share the code with _print_TensorProduct:
+         if self._use_unicode:

@@ -1,0 +1,37 @@
+diff --git a/sympy/codegen/ast.py b/sympy/codegen/ast.py
+index a02714b174..3e9ec888a3 100644
+--- a/sympy/codegen/ast.py
++++ b/sympy/codegen/ast.py
+@@ -135,6 +135,7 @@
+ from sympy.core.basic import Basic
+ from sympy.core.expr import Expr
+ from sympy.core.numbers import Float, Integer, oo
++from sympy.core.symbol import Str
+ from sympy.core.sympify import _sympify, sympify, SympifyError
+ from sympy.utilities.iterables import (iterable, topological_sort,
+                                        numbered_symbols, filter_symbols)
+@@ -892,14 +893,23 @@ class String(Token):
+     'foo'
+     >>> print(repr(f))
+     String('foo')
++    >>> f.func(*f.args) == f
++    True
+ 
+     """
+     __slots__ = ('text',)
+-    not_in_args = ['text']
+     is_Atom = True
+ 
++    def __new__(cls, *args, **kwargs):
++        obj = super().__new__(cls, *args, **kwargs)
++        # Keep a Basic instance in args while exposing a Python string as text.
++        obj._args = (Str(obj.text),)
++        return obj
++
+     @classmethod
+     def _construct_text(cls, text):
++        if isinstance(text, Str):
++            text = text.name
+         if not isinstance(text, str):
+             raise TypeError("Argument text is not a string type.")
+         return text

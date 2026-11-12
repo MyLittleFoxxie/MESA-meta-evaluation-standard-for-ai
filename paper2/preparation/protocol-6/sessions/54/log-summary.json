@@ -1,0 +1,40 @@
+{
+  "agent_seconds": null,
+  "efforts": [
+    "medium"
+  ],
+  "first": "2026-11-12T09:36:20.525Z",
+  "last": "2026-11-12T09:37:44.916Z",
+  "models": [
+    "gpt-6.1-sol"
+  ],
+  "other_tools": [],
+  "raw_log": "paper2/preparation/protocol-6/sessions/54/logs/rollout-2026-11-12T04-36-20-01a1cf1d-814e-7181-8e4c-6c044fd380cf.jsonl",
+  "raw_log_sha256": "af0f072617fba32b83f119a4c2056ccf56ba61551802971835ed13dc61f3b412",
+  "sandbox": [
+    {
+      "exclude_slash_tmp": false,
+      "exclude_tmpdir_env_var": false,
+      "network_access": false,
+      "type": "workspace-write"
+    }
+  ],
+  "steps": 14,
+  "text": [
+    "text(await tools.exec_command({cmd:\"pwd; rg --files -g AGENTS.md -g '*error_functions*' -g '*evalf*' | head -50\",\"max_output_tokens\":2000}));\n",
+    "text(await tools.exec_command({cmd:\"rg -n 'class owens_t|def _eval_evalf' sympy/functions/special/error_functions.py; git status --short; find .. -name AGENTS.md -print\",\"max_output_tokens\":3000}));\n",
+    "text(await tools.exec_command({cmd:\"sed -n '2709,2960p' sympy/functions/special/error_functions.py; sed -n '960,1010p' sympy/functions/special/error_functions.py; sed -n '1190,1225p' sympy/functions/special/error_functions.py; rg -n 'owens_t' sympy/functions/special/tests/test_error_functions.py; rg -n '_eval_evalf\\\\(prec\\\\)|_eval_evalf' sympy/core/evalf.py | tail -15\",\"max_output_tokens\":6500}));\n",
+    "text(await tools.exec_command({cmd:\"sed -n '1470,1535p' sympy/core/evalf.py; sed -n '1680,1735p' sympy/core/evalf.py; head -75 sympy/functions/special/error_functions.py; rg -n 'rewrite\\\\(Integral\\\\).*evalf|rewrite\\\\(.*\\\\)\\\\._evalf\\\\(prec\\\\)' sympy/functions | head -35; rg -n 'def _eval_evalf' sympy/core/mul.py sympy/core/expr.py\",\"max_output_tokens\":4000}));\n",
+    "text(await tools.exec_command({cmd:\"rg -n 'evalf\\\\(prec_to_dps\\\\(prec\\\\)\\\\)' sympy/functions | head -25; sed -n '770,790p' sympy/core/mul.py; python - <<'PY'\\nfrom sympy import S, erf, sqrt\\nfrom sympy.functions.special.error_functions import owens_t\\nx = owens_t(1, 2)\\nprint('hook:', x._eval_evalf(53))\\ne = erf(-3*sqrt(2))/2 + S.Half - 2*owens_t(6, 2)\\nprint('default:', e.evalf())\\nprint('50 digits:', e.evalf(50))\\nPY\",\"max_output_tokens\":2500}));\n",
+    "text(await tools.exec_command({cmd:\"rg -n 'prec_to_dps|evalf\\\\(.*prec' sympy/functions/special/{bessel,gamma_functions,hyper}.py | head -40; rg -n 'def _eval_evalf' sympy/integrals/integrals.py; rg -n 'def prec_to_dps' sympy/core/evalf.py\",\"max_output_tokens\":2000}));\n",
+    "text(await tools.PATCH /Users/mylittlefoxxie/paper2-workspaces/slot-54/sympy/functions/special/error_functions.py());\ntext(await tools.exec_command({cmd:\"python - <<'PY'\\nfrom sympy import S, erf, sqrt, Float, symbols, I\\nfrom sympy.functions.special.error_functions import owens_t\\nfrom sympy.stats import SkewNormal, cdf\\nx = owens_t(1, 2)\\nfor prec in (53, 100, 200):\\n    value = x._eval_evalf(prec)\\n    print('hook', prec, type(value).__name__, value)\\n    assert isinstance(value, Float)\\ne = erf(-3*sqrt(2))/2 + S.Half - 2*owens_t(6, 2)\\nreference = e.evalf(80)\\nprint('default:', e.evalf())\\nprint('reference:', reference)\\nassert abs(e.evalf()/reference - 1) < S('1e-14')\\ntail = cdf(SkewNormal('x', 0, 1, 2))(-6).evalf()\\nprint('SkewNormal tail:', tail)\\nassert abs(tail/reference - 1) < S('1e-14')\\nh, a = symbols('h a')\\nfor expr in (owens_t(h, 2), owens_t(1, a), owens_t(h, a), owens_t(I, S.Half)):\\n    print('other:', expr.evalf())\\nPY\",\"max_output_tokens\":2500}));\n",
+    "text(await tools.exec_command({cmd:\"python - <<'PY'\\nfrom sympy import S, erf, sqrt, Float, symbols, I\\nfrom sympy.functions.special.error_functions import owens_t\\nx = owens_t(1, 2)\\nfor prec in (53, 100, 200):\\n    value = x._eval_evalf(prec)\\n    print('hook', prec, type(value).__name__, value)\\n    assert isinstance(value, Float)\\ne = erf(-3*sqrt(2))/2 + S.Half - 2*owens_t(6, 2)\\nreference = e.evalf(80)\\nprint('default:', e.evalf())\\nprint('reference:', reference)\\nassert abs(e.evalf()/reference - 1) < S('1e-14')\\nh, a = symbols('h a')\\nfor expr in (owens_t(h, 2), owens_t(1, a), owens_t(h, a), owens_t(I, S.Half)):\\n    print('other:', expr.evalf())\\nPY\",\"max_output_tokens\":2200}));\ntext(await tools.exec_command({cmd:\"python -m pytest sympy/functions/special/tests/test_error_functions.py -q\",\"max_output_tokens\":2200,\"yield_time_ms\":1000}));\n",
+    "text(await tools.exec_command({cmd:\"python - <<'PY'\\nimport mpmath as mp\\nfrom sympy import S, erf, sqrt\\nfrom sympy.functions.special.error_functions import owens_t\\nmp.mp.dps = 80\\nreference = mp.quad(lambda z: mp.exp(-z*z/2)/mp.sqrt(2*mp.pi)*mp.erfc(-2*z/mp.sqrt(2)), [-mp.inf, -6])\\nexpr = erf(-3*sqrt(2))/2 + S.Half - 2*owens_t(6, 2)\\nvalue = expr.evalf(50)\\nprint('Independent tail integral:', mp.nstr(reference, 55))\\nprint('SymPy difference:', value)\\nassert abs(mp.mpf(str(value))/reference - 1) < mp.mpf('1e-49')\\nPY\",\"max_output_tokens\":1200}));\ntext(await tools.write_stdin({session_id:64212,chars:\"\",\"yield_time_ms\":1000,\"max_output_tokens\":2200}));\ntext(await tools.exec_command({cmd:\"git diff --check; git diff --stat\",\"max_output_tokens\":1000}));\n",
+    "text(await tools.exec_command({cmd:\"python - <<'PY'\\nimport mpmath as mp\\nfrom sympy import S, erf, sqrt\\nfrom sympy.functions.special.error_functions import owens_t\\nmp.mp.dps = 120\\nreference = mp.quad(lambda z: mp.exp(-z*z/2)/mp.sqrt(2*mp.pi)*mp.erfc(-2*z/mp.sqrt(2)), [-mp.inf, -6])\\nexpr = erf(-3*sqrt(2))/2 + S.Half - 2*owens_t(6, 2)\\nvalue = expr.evalf(50)\\nprint('Independent tail integral:', mp.nstr(reference, 55))\\nprint('SymPy difference:', value)\\nassert abs(mp.mpf(str(value))/reference - 1) < mp.mpf('1e-49')\\nassert abs(mp.mpf(str(expr.evalf()))/reference - 1) < mp.mpf('1e-14')\\nprint('Independent comparison passed at default and 50-digit precision.')\\nPY\",\"max_output_tokens\":1000}));\n"
+  ],
+  "tokens": {
+    "input": 214816,
+    "output": 2436
+  },
+  "user_messages": 0
+}

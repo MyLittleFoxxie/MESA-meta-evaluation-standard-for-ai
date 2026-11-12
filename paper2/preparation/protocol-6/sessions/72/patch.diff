@@ -1,0 +1,143 @@
+diff --git a/sympy/physics/quantum/matrixcache.py b/sympy/physics/quantum/matrixcache.py
+index 7656a4c892..41192e46bd 100644
+--- a/sympy/physics/quantum/matrixcache.py
++++ b/sympy/physics/quantum/matrixcache.py
+@@ -16,7 +16,7 @@ class MatrixCache:
+ 
+     This class takes small matrices in the standard ``sympy.Matrix`` format,
+     and then converts these to both ``numpy.matrix`` and
+-    ``scipy.sparse.csr_matrix`` matrices. These matrices are then stored for
++    ``scipy.sparse.csr_array`` arrays. These matrices are then stored for
+     future recovery.
+     """
+ 
+diff --git a/sympy/physics/quantum/matrixutils.py b/sympy/physics/quantum/matrixutils.py
+index 6126347b80..2de5ffcc5b 100644
+--- a/sympy/physics/quantum/matrixutils.py
++++ b/sympy/physics/quantum/matrixutils.py
+@@ -41,7 +41,8 @@ class scipy_sparse_matrix:
+     sparse = None
+ else:
+     sparse = scipy.sparse
+-    scipy_sparse_matrix = sparse.spmatrix # type: ignore
++    # Accept both sparse arrays and legacy sparse matrices in isinstance tests.
++    scipy_sparse_matrix = (sparse.sparray, sparse.spmatrix) # type: ignore
+ 
+ 
+ def sympy_to_numpy(m, **options):
+@@ -58,12 +59,12 @@ def sympy_to_numpy(m, **options):
+ 
+ 
+ def sympy_to_scipy_sparse(m, **options):
+-    """Convert a SymPy Matrix/complex number to a numpy matrix or scalar."""
++    """Convert a SymPy Matrix/complex number to a sparse array or scalar."""
+     if not np or not sparse:
+         raise ImportError
+     dtype = options.get('dtype', 'complex')
+     if isinstance(m, MatrixBase):
+-        return sparse.csr_matrix(np.array(m.tolist(), dtype=dtype))
++        return sparse.csr_array(np.array(m.tolist(), dtype=dtype))
+     elif isinstance(m, Expr):
+         if m.is_Number or m.is_NumberSymbol or m == I:
+             return complex(m)
+@@ -101,19 +102,19 @@ def to_numpy(m, **options):
+     elif isinstance(m, numpy_ndarray):
+         return m
+     elif isinstance(m, scipy_sparse_matrix):
+-        return m.todense()
++        return m.toarray()
+     raise TypeError('Expected sympy/numpy/scipy.sparse matrix, got: %r' % m)
+ 
+ 
+ def to_scipy_sparse(m, **options):
+-    """Convert a sympy/numpy matrix to a scipy.sparse matrix."""
++    """Convert a sympy/numpy matrix to a scipy.sparse array."""
+     dtype = options.get('dtype', 'complex')
+     if isinstance(m, (MatrixBase, Expr)):
+         return sympy_to_scipy_sparse(m, dtype=dtype)
+     elif isinstance(m, numpy_ndarray):
+         if not sparse:
+             raise ImportError
+-        return sparse.csr_matrix(m)
++        return sparse.csr_array(m)
+     elif isinstance(m, scipy_sparse_matrix):
+         return m
+     raise TypeError('Expected sympy/numpy/scipy.sparse matrix, got: %r' % m)
+@@ -167,7 +168,7 @@ def _scipy_sparse_tensor_product(*product):
+         answer = sparse.kron(answer, item)
+     # The final matrices will just be multiplied, so csr is a good final
+     # sparse format.
+-    return sparse.csr_matrix(answer)
++    return sparse.csr_array(answer)
+ 
+ 
+ def matrix_tensor_product(*product):
+@@ -191,7 +192,7 @@ def _scipy_sparse_eye(n):
+     """scipy.sparse version of complex eye."""
+     if not sparse:
+         raise ImportError
+-    return sparse.eye(n, n, dtype='complex')
++    return sparse.eye_array(n, dtype='complex')
+ 
+ 
+ def matrix_eye(n, **options):
+@@ -221,9 +222,9 @@ def _scipy_sparse_zeros(m, n, **options):
+     if not sparse:
+         raise ImportError
+     if spmatrix == 'lil':
+-        return sparse.lil_matrix((m, n), dtype=dtype)
++        return sparse.lil_array((m, n), dtype=dtype)
+     elif spmatrix == 'csr':
+-        return sparse.csr_matrix((m, n), dtype=dtype)
++        return sparse.csr_array((m, n), dtype=dtype)
+ 
+ 
+ def matrix_zeros(m, n, **options):
+diff --git a/sympy/physics/quantum/qubit.py b/sympy/physics/quantum/qubit.py
+index f27e56edfd..d87d1bee7b 100644
+--- a/sympy/physics/quantum/qubit.py
++++ b/sympy/physics/quantum/qubit.py
+@@ -212,7 +212,7 @@ def _represent_ZGate(self, basis, **options):
+             return np.array(result, dtype='complex').transpose()
+         elif _format == 'scipy.sparse':
+             from scipy import sparse
+-            return sparse.csr_matrix(result, dtype='complex').transpose()
++            return sparse.csr_array([result], dtype='complex').transpose()
+ 
+     def _eval_trace(self, bra, **kwargs):
+         indices = kwargs.get('indices', [])
+diff --git a/sympy/physics/quantum/represent.py b/sympy/physics/quantum/represent.py
+index 7df2d1d0bf..deb9b28506 100644
+--- a/sympy/physics/quantum/represent.py
++++ b/sympy/physics/quantum/represent.py
+@@ -19,7 +19,7 @@
+ from sympy.physics.quantum.innerproduct import InnerProduct
+ from sympy.physics.quantum.qexpr import QExpr
+ from sympy.physics.quantum.tensorproduct import TensorProduct
+-from sympy.physics.quantum.matrixutils import flatten_scalar
++from sympy.physics.quantum.matrixutils import flatten_scalar, scipy_sparse_matrix
+ from sympy.physics.quantum.state import KetBase, BraBase, StateBase
+ from sympy.physics.quantum.operator import Operator, OuterProduct
+ from sympy.physics.quantum.qapply import qapply
+@@ -182,6 +182,9 @@ def _represent_FooBasis(self, e, basis, **options)
+             base = inv(base.tocsc()).tocsr()
+         if format == 'numpy':
+             return np.linalg.matrix_power(base, exp)
++        if format == 'scipy.sparse' and isinstance(base, scipy_sparse_matrix):
++            from scipy.sparse.linalg import matrix_power
++            return matrix_power(base, exp)
+         return base ** exp
+     elif isinstance(expr, TensorProduct):
+         new_args = [represent(arg, **options) for arg in expr.args]
+@@ -233,6 +236,11 @@ def _represent_FooBasis(self, e, basis, **options)
+         if format == 'numpy' and isinstance(next_arg, np.ndarray):
+             # Must use np.matmult to "matrix multiply" two np.ndarray
+             result = np.matmul(next_arg, result)
++        elif (format == 'scipy.sparse'
++                and isinstance(next_arg, scipy_sparse_matrix)
++                and isinstance(result, scipy_sparse_matrix)):
++            # Sparse arrays use * for elementwise multiplication.
++            result = next_arg @ result
+         else:
+             result = next_arg*result
+         last_arg = arg

@@ -1,0 +1,57 @@
+diff --git a/sympy/integrals/manualintegrate.py b/sympy/integrals/manualintegrate.py
+index b2fa8527a8..044ea4577d 100644
+--- a/sympy/integrals/manualintegrate.py
++++ b/sympy/integrals/manualintegrate.py
+@@ -1431,6 +1431,44 @@ def orthogonal_poly_rule(integral):
+                     return orthogonal_poly_classes[klass](integrand, symbol, *integrand.args[:var_index])
+ 
+ 
++def quadratic_exp_rule(integral):
++    """Split a linear factor times a Gaussian into a derivative and a Gaussian."""
++    integrand, symbol = integral
++    factors = Mul.make_args(integrand)
++    exponentials = [factor for factor in factors if isinstance(factor, exp)]
++    if not exponentials:
++        return
++    exponent = Add(*(factor.args[0] for factor in exponentials))
++    quadratic = exponent.as_poly(symbol)
++    linear = (integrand / Mul(*exponentials)).as_poly(symbol)
++    if (quadratic is None or quadratic.degree() != 2 or
++            linear is None or linear.degree() != 1):
++        return
++
++    a, b = quadratic.nth(2), quadratic.nth(1)
++    coefficient = linear.nth(1) / (2*a)
++    remainder = linear.nth(0) - coefficient*b
++    # Leave exact derivatives and unshifted Gaussians to substitution.
++    if b == 0 or remainder == 0:
++        return
++    exponential = exp(exponent)
++    derivative = (2*a*symbol + b)*exponential
++    u = Dummy('u')
++    first_step = URule(derivative, symbol, u, exponent,
++                      ExpRule(exp(u), u, E, u))
++    first_step = ConstantTimesRule(coefficient*derivative, symbol,
++                                   coefficient, derivative, first_step)
++    rewritten = coefficient*derivative + remainder*exponential
++    substeps = [first_step, integral_steps(remainder*exponential, symbol)]
++    step = RewriteRule(integrand, symbol, rewritten,
++                       AddRule(rewritten, symbol, substeps))
++    if a.is_zero is None:
++        degenerate = linear.as_expr()*exp(b*symbol + quadratic.nth(0))
++        return _add_degenerate_step(Ne(a, 0), step,
++                                    integral_steps(degenerate, symbol))
++    return step
++
++
+ _special_function_patterns: list[tuple[type, Expr, Callable | None, tuple]] = []
+ _wilds: list[Wild] = []
+ _symbol = Dummy('x')
+@@ -2665,6 +2703,7 @@ def _integral_is_subclass(integral):
+                         null_safe(sqrt_quadratic_rule),
+                         null_safe(sqrt_fractional_linear_rule),
+                         null_safe(powsimp_rule),
++                        null_safe(quadratic_exp_rule),
+                         null_safe(trig_cmplx_exp_rule)),
+             Derivative: derivative_rule,
+             TrigonometricFunction: trig_rule,

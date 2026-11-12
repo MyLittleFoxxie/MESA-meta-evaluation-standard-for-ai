@@ -1,0 +1,28 @@
+diff --git a/sympy/printing/mathml.py b/sympy/printing/mathml.py
+index 3f8b8d49e..d44ffa8ea 100644
+--- a/sympy/printing/mathml.py
++++ b/sympy/printing/mathml.py
+@@ -743,11 +743,6 @@ def _print_Sum(self, e):
+         return mrow
+ 
+     def _print_Symbol(self, sym, style='plain'):
+-        x = self.dom.createElement('mi')
+-
+-        if style == 'bold':
+-            x.setAttribute('mathvariant', 'bold')
+-
+         def join(items):
+             if len(items) > 1:
+                 mrow = self.dom.createElement('mrow')
+@@ -777,6 +772,11 @@ def translate(s):
+         supers = [translate(sup) for sup in supers]
+         subs = [translate(sub) for sub in subs]
+ 
++        # Script elements must be contained in a layout element, not an mi.
++        x = self.dom.createElement('mrow' if supers or subs else 'mi')
++        if style == 'bold':
++            x.setAttribute('mathvariant', 'bold')
++
+         mname = self.dom.createElement('mi')
+         mname.appendChild(self.dom.createTextNode(name))
+         if len(supers) == 0:

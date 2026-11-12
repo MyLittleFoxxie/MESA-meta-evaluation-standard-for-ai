@@ -7,6 +7,7 @@ import argparse
 import io
 import json
 import re
+import subprocess
 import zipfile
 from pathlib import Path
 
@@ -67,12 +68,27 @@ def sanitize_bytes(rel_path: str, raw: bytes, frozen_paths: set) -> bytes:
     return text.encode("utf-8") if changed else raw
 
 
+def _gitignored_paths(rels):
+    """Return the subset of repo-relative paths ignored by git."""
+    if not rels or not (ROOT / ".git").exists():
+        return set()
+    proc = subprocess.run(
+        ["git", "check-ignore", "--stdin", "-z"],
+        cwd=ROOT,
+        input=b"\0".join(r.encode("utf-8") for r in rels) + b"\0",
+        capture_output=True,
+    )
+    if proc.returncode not in (0, 1):
+        return set()
+    return {p.decode("utf-8") for p in proc.stdout.split(b"\0") if p}
+
+
 def collect_files(prefixes, extra_files=()):
-    out = []
+    candidates = []
     for f in extra_files:
         p = ROOT / f
         if p.is_file():
-            out.append((f, p))
+            candidates.append((f, p))
     for prefix in prefixes:
         base = ROOT / prefix
         if not base.exists():
@@ -83,8 +99,9 @@ def collect_files(prefixes, extra_files=()):
             rel = p.relative_to(ROOT).as_posix()
             if "__pycache__" in rel or rel.endswith(".pyc") or rel in GATED_EXCLUDES:
                 continue
-            out.append((rel, p))
-    return out
+            candidates.append((rel, p))
+    ignored = _gitignored_paths([rel for rel, _ in candidates])
+    return [(rel, p) for rel, p in candidates if rel not in ignored]
 
 
 def build_archive(zip_path: Path, files, frozen_paths: set, readme_text: str):

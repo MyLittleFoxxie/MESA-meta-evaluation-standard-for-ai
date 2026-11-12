@@ -1,0 +1,46 @@
+diff --git a/sympy/printing/numpy.py b/sympy/printing/numpy.py
+index a5369504ec..e0659bb80c 100644
+--- a/sympy/printing/numpy.py
++++ b/sympy/printing/numpy.py
+@@ -66,6 +66,15 @@ def _print_seq(self, seq):
+         delimiter=', '
+         return '({},)'.format(delimiter.join(self._print(item) for item in seq))
+ 
++    def _print_ArrayElementwiseApplyFunc(self, expr):
++        # Print the function with a scalar argument: substituting a matrix
++        # into the SymPy expression could turn elementwise powers into
++        # matrix powers, for example.
++        function = expr.function
++        return '(lambda {}: {})({})'.format(
++            self._print(function.variables[0]), self._print(function.expr),
++            self._print(expr.expr))
++
+     def _print_NegativeInfinity(self, expr):
+         return '-' + self._print(S.Infinity)
+ 
+diff --git a/sympy/printing/pycode.py b/sympy/printing/pycode.py
+index a42ed462e1..cded356200 100644
+--- a/sympy/printing/pycode.py
++++ b/sympy/printing/pycode.py
+@@ -426,6 +426,21 @@ def _hprint_Pow(self, expr, rational=False, sqrt='math.sqrt'):
+ class ArrayPrinter:
+ 
+     def _arrayify(self, indexed):
++        from sympy.matrices.matrixbase import MatrixBase
++        from sympy.matrices.expressions.matexpr import MatrixExpr
++        from sympy.tensor.array.ndim_array import NDimArray
++        from sympy.tensor.array.expressions.array_expressions import (
++            _ArrayExpr, _CodegenArrayAbstract)
++        from sympy.tensor.indexed import Indexed, IndexedBase
++
++        # Scalar arithmetic should retain its ordinary printing semantics.
++        # Conversion also accepts rank-0 expressions, so it cannot be used to
++        # determine whether an expression actually contains arrays.
++        if not isinstance(indexed, (MatrixBase, NDimArray)) and not indexed.has(
++                Indexed, IndexedBase, MatrixBase, MatrixExpr, NDimArray,
++                _ArrayExpr, _CodegenArrayAbstract):
++            return indexed
++
+         from sympy.tensor.array.expressions.from_indexed_to_array import convert_indexed_to_array
+         try:
+             return convert_indexed_to_array(indexed)
